@@ -1,0 +1,2268 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة طلبات الصيانة - Supabase Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5; --primary-light: #818cf8; --primary-dark: #3730a3;
+            --secondary: #06b6d4; --accent: #f59e0b; --success: #10b981;
+            --danger: #ef4444; --warning: #f59e0b; --info: #3b82f6;
+            --bg-gradient-1: #f0f9ff; --bg-gradient-2: #e0f2fe; --bg-gradient-3: #dbeafe;
+            --card-bg: rgba(255,255,255,0.95); --text-dark: #1e293b; --text-medium: #475569;
+            --text-light: #94a3b8; --border-color: #e2e8f0;
+            --shadow: 0 10px 40px rgba(79,70,229,0.12); --shadow-hover: 0 20px 60px rgba(79,70,229,0.2);
+            --radius: 16px; --radius-sm: 10px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 50%, var(--bg-gradient-3) 100%);
+            min-height: 100vh; color: var(--text-dark); overflow-x: hidden;
+        }
+        .bg-particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .particle { position: absolute; border-radius: 50%; opacity: 0.15; animation: float 20s infinite ease-in-out; }
+        .particle:nth-child(1) { width: 80px; height: 80px; background: var(--primary); top: 10%; left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { width: 120px; height: 120px; background: var(--secondary); top: 70%; left: 80%; animation-delay: 2s; }
+        .particle:nth-child(3) { width: 60px; height: 60px; background: var(--accent); top: 40%; left: 70%; animation-delay: 4s; }
+        .particle:nth-child(4) { width: 100px; height: 100px; background: var(--success); top: 80%; left: 20%; animation-delay: 6s; }
+        .particle:nth-child(5) { width: 50px; height: 50px; background: var(--danger); top: 20%; left: 60%; animation-delay: 8s; }
+        .particle:nth-child(6) { width: 90px; height: 90px; background: var(--primary-light); top: 50%; left: 30%; animation-delay: 10s; }
+        @keyframes float { 0%,100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-30px) rotate(90deg); } 50% { transform: translateY(0) rotate(180deg); } 75% { transform: translateY(30px) rotate(270deg); } }
+        .login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; position: relative; z-index: 1; }
+        .login-card { background: var(--card-bg); backdrop-filter: blur(20px); border-radius: var(--radius); padding: 50px 40px; width: 100%; max-width: 420px; box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.5); text-align: center; position: relative; overflow: hidden; }
+        .login-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent)); }
+        .login-icon { width: 90px; height: 90px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; box-shadow: 0 10px 30px rgba(79,70,229,0.3); }
+        .login-icon i { font-size: 40px; color: white; }
+        .login-card h1 { font-size: 28px; font-weight: 800; color: var(--text-dark); margin-bottom: 8px; }
+        .login-card .subtitle { color: var(--text-medium); font-size: 15px; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; text-align: right; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-dark); font-size: 14px; }
+        .input-wrapper { position: relative; }
+        .input-wrapper i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-light); font-size: 16px; }
+        .form-control { width: 100%; padding: 14px 45px 14px 15px; border: 2px solid var(--border-color); border-radius: var(--radius-sm); font-family: 'Tajawal', sans-serif; font-size: 15px; transition: all 0.3s ease; background: white; }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
+        .btn { padding: 14px 28px; border: none; border-radius: var(--radius-sm); font-family: 'Tajawal', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; width: 100%; justify-content: center; box-shadow: 0 4px 15px rgba(79,70,229,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(79,70,229,0.4); }
+        .btn-success { background: linear-gradient(135deg, var(--success), #059669); color: white; }
+        .btn-danger { background: linear-gradient(135deg, var(--danger), #dc2626); color: white; }
+        .btn-warning { background: linear-gradient(135deg, var(--warning), #d97706); color: white; }
+        .btn-info { background: linear-gradient(135deg, var(--info), #2563eb); color: white; }
+        .btn-secondary { background: linear-gradient(135deg, #64748b, #475569); color: white; }
+        .btn-sm { padding: 8px 16px; font-size: 13px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
+        .app-container { display: none; position: relative; z-index: 1; }
+        .sidebar { position: fixed; right: 0; top: 0; width: 280px; height: 100vh; background: linear-gradient(180deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%); padding: 25px 0; z-index: 1000; overflow-y: auto; box-shadow: 5px 0 30px rgba(0,0,0,0.2); }
+        .sidebar-header { text-align: center; padding: 0 20px 25px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-logo { width: 70px; height: 70px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; backdrop-filter: blur(10px); }
+        .sidebar-logo i { font-size: 32px; color: white; }
+        .sidebar-header h2 { color: white; font-size: 18px; font-weight: 700; }
+        .sidebar-header p { color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 5px; }
+        .nav-menu { padding: 20px 15px; }
+        .nav-item { display: flex; align-items: center; padding: 14px 18px; margin-bottom: 6px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.3s ease; color: rgba(255,255,255,0.7); text-decoration: none; }
+        .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); color: white; }
+        .nav-item i { font-size: 18px; width: 30px; margin-left: 12px; }
+        .nav-item span { font-size: 15px; font-weight: 600; }
+        .nav-badge { margin-right: auto; background: var(--accent); color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+        .sidebar-footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .user-info { display: flex; align-items: center; gap: 12px; color: white; }
+        .user-avatar { width: 45px; height: 45px; background: linear-gradient(135deg, var(--accent), #f97316); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; }
+        .user-details h4 { font-size: 14px; font-weight: 700; }
+        .user-details p { font-size: 11px; color: rgba(255,255,255,0.6); }
+        .logout-btn { margin-top: 15px; width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: var(--radius-sm); cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: 600; transition: all 0.3s; }
+        .logout-btn:hover { background: rgba(239,68,68,0.3); border-color: var(--danger); }
+        .main-content { margin-right: 280px; padding: 30px; min-height: 100vh; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-title { font-size: 28px; font-weight: 800; color: var(--text-dark); position: relative; display: inline-block; }
+        .page-title::after { content: ''; position: absolute; bottom: -8px; right: 0; width: 50px; height: 4px; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 2px; }
+        .page-actions { display: flex; gap: 10px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--card-bg); backdrop-filter: blur(10px); border-radius: var(--radius); padding: 25px; box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.5); transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); }
+        .stat-card::before { content: ''; position: absolute; top: 0; right: 0; width: 100%; height: 4px; }
+        .stat-card.primary::before { background: linear-gradient(90deg, var(--primary), var(--primary-light)); }
+        .stat-card.success::before { background: linear-gradient(90deg, var(--success), #34d399); }
+        .stat-card.warning::before { background: linear-gradient(90deg, var(--warning), #fbbf24); }
+        .stat-card.danger::before { background: linear-gradient(90deg, var(--danger), #f87171); }
+        .stat-card.info::before { background: linear-gradient(90deg, var(--info), #60a5fa); }
+        .stat-card.secondary::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+        .stat-icon { width: 55px; height: 55px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 15px; }
+        .stat-card.primary .stat-icon { background: rgba(79,70,229,0.1); color: var(--primary); }
+        .stat-card.success .stat-icon { background: rgba(16,185,129,0.1); color: var(--success); }
+        .stat-card.warning .stat-icon { background: rgba(245,158,11,0.1); color: var(--warning); }
+        .stat-card.danger .stat-icon { background: rgba(239,68,68,0.1); color: var(--danger); }
+        .stat-card.info .stat-icon { background: rgba(59,130,246,0.1); color: var(--info); }
+        .stat-card.secondary .stat-icon { background: rgba(139,92,246,0.1); color: #8b5cf6; }
+        .stat-value { font-size: 32px; font-weight: 800; color: var(--text-dark); margin-bottom: 5px; }
+        .stat-label { font-size: 14px; color: var(--text-medium); font-weight: 500; }
+        .card { background: var(--card-bg); backdrop-filter: blur(10px); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.5); margin-bottom: 25px; overflow: hidden; }
+        .card-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .card-header h3 { font-size: 18px; font-weight: 700; color: var(--text-dark); display: flex; align-items: center; gap: 10px; }
+        .card-header h3 i { color: var(--primary); }
+        .card-body { padding: 25px; }
+        .table-container { overflow-x: auto; border-radius: var(--radius-sm); }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); padding: 14px 16px; text-align: right; font-weight: 700; font-size: 13px; color: var(--text-dark); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-color); white-space: nowrap; }
+        .data-table td { padding: 14px 16px; border-bottom: 1px solid var(--border-color); font-size: 14px; color: var(--text-medium); }
+        .data-table tr:hover td { background: rgba(79,70,229,0.03); }
+        .data-table tr:last-child td { border-bottom: none; }
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-block; }
+        .badge-new { background: rgba(99,102,241,0.15); color: #4338ca; }
+        .badge-inprogress { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+        .badge-pending { background: rgba(245,158,11,0.15); color: #b45309; }
+        .badge-withdrawn { background: rgba(139,92,246,0.15); color: #7c3aed; }
+        .badge-active { background: rgba(6,182,212,0.15); color: #0e7490; }
+        .badge-completed { background: rgba(16,185,129,0.15); color: #047857; }
+        .badge-cancelled { background: rgba(239,68,68,0.15); color: #b91c1c; }
+        .badge-duplicate { background: rgba(236,72,153,0.15); color: #be185d; }
+        .action-btns { display: flex; gap: 5px; }
+        .action-btn { width: 34px; height: 34px; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-size: 13px; }
+        .action-btn.view { background: rgba(59,130,246,0.1); color: var(--info); }
+        .action-btn.edit { background: rgba(245,158,11,0.1); color: var(--warning); }
+        .action-btn.delete { background: rgba(239,68,68,0.1); color: var(--danger); }
+        .action-btn.print { background: rgba(16,185,129,0.1); color: var(--success); }
+        .action-btn.add { background: rgba(79,70,229,0.1); color: var(--primary); }
+        .action-btn:hover { transform: scale(1.1); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: var(--radius); width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.25); animation: modalSlide 0.3s ease; }
+        @keyframes modalSlide { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-header { padding: 25px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #f8fafc, #f1f5f9); }
+        .modal-header h3 { font-size: 20px; font-weight: 700; color: var(--text-dark); }
+        .modal-close { width: 36px; height: 36px; border: none; background: rgba(239,68,68,0.1); color: var(--danger); border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .modal-close:hover { background: var(--danger); color: white; }
+        .modal-body { padding: 25px; }
+        .modal-footer { padding: 20px 25px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px; background: #f8fafc; }
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .form-grid .form-group.full-width { grid-column: 1 / -1; }
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+        textarea.form-control { min-height: 100px; resize: vertical; }
+        select.form-control { cursor: pointer; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 25px; background: rgba(255,255,255,0.5); padding: 5px; border-radius: var(--radius-sm); }
+        .tab-btn { padding: 12px 24px; border: none; background: transparent; color: var(--text-medium); font-family: 'Tajawal', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 8px; transition: all 0.3s; position: relative; }
+        .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .tab-btn:hover:not(.active) { color: var(--text-dark); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .search-filter { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .search-box { flex: 1; min-width: 250px; position: relative; }
+        .search-box i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-light); }
+        .search-box input { width: 100%; padding: 12px 45px 12px 15px; border: 2px solid var(--border-color); border-radius: var(--radius-sm); font-family: 'Tajawal', sans-serif; font-size: 14px; }
+        .search-box input:focus { outline: none; border-color: var(--primary); }
+        .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .inventory-card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.5); transition: all 0.3s; position: relative; overflow: hidden; }
+        .inventory-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+        .inventory-card::before { content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 100%; }
+        .inventory-card.in-stock::before { background: var(--success); }
+        .inventory-card.low-stock::before { background: var(--warning); }
+        .inventory-card.out-stock::before { background: var(--danger); }
+        .inventory-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .inventory-card-title { font-size: 15px; font-weight: 700; color: var(--text-dark); }
+        .inventory-card-qty { font-size: 24px; font-weight: 800; }
+        .inventory-card.in-stock .inventory-card-qty { color: var(--success); }
+        .inventory-card.low-stock .inventory-card-qty { color: var(--warning); }
+        .inventory-card.out-stock .inventory-card-qty { color: var(--danger); }
+        .inventory-card-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 10px; }
+        .inventory-card-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+        .inventory-card.in-stock .inventory-card-bar-fill { background: var(--success); }
+        .inventory-card.low-stock .inventory-card-bar-fill { background: var(--warning); }
+        .inventory-card.out-stock .inventory-card-bar-fill { background: var(--danger); }
+        .device-tracker { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .device-card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.5); }
+        .device-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .device-card-title { font-size: 16px; font-weight: 700; color: var(--text-dark); }
+        .device-card-total { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: 700; }
+        .device-models-list { display: flex; flex-direction: column; gap: 10px; }
+        .device-model-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #f8fafc; border-radius: 8px; border-right: 3px solid var(--primary); cursor: pointer; transition: all 0.2s; }
+        .device-model-item:hover { background: #f1f5f9; }
+        .device-model-name { font-weight: 600; font-size: 14px; }
+        .device-model-status { display: flex; align-items: center; gap: 8px; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .status-dot.available { background: var(--success); }
+        .status-dot.unavailable { background: var(--danger); }
+        .toast-container { position: fixed; top: 20px; left: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: white; border-radius: var(--radius-sm); padding: 16px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; min-width: 300px; animation: toastSlide 0.3s ease; border-right: 4px solid; }
+        .toast.success { border-right-color: var(--success); }
+        .toast.error { border-right-color: var(--danger); }
+        .toast.warning { border-right-color: var(--warning); }
+        .toast.info { border-right-color: var(--info); }
+        @keyframes toastSlide { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
+        .toast-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .toast.success .toast-icon { background: rgba(16,185,129,0.1); color: var(--success); }
+        .toast.error .toast-icon { background: rgba(239,68,68,0.1); color: var(--danger); }
+        .toast.warning .toast-icon { background: rgba(245,158,11,0.1); color: var(--warning); }
+        .toast.info .toast-icon { background: rgba(59,130,246,0.1); color: var(--info); }
+        .toast-content h4 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+        .toast-content p { font-size: 13px; color: var(--text-medium); }
+        @media print { .sidebar, .page-actions, .action-btns, .btn, .no-print { display: none !important; } .main-content { margin-right: 0 !important; padding: 20px !important; } .card { box-shadow: none !important; border: 1px solid #ddd !important; } }
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+        .procedure-item { background: #f8fafc; border-radius: 10px; padding: 15px; margin-bottom: 10px; border-right: 3px solid var(--primary); }
+        .procedure-date { font-size: 12px; color: var(--text-light); margin-bottom: 5px; }
+        .procedure-text { font-size: 14px; color: var(--text-dark); line-height: 1.6; }
+        .file-upload-area { border: 2px dashed var(--border-color); border-radius: var(--radius); padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f8fafc; }
+        .file-upload-area:hover { border-color: var(--primary); background: rgba(79,70,229,0.03); }
+        .file-upload-area i { font-size: 48px; color: var(--primary-light); margin-bottom: 15px; }
+        .file-upload-area h4 { font-size: 16px; color: var(--text-dark); margin-bottom: 5px; }
+        .file-upload-area p { font-size: 13px; color: var(--text-light); }
+        @media (max-width: 1024px) { .sidebar { width: 240px; } .main-content { margin-right: 240px; } }
+        @media (max-width: 768px) { .sidebar { transform: translateX(100%); transition: transform 0.3s; } .sidebar.open { transform: translateX(0); } .main-content { margin-right: 0; } .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); z-index: 5000; justify-content: center; align-items: center; flex-direction: column; gap: 20px; }
+        .loading-overlay.active { display: flex; }
+        .spinner { width: 60px; height: 60px; border: 4px solid var(--border-color); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .empty-state { text-align: center; padding: 60px 20px; }
+        .empty-state i { font-size: 64px; color: var(--border-color); margin-bottom: 20px; }
+        .empty-state h3 { font-size: 20px; color: var(--text-dark); margin-bottom: 10px; }
+        .empty-state p { color: var(--text-light); font-size: 14px; }
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .admin-card { background: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.5); }
+        .admin-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .admin-card h4 i { color: var(--primary); }
+        .user-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8fafc; border-radius: 8px; margin-bottom: 8px; }
+        .user-list-info { display: flex; align-items: center; gap: 10px; }
+        .user-list-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px; }
+        .user-list-name { font-weight: 600; font-size: 14px; }
+        .user-list-role { font-size: 12px; color: var(--text-light); }
+        .danger-zone { border: 2px solid var(--danger); border-radius: var(--radius); padding: 20px; background: rgba(239,68,68,0.03); }
+        .danger-zone h4 { color: var(--danger); }
+        .danger-zone p { font-size: 13px; color: var(--text-medium); margin-bottom: 15px; }
+        .config-box { background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 2px solid var(--primary); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+        .config-box h4 { color: var(--primary); margin-bottom: 10px; }
+        .config-box code { background: #1e293b; color: #e2e8f0; padding: 2px 8px; border-radius: 4px; font-family: monospace; font-size: 13px; }
+        .sync-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .sync-status.online { background: rgba(16,185,129,0.15); color: #047857; }
+        .sync-status.offline { background: rgba(239,68,68,0.15); color: #b91c1c; }
+        .sync-status.syncing { background: rgba(245,158,11,0.15); color: #b45309; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p style="color: var(--text-medium); font-weight: 600;">جاري التحميل...</p>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- SUPABASE CONFIG SCREEN -->
+    <div class="login-container" id="configScreen">
+        <div class="login-card" style="max-width: 700px;">
+            <div class="login-icon">
+                <i class="fas fa-cloud"></i>
+            </div>
+            <h1>إعدادات الربط بالسيرفر</h1>
+            <p class="subtitle">Supabase Cloud Database</p>
+
+            <div class="config-box">
+                <h4><i class="fas fa-info-circle"></i> كيف تحصل على المفاتيح:</h4>
+                <p style="font-size: 13px; color: var(--text-medium); line-height: 1.8; margin-top: 8px;">
+                    1. ادخل على <a href="https://supabase.com" target="_blank" style="color: var(--primary);">supabase.com</a> وسوي حساب<br>
+                    2. أنشئ مشروع جديد<br>
+                    3. اذهب لـ Project Settings → API<br>
+                    4. انسخ Project URL و anon public key
+                </p>
+            </div>
+
+            <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: right;">
+                <h4 style="color: #92400e; margin-bottom: 10px; font-size: 15px;"><i class="fas fa-table"></i> أنواع البيانات المطلوبة للجداول:</h4>
+                <div style="font-size: 12px; color: #78350f; line-height: 2; max-height: 200px; overflow-y: auto;">
+                    <strong>users:</strong> id(int8), username(text), password(text), full_name(text), role(text), created_at(timestamptz)<br>
+                    <strong>requests:</strong> id(int8), request_number(text), computer_number(text), device_name(text), employee_name(text), department(text), status(text), issue_description(text), procedures(jsonb), created_at(timestamptz), updated_at(timestamptz), created_by(text)<br>
+                    <strong>inventory:</strong> id(int8), name(text), qty(int4), max_qty(int4)<br>
+                    <strong>transactions:</strong> id(int8), item_id(int8), item_name(text), qty(int4), employee(text), date(text), damaged(text), notes(text), user(text)<br>
+                    <strong>inventory_history:</strong> id(int8), item_id(int8), item_name(text), type(text), qty(int4), old_qty(int4), new_qty(int4), date(text), user(text)<br>
+                    <strong>alt_devices:</strong> id(int8), type(text), total_qty(int4)<br>
+                    <strong>alt_models:</strong> id(int8), type(text), model(text), serial(text), status(text), location(text), added_at(timestamptz), updated_at(timestamptz), assigned_to(text), assigned_date(text)<br>
+                    <strong>assignments:</strong> id(int8), device_type(text), model(text), model_id(int8), employee(text), location(text), assign_date(text), return_date(text), status(text)
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Project URL</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-link"></i>
+                    <input type="text" class="form-control" id="supabaseUrl" placeholder="https://xxxxx.supabase.co">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Anon Public Key</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-key"></i>
+                    <input type="text" class="form-control" id="supabaseKey" placeholder="eyJhbGciOiJIUzI1NiIs...">
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="saveSupabaseConfig()" style="margin-top: 10px;">
+                <i class="fas fa-save"></i>
+                حفظ الإعدادات والدخول
+            </button>
+
+            <button class="btn btn-secondary" onclick="useLocalMode()" style="margin-top: 10px; width: 100%; background: transparent; color: var(--text-medium); border: 2px solid var(--border-color);">
+                <i class="fas fa-hdd"></i>
+                الاستمرار بدون سيرفر (محلي)
+            </button>
+            <button class="btn btn-secondary" onclick="resetConfig()" style="margin-top: 10px; width: 100%; background: transparent; color: var(--danger); border: 2px solid var(--danger);">
+                <i class="fas fa-redo"></i>
+                إعادة ضبط الإعدادات
+            </button>
+        </div>
+    </div>
+
+    <div class="login-container" id="loginScreen" style="display:none;">
+        <div class="login-card">
+            <div class="login-icon">
+                <i class="fas fa-tools"></i>
+            </div>
+            <h1>نظام إدارة الصيانة</h1>
+            <p class="subtitle">Maintenance Management System</p>
+            <div style="margin-bottom: 15px;">
+                <span class="sync-status online" id="connectionStatus"><i class="fas fa-wifi"></i> متصل بالسيرفر</span>
+            </div>
+            <div class="form-group">
+                <label>اسم المستخدم</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-user"></i>
+                    <input type="text" class="form-control" id="loginUsername" placeholder="أدخل اسم المستخدم">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" class="form-control" id="loginPassword" placeholder="أدخل كلمة المرور">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="handleLogin()" style="margin-top: 10px;">
+                <i class="fas fa-sign-in-alt"></i>
+                تسجيل الدخول
+            </button>
+            <button class="btn btn-success" onclick="bypassLogin()" style="margin-top: 10px; width: 100%;">
+                <i class="fas fa-bolt"></i>
+                دخول سريع (بدون بيانات)
+            </button>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                <p style="font-size: 12px; color: var(--text-light); margin-bottom: 10px;">
+                    <i class="fas fa-info-circle"></i> 
+                    اسم المستخدم: <code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">admin</code> / 
+                    كلمة المرور: <code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">admin</code>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container" id="appContainer">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <h2>نظام الصيانة</h2>
+                <p>Maintenance System</p>
+            </div>
+            <nav class="nav-menu">
+                <a class="nav-item active" onclick="showPage('dashboard')">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a class="nav-item" onclick="showPage('requests')">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>طلبات الصيانة</span>
+                    <span class="nav-badge" id="requestsBadge">0</span>
+                </a>
+                <a class="nav-item" onclick="showPage('inventory')">
+                    <i class="fas fa-boxes"></i>
+                    <span>قطع الغيار</span>
+                </a>
+                <a class="nav-item" onclick="showPage('alternatives')">
+                    <i class="fas fa-laptop"></i>
+                    <span>الأجهزة البديلة</span>
+                </a>
+                <a class="nav-item" onclick="showPage('import')">
+                    <i class="fas fa-file-import"></i>
+                    <span>استيراد الطلبات</span>
+                </a>
+                <a class="nav-item admin-only" onclick="showPage('admin')" style="display:none;">
+                    <i class="fas fa-cog"></i>
+                    <span>إدارة النظام</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div class="user-details">
+                        <h4 id="userName">أحمد رحيل</h4>
+                        <p id="userRole">مدير النظام</p>
+                    </div>
+                </div>
+                <div style="margin-top: 10px; text-align: center;">
+                    <span class="sync-status online" id="sidebarSyncStatus" style="font-size: 11px;"><i class="fas fa-wifi"></i> متصل</span>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="page-section active" id="page-dashboard">
+                <div class="page-header">
+                    <h1 class="page-title">لوحة التحكم</h1>
+                    <div class="page-actions no-print">
+                        <span class="sync-status online" id="dashboardSyncStatus"><i class="fas fa-wifi"></i> متصل بالسيرفر</span>
+                        <button class="btn btn-primary btn-sm" onclick="printPage()">
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card primary">
+                        <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+                        <div class="stat-value" id="statTotalRequests">0</div>
+                        <div class="stat-label">إجمالي الطلبات</div>
+                    </div>
+                    <div class="stat-card" style="border-top: 4px solid #6366f1;">
+                        <div class="stat-icon" style="background: rgba(99,102,241,0.1); color: #6366f1;"><i class="fas fa-star"></i></div>
+                        <div class="stat-value" id="statNew">0</div>
+                        <div class="stat-label">جديد</div>
+                    </div>
+                    <div class="stat-card info">
+                        <div class="stat-icon"><i class="fas fa-spinner"></i></div>
+                        <div class="stat-value" id="statInProgress">0</div>
+                        <div class="stat-label">قيد التنفيذ</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                        <div class="stat-value" id="statPending">0</div>
+                        <div class="stat-label">قيد الانتظار</div>
+                    </div>
+                    <div class="stat-card" style="border-top: 4px solid #8b5cf6;">
+                        <div class="stat-icon" style="background: rgba(139,92,246,0.1); color: #8b5cf6;"><i class="fas fa-hand-paper"></i></div>
+                        <div class="stat-value" id="statWithdrawn">0</div>
+                        <div class="stat-label">مسحوب</div>
+                    </div>
+                    <div class="stat-card" style="border-top: 4px solid #06b6d4;">
+                        <div class="stat-icon" style="background: rgba(6,182,212,0.1); color: #06b6d4;"><i class="fas fa-play-circle"></i></div>
+                        <div class="stat-value" id="statActive">0</div>
+                        <div class="stat-label">مشغل</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-value" id="statCompleted">0</div>
+                        <div class="stat-label">مكتمل</div>
+                    </div>
+                    <div class="stat-card danger">
+                        <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+                        <div class="stat-value" id="statCancelled">0</div>
+                        <div class="stat-label">ملغي</div>
+                    </div>
+                    <div class="stat-card" style="border-top: 4px solid #ec4899;">
+                        <div class="stat-icon" style="background: rgba(236,72,153,0.1); color: #ec4899;"><i class="fas fa-clone"></i></div>
+                        <div class="stat-value" id="statDuplicate">0</div>
+                        <div class="stat-label">مكرر</div>
+                    </div>
+                    <div class="stat-card" style="border-top: 4px solid #f97316;">
+                        <div class="stat-icon" style="background: rgba(249,115,22,0.1); color: #f97316;"><i class="fas fa-box"></i></div>
+                        <div class="stat-value" id="statOutOfStock">0</div>
+                        <div class="stat-label">قطع نفدت</div>
+                    </div>
+                    <div class="stat-card secondary">
+                        <div class="stat-icon"><i class="fas fa-laptop"></i></div>
+                        <div class="stat-value" id="statAltAvailable">0</div>
+                        <div class="stat-label">أجهزة بديلة متاحة</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history"></i> طلبات الصيانة النشطة <span style="font-size: 12px; color: var(--text-light);">(مخفية: مكتمل، ملغي، مكرر)</span></h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="data-table" id="dashboardRequestsTable">
+                                <thead>
+                                    <tr><th>رقم الطلب</th><th>الرقم الحاسوبي</th><th>الجهاز</th><th>الحالة</th><th>التاريخ</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-section" id="page-requests">
+                <div class="page-header">
+                    <h1 class="page-title">طلبات الصيانة</h1>
+                    <div class="page-actions no-print">
+                        <button class="btn btn-success btn-sm" onclick="openRequestModal()">
+                            <i class="fas fa-plus"></i> طلب جديد
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="printRequests()">
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                    </div>
+                </div>
+                <div class="search-filter no-print">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="requestSearch" placeholder="بحث في الطلبات..." onkeyup="filterRequests()">
+                    </div>
+                    <select class="form-control" id="requestStatusFilter" onchange="filterRequests()" style="width: 180px;">
+                        <option value="">جميع الحالات</option>
+                        <option value="new">جديد</option>
+                        <option value="inprogress">قيد التنفيذ</option>
+                        <option value="pending">قيد الانتظار</option>
+                        <option value="withdrawn">مسحوب</option>
+                        <option value="active">مشغل</option>
+                        <option value="completed">مكتمل</option>
+                        <option value="cancelled">ملغي</option>
+                        <option value="duplicate">مكرر</option>
+                    </select>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="data-table" id="requestsTable">
+                                <thead>
+                                    <tr><th>رقم الطلب</th><th>الرقم الحاسوبي</th><th>الجهاز</th><th>الموظف</th><th>القسم</th><th>الحالة</th><th>تاريخ الطلب</th><th class="no-print">إجراءات</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-section" id="page-inventory">
+                <div class="page-header">
+                    <h1 class="page-title">قطع الغيار والمستلزمات</h1>
+                    <div class="page-actions no-print">
+                        <button class="btn btn-success btn-sm" onclick="openInventoryModal()">
+                            <i class="fas fa-plus"></i> صرف قطعة
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="printInventory()">
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                    </div>
+                </div>
+                <div class="tabs no-print">
+                    <button class="tab-btn active" onclick="showInventoryTab('stock')">المخزون</button>
+                    <button class="tab-btn" onclick="showInventoryTab('transactions')">الحركات</button>
+                    <button class="tab-btn" onclick="showInventoryTab('history')">سجل الصرف</button>
+                </div>
+                <div class="tab-content active" id="tab-stock">
+                    <div class="inventory-grid" id="inventoryGrid"></div>
+                </div>
+                <div class="tab-content" id="tab-transactions">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="data-table" id="transactionsTable">
+                                    <thead>
+                                        <tr><th>المادة</th><th>الكمية</th><th>الموظف</th><th>التاريخ</th><th>التالف</th><th>ملاحظات</th></tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="tab-history">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="data-table" id="historyTable">
+                                    <thead>
+                                        <tr><th>المادة</th><th>نوع العملية</th><th>الكمية</th><th>الرصيد السابق</th><th>الرصيد الجديد</th><th>التاريخ</th><th>المستخدم</th></tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-section" id="page-alternatives">
+                <div class="page-header">
+                    <h1 class="page-title">الأجهزة البديلة</h1>
+                    <div class="page-actions no-print">
+                        <button class="btn btn-success btn-sm" onclick="openAltModal()">
+                            <i class="fas fa-plus"></i> إضافة موديل
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="openAssignModal()">
+                            <i class="fas fa-hand-holding"></i> تسليم جهاز
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="printAlternatives()">
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                    </div>
+                </div>
+                <div class="tabs no-print">
+                    <button class="tab-btn active" onclick="showAltTab('summary')">ملخص الكميات</button>
+                    <button class="tab-btn" onclick="showAltTab('tracking')">التتبع الفردي</button>
+                    <button class="tab-btn" onclick="showAltTab('assignments')">التسليمات</button>
+                </div>
+                <div class="tab-content active" id="tab-summary">
+                    <div class="inventory-grid" id="altSummaryGrid"></div>
+                </div>
+                <div class="tab-content" id="tab-tracking">
+                    <div class="device-tracker" id="altTrackingGrid"></div>
+                </div>
+                <div class="tab-content" id="tab-assignments">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="data-table" id="assignmentsTable">
+                                    <thead>
+                                        <tr><th>المادة</th><th>الموديل</th><th>الموظف</th><th>الموقع</th><th>تاريخ التسليم</th><th>تاريخ الاسترجاع</th><th>الحالة</th><th class="no-print">إجراءات</th></tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-section" id="page-import">
+                <div class="page-header">
+                    <h1 class="page-title">استيراد الطلبات</h1>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-file-import"></i> استيراد من ملف</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="file-upload-area" onclick="document.getElementById('importFile').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <h4>اسحب الملف هنا أو انقر للاختيار</h4>
+                            <p>يدعم ملفات CSV, JSON, TXT</p>
+                            <input type="file" id="importFile" style="display:none;" accept=".csv,.json,.txt" onchange="handleFileImport(this)">
+                        </div>
+                        <div style="margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 10px;">
+                            <h4 style="margin-bottom: 10px; font-size: 14px;"><i class="fas fa-info-circle" style="color: var(--info);"></i> تنسيق الملف المتوقع:</h4>
+                            <p style="font-size: 13px; color: var(--text-medium); line-height: 1.8;">
+                                CSV: device,employee,department,issue,status<br>
+                                JSON: [{"device":"...", "employee":"...", "department":"...", "issue":"...", "status":"pending"}]
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h3><i class="fas fa-globe"></i> استيراد من موقع ويب</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label>رابط الموقع أو API</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-link"></i>
+                                    <input type="text" class="form-control" id="webImportUrl" placeholder="https://example.com/api/requests">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>طريقة الطلب</label>
+                                <select class="form-control" id="webImportMethod">
+                                    <option value="GET">GET</option>
+                                    <option value="POST">POST</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>تنسيق البيانات</label>
+                                <select class="form-control" id="webImportFormat">
+                                    <option value="json">JSON</option>
+                                    <option value="csv">CSV</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px; text-align: left;">
+                            <button class="btn btn-primary" onclick="importFromWeb()">
+                                <i class="fas fa-download"></i> استيراد
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-section" id="page-admin">
+                <div class="page-header">
+                    <h1 class="page-title">إدارة النظام</h1>
+                </div>
+                <div class="admin-grid">
+                    <div class="admin-card">
+                        <h4><i class="fas fa-users"></i> إدارة المستخدمين</h4>
+                        <div id="usersList"></div>
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>اسم المستخدم</label>
+                                    <input type="text" class="form-control" id="newUsername" placeholder="اسم المستخدم">
+                                </div>
+                                <div class="form-group">
+                                    <label>كلمة المرور</label>
+                                    <input type="password" class="form-control" id="newPassword" placeholder="كلمة المرور">
+                                </div>
+                                <div class="form-group">
+                                    <label>الاسم الكامل</label>
+                                    <input type="text" class="form-control" id="newFullName" placeholder="الاسم الكامل">
+                                </div>
+                                <div class="form-group">
+                                    <label>الصلاحية</label>
+                                    <select class="form-control" id="newRole">
+                                        <option value="user">مستخدم</option>
+                                        <option value="admin">مدير</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="btn btn-success btn-sm" style="margin-top: 15px;" onclick="addUser()">
+                                <i class="fas fa-plus"></i> إضافة مستخدم
+                            </button>
+                        </div>
+                    </div>
+                    <div class="admin-card danger-zone">
+                        <h4><i class="fas fa-exclamation-triangle"></i> منطقة الخطر</h4>
+                        <p>تنبيه: هذه الإجراءات لا يمكن التراجع عنها!</p>
+                        <button class="btn btn-danger" onclick="resetAllData()">
+                            <i class="fas fa-trash-alt"></i> مسح جميع البيانات
+                        </button>
+                        <button class="btn btn-warning" style="margin-top: 10px;" onclick="resetUsers()">
+                            <i class="fas fa-user-times"></i> إعادة تعيين المستخدمين
+                        </button>
+                    </div>
+                    <div class="admin-card">
+                        <h4><i class="fas fa-database"></i> النسخ الاحتياطي</h4>
+                        <p style="font-size: 13px; color: var(--text-medium); margin-bottom: 15px;">قم بتصدير أو استيراد جميع بيانات النظام</p>
+                        <button class="btn btn-primary" onclick="exportAllData()" style="margin-bottom: 10px; width: 100%;">
+                            <i class="fas fa-download"></i> تصدير البيانات
+                        </button>
+                        <div class="file-upload-area" onclick="document.getElementById('backupImportFile').click()" style="padding: 20px;">
+                            <i class="fas fa-upload" style="font-size: 28px; margin-bottom: 8px;"></i>
+                            <h4 style="font-size: 14px;">استيراد نسخة احتياطية</h4>
+                            <p style="font-size: 11px;">JSON فقط</p>
+                            <input type="file" id="backupImportFile" style="display:none;" accept=".json" onchange="importBackup(this)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="requestModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="requestModalTitle">طلب صيانة جديد</h3>
+                <button class="modal-close" onclick="closeModal('requestModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="requestForm">
+                    <input type="hidden" id="requestId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>رقم الطلب <span style="color: var(--text-light);">(تلقائي)</span></label>
+                            <input type="text" class="form-control" id="requestNumber" readonly style="background: #f8fafc;">
+                        </div>
+                        <div class="form-group">
+                            <label>الرقم الحاسوبي <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="computerNumber" placeholder="أدخل الرقم الحاسوبي" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الجهاز / المعدات <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="deviceName" placeholder="اسم الجهاز" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الموظف <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="employeeName" placeholder="اسم الموظف" required>
+                        </div>
+                        <div class="form-group">
+                            <label>القسم <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="department" placeholder="القسم" required>
+                        </div>
+                        <div class="form-group">
+                            <label>حالة الطلب</label>
+                            <select class="form-control" id="requestStatus">
+                                <option value="new">جديد</option>
+                                <option value="inprogress">قيد التنفيذ</option>
+                                <option value="pending">قيد الانتظار</option>
+                                <option value="withdrawn">مسحوب</option>
+                                <option value="active">مشغل</option>
+                                <option value="completed">مكتمل</option>
+                                <option value="cancelled">ملغي</option>
+                                <option value="duplicate">مكرر</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>وصف المشكلة</label>
+                            <textarea class="form-control" id="issueDescription" placeholder="وصف المشكلة بالتفصيل..."></textarea>
+                        </div>
+                    </div>
+                    <div style="margin-top: 25px;">
+                        <h4 style="font-size: 16px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-clipboard-check" style="color: var(--primary);"></i>
+                            الإجراءات الفنية
+                        </h4>
+                        <div id="proceduresList"></div>
+                        <div class="form-grid" style="margin-top: 15px;">
+                            <div class="form-group">
+                                <label>تاريخ الإجراء</label>
+                                <input type="date" class="form-control" id="procedureDate">
+                            </div>
+                            <div class="form-group">
+                                <label>الإجراء</label>
+                                <input type="text" class="form-control" id="procedureText" placeholder="وصف الإجراء الفني">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm" style="margin-top: 10px;" onclick="addProcedure()">
+                            <i class="fas fa-plus"></i> إضافة إجراء
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('requestModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveRequest()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="inventoryModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>صرف قطعة غيار</h3>
+                <button class="modal-close" onclick="closeModal('inventoryModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>المادة</label>
+                        <select class="form-control" id="invItemSelect" onchange="updateInvQty()">
+                            <option value="">اختر المادة</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>الكمية المتاحة</label>
+                        <input type="text" class="form-control" id="invAvailableQty" readonly style="background: #f8fafc;">
+                    </div>
+                    <div class="form-group">
+                        <label>الكمية المطلوبة</label>
+                        <input type="number" class="form-control" id="invQty" min="1" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label>الموظف</label>
+                        <input type="text" class="form-control" id="invEmployee" placeholder="اسم الموظف">
+                    </div>
+                    <div class="form-group">
+                        <label>تاريخ الصرف</label>
+                        <input type="date" class="form-control" id="invDate">
+                    </div>
+                    <div class="form-group">
+                        <label>التالف</label>
+                        <select class="form-control" id="invDamaged">
+                            <option value="no">لا</option>
+                            <option value="yes">نعم</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>ملاحظات</label>
+                        <textarea class="form-control" id="invNotes" placeholder="ملاحظات إضافية..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('inventoryModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveInventoryTransaction()">
+                    <i class="fas fa-save"></i> صرف
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="altModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>إضافة موديل جديد</h3>
+                <button class="modal-close" onclick="closeModal('altModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>نوع الجهاز</label>
+                        <select class="form-control" id="altTypeSelect">
+                            <option value="">اختر نوع الجهاز</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>الموديل</label>
+                        <input type="text" class="form-control" id="altModel" placeholder="اسم/رقم الموديل">
+                    </div>
+                    <div class="form-group">
+                        <label>الرقم التسلسلي</label>
+                        <input type="text" class="form-control" id="altSerial" placeholder="الرقم التسلسلي">
+                    </div>
+                    <div class="form-group">
+                        <label>الحالة</label>
+                        <select class="form-control" id="altStatus">
+                            <option value="available">متاح</option>
+                            <option value="unavailable">غير متاح</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>الموقع / المكان</label>
+                        <input type="text" class="form-control" id="altLocation" placeholder="مكان الجهاز (مثال: المستودع، قسم IT...)">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('altModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveAltModel()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="assignModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>تسليم جهاز بديل</h3>
+                <button class="modal-close" onclick="closeModal('assignModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>الجهاز</label>
+                        <select class="form-control" id="assignDevice" onchange="updateAssignModels()">
+                            <option value="">اختر الجهاز</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>الموديل</label>
+                        <select class="form-control" id="assignModel">
+                            <option value="">اختر الموديل</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>الموظف</label>
+                        <input type="text" class="form-control" id="assignEmployee" placeholder="اسم الموظف">
+                    </div>
+                    <div class="form-group">
+                        <label>الموقع</label>
+                        <input type="text" class="form-control" id="assignLocation" placeholder="مكان الجهاز">
+                    </div>
+                    <div class="form-group">
+                        <label>تاريخ التسليم</label>
+                        <input type="date" class="form-control" id="assignDate">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('assignModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveAssignment()">
+                    <i class="fas fa-save"></i> تسليم
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+// ==================== CONFIG ====================
+let SUPABASE_URL = localStorage.getItem('supabase_url') || '';
+let SUPABASE_KEY = localStorage.getItem('supabase_key') || '';
+let USE_LOCAL = localStorage.getItem('use_local') === 'true' || (!SUPABASE_URL && !SUPABASE_KEY);
+
+// ==================== SUPABASE API HELPER ====================
+const SupabaseAPI = {
+    async request(table, method = 'GET', data = null, id = null) {
+        if (USE_LOCAL) return LocalDB.request(table, method, data, id);
+
+        let url = `${SUPABASE_URL}/rest/v1/${table}`;
+        if (id) url += `?id=eq.${id}`;
+        else if (method === 'GET') url += '?select=*&order=id.desc';
+
+        const options = {
+            method,
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': method === 'POST' ? 'return=representation' : 'return=representation'
+            }
+        };
+        if (data && (method === 'POST' || method === 'PATCH')) {
+            options.body = JSON.stringify(data);
+        }
+
+        try {
+            const res = await fetch(url, options);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return await res.json();
+        } catch (err) {
+            console.error('Supabase error:', err);
+            showToast('error', 'خطأ في الاتصال', 'فشل الاتصال بالسيرفر، سيتم الانتقال للوضع المحلي');
+            USE_LOCAL = true;
+            return LocalDB.request(table, method, data, id);
+        }
+    }
+};
+
+// ==================== LOCAL DB FALLBACK ====================
+const LocalDB = {
+    request(table, method, data, id) {
+        const key = 'local_' + table;
+        let items = JSON.parse(localStorage.getItem(key) || '[]');
+
+        if (method === 'GET') return Promise.resolve(items);
+        if (method === 'POST') {
+            const newItem = { ...data, id: Date.now() };
+            items.push(newItem);
+            localStorage.setItem(key, JSON.stringify(items));
+            return Promise.resolve([newItem]);
+        }
+        if (method === 'PATCH' && id) {
+            const idx = items.findIndex(i => i.id === id);
+            if (idx !== -1) { items[idx] = { ...items[idx], ...data }; localStorage.setItem(key, JSON.stringify(items)); }
+            return Promise.resolve([items[idx]]);
+        }
+        if (method === 'DELETE' && id) {
+            items = items.filter(i => i.id !== id);
+            localStorage.setItem(key, JSON.stringify(items));
+            return Promise.resolve([]);
+        }
+        return Promise.resolve(items);
+    },
+    init() {
+        // Always ensure admin user exists
+        let users = JSON.parse(localStorage.getItem('local_users') || '[]');
+        const adminExists = users.some(u => u.username === 'admin');
+
+        if (!adminExists) {
+            users.push({ id: 1, username: 'admin', password: 'admin', fullName: 'أحمد رحيل', role: 'admin', created_at: new Date().toISOString() });
+            localStorage.setItem('local_users', JSON.stringify(users));
+        }
+        if (!localStorage.getItem('local_inventory')) {
+            localStorage.setItem('local_inventory', JSON.stringify([
+                { id: 1, name: 'Power Supply', qty: 30, max_qty: 30 },
+                { id: 2, name: 'CPU Fan + معجونة تبريد', qty: 15, max_qty: 15 },
+                { id: 3, name: 'H.D.D 1TB', qty: 10, max_qty: 10 },
+                { id: 4, name: 'H.D.D 500GB', qty: 10, max_qty: 10 },
+                { id: 5, name: 'H.D.D 160 GB', qty: 5, max_qty: 5 },
+                { id: 6, name: 'SSD 256GB', qty: 0, max_qty: 10 },
+                { id: 7, name: 'SSD 512 GB', qty: 0, max_qty: 10 },
+                { id: 8, name: 'SSD 1TB', qty: 0, max_qty: 10 },
+                { id: 9, name: 'Keyboard USB', qty: 50, max_qty: 50 },
+                { id: 10, name: 'Mouse Optical USB', qty: 50, max_qty: 50 },
+                { id: 11, name: 'CIMOS Batteries', qty: 100, max_qty: 100 },
+                { id: 12, name: 'VGA Card >= 2GB', qty: 5, max_qty: 5 },
+                { id: 13, name: 'Ethernet Card 10.100.1000', qty: 5, max_qty: 5 },
+                { id: 14, name: 'Parallel Card', qty: 5, max_qty: 5 },
+                { id: 15, name: 'VGA cable (1.5m)', qty: 20, max_qty: 20 },
+                { id: 16, name: 'HDMI cable (1.5m)', qty: 20, max_qty: 20 },
+                { id: 17, name: 'Display Port cable (1.5m)', qty: 5, max_qty: 5 },
+                { id: 18, name: 'SATA cable', qty: 10, max_qty: 10 },
+                { id: 19, name: 'USB 2.0 Printer Cable A-B', qty: 20, max_qty: 20 },
+                { id: 20, name: 'VGA Y splitter cable', qty: 5, max_qty: 5 },
+                { id: 21, name: 'HDMI to VGA converter', qty: 10, max_qty: 10 },
+                { id: 22, name: 'RJ45 to USB adapter', qty: 5, max_qty: 5 }
+            ]));
+        }
+        if (!localStorage.getItem('local_alt_devices')) {
+            localStorage.setItem('local_alt_devices', JSON.stringify([
+                { id: 1, type: 'PC (Desktop) Core i5 or above', total_qty: 5 },
+                { id: 2, type: 'Notebook Core i5 or above', total_qty: 5 },
+                { id: 3, type: 'LaserJet Printer', total_qty: 5 },
+                { id: 4, type: 'Laser Color Printer', total_qty: 1 },
+                { id: 5, type: 'All in One Laser Printer', total_qty: 1 },
+                { id: 6, type: 'Data show With HDMI ports', total_qty: 3 },
+                { id: 7, type: 'Data show Supported WiFi with Wi Fi Dongle', total_qty: 2 },
+                { id: 8, type: 'Laptop Chargers Universal', total_qty: 5 },
+                { id: 9, type: 'Monitor LED =<20"', total_qty: 5 },
+                { id: 10, type: 'External Supper DVD', total_qty: 1 },
+                { id: 11, type: 'Air Vacuum Hoover', total_qty: 2 }
+            ]));
+        }
+    }
+};
+
+let currentUser = null;
+let editingRequestId = null;
+let tempProcedures = [];
+
+// ==================== CONFIG SCREEN ====================
+function resetConfig() {
+    if (confirm('هل أنت متأكد من إعادة ضبط الإعدادات؟')) {
+        localStorage.removeItem('supabase_url');
+        localStorage.removeItem('supabase_key');
+        localStorage.removeItem('use_local');
+        SUPABASE_URL = '';
+        SUPABASE_KEY = '';
+        USE_LOCAL = true;
+        document.getElementById('supabaseUrl').value = '';
+        document.getElementById('supabaseKey').value = '';
+        showToast('info', 'تم', 'تم إعادة ضبط الإعدادات');
+    }
+}
+
+function saveSupabaseConfig() {
+    const url = document.getElementById('supabaseUrl').value.trim();
+    const key = document.getElementById('supabaseKey').value.trim();
+
+    if (!url || !key) {
+        showToast('error', 'خطأ', 'الرجاء ملء جميع الحقول');
+        return;
+    }
+
+    SUPABASE_URL = url;
+    SUPABASE_KEY = key;
+    USE_LOCAL = false;
+    localStorage.setItem('supabase_url', url);
+    localStorage.setItem('supabase_key', key);
+    localStorage.setItem('use_local', 'false');
+
+    // Hide config, show login
+    document.getElementById('configScreen').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+
+    updateConnectionStatus();
+    showToast('success', 'تم', 'تم حفظ الإعدادات');
+}
+
+function useLocalMode() {
+    USE_LOCAL = true;
+    localStorage.setItem('use_local', 'true');
+
+    // Hide config, show login
+    document.getElementById('configScreen').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+
+    updateConnectionStatus();
+    showToast('info', 'وضع محلي', 'تم الانتقال للوضع المحلي');
+}
+
+function updateConnectionStatus() {
+    const status = USE_LOCAL ? 
+        '<i class="fas fa-hdd"></i> وضع محلي' : 
+        '<i class="fas fa-wifi"></i> متصل بالسيرفر';
+    const className = USE_LOCAL ? 'offline' : 'online';
+
+    document.getElementById('connectionStatus').className = 'sync-status ' + className;
+    document.getElementById('connectionStatus').innerHTML = status;
+
+    const sidebarStatus = document.getElementById('sidebarSyncStatus');
+    if (sidebarStatus) {
+        sidebarStatus.className = 'sync-status ' + className;
+        sidebarStatus.innerHTML = status;
+    }
+
+    const dashStatus = document.getElementById('dashboardSyncStatus');
+    if (dashStatus) {
+        dashStatus.className = 'sync-status ' + className;
+        dashStatus.innerHTML = status;
+    }
+}
+
+// ==================== AUTH ====================
+function resetUsersAndReload() {
+    if (confirm('هل أنت متأكد من إعادة إنشاء المستخدم الافتراضي؟')) {
+        localStorage.removeItem('local_users');
+        ensureDefaultUser();
+        showToast('success', 'تم', 'تم إعادة إنشاء المستخدم الافتراضي. جرب تسجيل الدخول الآن.');
+    }
+}
+
+function bypassLogin() {
+    currentUser = {
+        id: 1,
+        username: 'admin',
+        password: 'admin',
+        fullName: 'أحمد رحيل',
+        full_name: 'أحمد رحيل',
+        role: 'admin'
+    };
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appContainer').style.display = 'block';
+    document.getElementById('userName').textContent = 'أحمد رحيل';
+    document.getElementById('userAvatar').textContent = 'أ';
+    document.getElementById('userRole').textContent = 'مدير النظام';
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+    showToast('success', 'مرحباً', 'تم تسجيل الدخول بنجاح');
+    updateDashboard();
+    loadRequests();
+    loadInventory();
+    loadAlternatives();
+}
+
+async function handleLogin() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    if (!username || !password) {
+        showToast('error', 'خطأ', 'الرجاء إدخال اسم المستخدم وكلمة المرور');
+        return;
+    }
+
+    // DIRECT LOGIN - Hardcoded admin credentials as fallback
+    let user = null;
+
+    // First try: check local database
+    try {
+        const users = await SupabaseAPI.request('users', 'GET');
+        console.log('DB Users:', users);
+        user = users.find(u => u.username === username && u.password === password);
+    } catch (e) {
+        console.log('DB check failed, using direct login');
+    }
+
+    // Second try: direct hardcoded credentials (always works)
+    if (!user && username === 'admin' && password === 'admin') {
+        user = {
+            id: 1,
+            username: 'admin',
+            password: 'admin',
+            fullName: 'أحمد رحيل',
+            full_name: 'أحمد رحيل',
+            role: 'admin'
+        };
+        console.log('Using hardcoded admin login');
+    }
+
+    if (user) {
+        currentUser = user;
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'block';
+        document.getElementById('userName').textContent = user.full_name || user.fullName || user.username;
+        document.getElementById('userAvatar').textContent = (user.full_name || user.fullName || user.username).charAt(0);
+        document.getElementById('userRole').textContent = user.role === 'admin' ? 'مدير النظام' : 'مستخدم';
+
+        if (user.role === 'admin') {
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+        }
+
+        showToast('success', 'مرحباً', 'تم تسجيل الدخول بنجاح');
+        await updateDashboard();
+        await loadRequests();
+        await loadInventory();
+        await loadAlternatives();
+    } else {
+        showToast('error', 'خطأ', 'اسم المستخدم أو كلمة المرور غير صحيحة');
+    }
+}
+
+function ensureDefaultUser() {
+    const key = 'local_users';
+    let users = JSON.parse(localStorage.getItem(key) || '[]');
+
+    // Check if admin user exists
+    const adminExists = users.some(u => u.username === 'admin');
+
+    if (!adminExists) {
+        users.push({
+            id: 1,
+            username: 'admin',
+            password: 'admin',
+            fullName: 'أحمد رحيل',
+            role: 'admin',
+            created_at: new Date().toISOString()
+        });
+        localStorage.setItem(key, JSON.stringify(users));
+        console.log('Default admin user created');
+    }
+}
+
+function handleLogout() {
+    currentUser = null;
+    document.getElementById('appContainer').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('loginUsername').value = '';
+    document.getElementById('loginPassword').value = '';
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+    showToast('info', 'تسجيل خروج', 'تم تسجيل الخروج بنجاح');
+}
+
+// ==================== NAVIGATION ====================
+async function showPage(page) {
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    event.currentTarget.classList.add('active');
+
+    if (page === 'dashboard') await updateDashboard();
+    if (page === 'requests') await loadRequests();
+    if (page === 'inventory') { await loadInventory(); setTimeout(checkLowStock, 500); }
+    if (page === 'alternatives') await loadAlternatives();
+    if (page === 'admin') await loadUsers();
+}
+
+// ==================== TOAST ====================
+function showToast(type, title, message) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    const icon = type === 'success' ? 'check' : type === 'error' ? 'times' : type === 'warning' ? 'exclamation' : 'info';
+    toast.innerHTML = `
+        <div class="toast-icon"><i class="fas fa-${icon}"></i></div>
+        <div class="toast-content"><h4>${title}</h4><p>${message}</p></div>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
+
+// ==================== MODALS ====================
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+// ==================== REQUESTS ====================
+async function openRequestModal(requestId) {
+    editingRequestId = requestId || null;
+    tempProcedures = [];
+    document.getElementById('requestModalTitle').textContent = requestId ? 'تعديل طلب صيانة' : 'طلب صيانة جديد';
+    document.getElementById('proceduresList').innerHTML = '';
+
+    if (requestId) {
+        const requests = await SupabaseAPI.request('requests', 'GET');
+        const req = requests.find(r => r.id === requestId);
+        if (req) {
+            document.getElementById('requestId').value = req.id;
+            document.getElementById('requestNumber').value = req.request_number || req.requestNumber;
+            document.getElementById('computerNumber').value = req.computer_number || req.computerNumber;
+            document.getElementById('deviceName').value = req.device_name || req.deviceName;
+            document.getElementById('employeeName').value = req.employee_name || req.employeeName;
+            document.getElementById('department').value = req.department;
+            document.getElementById('requestStatus').value = req.status;
+            document.getElementById('issueDescription').value = req.issue_description || req.issueDescription || '';
+            tempProcedures = req.procedures || [];
+            renderProcedures();
+        }
+    } else {
+        document.getElementById('requestForm').reset();
+        document.getElementById('requestNumber').value = await generateRequestNumber();
+        document.getElementById('requestId').value = '';
+    }
+    openModal('requestModal');
+}
+
+async function generateRequestNumber() {
+    const requests = await SupabaseAPI.request('requests', 'GET');
+    const maxNum = requests.reduce((max, r) => {
+        const num = parseInt(r.request_number || r.requestNumber || '0');
+        return num > max ? num : max;
+    }, 0);
+    return String(maxNum + 1).padStart(4, '0');
+}
+
+function addProcedure() {
+    const date = document.getElementById('procedureDate').value;
+    const text = document.getElementById('procedureText').value.trim();
+    if (!date || !text) { showToast('warning', 'تنبيه', 'الرجاء إدخال التاريخ والإجراء'); return; }
+    tempProcedures.push({ id: Date.now(), date, text });
+    document.getElementById('procedureDate').value = '';
+    document.getElementById('procedureText').value = '';
+    renderProcedures();
+    showToast('success', 'تم', 'تم إضافة الإجراء');
+}
+
+function renderProcedures() {
+    const container = document.getElementById('proceduresList');
+    container.innerHTML = tempProcedures.map(p => `
+        <div class="procedure-item">
+            <div class="procedure-date"><i class="fas fa-calendar-alt"></i> ${p.date}</div>
+            <div class="procedure-text">${p.text}</div>
+        </div>
+    `).join('');
+}
+
+async function saveRequest() {
+    const computerNumber = document.getElementById('computerNumber').value.trim();
+    const deviceName = document.getElementById('deviceName').value.trim();
+    const employeeName = document.getElementById('employeeName').value.trim();
+    const department = document.getElementById('department').value.trim();
+
+    if (!computerNumber || !deviceName || !employeeName || !department) {
+        showToast('error', 'خطأ', 'الرجاء ملء جميع الحقول المطلوبة');
+        return;
+    }
+
+    const requestData = {
+        request_number: document.getElementById('requestNumber').value,
+        computer_number: computerNumber,
+        device_name: deviceName,
+        employee_name: employeeName,
+        department,
+        status: document.getElementById('requestStatus').value,
+        issue_description: document.getElementById('issueDescription').value,
+        procedures: tempProcedures,
+        updated_at: new Date().toISOString(),
+        created_by: currentUser?.full_name || currentUser?.fullName || 'System'
+    };
+
+    if (editingRequestId) {
+        await SupabaseAPI.request('requests', 'PATCH', requestData, editingRequestId);
+    } else {
+        requestData.created_at = new Date().toISOString();
+        await SupabaseAPI.request('requests', 'POST', requestData);
+    }
+
+    closeModal('requestModal');
+    await loadRequests();
+    await updateDashboard();
+    showToast('success', 'تم الحفظ', editingRequestId ? 'تم تحديث الطلب بنجاح' : 'تم إضافة الطلب بنجاح');
+}
+
+async function loadRequests() {
+    const requests = await SupabaseAPI.request('requests', 'GET');
+    const tbody = document.querySelector('#requestsTable tbody');
+    const search = document.getElementById('requestSearch')?.value?.toLowerCase() || '';
+    const statusFilter = document.getElementById('requestStatusFilter')?.value || '';
+
+    let filtered = requests;
+    if (search) {
+        filtered = filtered.filter(r => 
+            (r.request_number || r.requestNumber || '').includes(search) ||
+            (r.computer_number || r.computerNumber || '').toLowerCase().includes(search) ||
+            (r.device_name || r.deviceName || '').toLowerCase().includes(search) ||
+            (r.employee_name || r.employeeName || '').toLowerCase().includes(search) ||
+            (r.department || '').toLowerCase().includes(search)
+        );
+    }
+    if (statusFilter) filtered = filtered.filter(r => r.status === statusFilter);
+
+    tbody.innerHTML = filtered.sort((a, b) => (b.id || 0) - (a.id || 0)).map(r => `
+        <tr>
+            <td><strong>#${r.request_number || r.requestNumber}</strong></td>
+            <td>${r.computer_number || r.computerNumber}</td>
+            <td>${r.device_name || r.deviceName}</td>
+            <td>${r.employee_name || r.employeeName}</td>
+            <td>${r.department}</td>
+            <td><span class="badge badge-${r.status}">${getStatusLabel(r.status)}</span></td>
+            <td>${formatDate(r.created_at || r.createdAt)}</td>
+            <td class="no-print">
+                <div class="action-btns">
+                    <button class="action-btn view" onclick="viewRequest(${r.id})" title="عرض"><i class="fas fa-eye"></i></button>
+                    <button class="action-btn edit" onclick="openRequestModal(${r.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn print" onclick="printRequest(${r.id})" title="طباعة"><i class="fas fa-print"></i></button>
+                    <button class="action-btn delete" onclick="deleteRequest(${r.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    document.getElementById('requestsBadge').textContent = requests.length;
+}
+
+function filterRequests() { loadRequests(); }
+
+function getStatusLabel(status) {
+    const labels = { new: 'جديد', inprogress: 'قيد التنفيذ', pending: 'قيد الانتظار', withdrawn: 'مسحوب', active: 'مشغل', completed: 'مكتمل', cancelled: 'ملغي', duplicate: 'مكرر' };
+    return labels[status] || status;
+}
+
+async function viewRequest(id) {
+    const requests = await SupabaseAPI.request('requests', 'GET');
+    const req = requests.find(r => r.id === id);
+    if (!req) return;
+
+    const proceduresHtml = (req.procedures || []).length > 0 
+        ? req.procedures.map(p => `<div class="procedure-item"><div class="procedure-date">${p.date}</div><div class="procedure-text">${p.text}</div></div>`).join('')
+        : '<p style="color: var(--text-light);">لا توجد إجراءات مسجلة</p>';
+
+    const modalHtml = `
+        <div class="modal-overlay active" id="viewModal">
+            <div class="modal" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h3>تفاصيل الطلب #${req.request_number || req.requestNumber}</h3>
+                    <button class="modal-close" onclick="document.getElementById('viewModal').remove()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div><strong>الرقم الحاسوبي:</strong> ${req.computer_number || req.computerNumber}</div>
+                        <div><strong>الجهاز:</strong> ${req.device_name || req.deviceName}</div>
+                        <div><strong>الموظف:</strong> ${req.employee_name || req.employeeName}</div>
+                        <div><strong>القسم:</strong> ${req.department}</div>
+                        <div><strong>الحالة:</strong> <span class="badge badge-${req.status}">${getStatusLabel(req.status)}</span></div>
+                        <div><strong>التاريخ:</strong> ${formatDate(req.created_at || req.createdAt)}</div>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <strong>وصف المشكلة:</strong>
+                        <p style="margin-top: 8px; padding: 12px; background: #f8fafc; border-radius: 8px;">${req.issue_description || req.issueDescription || 'لا يوجد وصف'}</p>
+                    </div>
+                    <div>
+                        <strong>الإجراءات الفنية:</strong>
+                        <div style="margin-top: 10px;">${proceduresHtml}</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="printRequest(${req.id}); document.getElementById('viewModal').remove();">
+                        <i class="fas fa-print"></i> طباعة
+                    </button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('viewModal').remove()">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+async function deleteRequest(id) {
+    if (!confirm('هل أنت متأكد من حذف هذا الطلب؟')) return;
+    await SupabaseAPI.request('requests', 'DELETE', null, id);
+    await loadRequests();
+    await updateDashboard();
+    showToast('success', 'تم الحذف', 'تم حذف الطلب بنجاح');
+}
+
+function printRequest(id) {
+    window.print();
+}
+
+function printRequests() { window.print(); }
+
+// ==================== INVENTORY ====================
+async function loadInventory() {
+    const inventory = await SupabaseAPI.request('inventory', 'GET');
+    const grid = document.getElementById('inventoryGrid');
+
+    grid.innerHTML = inventory.map(item => {
+        const maxQty = item.max_qty || item.maxQty || 1;
+        const qty = item.qty || 0;
+        const percentage = maxQty > 0 ? (qty / maxQty) * 100 : 0;
+        const statusClass = qty === 0 ? 'out-stock' : qty <= 3 ? 'low-stock' : 'in-stock';
+        return `
+            <div class="inventory-card ${statusClass}">
+                <div class="inventory-card-header">
+                    <div class="inventory-card-title">${item.name}</div>
+                    <div class="inventory-card-qty">${qty}</div>
+                </div>
+                <div style="font-size: 12px; color: var(--text-light);">الحد الأقصى: ${maxQty}</div>
+                <div class="inventory-card-bar">
+                    <div class="inventory-card-bar-fill" style="width: ${percentage}%"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    const transactions = await SupabaseAPI.request('transactions', 'GET');
+    const transTbody = document.querySelector('#transactionsTable tbody');
+    transTbody.innerHTML = transactions.sort((a, b) => (b.id || 0) - (a.id || 0)).map(t => `
+        <tr>
+            <td>${t.item_name || t.itemName}</td>
+            <td>${t.qty}</td>
+            <td>${t.employee}</td>
+            <td>${t.date}</td>
+            <td>${t.damaged === 'yes' ? '<span class="badge badge-cancelled">نعم</span>' : '<span class="badge badge-completed">لا</span>'}</td>
+            <td>${t.notes || '-'}</td>
+        </tr>
+    `).join('');
+
+    const history = await SupabaseAPI.request('inventory_history', 'GET');
+    const histTbody = document.querySelector('#historyTable tbody');
+    histTbody.innerHTML = history.sort((a, b) => (b.id || 0) - (a.id || 0)).map(h => `
+        <tr>
+            <td>${h.item_name || h.itemName}</td>
+            <td><span class="badge badge-${h.type === 'out' ? 'danger' : 'success'}">${h.type === 'out' ? 'صرف' : 'إضافة'}</span></td>
+            <td>${h.qty}</td>
+            <td>${h.old_qty || h.oldQty}</td>
+            <td>${h.new_qty || h.newQty}</td>
+            <td>${h.date}</td>
+            <td>${h.user}</td>
+        </tr>
+    `).join('');
+
+    const select = document.getElementById('invItemSelect');
+    if (select) {
+        select.innerHTML = '<option value="">اختر المادة</option>' + 
+            inventory.filter(i => (i.qty || 0) > 0).map(i => `<option value="${i.id}">${i.name} (${i.qty} متاح)</option>`).join('');
+    }
+}
+
+function updateInvQty() {
+    const itemId = parseInt(document.getElementById('invItemSelect').value);
+    SupabaseAPI.request('inventory', 'GET').then(inventory => {
+        const item = inventory.find(i => i.id === itemId);
+        document.getElementById('invAvailableQty').value = item ? item.qty : '';
+    });
+}
+
+function openInventoryModal() {
+    document.getElementById('invItemSelect').value = '';
+    document.getElementById('invAvailableQty').value = '';
+    document.getElementById('invQty').value = '1';
+    document.getElementById('invEmployee').value = '';
+    document.getElementById('invDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('invDamaged').value = 'no';
+    document.getElementById('invNotes').value = '';
+    openModal('inventoryModal');
+}
+
+async function saveInventoryTransaction() {
+    const itemId = parseInt(document.getElementById('invItemSelect').value);
+    const qty = parseInt(document.getElementById('invQty').value);
+    const employee = document.getElementById('invEmployee').value.trim();
+    const date = document.getElementById('invDate').value;
+
+    if (!itemId || !qty || qty < 1 || !employee || !date) {
+        showToast('error', 'خطأ', 'الرجاء ملء جميع الحقول');
+        return;
+    }
+
+    const inventory = await SupabaseAPI.request('inventory', 'GET');
+    const item = inventory.find(i => i.id === itemId);
+
+    if (!item || (item.qty || 0) < qty) {
+        showToast('error', 'خطأ', 'الكمية المطلوبة غير متوفرة');
+        return;
+    }
+
+    const oldQty = item.qty || 0;
+    const newQty = oldQty - qty;
+
+    await SupabaseAPI.request('inventory', 'PATCH', { qty: newQty }, itemId);
+
+    await SupabaseAPI.request('transactions', 'POST', {
+        item_id: itemId,
+        item_name: item.name,
+        qty,
+        employee,
+        date,
+        damaged: document.getElementById('invDamaged').value,
+        notes: document.getElementById('invNotes').value,
+        user: currentUser?.full_name || currentUser?.fullName || 'System'
+    });
+
+    await SupabaseAPI.request('inventory_history', 'POST', {
+        item_id: itemId,
+        item_name: item.name,
+        type: 'out',
+        qty,
+        old_qty: oldQty,
+        new_qty: newQty,
+        date,
+        user: currentUser?.full_name || currentUser?.fullName || 'System'
+    });
+
+    closeModal('inventoryModal');
+    await loadInventory();
+    await updateDashboard();
+    showToast('success', 'تم الصرف', `تم صرف ${qty} من ${item.name}`);
+}
+
+function showInventoryTab(tab) {
+    document.querySelectorAll('#page-inventory .tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#page-inventory .tab-content').forEach(c => c.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function checkLowStock() {
+    SupabaseAPI.request('inventory', 'GET').then(inventory => {
+        const lowStock = inventory.filter(i => (i.qty || 0) > 0 && (i.qty || 0) <= 3);
+        const outOfStock = inventory.filter(i => (i.qty || 0) === 0);
+        if (outOfStock.length > 0) showToast('error', 'تنبيه نفاد المخزون', `${outOfStock.length} مواد نفدت من المخزون!`);
+        if (lowStock.length > 0) showToast('warning', 'تنبيه مخزون منخفض', `${lowStock.length} مواد على وشك النفاد`);
+    });
+}
+
+function printInventory() { window.print(); }
+
+// ==================== ALTERNATIVES ====================
+async function loadAlternatives() {
+    const altDevices = await SupabaseAPI.request('alt_devices', 'GET');
+    const altModels = await SupabaseAPI.request('alt_models', 'GET');
+    const assignments = await SupabaseAPI.request('assignments', 'GET');
+
+    const summaryGrid = document.getElementById('altSummaryGrid');
+    summaryGrid.innerHTML = altDevices.map(dev => {
+        const models = altModels.filter(m => m.type === dev.type);
+        const available = models.filter(m => m.status === 'available').length;
+        const total = models.length;
+        const totalQty = dev.total_qty || dev.totalQty || 1;
+        const percentage = totalQty > 0 ? (total / totalQty) * 100 : 0;
+        const statusClass = total === 0 ? 'out-stock' : total <= 2 ? 'low-stock' : 'in-stock';
+        return `
+            <div class="inventory-card ${statusClass}">
+                <div class="inventory-card-header">
+                    <div class="inventory-card-title">${dev.type}</div>
+                    <div class="inventory-card-qty">${total}/${totalQty}</div>
+                </div>
+                <div style="font-size: 12px; color: var(--text-light);">متاح: ${available} | الكل: ${total}</div>
+                <div class="inventory-card-bar">
+                    <div class="inventory-card-bar-fill" style="width: ${percentage}%"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    const trackingGrid = document.getElementById('altTrackingGrid');
+    trackingGrid.innerHTML = altDevices.map(dev => {
+        const models = altModels.filter(m => m.type === dev.type);
+        return `
+            <div class="device-card">
+                <div class="device-card-header">
+                    <div class="device-card-title">${dev.type}</div>
+                    <div class="device-card-total">${models.length}/${dev.total_qty || dev.totalQty}</div>
+                </div>
+                <div class="device-models-list">
+                    ${models.length > 0 ? models.map(m => `
+                        <div class="device-model-item" onclick="editAltModel(${m.id})">
+                            <div>
+                                <div class="device-model-name">${m.model}</div>
+                                <div style="font-size: 11px; color: var(--text-light);">SN: ${m.serial || 'بدون رقم'} | ${m.location || 'غير محدد'}</div>
+                            </div>
+                            <div class="device-model-status">
+                                <span class="status-dot ${m.status === 'available' ? 'available' : 'unavailable'}"></span>
+                                <span style="font-size: 12px;">${m.status === 'available' ? 'متاح' : 'غير متاح'}</span>
+                                <button class="action-btn delete" onclick="event.stopPropagation(); deleteAltModel(${m.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `).join('') : '<p style="color: var(--text-light); text-align: center;">لا توجد موديلات مسجلة</p>'}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    const assignTbody = document.querySelector('#assignmentsTable tbody');
+    assignTbody.innerHTML = assignments.sort((a, b) => (b.id || 0) - (a.id || 0)).map(a => `
+        <tr>
+            <td>${a.device_type || a.deviceType}</td>
+            <td>${a.model}</td>
+            <td>${a.employee}</td>
+            <td>${a.location}</td>
+            <td>${a.assign_date || a.assignDate}</td>
+            <td>${a.return_date || a.returnDate || '-'}</td>
+            <td><span class="badge badge-${a.status === 'active' ? 'inprogress' : 'completed'}">${a.status === 'active' ? 'مسلم' : 'مسترجع'}</span></td>
+            <td class="no-print">
+                <div class="action-btns">
+                    ${a.status === 'active' ? `<button class="action-btn view" onclick="returnAssignment(${a.id})" title="استرجاع"><i class="fas fa-undo"></i></button>` : ''}
+                    <button class="action-btn delete" onclick="deleteAssignment(${a.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    const typeSelect = document.getElementById('altTypeSelect');
+    if (typeSelect) {
+        typeSelect.innerHTML = '<option value="">اختر نوع الجهاز</option>' + 
+            altDevices.map(d => `<option value="${d.type}">${d.type}</option>`).join('');
+    }
+
+    const assignDevice = document.getElementById('assignDevice');
+    if (assignDevice) {
+        assignDevice.innerHTML = '<option value="">اختر الجهاز</option>' + 
+            altDevices.map(d => `<option value="${d.type}">${d.type}</option>`).join('');
+    }
+}
+
+function updateAssignModels() {
+    const deviceType = document.getElementById('assignDevice').value;
+    SupabaseAPI.request('alt_models', 'GET').then(altModels => {
+        const models = altModels.filter(m => m.type === deviceType && m.status === 'available');
+        const select = document.getElementById('assignModel');
+        select.innerHTML = '<option value="">اختر الموديل</option>' + 
+            models.map(m => `<option value="${m.id}">${m.model} (${m.serial || 'بدون رقم'})</option>`).join('');
+    });
+}
+
+function openAltModal() {
+    document.getElementById('altTypeSelect').value = '';
+    document.getElementById('altModel').value = '';
+    document.getElementById('altSerial').value = '';
+    document.getElementById('altStatus').value = 'available';
+    document.getElementById('altLocation').value = '';
+    openModal('altModal');
+}
+
+async function saveAltModel() {
+    const type = document.getElementById('altTypeSelect').value;
+    const model = document.getElementById('altModel').value.trim();
+    const serial = document.getElementById('altSerial').value.trim();
+    const status = document.getElementById('altStatus').value;
+    const location = document.getElementById('altLocation').value.trim();
+
+    if (!type || !model) { showToast('error', 'خطأ', 'الرجاء ملء جميع الحقول المطلوبة'); return; }
+
+    const altModels = await SupabaseAPI.request('alt_models', 'GET');
+    const altDevices = await SupabaseAPI.request('alt_devices', 'GET');
+    const device = altDevices.find(d => d.type === type);
+    const currentCount = altModels.filter(m => m.type === type).length;
+
+    if (device && currentCount >= (device.total_qty || device.totalQty)) {
+        showToast('warning', 'تنبيه', 'لقد وصلت للحد الأقصى لهذا النوع');
+        return;
+    }
+
+    await SupabaseAPI.request('alt_models', 'POST', {
+        type, model, serial, status,
+        location: location || 'المستودع',
+        added_at: new Date().toISOString()
+    });
+
+    closeModal('altModal');
+    await loadAlternatives();
+    await updateDashboard();
+    showToast('success', 'تم', 'تم إضافة الموديل بنجاح');
+}
+
+async function editAltModel(id) {
+    const altModels = await SupabaseAPI.request('alt_models', 'GET');
+    const model = altModels.find(m => m.id === id);
+    if (!model) return;
+
+    const newStatus = prompt(`تعديل حالة: ${model.model}\nالحالة الحالية: ${model.status === 'available' ? 'متاح' : 'غير متاح'}\n\nاختر الحالة الجديدة:\n1 - متاح\n2 - غير متاح\n\nأو اضغط إلغاء للخروج`, model.status === 'available' ? '1' : '2');
+    if (newStatus === null) return;
+
+    const newLocation = prompt(`موقع الجهاز الحالي: ${model.location || 'غير محدد'}\n\nأدخل الموقع الجديد (اتركه فارغاً للإبقاء على الحالي):`, model.location || '');
+
+    const updates = {};
+    if (newStatus === '1') updates.status = 'available';
+    else if (newStatus === '2') updates.status = 'unavailable';
+    if (newLocation !== null) updates.location = newLocation.trim() || model.location;
+    updates.updated_at = new Date().toISOString();
+
+    await SupabaseAPI.request('alt_models', 'PATCH', updates, id);
+    await loadAlternatives();
+    await updateDashboard();
+    showToast('success', 'تم التحديث', 'تم تحديث بيانات الجهاز');
+}
+
+async function deleteAltModel(id) {
+    if (!confirm('هل أنت متأكد من حذف هذا الموديل؟')) return;
+    await SupabaseAPI.request('alt_models', 'DELETE', null, id);
+    await loadAlternatives();
+    await updateDashboard();
+    showToast('success', 'تم الحذف', 'تم حذف الموديل');
+}
+
+function showAltTab(tab) {
+    document.querySelectorAll('#page-alternatives .tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#page-alternatives .tab-content').forEach(c => c.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function openAssignModal() {
+    document.getElementById('assignDevice').value = '';
+    document.getElementById('assignModel').innerHTML = '<option value="">اختر الموديل</option>';
+    document.getElementById('assignEmployee').value = '';
+    document.getElementById('assignLocation').value = '';
+    document.getElementById('assignDate').value = new Date().toISOString().split('T')[0];
+    openModal('assignModal');
+}
+
+async function saveAssignment() {
+    const modelId = parseInt(document.getElementById('assignModel').value);
+    const employee = document.getElementById('assignEmployee').value.trim();
+    const location = document.getElementById('assignLocation').value.trim();
+    const date = document.getElementById('assignDate').value;
+
+    if (!modelId || !employee || !date) { showToast('error', 'خطأ', 'الرجاء ملء جميع الحقول المطلوبة'); return; }
+
+    const altModels = await SupabaseAPI.request('alt_models', 'GET');
+    const model = altModels.find(m => m.id === modelId);
+    if (!model) return;
+
+    await SupabaseAPI.request('alt_models', 'PATCH', {
+        status: 'unavailable',
+        location: location || 'غير محدد',
+        assigned_to: employee,
+        assigned_date: date
+    }, modelId);
+
+    await SupabaseAPI.request('assignments', 'POST', {
+        device_type: model.type,
+        model: model.model,
+        model_id: modelId,
+        employee,
+        location: location || 'غير محدد',
+        assign_date: date,
+        return_date: null,
+        status: 'active'
+    });
+
+    closeModal('assignModal');
+    await loadAlternatives();
+    await updateDashboard();
+    showToast('success', 'تم التسليم', `تم تسليم ${model.model} إلى ${employee}`);
+}
+
+async function returnAssignment(id) {
+    const assignments = await SupabaseAPI.request('assignments', 'GET');
+    const assignment = assignments.find(a => a.id === id);
+    if (!assignment) return;
+
+    await SupabaseAPI.request('assignments', 'PATCH', {
+        return_date: new Date().toISOString().split('T')[0],
+        status: 'returned'
+    }, id);
+
+    await SupabaseAPI.request('alt_models', 'PATCH', {
+        status: 'available',
+        location: 'المستودع',
+        assigned_to: null
+    }, assignment.model_id || assignment.modelId);
+
+    await loadAlternatives();
+    await updateDashboard();
+    showToast('success', 'تم الاسترجاع', 'تم استرجاع الجهاز بنجاح');
+}
+
+async function deleteAssignment(id) {
+    if (!confirm('هل أنت متأكد من حذف هذا التسليم؟')) return;
+    const assignments = await SupabaseAPI.request('assignments', 'GET');
+    const assignment = assignments.find(a => a.id === id);
+
+    if (assignment && assignment.status === 'active') {
+        await SupabaseAPI.request('alt_models', 'PATCH', {
+            status: 'available',
+            location: 'المستودع',
+            assigned_to: null
+        }, assignment.model_id || assignment.modelId);
+    }
+
+    await SupabaseAPI.request('assignments', 'DELETE', null, id);
+    await loadAlternatives();
+    await updateDashboard();
+    showToast('success', 'تم الحذف', 'تم حذف التسليم');
+}
+
+function printAlternatives() { window.print(); }
+
+// ==================== IMPORT ====================
+function handleFileImport(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        let imported = [];
+
+        if (file.name.endsWith('.json')) {
+            try { imported = JSON.parse(content); } catch { showToast('error', 'خطأ', 'ملف JSON غير صالح'); return; }
+        } else if (file.name.endsWith('.csv')) {
+            const lines = content.split('\n').filter(l => l.trim());
+            const headers = lines[0].split(',').map(h => h.trim());
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',').map(v => v.trim());
+                const obj = {}; headers.forEach((h, idx) => obj[h] = values[idx] || '');
+                imported.push(obj);
+            }
+        } else { showToast('error', 'خطأ', 'صيغة الملف غير مدعومة'); return; }
+
+        processImportedRequests(imported);
+    };
+    reader.readAsText(file);
+}
+
+function importFromWeb() {
+    const url = document.getElementById('webImportUrl').value.trim();
+    if (!url) { showToast('error', 'خطأ', 'الرجاء إدخال الرابط'); return; }
+
+    showToast('info', 'جاري الاستيراد', 'جاري جلب البيانات من الموقع...');
+    fetch(url).then(r => r.json()).then(data => {
+        const requests = Array.isArray(data) ? data : (data.requests || data.data || []);
+        processImportedRequests(requests);
+    }).catch(err => showToast('error', 'خطأ', 'فشل الاستيراد: ' + err.message));
+}
+
+async function processImportedRequests(data) {
+    let count = 0;
+    for (const item of data) {
+        if (item.device || item.deviceName) {
+            await SupabaseAPI.request('requests', 'POST', {
+                request_number: await generateRequestNumber(),
+                computer_number: item.computerNumber || item.computer || 'N/A',
+                device_name: item.device || item.deviceName || 'غير محدد',
+                employee_name: item.employee || item.employeeName || 'غير محدد',
+                department: item.department || 'غير محدد',
+                status: item.status || 'new',
+                issue_description: item.issue || item.issueDescription || '',
+                procedures: [],
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                created_by: currentUser?.full_name || currentUser?.fullName || 'Import',
+                imported: true
+            });
+            count++;
+        }
+    }
+    showToast('success', 'تم الاستيراد', `تم استيراد ${count} طلب بنجاح`);
+    await updateDashboard();
+    await loadRequests();
+}
+
+// ==================== ADMIN ====================
+async function loadUsers() {
+    const users = await SupabaseAPI.request('users', 'GET');
+    const container = document.getElementById('usersList');
+    container.innerHTML = users.map(u => `
+        <div class="user-list-item">
+            <div class="user-list-info">
+                <div class="user-list-avatar">${(u.full_name || u.fullName).charAt(0)}</div>
+                <div>
+                    <div class="user-list-name">${u.full_name || u.fullName} (${u.username})</div>
+                    <div class="user-list-role">${u.role === 'admin' ? 'مدير' : 'مستخدم'}</div>
+                </div>
+            </div>
+            ${u.username !== 'admin' ? `<button class="action-btn delete" onclick="deleteUser(${u.id})" title="حذف"><i class="fas fa-trash"></i></button>` : ''}
+        </div>
+    `).join('');
+}
+
+async function addUser() {
+    const username = document.getElementById('newUsername').value.trim();
+    const password = document.getElementById('newPassword').value;
+    const fullName = document.getElementById('newFullName').value.trim();
+    const role = document.getElementById('newRole').value;
+
+    if (!username || !password || !fullName) { showToast('error', 'خطأ', 'الرجاء ملء جميع الحقول'); return; }
+
+    const users = await SupabaseAPI.request('users', 'GET');
+    if (users.find(u => u.username === username)) { showToast('error', 'خطأ', 'اسم المستخدم موجود مسبقاً'); return; }
+
+    await SupabaseAPI.request('users', 'POST', {
+        username, password, full_name: fullName, role,
+        created_at: new Date().toISOString()
+    });
+
+    document.getElementById('newUsername').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('newFullName').value = '';
+    await loadUsers();
+    showToast('success', 'تم', 'تم إضافة المستخدم بنجاح');
+}
+
+async function deleteUser(id) {
+    if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
+    await SupabaseAPI.request('users', 'DELETE', null, id);
+    await loadUsers();
+    showToast('success', 'تم الحذف', 'تم حذف المستخدم');
+}
+
+async function resetAllData() {
+    if (!confirm('تحذير: سيتم مسح جميع البيانات! هل أنت متأكد؟')) return;
+    if (!confirm('هل أنت متأكد تماماً؟ لا يمكن التراجع عن هذا الإجراء!')) return;
+
+    const tables = ['requests', 'transactions', 'inventory_history', 'alt_models', 'assignments'];
+    for (const table of tables) {
+        const items = await SupabaseAPI.request(table, 'GET');
+        for (const item of items) {
+            await SupabaseAPI.request(table, 'DELETE', null, item.id);
+        }
+    }
+
+    const inventory = await SupabaseAPI.request('inventory', 'GET');
+    const defaults = [
+        { name: 'Power Supply', qty: 30, max_qty: 30 },
+        { name: 'CPU Fan + معجونة تبريد', qty: 15, max_qty: 15 },
+        { name: 'H.D.D 1TB', qty: 10, max_qty: 10 },
+        { name: 'H.D.D 500GB', qty: 10, max_qty: 10 },
+        { name: 'H.D.D 160 GB', qty: 5, max_qty: 5 },
+        { name: 'SSD 256GB', qty: 0, max_qty: 10 },
+        { name: 'SSD 512 GB', qty: 0, max_qty: 10 },
+        { name: 'SSD 1TB', qty: 0, max_qty: 10 },
+        { name: 'Keyboard USB', qty: 50, max_qty: 50 },
+        { name: 'Mouse Optical USB', qty: 50, max_qty: 50 },
+        { name: 'CIMOS Batteries', qty: 100, max_qty: 100 },
+        { name: 'VGA Card >= 2GB', qty: 5, max_qty: 5 },
+        { name: 'Ethernet Card 10.100.1000', qty: 5, max_qty: 5 },
+        { name: 'Parallel Card', qty: 5, max_qty: 5 },
+        { name: 'VGA cable (1.5m)', qty: 20, max_qty: 20 },
+        { name: 'HDMI cable (1.5m)', qty: 20, max_qty: 20 },
+        { name: 'Display Port cable (1.5m)', qty: 5, max_qty: 5 },
+        { name: 'SATA cable', qty: 10, max_qty: 10 },
+        { name: 'USB 2.0 Printer Cable A-B', qty: 20, max_qty: 20 },
+        { name: 'VGA Y splitter cable', qty: 5, max_qty: 5 },
+        { name: 'HDMI to VGA converter', qty: 10, max_qty: 10 },
+        { name: 'RJ45 to USB adapter', qty: 5, max_qty: 5 }
+    ];
+
+    for (const item of inventory) {
+        await SupabaseAPI.request('inventory', 'DELETE', null, item.id);
+    }
+    for (const item of defaults) {
+        await SupabaseAPI.request('inventory', 'POST', item);
+    }
+
+    await updateDashboard();
+    await loadRequests();
+    await loadInventory();
+    await loadAlternatives();
+    showToast('success', 'تم', 'تم إعادة ضبط جميع البيانات');
+}
+
+async function resetUsers() {
+    if (!confirm('هل أنت متأكد من إعادة تعيين المستخدمين؟')) return;
+    const users = await SupabaseAPI.request('users', 'GET');
+    for (const u of users) { if (u.username !== 'admin') await SupabaseAPI.request('users', 'DELETE', null, u.id); }
+    await loadUsers();
+    showToast('success', 'تم', 'تم إعادة تعيين المستخدمين');
+}
+
+function exportAllData() {
+    Promise.all([
+        SupabaseAPI.request('requests', 'GET'),
+        SupabaseAPI.request('inventory', 'GET'),
+        SupabaseAPI.request('transactions', 'GET'),
+        SupabaseAPI.request('inventory_history', 'GET'),
+        SupabaseAPI.request('alt_devices', 'GET'),
+        SupabaseAPI.request('alt_models', 'GET'),
+        SupabaseAPI.request('assignments', 'GET'),
+        SupabaseAPI.request('users', 'GET')
+    ]).then(([requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users]) => {
+        const data = { requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users, exportDate: new Date().toISOString() };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `backup_${new Date().toISOString().split('T')[0]}.json`; a.click();
+        URL.revokeObjectURL(url);
+        showToast('success', 'تم التصدير', 'تم تصدير البيانات بنجاح');
+    });
+}
+
+function importBackup(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (!file.name.endsWith('.json')) { showToast('error', 'خطأ', 'الرجاء اختيار ملف JSON فقط'); input.value = ''; return; }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (!data.requests || !data.inventory) { showToast('error', 'خطأ', 'ملف النسخة الاحتياطية غير صالح'); input.value = ''; return; }
+            if (!confirm('تحذير: سيتم استبدال جميع البيانات الحالية بالبيانات المستوردة!\n\nهل أنت متأكد من المتابعة؟')) { input.value = ''; return; }
+
+            const importTable = async (table, items) => {
+                const existing = await SupabaseAPI.request(table, 'GET');
+                for (const item of existing) await SupabaseAPI.request(table, 'DELETE', null, item.id);
+                for (const item of items) {
+                    const clean = { ...item };
+                    delete clean.id;
+                    await SupabaseAPI.request(table, 'POST', clean);
+                }
+            };
+
+            Promise.all([
+                importTable('requests', data.requests || []),
+                importTable('inventory', data.inventory || []),
+                importTable('transactions', data.transactions || []),
+                importTable('inventory_history', data.inventoryHistory || []),
+                importTable('alt_devices', data.altDevices || []),
+                importTable('alt_models', data.altModels || []),
+                importTable('assignments', data.assignments || [])
+            ]).then(() => {
+                if (data.users && data.users.length > 0) importTable('users', data.users);
+                input.value = '';
+                updateDashboard(); loadRequests(); loadInventory(); loadAlternatives(); loadUsers();
+                const backupDate = data.exportDate ? new Date(data.exportDate).toLocaleDateString('ar-SA') : 'غير معروف';
+                showToast('success', 'تم الاستيراد', `تم استعادة البيانات بنجاح!\nتاريخ النسخة: ${backupDate}`);
+            });
+        } catch (err) { showToast('error', 'خطأ', 'فشل قراءة ملف النسخة الاحتياطية'); input.value = ''; }
+    };
+    reader.readAsText(file);
+}
+
+// ==================== DASHBOARD ====================
+async function updateDashboard() {
+    const requests = await SupabaseAPI.request('requests', 'GET');
+    const inventory = await SupabaseAPI.request('inventory', 'GET');
+    const altModels = await SupabaseAPI.request('alt_models', 'GET');
+
+    document.getElementById('statTotalRequests').textContent = requests.length;
+    document.getElementById('statNew').textContent = requests.filter(r => r.status === 'new').length;
+    document.getElementById('statInProgress').textContent = requests.filter(r => r.status === 'inprogress').length;
+    document.getElementById('statPending').textContent = requests.filter(r => r.status === 'pending').length;
+    document.getElementById('statWithdrawn').textContent = requests.filter(r => r.status === 'withdrawn').length;
+    document.getElementById('statActive').textContent = requests.filter(r => r.status === 'active').length;
+    document.getElementById('statCompleted').textContent = requests.filter(r => r.status === 'completed').length;
+    document.getElementById('statCancelled').textContent = requests.filter(r => r.status === 'cancelled').length;
+    document.getElementById('statDuplicate').textContent = requests.filter(r => r.status === 'duplicate').length;
+    document.getElementById('statOutOfStock').textContent = inventory.filter(i => (i.qty || 0) === 0).length;
+    document.getElementById('statAltAvailable').textContent = altModels.filter(m => m.status === 'available').length;
+
+    const hiddenStatuses = ['completed', 'cancelled', 'duplicate'];
+    const activeRequests = requests.filter(r => !hiddenStatuses.includes(r.status));
+
+    const tbody = document.querySelector('#dashboardRequestsTable tbody');
+    tbody.innerHTML = activeRequests.sort((a, b) => (b.id || 0) - (a.id || 0)).slice(0, 8).map(r => `
+        <tr>
+            <td><strong>#${r.request_number || r.requestNumber}</strong></td>
+            <td>${r.computer_number || r.computerNumber}</td>
+            <td>${r.device_name || r.deviceName}</td>
+            <td><span class="badge badge-${r.status}">${getStatusLabel(r.status)}</span></td>
+            <td>${formatDate(r.created_at || r.createdAt)}</td>
+        </tr>
+    `).join('');
+}
+
+// ==================== UTILITIES ====================
+function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('ar-SA');
+}
+
+function printPage() { window.print(); }
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        LocalDB.init();
+
+        // Check saved settings
+        const savedUrl = localStorage.getItem('supabase_url');
+        const savedKey = localStorage.getItem('supabase_key');
+        const useLocal = localStorage.getItem('use_local') === 'true';
+
+        if ((savedUrl && savedKey && !useLocal) || useLocal) {
+            // Settings exist, go to login
+            document.getElementById('configScreen').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+            updateConnectionStatus();
+        } else {
+            // First time - show config screen (already visible by default)
+            document.getElementById('configScreen').style.display = 'flex';
+            document.getElementById('loginScreen').style.display = 'none';
+        }
+
+        // Enter key support
+        const loginPass = document.getElementById('loginPassword');
+        if (loginPass) {
+            loginPass.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') handleLogin();
+            });
+        }
+
+        // Also support Enter on config fields
+        const supabaseKeyInput = document.getElementById('supabaseKey');
+        if (supabaseKeyInput) {
+            supabaseKeyInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') saveSupabaseConfig();
+            });
+        }
+
+    } catch (err) {
+        console.error('Init error:', err);
+        alert('حدث خطأ في تحميل النظام: ' + err.message);
+    }
+});
+</script>
+</body>
+</html>
