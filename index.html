@@ -1,6 +1,22 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <!-- 
+    ╔══════════════════════════════════════════════════════════════════╗
+    ║  MAINTENANCE MANAGEMENT SYSTEM                                   ║
+    ║  نظام إدارة الصيانة                                               ║
+    ║                                                                  ║
+    ║  Developed & Designed by: Ahmad Rahil (أحمد رحيل)               ║
+    ║  Contact: 0797767862                                            ║
+    ║                                                                  ║
+    ║  © 2026 All Rights Reserved                                     ║
+    ║  جميع الحقوق محفوظة                                             ║
+    ║                                                                  ║
+    ║  WARNING: Unauthorized copying, modification, or distribution    ║
+    ║  of this code is strictly prohibited. Legal action will be taken.║
+    ║  تحذير: نسخ أو تعديل أو توزيع هذا الكود بدون إذن ممنوع تماماً.   ║
+    ╚══════════════════════════════════════════════════════════════════╝
+    -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام إدارة طلبات الصيانة - Supabase Edition</title>
@@ -397,7 +413,7 @@
         </div>
     </div>
 
-    <div class="app-container" id="appContainer">
+    <div class="app-container" id="appContainer" oncontextmenu="return false;">
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-logo">
@@ -1013,6 +1029,13 @@
     </div>
 
 <script>
+    // Console warning
+    console.log('%c⚠️ MAINTENANCE SYSTEM', 'font-size: 24px; font-weight: bold; color: #ef4444;');
+    console.log('%cDeveloped by: Ahmad Rahil (أحمد رحيل)', 'font-size: 14px; color: #4f46e5;');
+    console.log('%cContact: 0797767862', 'font-size: 14px; color: #4f46e5;');
+    console.log('%c© 2026 All Rights Reserved', 'font-size: 12px; color: #666;');
+    console.log('%cUnauthorized access or copying is prohibited.', 'font-size: 12px; color: #ef4444;');
+
 // ==================== CONFIG ====================
 // ✅ بيانات السيرفر مضمنة - أي شخص يفتح الموقع يتصل مباشرة
 const DEFAULT_SUPABASE_URL = 'https://cevwdiryhkpicmfprydb.supabase.co';
@@ -2236,6 +2259,26 @@ function printPage() { window.print(); }
 
 // ==================== INIT ====================
 document.addEventListener('DOMContentLoaded', function() {
+    // Block developer tools shortcuts
+    document.addEventListener('keydown', function(e) {
+        // F12
+        if (e.key === 'F12') { e.preventDefault(); return false; }
+        // Ctrl+Shift+I
+        if (e.ctrlKey && e.shiftKey && e.key === 'I') { e.preventDefault(); return false; }
+        // Ctrl+Shift+J
+        if (e.ctrlKey && e.shiftKey && e.key === 'J') { e.preventDefault(); return false; }
+        // Ctrl+U (view source)
+        if (e.ctrlKey && e.key === 'u') { e.preventDefault(); return false; }
+        // Ctrl+S (save)
+        if (e.ctrlKey && e.key === 's') { e.preventDefault(); return false; }
+    });
+
+    // Disable text selection on sensitive areas
+    document.querySelectorAll('.login-card, .sidebar, .card').forEach(el => {
+        el.style.userSelect = 'none';
+        el.style.webkitUserSelect = 'none';
+    });
+
     try {
         LocalDB.init();
 
