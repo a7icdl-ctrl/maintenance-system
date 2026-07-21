@@ -605,8 +605,11 @@
                 <div class="page-header">
                     <h1 class="page-title">قطع الغيار والمستلزمات</h1>
                     <div class="page-actions no-print">
-                        <button class="btn btn-success btn-sm" onclick="openInventoryModal()">
-                            <i class="fas fa-plus"></i> صرف قطعة
+                        <button class="btn btn-success btn-sm" onclick="openAddStockModal()">
+                            <i class="fas fa-plus-circle"></i> إضافة مخزون
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="openInventoryModal()">
+                            <i class="fas fa-minus-circle"></i> صرف قطعة
                         </button>
                         <button class="btn btn-primary btn-sm" onclick="printInventory()">
                             <i class="fas fa-print"></i> طباعة
@@ -917,7 +920,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h3>صرف قطعة غيار</h3>
-                <button class="modal-close" onclick="closeModal('inventoryModal')">&times;</button>
+                <button type="button" class="modal-close" onclick="closeModal('inventoryModal')">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-grid">
@@ -957,9 +960,52 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('inventoryModal')">إلغاء</button>
-                <button class="btn btn-primary" onclick="saveInventoryTransaction()">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('inventoryModal')">إلغاء</button>
+                <button type="button" class="btn btn-primary" onclick="saveInventoryTransaction()">
                     <i class="fas fa-save"></i> صرف
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Stock Modal -->
+    <div class="modal-overlay" id="addStockModal">
+        <div class="modal">
+            <div class="modal-header" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0);">
+                <h3><i class="fas fa-plus-circle" style="color: var(--success);"></i> إضافة مخزون</h3>
+                <button type="button" class="modal-close" onclick="closeModal('addStockModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>المادة <span style="color: var(--danger);">*</span></label>
+                        <select class="form-control" id="addStockItemSelect" onchange="updateAddStockInfo()">
+                            <option value="">اختر المادة</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>الرصيد الحالي</label>
+                        <input type="text" class="form-control" id="addStockCurrentQty" readonly style="background: #f8fafc; text-align: center; font-weight: 700;">
+                    </div>
+                    <div class="form-group">
+                        <label>الحد الأقصى</label>
+                        <input type="text" class="form-control" id="addStockMaxQty" readonly style="background: #f8fafc; text-align: center; font-weight: 700;">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>الكمية المضافة <span style="color: var(--danger);">*</span></label>
+                        <input type="number" class="form-control" id="addStockQty" min="1" value="1" placeholder="أدخل الكمية المراد إضافتها">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>ملاحظات</label>
+                        <textarea class="form-control" id="addStockNotes" placeholder="ملاحظات حول الإضافة (اختياري)..."></textarea>
+                    </div>
+                </div>
+                <div id="addStockAlert" style="display: none; margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 13px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('addStockModal')">إلغاء</button>
+                <button type="button" class="btn btn-success" onclick="saveAddStock()">
+                    <i class="fas fa-save"></i> إضافة للمخزون
                 </button>
             </div>
         </div>
@@ -1923,6 +1969,118 @@ async function saveInventoryTransaction() {
     await loadInventory();
     await updateDashboard();
     showToast('success', 'تم الصرف', `تم صرف ${qty} من ${item.name}`);
+}
+
+// ==================== ADD STOCK FUNCTIONS ====================
+function openAddStockModal() {
+    document.getElementById('addStockItemSelect').value = '';
+    document.getElementById('addStockCurrentQty').value = '';
+    document.getElementById('addStockMaxQty').value = '';
+    document.getElementById('addStockQty').value = '1';
+    document.getElementById('addStockNotes').value = '';
+    document.getElementById('addStockAlert').style.display = 'none';
+
+    // Load items into select
+    SupabaseAPI.request('inventory', 'GET').then(inventory => {
+        const select = document.getElementById('addStockItemSelect');
+        select.innerHTML = '<option value="">اختر المادة</option>' + 
+            inventory.map(i => `<option value="${i.id}">${i.name} (الرصيد: ${i.qty || 0})</option>`).join('');
+    });
+
+    openModal('addStockModal');
+}
+
+function updateAddStockInfo() {
+    const itemId = parseInt(document.getElementById('addStockItemSelect').value);
+    if (!itemId) {
+        document.getElementById('addStockCurrentQty').value = '';
+        document.getElementById('addStockMaxQty').value = '';
+        return;
+    }
+    SupabaseAPI.request('inventory', 'GET').then(inventory => {
+        const item = inventory.find(i => i.id === itemId);
+        if (item) {
+            document.getElementById('addStockCurrentQty').value = item.qty || 0;
+            document.getElementById('addStockMaxQty').value = item.max_qty || item.maxQty || '-';
+        }
+    });
+}
+
+function showAddStockAlert(message, type) {
+    const alert = document.getElementById('addStockAlert');
+    alert.textContent = message;
+    alert.style.display = 'block';
+    if (type === 'error') {
+        alert.style.background = '#fef2f2';
+        alert.style.color = '#991b1b';
+        alert.style.border = '1px solid #fecaca';
+    } else if (type === 'warning') {
+        alert.style.background = '#fef3c7';
+        alert.style.color = '#92400e';
+        alert.style.border = '1px solid #fde68a';
+    } else {
+        alert.style.background = '#f0fdf4';
+        alert.style.color = '#166534';
+        alert.style.border = '1px solid #bbf7d0';
+    }
+}
+
+async function saveAddStock() {
+    const itemId = parseInt(document.getElementById('addStockItemSelect').value);
+    const qty = parseInt(document.getElementById('addStockQty').value);
+    const notes = document.getElementById('addStockNotes').value.trim();
+
+    if (!itemId) {
+        showAddStockAlert('الرجاء اختيار المادة', 'error');
+        return;
+    }
+    if (!qty || qty < 1) {
+        showAddStockAlert('الرجاء إدخال كمية صحيحة', 'error');
+        return;
+    }
+
+    const inventory = await SupabaseAPI.request('inventory', 'GET');
+    const item = inventory.find(i => i.id === itemId);
+    if (!item) {
+        showAddStockAlert('المادة غير موجودة', 'error');
+        return;
+    }
+
+    const oldQty = item.qty || 0;
+    const maxQty = item.max_qty || item.maxQty || 999999;
+    const newQty = oldQty + qty;
+
+    // Warning if exceeding max
+    if (newQty > maxQty) {
+        if (!confirm(`تحذير: الرصيد الجديد (${newQty}) سيتجاوز الحد الأقصى (${maxQty})
+
+هل تريد المتابعة؟`)) {
+            return;
+        }
+    }
+
+    const date = new Date().toISOString().split('T')[0];
+
+    // Update inventory
+    await SupabaseAPI.request('inventory', 'PATCH', { qty: newQty }, itemId);
+
+    // Add to history
+    await SupabaseAPI.request('inventory_history', 'POST', {
+        item_id: itemId,
+        item_name: item.name,
+        type: 'in',
+        qty: qty,
+        old_qty: oldQty,
+        new_qty: newQty,
+        date: date,
+        user: currentUser?.full_name || currentUser?.fullName || 'System'
+    });
+
+    closeModal('addStockModal');
+    await loadInventory();
+    await updateDashboard();
+    showToast('success', 'تمت الإضافة', `تم إضافة ${qty} قطعة إلى ${item.name}
+الرصيد الجديد: ${newQty}`);
 }
 
 function showInventoryTab(tab) {
