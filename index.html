@@ -275,10 +275,22 @@
                 <h4><i class="fas fa-info-circle"></i> كيف تحصل على المفاتيح:</h4>
                 <p style="font-size: 13px; color: var(--text-medium); line-height: 1.8; margin-top: 8px;">
                     1. ادخل على <a href="https://supabase.com" target="_blank" style="color: var(--primary);">supabase.com</a> وسوي حساب<br>
-                    2. أنشئ مشروع جديد<br>
-                    3. اذهب لـ Project Settings → API<br>
-                    4. انسخ Project URL و anon public key
+                    2. أنشئ مشروع جديد (New Project)<br>
+                    3. انتظر 2 دقيقة لين يجهز المشروع<br>
+                    4. اذهب لـ <strong>Project Settings → API</strong><br>
+                    5. انسخ <strong>Project URL</strong> (يبدأ بـ https://)<br>
+                    6. انسخ <strong>anon public</strong> key (طويل جداً)
                 </p>
+            </div>
+
+            <div style="background: #fef2f2; border: 2px solid #ef4444; border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: right;">
+                <h4 style="color: #991b1b; margin-bottom: 10px; font-size: 15px;"><i class="fas fa-exclamation-triangle"></i> مهم جداً:</h4>
+                <ul style="font-size: 13px; color: #7f1d1d; line-height: 2; margin-right: 20px;">
+                    <li>لازم تسوي <strong>جداول (Tables)</strong> في Supabase قبل الاستخدام</li>
+                    <li>الجداول المطلوبة: users, requests, inventory, transactions, inventory_history, alt_devices, alt_models, assignments</li>
+                    <li>فعل <strong>RLS (Row Level Security)</strong> أو خله مطفي للتجربة</li>
+                    <li>لو ما عندك سيرفر، اضغط "الاستمرار بدون سيرفر"</li>
+                </ul>
             </div>
 
             <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: right;">
@@ -986,8 +998,12 @@
 
 <script>
 // ==================== CONFIG ====================
-let SUPABASE_URL = localStorage.getItem('supabase_url') || '';
-let SUPABASE_KEY = localStorage.getItem('supabase_key') || '';
+// ✅ بيانات السيرفر مضمنة - أي شخص يفتح الموقع يتصل مباشرة
+const DEFAULT_SUPABASE_URL = 'https://cevwdiryhkpicmfprydb.supabase.co';
+const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNldndkaXJ5aGtwaWNtZnByeWRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2MDc0MjMsImV4cCI6MjEwMDE4MzQyM30.ETDHndwejilTDwD4vzBHB9Pu-tp5W36yHlZZkgoR3Mc';
+
+let SUPABASE_URL = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
+let SUPABASE_KEY = localStorage.getItem('supabase_key') || DEFAULT_SUPABASE_KEY;
 let USE_LOCAL = localStorage.getItem('use_local') === 'true' || (!SUPABASE_URL && !SUPABASE_KEY);
 
 // ==================== SUPABASE API HELPER ====================
@@ -1014,13 +1030,16 @@ const SupabaseAPI = {
 
         try {
             const res = await fetch(url, options);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(`HTTP ${res.status}: ${errorText}`);
+            }
             return await res.json();
         } catch (err) {
             console.error('Supabase error:', err);
-            showToast('error', 'خطأ في الاتصال', 'فشل الاتصال بالسيرفر، سيتم الانتقال للوضع المحلي');
-            USE_LOCAL = true;
-            return LocalDB.request(table, method, data, id);
+            // Don't auto-switch to local mode - let user know the real error
+            showToast('error', 'خطأ في الاتصال بالسيرفر', err.message);
+            throw err; // Re-throw so the caller knows it failed
         }
     }
 };
@@ -1123,8 +1142,8 @@ function resetConfig() {
 }
 
 function saveSupabaseConfig() {
-    const url = document.getElementById('supabaseUrl').value.trim();
-    const key = document.getElementById('supabaseKey').value.trim();
+    const url = document.getElementById('supabaseUrl').value.trim() || DEFAULT_SUPABASE_URL;
+    const key = document.getElementById('supabaseKey').value.trim() || DEFAULT_SUPABASE_KEY;
 
     if (!url || !key) {
         showToast('error', 'خطأ', 'الرجاء ملء جميع الحقول');
@@ -2240,6 +2259,24 @@ document.addEventListener('DOMContentLoaded', function() {
             // First time - show config screen (already visible by default)
             document.getElementById('configScreen').style.display = 'flex';
             document.getElementById('loginScreen').style.display = 'none';
+
+            // Auto-save credentials and go to login
+            if (DEFAULT_SUPABASE_URL && DEFAULT_SUPABASE_KEY) {
+                SUPABASE_URL = DEFAULT_SUPABASE_URL;
+                SUPABASE_KEY = DEFAULT_SUPABASE_KEY;
+                USE_LOCAL = false;
+                localStorage.setItem('supabase_url', DEFAULT_SUPABASE_URL);
+                localStorage.setItem('supabase_key', DEFAULT_SUPABASE_KEY);
+                localStorage.setItem('use_local', 'false');
+
+                document.getElementById('configScreen').style.display = 'none';
+                document.getElementById('loginScreen').style.display = 'flex';
+                updateConnectionStatus();
+                showToast('info', 'متصل', 'تم الاتصال بالسيرفر تلقائياً');
+            } else {
+                if (DEFAULT_SUPABASE_URL) document.getElementById('supabaseUrl').value = DEFAULT_SUPABASE_URL;
+                if (DEFAULT_SUPABASE_KEY) document.getElementById('supabaseKey').value = DEFAULT_SUPABASE_KEY;
+            }
         }
 
         // Enter key support
