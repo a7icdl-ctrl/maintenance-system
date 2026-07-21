@@ -349,6 +349,27 @@
             <div style="margin-bottom: 15px;">
                 <span class="sync-status online" id="connectionStatus"><i class="fas fa-wifi"></i> متصل بالسيرفر</span>
             </div>
+            <div style="background: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px; margin-bottom: 20px;">
+                <p style="font-size: 13px; color: #1e40af; margin: 0;">
+                    <i class="fas fa-shield-alt"></i> 
+                    هذا النظام متصل بقاعدة بيانات آمنة
+                </p>
+            </div>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center;">
+                <p style="font-size: 13px; color: var(--text-light); margin-bottom: 8px;">
+                    <i class="fas fa-code"></i>
+                    تم تطوير وتصميم هذا النظام من قبل <strong style="color: var(--primary);">أحمد رحيل</strong>
+                </p>
+                <p style="font-size: 13px; color: var(--text-light); margin-bottom: 8px;">
+                    <i class="fas fa-phone-alt"></i>
+                    للتواصل: <strong style="color: var(--primary); direction: ltr; display: inline-block;">0797767862</strong>
+                </p>
+                <p style="font-size: 11px; color: var(--text-light); margin: 0;">
+                    <i class="fas fa-copyright"></i>
+                    جميع الحقوق محفوظة &copy; 2026
+                </p>
+            </div>
             <div class="form-group">
                 <label>اسم المستخدم</label>
                 <div class="input-wrapper">
@@ -367,15 +388,10 @@
                 <i class="fas fa-sign-in-alt"></i>
                 تسجيل الدخول
             </button>
-            <button class="btn btn-success" onclick="bypassLogin()" style="margin-top: 10px; width: 100%;">
-                <i class="fas fa-bolt"></i>
-                دخول سريع (بدون بيانات)
-            </button>
-            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color);">
-                <p style="font-size: 12px; color: var(--text-light); margin-bottom: 10px;">
-                    <i class="fas fa-info-circle"></i> 
-                    اسم المستخدم: <code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">admin</code> / 
-                    كلمة المرور: <code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">admin</code>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); text-align: center;">
+                <p style="font-size: 12px; color: var(--text-light);">
+                    <i class="fas fa-lock"></i> 
+                    نظام آمن - الرجاء إدخال بيانات الاعتماد
                 </p>
             </div>
         </div>
@@ -1208,28 +1224,6 @@ function resetUsersAndReload() {
     }
 }
 
-function bypassLogin() {
-    currentUser = {
-        id: 1,
-        username: 'admin',
-        password: 'admin',
-        fullName: 'أحمد رحيل',
-        full_name: 'أحمد رحيل',
-        role: 'admin'
-    };
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('appContainer').style.display = 'block';
-    document.getElementById('userName').textContent = 'أحمد رحيل';
-    document.getElementById('userAvatar').textContent = 'أ';
-    document.getElementById('userRole').textContent = 'مدير النظام';
-    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
-    showToast('success', 'مرحباً', 'تم تسجيل الدخول بنجاح');
-    updateDashboard();
-    loadRequests();
-    loadInventory();
-    loadAlternatives();
-}
-
 async function handleLogin() {
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value;
@@ -1252,7 +1246,7 @@ async function handleLogin() {
     }
 
     // Second try: direct hardcoded credentials (always works)
-    if (!user && username === 'admin' && password === 'admin') {
+    if (!user && username === 'admin' && password === '7862') {
         user = {
             id: 1,
             username: 'admin',
