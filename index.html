@@ -254,6 +254,13 @@
         .config-box { background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 2px solid var(--primary); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
         .config-box h4 { color: var(--primary); margin-bottom: 10px; }
         .config-box code { background: #1e293b; color: #e2e8f0; padding: 2px 8px; border-radius: 4px; font-family: monospace; font-size: 13px; }
+        .attachment-item { background: #f8fafc; border-radius: 10px; padding: 12px 15px; margin-bottom: 10px; border-right: 3px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .attachment-info { display: flex; align-items: center; gap: 10px; }
+        .attachment-icon { width: 40px; height: 40px; background: rgba(79,70,229,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 18px; }
+        .attachment-details h5 { font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 3px; }
+        .attachment-details p { font-size: 11px; color: var(--text-light); margin: 0; }
+        .attachment-actions { display: flex; gap: 5px; }
+
         .sync-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
         .sync-status.online { background: rgba(16,185,129,0.15); color: #047857; }
         .sync-status.offline { background: rgba(239,68,68,0.15); color: #b91c1c; }
@@ -874,10 +881,27 @@
                                 <input type="text" class="form-control" id="procedureText" placeholder="وصف الإجراء الفني">
                             </div>
                         </div>
+                        <div class="form-grid" style="margin-top: 10px;">
+                            <div class="form-group full-width">
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-paperclip" style="color: var(--primary);"></i>
+                                    مرفق الإجراء (اختياري)
+                                </label>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-upload"></i> اختيار ملف
+                                        <input type="file" id="procedureAttachment" style="display: none;" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="handleProcedureAttachmentSelect(this)">
+                                    </label>
+                                    <span id="procedureAttachmentName" style="font-size: 12px; color: var(--text-light);">لم يتم اختيار ملف</span>
+                                </div>
+                            </div>
+                        </div>
                         <button type="button" class="btn btn-secondary btn-sm" style="margin-top: 10px;" onclick="addProcedure()">
-                            <i class="fas fa-plus"></i> إضافة إجراء
+                            <i class="fas fa-plus"></i> إضافة إجراء مع المرفق
                         </button>
                     </div>
+
+
                 </form>
             </div>
             <div class="modal-footer">
@@ -1387,11 +1411,18 @@ async function openRequestModal(requestId) {
             document.getElementById('issueDescription').value = req.issue_description || req.issueDescription || '';
             tempProcedures = req.procedures || [];
             renderProcedures();
+            tempAttachments = req.attachments || [];
+            renderAttachments();
         }
     } else {
         document.getElementById('requestForm').reset();
         document.getElementById('requestNumber').value = await generateRequestNumber();
         document.getElementById('requestId').value = '';
+        tempProcedures = [];
+        window.pendingProcedureAttachment = null;
+        document.getElementById('procedureAttachmentName').textContent = 'لم يتم اختيار ملف';
+        document.getElementById('procedureAttachmentName').style.color = 'var(--text-light)';
+        renderProcedures();
     }
     openModal('requestModal');
 }
@@ -1409,19 +1440,149 @@ function addProcedure() {
     const date = document.getElementById('procedureDate').value;
     const text = document.getElementById('procedureText').value.trim();
     if (!date || !text) { showToast('warning', 'تنبيه', 'الرجاء إدخال التاريخ والإجراء'); return; }
-    tempProcedures.push({ id: Date.now(), date, text });
+
+    const procId = Date.now();
+    const newProc = { id: procId, date, text };
+
+    // Check if there's a pending attachment
+    const pendingAttachment = window.pendingProcedureAttachment;
+    if (pendingAttachment) {
+        newProc.attachment = pendingAttachment;
+        window.pendingProcedureAttachment = null;
+        document.getElementById('procedureAttachmentName').textContent = 'لم يتم اختيار ملف';
+        document.getElementById('procedureAttachmentName').style.color = 'var(--text-light)';
+    }
+
+    tempProcedures.push(newProc);
     document.getElementById('procedureDate').value = '';
     document.getElementById('procedureText').value = '';
     renderProcedures();
-    showToast('success', 'تم', 'تم إضافة الإجراء');
+    showToast('success', 'تم', pendingAttachment ? 'تم إضافة الإجراء مع المرفق' : 'تم إضافة الإجراء');
 }
+
+function handleProcedureAttachmentSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const desc = prompt('وصف الملف (اختياري):', file.name);
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        window.pendingProcedureAttachment = {
+            id: Date.now(),
+            description: desc || file.name,
+            filename: file.name,
+            size: file.size,
+            type: file.type,
+            data: e.target.result
+        };
+        document.getElementById('procedureAttachmentName').textContent = '✅ ' + file.name;
+        document.getElementById('procedureAttachmentName').style.color = 'var(--success)';
+        showToast('info', 'تم اختيار الملف', 'اضغط "إضافة إجراء" لربط الملف بالإجراء');
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeProcedure(id) {
+    if (!confirm('هل أنت متأكد من حذف هذا الإجراء؟')) return;
+    tempProcedures = tempProcedures.filter(p => p.id !== id);
+    renderProcedures();
+}
+
+function viewProcedureAttachment(procId) {
+    const proc = tempProcedures.find(p => p.id === procId);
+    if (!proc || !proc.attachment) return;
+
+    const att = proc.attachment;
+    if (att.data.startsWith('data:image')) {
+        const modalHtml = `
+            <div class="modal-overlay active" id="viewProcAttModal">
+                <div class="modal" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <h3>${att.description}</h3>
+                        <button class="modal-close" onclick="document.getElementById('viewProcAttModal').remove()">&times;</button>
+                    </div>
+                    <div class="modal-body" style="text-align: center;">
+                        <img src="${att.data}" style="max-width: 100%; border-radius: 8px;" alt="${att.filename}">
+                        <p style="margin-top: 10px; color: var(--text-light);">${att.filename} • ${formatFileSize(att.size)}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="${att.data}" download="${att.filename}" class="btn btn-primary">
+                            <i class="fas fa-download"></i> تحميل
+                        </a>
+                        <button class="btn btn-secondary" onclick="document.getElementById('viewProcAttModal').remove()">إغلاق</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    } else {
+        downloadAttachment(att.data, att.filename);
+    }
+}
+
+function removeProcedureAttachment(procId) {
+    if (!confirm('هل أنت متأكد من إزالة المرفق من هذا الإجراء؟')) return;
+    const proc = tempProcedures.find(p => p.id === procId);
+    if (proc) {
+        delete proc.attachment;
+        renderProcedures();
+        showToast('success', 'تم', 'تم إزالة المرفق');
+    }
+}
+
+// ==================== ATTACHMENT UTILITIES ====================
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function getFileIcon(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    if (['pdf'].includes(ext)) return 'fa-file-pdf';
+    if (['jpg','jpeg','png','gif','bmp'].includes(ext)) return 'fa-file-image';
+    if (['doc','docx'].includes(ext)) return 'fa-file-word';
+    if (['xls','xlsx'].includes(ext)) return 'fa-file-excel';
+    return 'fa-file';
+}
+
+function downloadAttachment(data, filename) {
+    const a = document.createElement('a');
+    a.href = data;
+    a.download = filename;
+    a.click();
+    showToast('info', 'تحميل', 'جاري تحميل الملف...');
+}
+
+
 
 function renderProcedures() {
     const container = document.getElementById('proceduresList');
     container.innerHTML = tempProcedures.map(p => `
         <div class="procedure-item">
-            <div class="procedure-date"><i class="fas fa-calendar-alt"></i> ${p.date}</div>
-            <div class="procedure-text">${p.text}</div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div style="flex: 1;">
+                    <div class="procedure-date"><i class="fas fa-calendar-alt"></i> ${p.date}</div>
+                    <div class="procedure-text">${p.text}</div>
+                </div>
+                <button class="action-btn delete" onclick="removeProcedure(${p.id})" title="حذف الإجراء" style="margin-right: 8px;"><i class="fas fa-trash"></i></button>
+            </div>
+            ${p.attachment ? `
+            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #cbd5e1;">
+                <div style="display: flex; align-items: center; gap: 10px; background: #f0f9ff; padding: 8px 12px; border-radius: 8px;">
+                    <i class="fas ${getFileIcon(p.attachment.filename)}" style="color: var(--primary); font-size: 18px;"></i>
+                    <div style="flex: 1;">
+                        <div style="font-size: 13px; font-weight: 600; color: var(--text-dark);">${p.attachment.description || p.attachment.filename}</div>
+                        <div style="font-size: 11px; color: var(--text-light);">${p.attachment.filename} • ${formatFileSize(p.attachment.size)}</div>
+                    </div>
+                    <button class="action-btn view" onclick="viewProcedureAttachment(${p.id})" title="عرض"><i class="fas fa-eye"></i></button>
+                    <button class="action-btn delete" onclick="removeProcedureAttachment(${p.id})" title="إزالة المرفق"><i class="fas fa-unlink"></i></button>
+                </div>
+            </div>
+            ` : ''}
         </div>
     `).join('');
 }
@@ -1517,8 +1678,37 @@ async function viewRequest(id) {
     if (!req) return;
 
     const proceduresHtml = (req.procedures || []).length > 0 
-        ? req.procedures.map(p => `<div class="procedure-item"><div class="procedure-date">${p.date}</div><div class="procedure-text">${p.text}</div></div>`).join('')
+        ? req.procedures.map(p => `
+            <div class="procedure-item">
+                <div class="procedure-date"><i class="fas fa-calendar-alt"></i> ${p.date}</div>
+                <div class="procedure-text">${p.text}</div>
+                ${p.attachment ? `
+                <div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-radius: 6px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas ${getFileIcon(p.attachment.filename)}" style="color: var(--primary);"></i>
+                    <span style="font-size: 12px; flex: 1;">${p.attachment.description || p.attachment.filename}</span>
+                    <button class="action-btn view" style="width: 28px; height: 28px;" onclick="downloadAttachment('${p.attachment.data}', '${p.attachment.filename}')" title="تحميل"><i class="fas fa-download" style="font-size: 11px;"></i></button>
+                </div>
+                ` : ''}
+            </div>
+        `).join('')
         : '<p style="color: var(--text-light);">لا توجد إجراءات مسجلة</p>';
+
+    const attachmentsHtml = (req.attachments || []).length > 0
+        ? req.attachments.map(att => `
+            <div class="attachment-item" style="margin-bottom: 8px;">
+                <div class="attachment-info">
+                    <div class="attachment-icon"><i class="fas ${getFileIcon(att.filename)}"></i></div>
+                    <div class="attachment-details">
+                        <h5>${att.description}</h5>
+                        <p>${att.filename} • ${formatFileSize(att.size)}</p>
+                    </div>
+                </div>
+                <div class="attachment-actions">
+                    <button class="action-btn view" onclick="downloadAttachment('${att.data}', '${att.filename}')" title="تحميل"><i class="fas fa-download"></i></button>
+                </div>
+            </div>
+        `).join('')
+        : '<p style="color: var(--text-light);">لا توجد مرفقات</p>';
 
     const modalHtml = `
         <div class="modal-overlay active" id="viewModal">
@@ -1540,9 +1730,13 @@ async function viewRequest(id) {
                         <strong>وصف المشكلة:</strong>
                         <p style="margin-top: 8px; padding: 12px; background: #f8fafc; border-radius: 8px;">${req.issue_description || req.issueDescription || 'لا يوجد وصف'}</p>
                     </div>
-                    <div>
+                    <div style="margin-bottom: 20px;">
                         <strong>الإجراءات الفنية:</strong>
                         <div style="margin-top: 10px;">${proceduresHtml}</div>
+                    </div>
+                    <div>
+                        <strong>التقارير المرفقة:</strong>
+                        <div style="margin-top: 10px;">${attachmentsHtml}</div>
                     </div>
                 </div>
                 <div class="modal-footer">
