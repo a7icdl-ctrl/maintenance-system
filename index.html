@@ -1188,6 +1188,7 @@ const LocalDB = {
 let currentUser = null;
 let editingRequestId = null;
 let tempProcedures = [];
+let tempAttachments = [];
 
 // ==================== CONFIG SCREEN ====================
 function resetConfig() {
@@ -1412,13 +1413,13 @@ async function openRequestModal(requestId) {
             tempProcedures = req.procedures || [];
             renderProcedures();
             tempAttachments = req.attachments || [];
-            renderAttachments();
         }
     } else {
         document.getElementById('requestForm').reset();
         document.getElementById('requestNumber').value = await generateRequestNumber();
         document.getElementById('requestId').value = '';
         tempProcedures = [];
+        tempAttachments = [];
         window.pendingProcedureAttachment = null;
         document.getElementById('procedureAttachmentName').textContent = 'لم يتم اختيار ملف';
         document.getElementById('procedureAttachmentName').style.color = 'var(--text-light)';
@@ -1495,31 +1496,58 @@ function viewProcedureAttachment(procId) {
 
     const att = proc.attachment;
     if (att.data.startsWith('data:image')) {
-        const modalHtml = `
-            <div class="modal-overlay active" id="viewProcAttModal">
-                <div class="modal" style="max-width: 800px;">
-                    <div class="modal-header">
-                        <h3>${att.description}</h3>
-                        <button class="modal-close" onclick="document.getElementById('viewProcAttModal').remove()">&times;</button>
+        // Use a simple lightbox approach instead of conflicting modal-overlay
+        const lightboxId = 'lightbox_' + Date.now();
+        const lightboxHtml = `
+            <div id="${lightboxId}" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px; animation: fadeIn 0.2s ease;" onclick="if(event.target === this) closeLightbox('${lightboxId}')">
+                <div style="background: white; border-radius: 16px; max-width: 900px; width: 100%; max-height: 90vh; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); animation: modalSlide 0.3s ease;">
+                    <div style="padding: 20px 25px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #f8fafc, #f1f5f9);">
+                        <h3 style="font-size: 18px; font-weight: 700; color: #1e293b; margin: 0;">${att.description || att.filename}</h3>
+                        <button onclick="closeLightbox('${lightboxId}')" style="width: 36px; height: 36px; border: none; background: rgba(239,68,68,0.1); color: #ef4444; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">&times;</button>
                     </div>
-                    <div class="modal-body" style="text-align: center;">
-                        <img src="${att.data}" style="max-width: 100%; border-radius: 8px;" alt="${att.filename}">
-                        <p style="margin-top: 10px; color: var(--text-light);">${att.filename} • ${formatFileSize(att.size)}</p>
+                    <div style="padding: 25px; text-align: center; overflow-y: auto; max-height: calc(90vh - 140px);">
+                        <img src="${att.data}" style="max-width: 100%; max-height: 60vh; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" alt="${att.filename}">
+                        <p style="margin-top: 15px; color: #64748b; font-size: 13px;">${att.filename} • ${formatFileSize(att.size)}</p>
                     </div>
-                    <div class="modal-footer">
-                        <a href="${att.data}" download="${att.filename}" class="btn btn-primary">
+                    <div style="padding: 15px 25px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px; background: #f8fafc;">
+                        <a href="${att.data}" download="${att.filename}" style="padding: 10px 20px; background: linear-gradient(135deg, #4f46e5, #3730a3); color: white; border-radius: 10px; text-decoration: none; font-family: 'Tajawal', sans-serif; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 8px;">
                             <i class="fas fa-download"></i> تحميل
                         </a>
-                        <button class="btn btn-secondary" onclick="document.getElementById('viewProcAttModal').remove()">إغلاق</button>
+                        <button onclick="closeLightbox('${lightboxId}')" style="padding: 10px 20px; background: #f1f5f9; color: #475569; border: none; border-radius: 10px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: 700; font-size: 14px;">إغلاق</button>
                     </div>
                 </div>
             </div>
         `;
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        document.body.insertAdjacentHTML('beforeend', lightboxHtml);
+
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
     } else {
         downloadAttachment(att.data, att.filename);
     }
 }
+
+function closeLightbox(lightboxId) {
+    const lightbox = document.getElementById(lightboxId);
+    if (lightbox) {
+        lightbox.style.animation = 'fadeOut 0.2s ease';
+        setTimeout(() => {
+            lightbox.remove();
+            // Restore body scroll only if no other lightboxes exist
+            if (!document.querySelector('[id^="lightbox_"]')) {
+                document.body.style.overflow = '';
+            }
+        }, 200);
+    }
+}
+
+// Add fadeOut animation
+const lightboxStyle = document.createElement('style');
+lightboxStyle.textContent = `
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+`;
+document.head.appendChild(lightboxStyle);
 
 function removeProcedureAttachment(procId) {
     if (!confirm('هل أنت متأكد من إزالة المرفق من هذا الإجراء؟')) return;
@@ -1553,7 +1581,10 @@ function downloadAttachment(data, filename) {
     const a = document.createElement('a');
     a.href = data;
     a.download = filename;
+    a.target = '_blank';
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     showToast('info', 'تحميل', 'جاري تحميل الملف...');
 }
 
@@ -1568,7 +1599,7 @@ function renderProcedures() {
                     <div class="procedure-date"><i class="fas fa-calendar-alt"></i> ${p.date}</div>
                     <div class="procedure-text">${p.text}</div>
                 </div>
-                <button class="action-btn delete" onclick="removeProcedure(${p.id})" title="حذف الإجراء" style="margin-right: 8px;"><i class="fas fa-trash"></i></button>
+                <button type="button" class="action-btn delete" onclick="event.stopPropagation(); removeProcedure(${p.id})" title="حذف الإجراء" style="margin-right: 8px;"><i class="fas fa-trash"></i></button>
             </div>
             ${p.attachment ? `
             <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #cbd5e1;">
@@ -1578,8 +1609,8 @@ function renderProcedures() {
                         <div style="font-size: 13px; font-weight: 600; color: var(--text-dark);">${p.attachment.description || p.attachment.filename}</div>
                         <div style="font-size: 11px; color: var(--text-light);">${p.attachment.filename} • ${formatFileSize(p.attachment.size)}</div>
                     </div>
-                    <button class="action-btn view" onclick="viewProcedureAttachment(${p.id})" title="عرض"><i class="fas fa-eye"></i></button>
-                    <button class="action-btn delete" onclick="removeProcedureAttachment(${p.id})" title="إزالة المرفق"><i class="fas fa-unlink"></i></button>
+                    <button type="button" class="action-btn view" onclick="event.stopPropagation(); viewProcedureAttachment(${p.id})" title="عرض"><i class="fas fa-eye"></i></button>
+                    <button type="button" class="action-btn delete" onclick="event.stopPropagation(); removeProcedureAttachment(${p.id})" title="إزالة المرفق"><i class="fas fa-unlink"></i></button>
                 </div>
             </div>
             ` : ''}
@@ -1686,7 +1717,7 @@ async function viewRequest(id) {
                 <div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-radius: 6px; display: flex; align-items: center; gap: 8px;">
                     <i class="fas ${getFileIcon(p.attachment.filename)}" style="color: var(--primary);"></i>
                     <span style="font-size: 12px; flex: 1;">${p.attachment.description || p.attachment.filename}</span>
-                    <button class="action-btn view" style="width: 28px; height: 28px;" onclick="downloadAttachment('${p.attachment.data}', '${p.attachment.filename}')" title="تحميل"><i class="fas fa-download" style="font-size: 11px;"></i></button>
+                    <button type="button" class="action-btn view" style="width: 28px; height: 28px;" onclick="event.stopPropagation(); downloadAttachment('${p.attachment.data}', '${p.attachment.filename}')" title="تحميل"><i class="fas fa-download" style="font-size: 11px;"></i></button>
                 </div>
                 ` : ''}
             </div>
@@ -1704,7 +1735,7 @@ async function viewRequest(id) {
                     </div>
                 </div>
                 <div class="attachment-actions">
-                    <button class="action-btn view" onclick="downloadAttachment('${att.data}', '${att.filename}')" title="تحميل"><i class="fas fa-download"></i></button>
+                    <button type="button" class="action-btn view" onclick="event.stopPropagation(); downloadAttachment('${att.data}', '${att.filename}')" title="تحميل"><i class="fas fa-download"></i></button>
                 </div>
             </div>
         `).join('')
