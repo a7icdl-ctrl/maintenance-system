@@ -451,7 +451,12 @@
                     <i class="fas fa-file-import"></i>
                     <span>استيراد الطلبات</span>
                 </a>
-                <a class="nav-item admin-only" onclick="showPage('admin')" style="display:none;">
+                                <a class="nav-item" onclick="showPage('documents')">
+                    <i class="fas fa-file-alt"></i>
+                    <span>الوثائق والملاحظات</span>
+                    <span class="nav-badge" id="documentsBadge">0</span>
+                </a>
+<a class="nav-item admin-only" onclick="showPage('admin')" style="display:none;">
                     <i class="fas fa-cog"></i>
                     <span>إدارة النظام</span>
                 </a>
@@ -539,6 +544,11 @@
                         <div class="stat-icon"><i class="fas fa-laptop"></i></div>
                         <div class="stat-value" id="statAltAvailable">0</div>
                         <div class="stat-label">أجهزة بديلة متاحة</div>
+                    </div>
+                    <div class="stat-card" style="border-top: 4px solid #6366f1;">
+                        <div class="stat-icon" style="background: rgba(99,102,241,0.1); color: #6366f1;"><i class="fas fa-file-alt"></i></div>
+                        <div class="stat-value" id="statDocuments">0</div>
+                        <div class="stat-label">الوثائق والملاحظات</div>
                     </div>
                 </div>
                 <div class="card">
@@ -757,7 +767,58 @@
                 </div>
             </div>
 
-            <div class="page-section" id="page-admin">
+                        <div class="page-section" id="page-documents">
+                <div class="page-header">
+                    <h1 class="page-title">الوثائق والملاحظات</h1>
+                    <div class="page-actions no-print">
+                        <button class="btn btn-success btn-sm" onclick="openDocumentModal()">
+                            <i class="fas fa-plus"></i> إضافة وثيقة
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="printDocuments()">
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                    </div>
+                </div>
+                <div class="search-filter no-print">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="documentSearch" placeholder="بحث في الوثائق..." onkeyup="filterDocuments()">
+                    </div>
+                    <select class="form-control" id="documentCategoryFilter" onchange="filterDocuments()" style="width: 180px;">
+                        <option value="">جميع التصنيفات</option>
+                        <option value="report">تقرير</option>
+                        <option value="memo_internal">مذكرة داخلية</option>
+                        <option value="invoice">فاتورة</option>
+                        <option value="official_letter">كتاب رسمي</option>
+                        <option value="maintenance_contract">عقد صيانة</option>
+                        <option value="other">أخرى</option>
+                    </select>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="data-table" id="documentsTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>العنوان</th>
+                                        <th>التصنيف</th>
+                                        <th>الوصف</th>
+                                        <th>الملاحظات</th>
+                                        <th>المرفقات</th>
+                                        <th>تاريخ الإنشاء</th>
+                                        <th>المستخدم</th>
+                                        <th class="no-print">إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<div class="page-section" id="page-admin">
                 <div class="page-header">
                     <h1 class="page-title">إدارة النظام</h1>
                 </div>
@@ -1098,6 +1159,76 @@
         </div>
     </div>
 
+
+    <!-- Document Modal -->
+    <div class="modal-overlay" id="documentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="documentModalTitle">إضافة وثيقة / ملاحظة</h3>
+                <button class="modal-close" onclick="closeModal('documentModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="documentForm">
+                    <input type="hidden" id="documentId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>رقم الوثيقة <span style="color: var(--text-light);">(تلقائي)</span></label>
+                            <input type="text" class="form-control" id="documentNumber" readonly style="background: #f8fafc;">
+                        </div>
+                        <div class="form-group">
+                            <label>التصنيف <span style="color: var(--danger);">*</span></label>
+                            <select class="form-control" id="documentCategory" required>
+                                <option value="report">تقرير</option>
+                                <option value="memo_internal">مذكرة داخلية</option>
+                                <option value="invoice">فاتورة</option>
+                                <option value="official_letter">كتاب رسمي</option>
+                                <option value="maintenance_contract">عقد صيانة</option>
+                                <option value="other">أخرى</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>العنوان <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="documentTitle" placeholder="عنوان الوثيقة أو الملاحظة" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>الوصف</label>
+                            <textarea class="form-control" id="documentDescription" placeholder="وصف تفصيلي للوثيقة..."></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>الملاحظات</label>
+                            <textarea class="form-control" id="documentNotes" placeholder="ملاحظات إضافية..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ الوثيقة</label>
+                            <input type="date" class="form-control" id="documentDate">
+                        </div>
+                        <div class="form-group full-width">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-paperclip" style="color: var(--primary);"></i>
+                                المرفقات
+                            </label>
+                            <div id="documentAttachmentsList" style="margin-bottom: 10px;"></div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-upload"></i> اختيار ملف
+                                    <input type="file" id="documentFileInput" style="display: none;" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.txt" onchange="handleDocumentFileSelect(this)">
+                                </label>
+                                <span id="documentFileName" style="font-size: 12px; color: var(--text-light);">لم يتم اختيار ملف</span>
+                            </div>
+                            <p style="font-size: 11px; color: var(--text-light); margin-top: 5px;">PDF, Word, Excel, Images, TXT - الحد الأقصى 10 ميجا</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('documentModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveDocument()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
 <script>
     // Console warning
     console.log('%c⚠️ MAINTENANCE SYSTEM', 'font-size: 24px; font-weight: bold; color: #ef4444;');
@@ -1417,7 +1548,390 @@ async function showPage(page) {
     if (page === 'inventory') { await loadInventory(); setTimeout(checkLowStock, 500); }
     if (page === 'alternatives') await loadAlternatives();
     if (page === 'admin') await loadUsers();
+    if (page === 'documents') await loadDocuments();
 }
+
+
+// ==================== DOCUMENTS ====================
+let editingDocumentId = null;
+let documentTempAttachments = [];
+
+async function loadDocuments() {
+    const documents = await SupabaseAPI.request('documents', 'GET');
+    const tbody = document.querySelector('#documentsTable tbody');
+    const search = document.getElementById('documentSearch')?.value?.toLowerCase() || '';
+    const categoryFilter = document.getElementById('documentCategoryFilter')?.value || '';
+
+    let filtered = documents;
+    if (search) {
+        filtered = filtered.filter(d =>
+            (d.title || '').toLowerCase().includes(search) ||
+            (d.description || '').toLowerCase().includes(search) ||
+            (d.notes || '').toLowerCase().includes(search) ||
+            (d.category || '').toLowerCase().includes(search)
+        );
+    }
+    if (categoryFilter) filtered = filtered.filter(d => d.category === categoryFilter);
+
+    const categoryLabels = {
+        report: 'تقرير', memo_internal: 'مذكرة داخلية', invoice: 'فاتورة',
+        official_letter: 'كتاب رسمي', maintenance_contract: 'عقد صيانة', other: 'أخرى'
+    };
+
+    tbody.innerHTML = filtered.sort((a, b) => (b.id || 0) - (a.id || 0)).map(d => {
+        const attachmentCount = (d.attachments || []).length;
+        return `
+        <tr>
+            <td><strong>#${d.document_number || d.documentNumber || d.id}</strong></td>
+            <td>${d.title}</td>
+            <td><span class="badge badge-${d.category === 'report' ? 'success' : d.category === 'memo_internal' ? 'info' : d.category === 'invoice' ? 'warning' : d.category === 'official_letter' ? 'secondary' : d.category === 'maintenance_contract' ? 'inprogress' : 'new'}">${categoryLabels[d.category] || d.category}</span></td>
+            <td>${d.description ? d.description.substring(0, 50) + (d.description.length > 50 ? '...' : '') : '-'}</td>
+            <td>${d.notes ? d.notes.substring(0, 40) + (d.notes.length > 40 ? '...' : '') : '-'}</td>
+            <td>${attachmentCount > 0 ? `<span class="badge badge-completed"><i class="fas fa-paperclip"></i> ${attachmentCount}</span>` : '<span class="badge badge-cancelled">0</span>'}</td>
+            <td>${formatDate(d.document_date || d.documentDate || d.created_at)}</td>
+            <td>${d.created_by || d.createdBy || '-'}</td>
+            <td class="no-print">
+                <div class="action-btns">
+                    <button class="action-btn view" onclick="previewDocument(${d.id})" title="معاينة"><i class="fas fa-file-alt"></i></button>
+                    <button class="action-btn edit" onclick="openDocumentModal(${d.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn print" onclick="printDocument(${d.id})" title="طباعة"><i class="fas fa-print"></i></button>
+                    <button class="action-btn delete" onclick="deleteDocument(${d.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>
+    `}).join('');
+
+    document.getElementById('documentsBadge').textContent = documents.length;
+}
+
+function filterDocuments() { loadDocuments(); }
+
+async function generateDocumentNumber() {
+    const documents = await SupabaseAPI.request('documents', 'GET');
+    const maxNum = documents.reduce((max, d) => {
+        const num = parseInt(d.document_number || d.documentNumber || '0');
+        return num > max ? num : max;
+    }, 0);
+    return 'DOC-' + String(maxNum + 1).padStart(4, '0');
+}
+
+async function openDocumentModal(documentId) {
+    editingDocumentId = documentId || null;
+    documentTempAttachments = [];
+    document.getElementById('documentModalTitle').textContent = documentId ? 'تعديل وثيقة / ملاحظة' : 'إضافة وثيقة / ملاحظة';
+    document.getElementById('documentAttachmentsList').innerHTML = '';
+    document.getElementById('documentFileName').textContent = 'لم يتم اختيار ملف';
+    document.getElementById('documentFileName').style.color = 'var(--text-light)';
+
+    if (documentId) {
+        const documents = await SupabaseAPI.request('documents', 'GET');
+        const doc = documents.find(d => d.id === documentId);
+        if (doc) {
+            document.getElementById('documentId').value = doc.id;
+            document.getElementById('documentNumber').value = doc.document_number || doc.documentNumber || '';
+            document.getElementById('documentCategory').value = doc.category || 'general';
+            document.getElementById('documentTitle').value = doc.title || '';
+            document.getElementById('documentDescription').value = doc.description || '';
+            document.getElementById('documentNotes').value = doc.notes || '';
+            document.getElementById('documentDate').value = doc.document_date || doc.documentDate || new Date().toISOString().split('T')[0];
+            documentTempAttachments = doc.attachments || [];
+            renderDocumentAttachments();
+        }
+    } else {
+        document.getElementById('documentForm').reset();
+        document.getElementById('documentNumber').value = await generateDocumentNumber();
+        document.getElementById('documentId').value = '';
+        document.getElementById('documentDate').value = new Date().toISOString().split('T')[0];
+        documentTempAttachments = [];
+    }
+    openModal('documentModal');
+}
+
+function handleDocumentFileSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+        showToast('error', 'خطأ', 'حجم الملف يتجاوز 10 ميجابايت');
+        input.value = '';
+        return;
+    }
+    const desc = prompt('وصف الملف (اختياري):', file.name);
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const att = {
+            id: Date.now(),
+            description: desc || file.name,
+            filename: file.name,
+            size: file.size,
+            type: file.type,
+            data: e.target.result
+        };
+        documentTempAttachments.push(att);
+        renderDocumentAttachments();
+        document.getElementById('documentFileName').textContent = '✅ ' + file.name;
+        document.getElementById('documentFileName').style.color = 'var(--success)';
+        showToast('success', 'تم', 'تم إرفاق الملف');
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+}
+
+function renderDocumentAttachments() {
+    const container = document.getElementById('documentAttachmentsList');
+    if (documentTempAttachments.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-light); font-size: 12px;">لا توجد مرفقات</p>';
+        return;
+    }
+    container.innerHTML = documentTempAttachments.map(att => `
+        <div class="attachment-item" style="margin-bottom: 8px;">
+            <div class="attachment-info">
+                <div class="attachment-icon"><i class="fas ${getFileIcon(att.filename)}"></i></div>
+                <div class="attachment-details">
+                    <h5>${att.description || att.filename}</h5>
+                    <p>${att.filename} • ${formatFileSize(att.size)}</p>
+                </div>
+            </div>
+            <div class="attachment-actions">
+                <button type="button" class="action-btn view" onclick="event.stopPropagation(); viewDocumentAttachment(${att.id})" title="عرض"><i class="fas fa-eye"></i></button>
+                <button type="button" class="action-btn delete" onclick="event.stopPropagation(); removeDocumentAttachment(${att.id})" title="حذف"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function viewDocumentAttachment(attId) {
+    const att = documentTempAttachments.find(a => a.id === attId);
+    if (!att) return;
+    if (att.data.startsWith('data:image')) {
+        const lightboxId = 'doc_lightbox_' + Date.now();
+        const lightboxHtml = `
+            <div id="${lightboxId}" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px;" onclick="if(event.target === this) closeLightbox('${lightboxId}')">
+                <div style="background: white; border-radius: 16px; max-width: 900px; width: 100%; max-height: 90vh; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+                    <div style="padding: 20px 25px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #f8fafc, #f1f5f9);">
+                        <h3 style="font-size: 18px; font-weight: 700; color: #1e293b; margin: 0;">${att.description || att.filename}</h3>
+                        <button onclick="closeLightbox('${lightboxId}')" style="width: 36px; height: 36px; border: none; background: rgba(239,68,68,0.1); color: #ef4444; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;">&times;</button>
+                    </div>
+                    <div style="padding: 25px; text-align: center; overflow-y: auto; max-height: calc(90vh - 140px);">
+                        <img src="${att.data}" style="max-width: 100%; max-height: 60vh; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" alt="${att.filename}">
+                        <p style="margin-top: 15px; color: #64748b; font-size: 13px;">${att.filename} • ${formatFileSize(att.size)}</p>
+                    </div>
+                    <div style="padding: 15px 25px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px; background: #f8fafc;">
+                        <a href="${att.data}" download="${att.filename}" style="padding: 10px 20px; background: linear-gradient(135deg, #4f46e5, #3730a3); color: white; border-radius: 10px; text-decoration: none; font-family: 'Tajawal', sans-serif; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-download"></i> تحميل
+                        </a>
+                        <button onclick="closeLightbox('${lightboxId}')" style="padding: 10px 20px; background: #f1f5f9; color: #475569; border: none; border-radius: 10px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: 700; font-size: 14px;">إغلاق</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', lightboxHtml);
+        document.body.style.overflow = 'hidden';
+    } else {
+        downloadAttachment(att.data, att.filename);
+    }
+}
+
+function removeDocumentAttachment(attId) {
+    if (!confirm('هل أنت متأكد من إزالة هذا المرفق؟')) return;
+    documentTempAttachments = documentTempAttachments.filter(a => a.id !== attId);
+    renderDocumentAttachments();
+    showToast('success', 'تم', 'تم إزالة المرفق');
+}
+
+async function saveDocument() {
+    const title = document.getElementById('documentTitle').value.trim();
+    const category = document.getElementById('documentCategory').value;
+
+    if (!title) {
+        showToast('error', 'خطأ', 'الرجاء إدخال عنوان الوثيقة');
+        return;
+    }
+
+    const docData = {
+        document_number: document.getElementById('documentNumber').value,
+        category: category,
+        title: title,
+        description: document.getElementById('documentDescription').value,
+        notes: document.getElementById('documentNotes').value,
+        document_date: document.getElementById('documentDate').value,
+        attachments: documentTempAttachments,
+        updated_at: new Date().toISOString(),
+        created_by: currentUser?.full_name || currentUser?.fullName || 'System'
+    };
+
+    if (editingDocumentId) {
+        await SupabaseAPI.request('documents', 'PATCH', docData, editingDocumentId);
+    } else {
+        docData.created_at = new Date().toISOString();
+        await SupabaseAPI.request('documents', 'POST', docData);
+    }
+
+    closeModal('documentModal');
+    await loadDocuments();
+    await updateDashboard();
+    showToast('success', 'تم الحفظ', editingDocumentId ? 'تم تحديث الوثيقة بنجاح' : 'تم إضافة الوثيقة بنجاح');
+}
+
+
+async function previewDocument(id) {
+    const documents = await SupabaseAPI.request('documents', 'GET');
+    const doc = documents.find(d => d.id === id);
+    if (!doc) return;
+
+    const categoryLabels = {
+        report: 'تقرير', memo_internal: 'مذكرة داخلية', invoice: 'فاتورة',
+        official_letter: 'كتاب رسمي', maintenance_contract: 'عقد صيانة', other: 'أخرى'
+    };
+
+    const attachmentsHtml = (doc.attachments || []).length > 0
+        ? doc.attachments.map(att => `
+            <div class="attachment-item" style="margin-bottom: 8px;">
+                <div class="attachment-info">
+                    <div class="attachment-icon"><i class="fas ${getFileIcon(att.filename)}"></i></div>
+                    <div class="attachment-details">
+                        <h5>${att.description || att.filename}</h5>
+                        <p>${att.filename} • ${formatFileSize(att.size)}</p>
+                    </div>
+                </div>
+                <div class="attachment-actions">
+                    <button type="button" class="action-btn view" onclick="event.stopPropagation(); downloadAttachment('${att.data}', '${att.filename}')" title="تحميل"><i class="fas fa-download"></i></button>
+                </div>
+            </div>
+        `).join('')
+        : '<p style="color: var(--text-light);">لا توجد مرفقات</p>';
+
+    const previewHtml = `
+        <div class="modal-overlay active" id="previewDocModal">
+            <div class="modal" style="max-width: 700px;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">
+                    <h3 style="color: white;"><i class="fas fa-file-alt" style="margin-left: 10px;"></i> معاينة الوثيقة</h3>
+                    <button class="modal-close" style="background: rgba(255,255,255,0.2); color: white;" onclick="document.getElementById('previewDocModal').remove()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 12px; padding: 20px; margin-bottom: 20px; border-right: 4px solid #4f46e5;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+                            <div><strong style="color: #1e40af;">رقم الوثيقة:</strong> <span style="font-weight: 700; color: #4f46e5;">#${doc.document_number || doc.documentNumber || doc.id}</span></div>
+                            <div><strong style="color: #1e40af;">التصنيف:</strong> <span class="badge badge-${doc.category === 'report' ? 'success' : doc.category === 'memo_internal' ? 'info' : doc.category === 'invoice' ? 'warning' : doc.category === 'official_letter' ? 'secondary' : doc.category === 'maintenance_contract' ? 'inprogress' : 'new'}" style="font-size: 13px;">${categoryLabels[doc.category] || doc.category}</span></div>
+                            <div><strong style="color: #1e40af;">التاريخ:</strong> ${formatDate(doc.document_date || doc.documentDate || doc.created_at)}</div>
+                            <div><strong style="color: #1e40af;">الموظف:</strong> ${doc.created_by || doc.createdBy || '-'}</div>
+                        </div>
+                        <div style="border-top: 1px dashed #bfdbfe; padding-top: 12px;">
+                            <strong style="color: #1e40af; font-size: 16px;">العنوان:</strong>
+                            <p style="margin-top: 6px; font-size: 18px; font-weight: 700; color: #1e293b;">${doc.title}</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-align-right"></i> الوصف
+                        </h4>
+                        <div style="background: #f8fafc; border-radius: 10px; padding: 15px; border-right: 3px solid var(--info); min-height: 60px;">
+                            <p style="color: var(--text-dark); line-height: 1.8; margin: 0;">${doc.description ? doc.description.replace(/\n/g, '<br>') : '<span style="color: var(--text-light);">لا يوجد وصف</span>'}</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-sticky-note"></i> الملاحظات
+                        </h4>
+                        <div style="background: #fefce8; border-radius: 10px; padding: 15px; border-right: 3px solid var(--warning); min-height: 50px;">
+                            <p style="color: var(--text-dark); line-height: 1.8; margin: 0;">${doc.notes ? doc.notes.replace(/\n/g, '<br>') : '<span style="color: var(--text-light);">لا توجد ملاحظات</span>'}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 style="color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-paperclip"></i> المرفقات (${(doc.attachments || []).length})
+                        </h4>
+                        <div style="background: #f8fafc; border-radius: 10px; padding: 15px;">${attachmentsHtml}</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="openDocumentModal(${doc.id}); document.getElementById('previewDocModal').remove();">
+                        <i class="fas fa-edit"></i> تعديل
+                    </button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('previewDocModal').remove()">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', previewHtml);
+}
+
+async function viewDocument(id) {
+    const documents = await SupabaseAPI.request('documents', 'GET');
+    const doc = documents.find(d => d.id === id);
+    if (!doc) return;
+
+    const categoryLabels = {
+        report: 'تقرير', memo_internal: 'مذكرة داخلية', invoice: 'فاتورة',
+        official_letter: 'كتاب رسمي', maintenance_contract: 'عقد صيانة', other: 'أخرى'
+    };
+
+    const attachmentsHtml = (doc.attachments || []).length > 0
+        ? doc.attachments.map(att => `
+            <div class="attachment-item" style="margin-bottom: 8px;">
+                <div class="attachment-info">
+                    <div class="attachment-icon"><i class="fas ${getFileIcon(att.filename)}"></i></div>
+                    <div class="attachment-details">
+                        <h5>${att.description || att.filename}</h5>
+                        <p>${att.filename} • ${formatFileSize(att.size)}</p>
+                    </div>
+                </div>
+                <div class="attachment-actions">
+                    <button type="button" class="action-btn view" onclick="event.stopPropagation(); downloadAttachment('${att.data}', '${att.filename}')" title="تحميل"><i class="fas fa-download"></i></button>
+                </div>
+            </div>
+        `).join('')
+        : '<p style="color: var(--text-light);">لا توجد مرفقات</p>';
+
+    const modalHtml = `
+        <div class="modal-overlay active" id="viewDocModal">
+            <div class="modal" style="max-width: 650px;">
+                <div class="modal-header">
+                    <h3>تفاصيل الوثيقة #${doc.document_number || doc.documentNumber || doc.id}</h3>
+                    <button class="modal-close" onclick="document.getElementById('viewDocModal').remove()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div><strong>التصنيف:</strong> <span class="badge badge-${doc.category === 'report' ? 'success' : doc.category === 'memo_internal' ? 'info' : doc.category === 'invoice' ? 'warning' : doc.category === 'official_letter' ? 'secondary' : doc.category === 'maintenance_contract' ? 'inprogress' : 'new'}">${categoryLabels[doc.category] || doc.category}</span></div>
+                        <div><strong>التاريخ:</strong> ${formatDate(doc.document_date || doc.documentDate || doc.created_at)}</div>
+                        <div style="grid-column: 1 / -1;"><strong>العنوان:</strong> ${doc.title}</div>
+                        <div><strong>الموظف:</strong> ${doc.created_by || doc.createdBy || '-'}</div>
+                        <div style="grid-column: 1 / -1;"><strong>الوصف:</strong>
+                            <p style="margin-top: 8px; padding: 12px; background: #f8fafc; border-radius: 8px;">${doc.description || 'لا يوجد وصف'}</p>
+                        </div>
+                        <div style="grid-column: 1 / -1;"><strong>الملاحظات:</strong>
+                            <p style="margin-top: 8px; padding: 12px; background: #f8fafc; border-radius: 8px;">${doc.notes || 'لا توجد ملاحظات'}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <strong>المرفقات:</strong>
+                        <div style="margin-top: 10px;">${attachmentsHtml}</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="printDocument(${doc.id}); document.getElementById('viewDocModal').remove();">
+                        <i class="fas fa-print"></i> طباعة
+                    </button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('viewDocModal').remove()">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+async function deleteDocument(id) {
+    if (!confirm('هل أنت متأكد من حذف هذه الوثيقة؟')) return;
+    await SupabaseAPI.request('documents', 'DELETE', null, id);
+    await loadDocuments();
+    await updateDashboard();
+    showToast('success', 'تم الحذف', 'تم حذف الوثيقة بنجاح');
+}
+
+function printDocument(id) { window.print(); }
+function printDocuments() { window.print(); }
 
 // ==================== TOAST ====================
 function showToast(type, title, message) {
@@ -2479,7 +2993,7 @@ async function resetAllData() {
     if (!confirm('تحذير: سيتم مسح جميع البيانات! هل أنت متأكد؟')) return;
     if (!confirm('هل أنت متأكد تماماً؟ لا يمكن التراجع عن هذا الإجراء!')) return;
 
-    const tables = ['requests', 'transactions', 'inventory_history', 'alt_models', 'assignments'];
+    const tables = ['requests', 'transactions', 'inventory_history', 'alt_models', 'assignments', 'documents'];
     for (const table of tables) {
         const items = await SupabaseAPI.request(table, 'GET');
         for (const item of items) {
@@ -2544,9 +3058,10 @@ function exportAllData() {
         SupabaseAPI.request('alt_devices', 'GET'),
         SupabaseAPI.request('alt_models', 'GET'),
         SupabaseAPI.request('assignments', 'GET'),
-        SupabaseAPI.request('users', 'GET')
-    ]).then(([requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users]) => {
-        const data = { requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users, exportDate: new Date().toISOString() };
+        SupabaseAPI.request('users', 'GET'),
+        SupabaseAPI.request('documents', 'GET')
+    ]).then(([requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users, documents]) => {
+        const data = { requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users, documents, exportDate: new Date().toISOString() };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -2585,7 +3100,8 @@ function importBackup(input) {
                 importTable('inventory_history', data.inventoryHistory || []),
                 importTable('alt_devices', data.altDevices || []),
                 importTable('alt_models', data.altModels || []),
-                importTable('assignments', data.assignments || [])
+                importTable('assignments', data.assignments || []),
+                importTable('documents', data.documents || [])
             ]).then(() => {
                 if (data.users && data.users.length > 0) importTable('users', data.users);
                 input.value = '';
@@ -2615,6 +3131,10 @@ async function updateDashboard() {
     document.getElementById('statDuplicate').textContent = requests.filter(r => r.status === 'duplicate').length;
     document.getElementById('statOutOfStock').textContent = inventory.filter(i => (i.qty || 0) === 0).length;
     document.getElementById('statAltAvailable').textContent = altModels.filter(m => m.status === 'available').length;
+
+    // Document stats
+    const documents = await SupabaseAPI.request('documents', 'GET');
+    document.getElementById('statDocuments').textContent = documents.length;
 
     const hiddenStatuses = ['completed', 'cancelled', 'duplicate'];
     const activeRequests = requests.filter(r => !hiddenStatuses.includes(r.status));
