@@ -22,6 +22,10 @@
     <title>نظام إدارة طلبات الصيانة - Supabase Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     <style>
         :root {
             --primary: #4f46e5; --primary-light: #818cf8; --primary-dark: #3730a3;
@@ -783,6 +787,12 @@
                     <div class="page-actions no-print">
                         <button class="btn btn-success btn-sm" onclick="openComputerItemModal()">
                             <i class="fas fa-plus"></i> إضافة مادة
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="openComputerItemReportModal()">
+                            <i class="fas fa-chart-bar"></i> تقارير
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="openImportDocxModal()">
+                            <i class="fas fa-file-word"></i> استيراد من DOCX
                         </button>
                         <button class="btn btn-primary btn-sm" onclick="printComputerItems()">
                             <i class="fas fa-print"></i> طباعة
@@ -2078,7 +2088,7 @@ async function loadComputerItems() {
             <td style="max-width: 300px; white-space: normal;">${i.name}</td>
             <td><strong style="font-size: 16px;">${i.qty}</strong></td>
             <td>${i.notes ? i.notes.substring(0, 40) + (i.notes.length > 40 ? '...' : '') : '-'}</td>
-            <td>${formatDate(i.item_date || i.itemDate || i.created_at)}</td>
+            <td>${formatDate(i.created_at)}</td>
             <td>${i.created_by || i.createdBy || '-'}</td>
             <td class="no-print">
                 <div class="action-btns">
@@ -2110,7 +2120,7 @@ async function openComputerItemModal(itemId) {
             document.getElementById('computerItemName').value = item.name || '';
             document.getElementById('computerItemQty').value = item.qty || 0;
             document.getElementById('computerItemNotes').value = item.notes || '';
-            document.getElementById('computerItemDate').value = item.item_date || item.itemDate || new Date().toISOString().split('T')[0];
+            document.getElementById('computerItemDate').value = new Date().toISOString().split('T')[0];
         }
     } else {
         document.getElementById('computerItemForm').reset();
@@ -2138,7 +2148,6 @@ async function saveComputerItem() {
         name: name,
         qty: qty,
         notes: document.getElementById('computerItemNotes').value,
-        item_date: document.getElementById('computerItemDate').value,
         updated_at: new Date().toISOString(),
         created_by: currentUser?.full_name || currentUser?.fullName || 'System'
     };
@@ -2176,7 +2185,7 @@ async function viewComputerItem(id) {
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
                             <div><strong style="color: #1e40af;">رقم المادة:</strong> <span style="font-weight: 700; color: #4f46e5; font-size: 18px;">${item.item_number || item.itemNumber || '-'}</span></div>
                             <div><strong style="color: #1e40af;">التصنيف:</strong> <span class="badge badge-${categoryColors[item.category] || 'new'}">${categoryLabels[item.category] || item.category}</span></div>
-                            <div><strong style="color: #1e40af;">التاريخ:</strong> ${formatDate(item.item_date || item.itemDate || item.created_at)}</div>
+                            <div><strong style="color: #1e40af;">التاريخ:</strong> ${formatDate(item.created_at)}</div>
                             <div><strong style="color: #1e40af;">الكمية:</strong> <strong style="font-size: 18px; color: var(--primary);">${item.qty}</strong></div>
                             <div style="grid-column: 1 / -1;"><strong style="color: #1e40af;">الموظف:</strong> ${item.created_by || item.createdBy || '-'}</div>
                         </div>
@@ -2646,7 +2655,14 @@ function printRequests() { window.print(); }
 
 // ==================== INVENTORY ====================
 async function loadInventory() {
-    const inventory = await SupabaseAPI.request('inventory', 'GET');
+    let inventory = await SupabaseAPI.request('inventory', 'GET');
+    // Deduplicate by ID to prevent duplicate display
+    const seen = new Set();
+    inventory = inventory.filter(item => {
+        if (seen.has(item.id)) return false;
+        seen.add(item.id);
+        return true;
+    });
     const grid = document.getElementById('inventoryGrid');
 
     grid.innerHTML = inventory.map(item => {
@@ -2668,7 +2684,13 @@ async function loadInventory() {
         `;
     }).join('');
 
-    const transactions = await SupabaseAPI.request('transactions', 'GET');
+    let transactions = await SupabaseAPI.request('transactions', 'GET');
+    const seenTrans = new Set();
+    transactions = transactions.filter(t => {
+        if (seenTrans.has(t.id)) return false;
+        seenTrans.add(t.id);
+        return true;
+    });
     const transTbody = document.querySelector('#transactionsTable tbody');
     transTbody.innerHTML = transactions.sort((a, b) => (b.id || 0) - (a.id || 0)).map(t => `
         <tr>
@@ -2681,7 +2703,13 @@ async function loadInventory() {
         </tr>
     `).join('');
 
-    const history = await SupabaseAPI.request('inventory_history', 'GET');
+    let history = await SupabaseAPI.request('inventory_history', 'GET');
+    const seenHist = new Set();
+    history = history.filter(h => {
+        if (seenHist.has(h.id)) return false;
+        seenHist.add(h.id);
+        return true;
+    });
     const histTbody = document.querySelector('#historyTable tbody');
     histTbody.innerHTML = history.sort((a, b) => (b.id || 0) - (a.id || 0)).map(h => `
         <tr>
@@ -3534,6 +3562,485 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('حدث خطأ في تحميل النظام: ' + err.message);
     }
 });
+
+
+// ==================== COMPUTER ITEMS REPORTS ====================
+let currentReportType = 'all';
+let currentReportData = [];
+let docxImportPreviewData = [];
+
+async function openComputerItemReportModal() {
+    currentReportType = 'all';
+    document.querySelectorAll('#computerItemReportModal .tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#computerItemReportModal .tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelector('#computerItemReportModal .tab-btn:first-child').classList.add('active');
+    document.getElementById('report-tab-all').classList.add('active');
+    await generateAllItemsReport();
+    openModal('computerItemReportModal');
+}
+
+function showReportTab(tab) {
+    document.querySelectorAll('#computerItemReportModal .tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#computerItemReportModal .tab-content').forEach(c => c.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('report-tab-' + tab).classList.add('active');
+    currentReportType = tab;
+    if (tab === 'all') generateAllItemsReport();
+}
+
+async function generateAllItemsReport() {
+    const items = await SupabaseAPI.request('computer_items', 'GET');
+    currentReportData = items;
+    const categoryTotals = {};
+    items.forEach(i => {
+        const cat = i.category || 'Other';
+        if (!categoryTotals[cat]) categoryTotals[cat] = { count: 0, qty: 0 };
+        categoryTotals[cat].count++;
+        categoryTotals[cat].qty += parseInt(i.qty) || 0;
+    });
+    const totalItems = items.length;
+    const totalQty = items.reduce((sum, i) => sum + (parseInt(i.qty) || 0), 0);
+    const categoryColors = { Desktop: 'info', Notebook: 'secondary', Printer: 'warning', Other: 'new' };
+
+    let summaryHtml = '<div style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 12px; padding: 20px; margin-bottom: 20px; border-right: 4px solid #4f46e5;">' +
+        '<h4 style="color: #1e40af; margin-bottom: 15px;"><i class="fas fa-chart-pie"></i> ملخص التقرير</h4>' +
+        '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 15px;">' +
+        '<div style="background: white; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">' +
+        '<div style="font-size: 28px; font-weight: 800; color: var(--primary);">' + totalItems + '</div>' +
+        '<div style="font-size: 12px; color: var(--text-medium);">إجمالي المواد</div></div>' +
+        '<div style="background: white; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">' +
+        '<div style="font-size: 28px; font-weight: 800; color: var(--success);">' + totalQty + '</div>' +
+        '<div style="font-size: 12px; color: var(--text-medium);">إجمالي الكميات</div></div></div>' +
+        '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">' +
+        Object.entries(categoryTotals).map(([cat, data]) => 
+            '<div style="background: white; border-radius: 8px; padding: 12px; text-align: center; border-top: 3px solid var(--' + (categoryColors[cat] || 'primary') + ');">' +
+            '<div style="font-size: 20px; font-weight: 700; color: var(--' + (categoryColors[cat] || 'primary') + ');">' + data.count + '</div>' +
+            '<div style="font-size: 11px; color: var(--text-medium);">' + cat + '</div>' +
+            '<div style="font-size: 13px; font-weight: 600; color: var(--text-dark);">الكمية: ' + data.qty + '</div></div>'
+        ).join('') + '</div></div>';
+
+    let tableHtml = '<div class="card" id="reportPrintArea"><div class="card-header" style="background: linear-gradient(135deg, #f8fafc, #f1f5f9);">' +
+        '<h3><i class="fas fa-list" style="color: var(--primary);"></i> قائمة المواد الحاسوبية الكاملة</h3>' +
+        '<span style="font-size: 12px; color: var(--text-light);">تاريخ التقرير: ' + new Date().toLocaleDateString('ar-SA') + '</span></div>' +
+        '<div class="card-body"><div class="table-container"><table class="data-table" id="allItemsReportTable"><thead><tr>' +
+        '<th>#</th><th>التصنيف</th><th>رقم المادة</th><th>اسم المادة ومواصفاتها</th><th>الكمية</th><th>الملاحظات</th><th>تاريخ الإضافة</th><th>المستخدم</th>' +
+        '</tr></thead><tbody>' +
+        items.sort((a, b) => (b.id || 0) - (a.id || 0)).map((i, idx) => 
+            '<tr><td>' + (idx + 1) + '</td>' +
+            '<td><span class="badge badge-' + (categoryColors[i.category] || 'new') + '">' + i.category + '</span></td>' +
+            '<td><strong>' + (i.item_number || i.itemNumber || '-') + '</strong></td>' +
+            '<td style="max-width: 250px; white-space: normal;">' + i.name + '</td>' +
+            '<td><strong>' + i.qty + '</strong></td>' +
+            '<td>' + (i.notes || '-') + '</td>' +
+            '<td>' + formatDate(i.created_at) + '</td>' +
+            '<td>' + (i.created_by || i.createdBy || '-') + '</td></tr>'
+        ).join('') + '</tbody>' +
+        '<tfoot><tr style="background: linear-gradient(135deg, #f1f5f9, #e2e8f0); font-weight: 700;">' +
+        '<td colspan="4" style="text-align: left;">المجموع الكلي:</td>' +
+        '<td style="font-size: 18px; color: var(--primary);">' + totalQty + '</td>' +
+        '<td colspan="3"></td></tr></tfoot></table></div></div></div>';
+
+    document.getElementById('allItemsReportContent').innerHTML = summaryHtml + tableHtml;
+}
+
+async function generateCategoryReport() {
+    const category = document.getElementById('reportCategorySelect').value;
+    if (!category) {
+        document.getElementById('categoryReportContent').innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 40px;">الرجاء اختيار تصنيف</p>';
+        return;
+    }
+    const items = await SupabaseAPI.request('computer_items', 'GET');
+    const filtered = items.filter(i => i.category === category);
+    currentReportData = filtered;
+    currentReportType = 'category';
+    const totalQty = filtered.reduce((sum, i) => sum + (parseInt(i.qty) || 0), 0);
+    const categoryColors = { Desktop: 'info', Notebook: 'secondary', Printer: 'warning', Other: 'new' };
+
+    let html = '<div style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 12px; padding: 20px; margin-bottom: 20px; border-right: 4px solid var(--' + (categoryColors[category] || 'primary') + ');">' +
+        '<h4 style="color: #1e40af; margin-bottom: 10px;"><i class="fas fa-filter"></i> تقرير تصنيف: ' + category + '</h4>' +
+        '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">' +
+        '<div style="background: white; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">' +
+        '<div style="font-size: 28px; font-weight: 800; color: var(--' + (categoryColors[category] || 'primary') + ');">' + filtered.length + '</div>' +
+        '<div style="font-size: 12px; color: var(--text-medium);">عدد المواد</div></div>' +
+        '<div style="background: white; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">' +
+        '<div style="font-size: 28px; font-weight: 800; color: var(--success);">' + totalQty + '</div>' +
+        '<div style="font-size: 12px; color: var(--text-medium);">إجمالي الكميات</div></div></div></div>' +
+        '<div class="card" id="reportPrintArea"><div class="card-header" style="background: linear-gradient(135deg, #f8fafc, #f1f5f9);">' +
+        '<h3><i class="fas fa-list" style="color: var(--primary);"></i> مواد تصنيف ' + category + '</h3>' +
+        '<span style="font-size: 12px; color: var(--text-light);">تاريخ التقرير: ' + new Date().toLocaleDateString('ar-SA') + '</span></div>' +
+        '<div class="card-body"><div class="table-container"><table class="data-table"><thead><tr>' +
+        '<th>#</th><th>رقم المادة</th><th>اسم المادة ومواصفاتها</th><th>الكمية</th><th>الملاحظات</th><th>تاريخ الإضافة</th><th>المستخدم</th>' +
+        '</tr></thead><tbody>' +
+        filtered.sort((a, b) => (b.id || 0) - (a.id || 0)).map((i, idx) => 
+            '<tr><td>' + (idx + 1) + '</td>' +
+            '<td><strong>' + (i.item_number || i.itemNumber || '-') + '</strong></td>' +
+            '<td style="max-width: 300px; white-space: normal;">' + i.name + '</td>' +
+            '<td><strong>' + i.qty + '</strong></td>' +
+            '<td>' + (i.notes || '-') + '</td>' +
+            '<td>' + formatDate(i.created_at) + '</td>' +
+            '<td>' + (i.created_by || i.createdBy || '-') + '</td></tr>'
+        ).join('') + '</tbody>' +
+        '<tfoot><tr style="background: linear-gradient(135deg, #f1f5f9, #e2e8f0); font-weight: 700;">' +
+        '<td colspan="3" style="text-align: left;">المجموع الكلي:</td>' +
+        '<td style="font-size: 18px; color: var(--primary);">' + totalQty + '</td>' +
+        '<td colspan="3"></td></tr></tfoot></table></div></div></div>';
+
+    document.getElementById('categoryReportContent').innerHTML = html;
+}
+
+function exportReportToPDF() {
+    const element = document.getElementById('reportPrintArea');
+    if (!element) { showToast('error', 'خطأ', 'لا يوجد تقرير للتصدير'); return; }
+    const opt = {
+        margin: [10, 10, 10, 10],
+        filename: 'تقرير_المواد_الحاسوبية_' + new Date().toISOString().split('T')[0] + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+    };
+    showToast('info', 'جاري التصدير', 'جاري إنشاء ملف PDF...');
+    html2pdf().set(opt).from(element).save().then(() => {
+        showToast('success', 'تم التصدير', 'تم حفظ ملف PDF بنجاح');
+    }).catch(err => {
+        showToast('error', 'خطأ', 'فشل تصدير PDF: ' + err.message);
+    });
+}
+
+async function exportReportToWord() {
+    const items = currentReportData;
+    if (!items || items.length === 0) { showToast('error', 'خطأ', 'لا يوجد تقرير للتصدير'); return; }
+    showToast('info', 'جاري التصدير', 'جاري إنشاء ملف Word...');
+    try {
+        const { Document, Packer, Paragraph, TextRun, Table, TableCell, TableRow, WidthType, AlignmentType } = window.docx;
+        const category = currentReportType === 'category' ? document.getElementById('reportCategorySelect').value : 'الكل';
+        const totalQty = items.reduce((sum, i) => sum + (parseInt(i.qty) || 0), 0);
+
+        const tableRows = [
+            new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: '#', bold: true, size: 22 })], alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'التصنيف', bold: true, size: 22 })], alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'رقم المادة', bold: true, size: 22 })], alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'اسم المادة ومواصفاتها', bold: true, size: 22 })], alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'الكمية', bold: true, size: 22 })], alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'الملاحظات', bold: true, size: 22 })], alignment: AlignmentType.CENTER })] }),
+                ],
+                tableHeader: true
+            })
+        ];
+
+        items.forEach((item, idx) => {
+            tableRows.push(new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: String(idx + 1), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: item.category || '-', alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: item.item_number || item.itemNumber || '-', alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: item.name || '-', alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: String(item.qty || 0), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: item.notes || '-', alignment: AlignmentType.RIGHT })] }),
+                ]
+            }));
+        });
+
+        tableRows.push(new TableRow({
+            children: [
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'المجموع الكلي', bold: true, size: 24 })], alignment: AlignmentType.LEFT })], columnSpan: 4 }),
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: String(totalQty), bold: true, size: 24, color: '4F46E5' })], alignment: AlignmentType.CENTER })] }),
+                new TableCell({ children: [new Paragraph({ text: '' })] }),
+            ]
+        }));
+
+        const doc = new Document({
+            sections: [{
+                properties: { page: { margin: { top: 1000, right: 1000, bottom: 1000, left: 1000 } } },
+                children: [
+                    new Paragraph({
+                        children: [new TextRun({ text: 'تقرير المواد الحاسوبية', bold: true, size: 32, color: '4F46E5' })],
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    new Paragraph({
+                        children: [new TextRun({ text: 'التصنيف: ' + category, size: 24 })],
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 100 }
+                    }),
+                    new Paragraph({
+                        children: [new TextRun({ text: 'تاريخ التقرير: ' + new Date().toLocaleDateString('ar-SA'), size: 20, color: '666666' })],
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 300 }
+                    }),
+                    new Paragraph({
+                        children: [new TextRun({ text: 'إجمالي المواد: ' + items.length + ' | إجمالي الكميات: ' + totalQty, bold: true, size: 22 })],
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 300 }
+                    }),
+                    new Table({
+                        rows: tableRows,
+                        width: { size: 100, type: WidthType.PERCENTAGE },
+                    }),
+                    new Paragraph({
+                        children: [new TextRun({ text: 'تم إنشاء هذا التقرير بواسطة نظام إدارة الصيانة', size: 18, color: '999999', italics: true })],
+                        alignment: AlignmentType.CENTER,
+                        spacing: { before: 400 }
+                    })
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'تقرير_المواد_الحاسوبية_' + new Date().toISOString().split('T')[0] + '.docx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('success', 'تم التصدير', 'تم حفظ ملف Word بنجاح');
+    } catch (err) {
+        console.error('Word export error:', err);
+        showToast('error', 'خطأ', 'فشل تصدير Word: ' + err.message);
+    }
+}
+
+function printReport() {
+    const element = document.getElementById('reportPrintArea');
+    if (!element) { showToast('error', 'خطأ', 'لا يوجد تقرير للطباعة'); return; }
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>تقرير المواد الحاسوبية</title>
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Tajawal', sans-serif; padding: 30px; color: #1e293b; }
+                .report-header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #4f46e5; }
+                .report-header h1 { color: #4f46e5; font-size: 28px; margin-bottom: 10px; }
+                .report-header p { color: #64748b; font-size: 14px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); padding: 12px; text-align: right; font-weight: 700; font-size: 13px; border-bottom: 2px solid #e2e8f0; }
+                td { padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #475569; }
+                tr:hover td { background: rgba(79,70,229,0.03); }
+                tfoot td { background: #f1f5f9; font-weight: 700; }
+                .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+                .badge-info { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+                .badge-secondary { background: rgba(139,92,246,0.15); color: #7c3aed; }
+                .badge-warning { background: rgba(245,158,11,0.15); color: #b45309; }
+                .badge-new { background: rgba(99,102,241,0.15); color: #4338ca; }
+                @media print { body { padding: 15px; } }
+            </style>
+        </head>
+        <body>
+            <div class="report-header">
+                <h1>تقرير المواد الحاسوبية</h1>
+                <p>تاريخ التقرير: ${new Date().toLocaleDateString('ar-SA')}</p>
+                <p>تم إنشاؤه بواسطة: ${currentUser?.full_name || currentUser?.fullName || 'System'}</p>
+            </div>
+            ${element.innerHTML}
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 500);
+}
+
+// ==================== IMPORT DOCX ====================
+function openImportDocxModal() {
+    document.getElementById('docxImportFile').value = '';
+    document.getElementById('docxImportPreview').style.display = 'none';
+    document.getElementById('confirmDocxImportBtn').style.display = 'none';
+    docxImportPreviewData = [];
+    openModal('importDocxModal');
+}
+
+async function handleDocxImport(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (!file.name.endsWith('.docx')) { showToast('error', 'خطأ', 'الرجاء اختيار ملف DOCX فقط'); input.value = ''; return; }
+    showToast('info', 'جاري المعالجة', 'جاري قراءة ملف DOCX...');
+
+    try {
+        const arrayBuffer = await file.arrayBuffer();
+        const zip = await JSZip.loadAsync(arrayBuffer);
+        const docXml = await zip.file('word/document.xml')?.async('text');
+        if (!docXml) { showToast('error', 'خطأ', 'لا يمكن قراءة محتوى الملف'); return; }
+
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(docXml, 'text/xml');
+        const tables = xmlDoc.getElementsByTagName('w:tbl');
+        if (tables.length === 0) { showToast('error', 'خطأ', 'لم يتم العثور على جداول في الملف'); return; }
+
+        const table = tables[0];
+        const rows = table.getElementsByTagName('w:tr');
+        const extractedData = [];
+
+        for (let i = 1; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('w:tc');
+            const cellTexts = [];
+            for (let j = 0; j < cells.length; j++) {
+                const texts = cells[j].getElementsByTagName('w:t');
+                let cellText = '';
+                for (let k = 0; k < texts.length; k++) {
+                    cellText += texts[k].textContent;
+                }
+                cellTexts.push(cellText.trim());
+            }
+            if (cellTexts.length >= 3) {
+                extractedData.push({
+                    category: cellTexts[0] || 'Other',
+                    item_number: cellTexts[1] || '',
+                    name: cellTexts[2] || '',
+                    qty: parseInt(cellTexts[3]) || 1,
+                    notes: cellTexts[4] || ''
+                });
+            }
+        }
+
+        if (extractedData.length === 0) { showToast('error', 'خطأ', 'لم يتم العثور على بيانات صالحة في الجدول'); return; }
+        docxImportPreviewData = extractedData;
+
+        const tbody = document.querySelector('#docxPreviewTable tbody');
+        const catColors = { Desktop: 'info', Notebook: 'secondary', Printer: 'warning', Other: 'new' };
+        tbody.innerHTML = extractedData.map((row, idx) => 
+            '<tr><td><span class="badge badge-' + (catColors[row.category] || 'new') + '">' + row.category + '</span></td>' +
+            '<td>' + (row.item_number || '-') + '</td>' +
+            '<td>' + row.name + '</td>' +
+            '<td>' + row.qty + '</td>' +
+            '<td>' + (row.notes || '-') + '</td></tr>'
+        ).join('');
+
+        document.getElementById('docxImportPreview').style.display = 'block';
+        document.getElementById('confirmDocxImportBtn').style.display = 'inline-flex';
+        showToast('success', 'تم القراءة', 'تم استخراج ' + extractedData.length + ' صف من الملف');
+    } catch (err) {
+        console.error('DOCX import error:', err);
+        showToast('error', 'خطأ', 'فشل قراءة ملف DOCX: ' + err.message);
+    }
+}
+
+async function confirmDocxImport() {
+    if (docxImportPreviewData.length === 0) { showToast('error', 'خطأ', 'لا توجد بيانات للاستيراد'); return; }
+    showToast('info', 'جاري الاستيراد', 'جاري إضافة ' + docxImportPreviewData.length + ' مادة...');
+    let successCount = 0;
+    for (const row of docxImportPreviewData) {
+        if (row.name && row.name.trim()) {
+            const itemData = {
+                category: ['Desktop', 'Notebook', 'Printer', 'Other'].includes(row.category) ? row.category : 'Other',
+                item_number: row.item_number || '',
+                name: row.name,
+                qty: parseInt(row.qty) || 1,
+                notes: row.notes || '',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                created_by: currentUser?.full_name || currentUser?.fullName || 'System'
+            };
+            try {
+                await SupabaseAPI.request('computer_items', 'POST', itemData);
+                successCount++;
+            } catch (e) {
+                console.error('Import error for row:', row, e);
+            }
+        }
+    }
+    closeModal('importDocxModal');
+    await loadComputerItems();
+    await updateDashboard();
+    showToast('success', 'تم الاستيراد', 'تم إضافة ' + successCount + ' مادة بنجاح من أصل ' + docxImportPreviewData.length);
+}
+
 </script>
+
+
+    <!-- Computer Items Report Modal -->
+    <div class="modal-overlay" id="computerItemReportModal">
+        <div class="modal" style="max-width: 900px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">
+                <h3 style="color: white;"><i class="fas fa-chart-bar" style="margin-left: 10px;"></i> تقارير المواد الحاسوبية</h3>
+                <button class="modal-close" style="background: rgba(255,255,255,0.2); color: white;" onclick="closeModal('computerItemReportModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="tabs no-print" style="margin-bottom: 20px;">
+                    <button class="tab-btn active" onclick="showReportTab('all')">تقرير شامل</button>
+                    <button class="tab-btn" onclick="showReportTab('category')">تقرير حسب التصنيف</button>
+                </div>
+                <div class="tab-content active" id="report-tab-all">
+                    <div id="allItemsReportContent"></div>
+                </div>
+                <div class="tab-content" id="report-tab-category">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>اختر التصنيف</label>
+                        <select class="form-control" id="reportCategorySelect" onchange="generateCategoryReport()">
+                            <option value="">-- اختر التصنيف --</option>
+                            <option value="Desktop">Desktop</option>
+                            <option value="Notebook">Notebook</option>
+                            <option value="Printer">Printer</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div id="categoryReportContent"></div>
+                </div>
+            </div>
+            <div class="modal-footer no-print">
+                <button class="btn btn-success" onclick="exportReportToPDF()">
+                    <i class="fas fa-file-pdf"></i> حفظ PDF
+                </button>
+                <button class="btn btn-info" onclick="exportReportToWord()">
+                    <i class="fas fa-file-word"></i> حفظ Word
+                </button>
+                <button class="btn btn-primary" onclick="printReport()">
+                    <i class="fas fa-print"></i> طباعة
+                </button>
+                <button class="btn btn-secondary" onclick="closeModal('computerItemReportModal')">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import DOCX Modal -->
+    <div class="modal-overlay" id="importDocxModal">
+        <div class="modal" style="max-width: 700px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #f59e0b, #f97316);">
+                <h3 style="color: white;"><i class="fas fa-file-word" style="margin-left: 10px;"></i> استيراد من ملف DOCX</h3>
+                <button class="modal-close" style="background: rgba(255,255,255,0.2); color: white;" onclick="closeModal('importDocxModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="file-upload-area" onclick="document.getElementById('docxImportFile').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h4>اسحب ملف DOCX هنا أو انقر للاختيار</h4>
+                    <p>سيتم استخراج الجدول تلقائياً وإضافته إلى المواد الحاسوبية</p>
+                    <input type="file" id="docxImportFile" style="display:none;" accept=".docx" onchange="handleDocxImport(this)">
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: #fef3c7; border-radius: 10px; border: 1px solid #f59e0b;">
+                    <h4 style="color: #92400e; margin-bottom: 10px; font-size: 14px;"><i class="fas fa-info-circle"></i> تعليمات:</h4>
+                    <ul style="font-size: 12px; color: #78350f; line-height: 2; margin-right: 20px;">
+                        <li>يجب أن يحتوي ملف DOCX على <strong>جدول</strong> واحد على الأقل</li>
+                        <li>الأعمدة المتوقعة: <strong>التصنيف | رقم المادة | اسم المادة | الكمية | الملاحظات</strong></li>
+                        <li>سيتم إضافة كل صف كمادة جديدة في النظام</li>
+                        <li>إذا لم يكن هناك تاريخ، سيتم استخدام تاريخ اليوم</li>
+                    </ul>
+                </div>
+                <div id="docxImportPreview" style="margin-top: 20px; display: none;">
+                    <h4 style="margin-bottom: 10px;"><i class="fas fa-list" style="color: var(--primary);"></i> معاينة البيانات المستخرجة:</h4>
+                    <div class="table-container">
+                        <table class="data-table" id="docxPreviewTable">
+                            <thead>
+                                <tr><th>التصنيف</th><th>رقم المادة</th><th>اسم المادة</th><th>الكمية</th><th>الملاحظات</th></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer no-print">
+                <button class="btn btn-success" id="confirmDocxImportBtn" style="display:none;" onclick="confirmDocxImport()">
+                    <i class="fas fa-check"></i> تأكيد الاستيراد
+                </button>
+                <button class="btn btn-secondary" onclick="closeModal('importDocxModal')">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
