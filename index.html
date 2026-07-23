@@ -451,7 +451,12 @@
                     <i class="fas fa-file-import"></i>
                     <span>استيراد الطلبات</span>
                 </a>
-                                <a class="nav-item" onclick="showPage('documents')">
+                                                <a class="nav-item" onclick="showPage('computer_items')">
+                    <i class="fas fa-desktop"></i>
+                    <span>المواد الحاسوبية</span>
+                    <span class="nav-badge" id="computerItemsBadge">0</span>
+                </a>
+<a class="nav-item" onclick="showPage('documents')">
                     <i class="fas fa-file-alt"></i>
                     <span>الوثائق والملاحظات</span>
                     <span class="nav-badge" id="documentsBadge">0</span>
@@ -549,6 +554,11 @@
                         <div class="stat-icon" style="background: rgba(99,102,241,0.1); color: #6366f1;"><i class="fas fa-file-alt"></i></div>
                         <div class="stat-value" id="statDocuments">0</div>
                         <div class="stat-label">الوثائق والملاحظات</div>
+                    </div>
+                    <div class="stat-card" style="border-top: 4px solid #0ea5e9;">
+                        <div class="stat-icon" style="background: rgba(14,165,233,0.1); color: #0ea5e9;"><i class="fas fa-desktop"></i></div>
+                        <div class="stat-value" id="statComputerItems">0</div>
+                        <div class="stat-label">المواد الحاسوبية</div>
                     </div>
                 </div>
                 <div class="card">
@@ -767,7 +777,56 @@
                 </div>
             </div>
 
-                        <div class="page-section" id="page-documents">
+                                    <div class="page-section" id="page-computer_items">
+                <div class="page-header">
+                    <h1 class="page-title">المواد الحاسوبية</h1>
+                    <div class="page-actions no-print">
+                        <button class="btn btn-success btn-sm" onclick="openComputerItemModal()">
+                            <i class="fas fa-plus"></i> إضافة مادة
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="printComputerItems()">
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                    </div>
+                </div>
+                <div class="search-filter no-print">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="computerItemSearch" placeholder="بحث في المواد..." onkeyup="filterComputerItems()">
+                    </div>
+                    <select class="form-control" id="computerItemCategoryFilter" onchange="filterComputerItems()" style="width: 200px;">
+                        <option value="">جميع التصنيفات</option>
+                        <option value="Desktop">Desktop</option>
+                        <option value="Notebook">Notebook</option>
+                        <option value="Printer">Printer</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="data-table" id="computerItemsTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>التصنيف</th>
+                                        <th>رقم المادة</th>
+                                        <th>اسم المادة ومواصفاتها</th>
+                                        <th>الكمية</th>
+                                        <th>الملاحظات</th>
+                                        <th>تاريخ الإضافة</th>
+                                        <th>المستخدم</th>
+                                        <th class="no-print">إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<div class="page-section" id="page-documents">
                 <div class="page-header">
                     <h1 class="page-title">الوثائق والملاحظات</h1>
                     <div class="page-actions no-print">
@@ -1229,6 +1288,59 @@
         </div>
     </div>
 
+
+    <!-- Computer Item Modal -->
+    <div class="modal-overlay" id="computerItemModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="computerItemModalTitle">إضافة مادة حاسوبية</h3>
+                <button class="modal-close" onclick="closeModal('computerItemModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="computerItemForm">
+                    <input type="hidden" id="computerItemId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>التصنيف <span style="color: var(--danger);">*</span></label>
+                            <select class="form-control" id="computerItemCategory" required>
+                                <option value="Desktop">Desktop</option>
+                                <option value="Notebook">Notebook</option>
+                                <option value="Printer">Printer</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم المادة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="computerItemNumber" placeholder="أدخل رقم المادة يدوياً" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>اسم المادة ومواصفاتها <span style="color: var(--danger);">*</span></label>
+                            <textarea class="form-control" id="computerItemName" placeholder="اسم المادة والمواصفات التفصيلية..." required style="min-height: 80px;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>الكمية <span style="color: var(--danger);">*</span></label>
+                            <input type="number" class="form-control" id="computerItemQty" min="0" value="1" required>
+                        </div>
+                        <div class="form-group">
+                            
+                            
+                        </div>
+                        <div class="form-group full-width">
+                            <label>الملاحظات</label>
+                            <textarea class="form-control" id="computerItemNotes" placeholder="ملاحظات إضافية..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('computerItemModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveComputerItem()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
 <script>
     // Console warning
     console.log('%c⚠️ MAINTENANCE SYSTEM', 'font-size: 24px; font-weight: bold; color: #ef4444;');
@@ -1549,6 +1661,7 @@ async function showPage(page) {
     if (page === 'alternatives') await loadAlternatives();
     if (page === 'admin') await loadUsers();
     if (page === 'documents') await loadDocuments();
+    if (page === 'computer_items') await loadComputerItems();
 }
 
 
@@ -1932,6 +2045,180 @@ async function deleteDocument(id) {
 
 function printDocument(id) { window.print(); }
 function printDocuments() { window.print(); }
+
+
+// ==================== COMPUTER ITEMS ====================
+let editingComputerItemId = null;
+
+async function loadComputerItems() {
+    const items = await SupabaseAPI.request('computer_items', 'GET');
+    const tbody = document.querySelector('#computerItemsTable tbody');
+    const search = document.getElementById('computerItemSearch')?.value?.toLowerCase() || '';
+    const categoryFilter = document.getElementById('computerItemCategoryFilter')?.value || '';
+
+    let filtered = items;
+    if (search) {
+        filtered = filtered.filter(i =>
+            (i.item_number || '').toLowerCase().includes(search) ||
+            (i.name || '').toLowerCase().includes(search) ||
+            (i.notes || '').toLowerCase().includes(search)
+        );
+    }
+    if (categoryFilter) filtered = filtered.filter(i => i.category === categoryFilter);
+
+    const categoryColors = {
+        Desktop: 'info', Notebook: 'secondary', Printer: 'warning', Other: 'new'
+    };
+
+    tbody.innerHTML = filtered.sort((a, b) => (b.id || 0) - (a.id || 0)).map(i => `
+        <tr>
+            <td><strong>#${i.id}</strong></td>
+            <td><span class="badge badge-${categoryColors[i.category] || 'new'}">${i.category}</span></td>
+            <td><strong style="color: var(--primary);">${i.item_number || i.itemNumber || '-'}</strong></td>
+            <td style="max-width: 300px; white-space: normal;">${i.name}</td>
+            <td><strong style="font-size: 16px;">${i.qty}</strong></td>
+            <td>${i.notes ? i.notes.substring(0, 40) + (i.notes.length > 40 ? '...' : '') : '-'}</td>
+            
+            <td>${i.created_by || i.createdBy || '-'}</td>
+            <td class="no-print">
+                <div class="action-btns">
+                    <button class="action-btn view" onclick="viewComputerItem(${i.id})" title="عرض"><i class="fas fa-eye"></i></button>
+                    <button class="action-btn edit" onclick="openComputerItemModal(${i.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn print" onclick="printComputerItem(${i.id})" title="طباعة"><i class="fas fa-print"></i></button>
+                    <button class="action-btn delete" onclick="deleteComputerItem(${i.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    document.getElementById('computerItemsBadge').textContent = items.length;
+}
+
+function filterComputerItems() { loadComputerItems(); }
+
+async function openComputerItemModal(itemId) {
+    editingComputerItemId = itemId || null;
+    document.getElementById('computerItemModalTitle').textContent = itemId ? 'تعديل مادة حاسوبية' : 'إضافة مادة حاسوبية';
+
+    if (itemId) {
+        const items = await SupabaseAPI.request('computer_items', 'GET');
+        const item = items.find(i => i.id === itemId);
+        if (item) {
+            document.getElementById('computerItemId').value = item.id;
+            document.getElementById('computerItemCategory').value = item.category || 'Desktop';
+            document.getElementById('computerItemNumber').value = item.item_number || item.itemNumber || '';
+            document.getElementById('computerItemName').value = item.name || '';
+            document.getElementById('computerItemQty').value = item.qty || 0;
+            document.getElementById('computerItemNotes').value = item.notes || '';
+            
+        }
+    } else {
+        document.getElementById('computerItemForm').reset();
+        document.getElementById('computerItemId').value = '';
+        document.getElementById('computerItemCategory').value = 'Desktop';
+        
+    }
+    openModal('computerItemModal');
+}
+
+async function saveComputerItem() {
+    const category = document.getElementById('computerItemCategory').value;
+    const itemNumber = document.getElementById('computerItemNumber').value.trim();
+    const name = document.getElementById('computerItemName').value.trim();
+    const qty = parseInt(document.getElementById('computerItemQty').value);
+
+    if (!itemNumber || !name || isNaN(qty) || qty < 0) {
+        showToast('error', 'خطأ', 'الرجاء ملء جميع الحقول المطلوبة بشكل صحيح');
+        return;
+    }
+
+    const itemData = {
+        category: category,
+        item_number: itemNumber,
+        name: name,
+        qty: qty,
+        notes: document.getElementById('computerItemNotes').value,
+        updated_at: new Date().toISOString(),
+        created_by: currentUser?.full_name || currentUser?.fullName || 'System'
+    };
+
+    if (editingComputerItemId) {
+        await SupabaseAPI.request('computer_items', 'PATCH', itemData, editingComputerItemId);
+    } else {
+        itemData.created_at = new Date().toISOString();
+        await SupabaseAPI.request('computer_items', 'POST', itemData);
+    }
+
+    closeModal('computerItemModal');
+    await loadComputerItems();
+    await updateDashboard();
+    showToast('success', 'تم الحفظ', editingComputerItemId ? 'تم تحديث المادة بنجاح' : 'تم إضافة المادة بنجاح');
+}
+
+async function viewComputerItem(id) {
+    const items = await SupabaseAPI.request('computer_items', 'GET');
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+
+    const categoryLabels = { Desktop: 'Desktop', Notebook: 'Notebook', Printer: 'Printer', Other: 'Other' };
+    const categoryColors = { Desktop: 'info', Notebook: 'secondary', Printer: 'warning', Other: 'new' };
+
+    const modalHtml = `
+        <div class="modal-overlay active" id="viewComputerItemModal">
+            <div class="modal" style="max-width: 600px;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">
+                    <h3 style="color: white;"><i class="fas fa-desktop" style="margin-left: 10px;"></i> تفاصيل المادة</h3>
+                    <button class="modal-close" style="background: rgba(255,255,255,0.2); color: white;" onclick="document.getElementById('viewComputerItemModal').remove()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 12px; padding: 20px; margin-bottom: 20px; border-right: 4px solid #4f46e5;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+                            <div><strong style="color: #1e40af;">رقم المادة:</strong> <span style="font-weight: 700; color: #4f46e5; font-size: 18px;">${item.item_number || item.itemNumber || '-'}</span></div>
+                            <div><strong style="color: #1e40af;">التصنيف:</strong> <span class="badge badge-${categoryColors[item.category] || 'new'}">${categoryLabels[item.category] || item.category}</span></div>
+                            
+                            <div><strong style="color: #1e40af;">الكمية:</strong> <strong style="font-size: 18px; color: var(--primary);">${item.qty}</strong></div>
+                            <div style="grid-column: 1 / -1;"><strong style="color: #1e40af;">الموظف:</strong> ${item.created_by || item.createdBy || '-'}</div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-align-right"></i> اسم المادة ومواصفاتها
+                        </h4>
+                        <div style="background: #f8fafc; border-radius: 10px; padding: 15px; border-right: 3px solid var(--info); min-height: 60px;">
+                            <p style="color: var(--text-dark); line-height: 1.8; margin: 0; white-space: pre-wrap;">${item.name}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-sticky-note"></i> الملاحظات
+                        </h4>
+                        <div style="background: #fefce8; border-radius: 10px; padding: 15px; border-right: 3px solid var(--warning); min-height: 50px;">
+                            <p style="color: var(--text-dark); line-height: 1.8; margin: 0;">${item.notes ? item.notes.replace(/\n/g, '<br>') : '<span style="color: var(--text-light);">لا توجد ملاحظات</span>'}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="openComputerItemModal(${item.id}); document.getElementById('viewComputerItemModal').remove();">
+                        <i class="fas fa-edit"></i> تعديل
+                    </button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('viewComputerItemModal').remove()">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+async function deleteComputerItem(id) {
+    if (!confirm('هل أنت متأكد من حذف هذه المادة؟')) return;
+    await SupabaseAPI.request('computer_items', 'DELETE', null, id);
+    await loadComputerItems();
+    await updateDashboard();
+    showToast('success', 'تم الحذف', 'تم حذف المادة بنجاح');
+}
+
+function printComputerItem(id) { window.print(); }
+function printComputerItems() { window.print(); }
 
 // ==================== TOAST ====================
 function showToast(type, title, message) {
@@ -2993,7 +3280,7 @@ async function resetAllData() {
     if (!confirm('تحذير: سيتم مسح جميع البيانات! هل أنت متأكد؟')) return;
     if (!confirm('هل أنت متأكد تماماً؟ لا يمكن التراجع عن هذا الإجراء!')) return;
 
-    const tables = ['requests', 'transactions', 'inventory_history', 'alt_models', 'assignments', 'documents'];
+    const tables = ['requests', 'transactions', 'inventory_history', 'alt_models', 'assignments', 'documents', 'computer_items'];
     for (const table of tables) {
         const items = await SupabaseAPI.request(table, 'GET');
         for (const item of items) {
@@ -3059,9 +3346,10 @@ function exportAllData() {
         SupabaseAPI.request('alt_models', 'GET'),
         SupabaseAPI.request('assignments', 'GET'),
         SupabaseAPI.request('users', 'GET'),
-        SupabaseAPI.request('documents', 'GET')
-    ]).then(([requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users, documents]) => {
-        const data = { requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users, documents, exportDate: new Date().toISOString() };
+        SupabaseAPI.request('documents', 'GET'),
+        SupabaseAPI.request('computer_items', 'GET')
+    ]).then(([requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users, documents, computerItems]) => {
+        const data = { requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users, documents, computerItems, exportDate: new Date().toISOString() };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -3101,7 +3389,8 @@ function importBackup(input) {
                 importTable('alt_devices', data.altDevices || []),
                 importTable('alt_models', data.altModels || []),
                 importTable('assignments', data.assignments || []),
-                importTable('documents', data.documents || [])
+                importTable('documents', data.documents || []),
+                importTable('computer_items', data.computerItems || [])
             ]).then(() => {
                 if (data.users && data.users.length > 0) importTable('users', data.users);
                 input.value = '';
@@ -3135,6 +3424,10 @@ async function updateDashboard() {
     // Document stats
     const documents = await SupabaseAPI.request('documents', 'GET');
     document.getElementById('statDocuments').textContent = documents.length;
+
+    // Computer items stats
+    const computerItems = await SupabaseAPI.request('computer_items', 'GET');
+    document.getElementById('statComputerItems').textContent = computerItems.length;
 
     const hiddenStatuses = ['completed', 'cancelled', 'duplicate'];
     const activeRequests = requests.filter(r => !hiddenStatuses.includes(r.status));
