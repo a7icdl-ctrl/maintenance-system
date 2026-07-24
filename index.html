@@ -465,6 +465,10 @@
                     <span>الوثائق والملاحظات</span>
                     <span class="nav-badge" id="documentsBadge">0</span>
                 </a>
+                <a class="nav-item" onclick="showPage('departments')">
+                    <i class="fas fa-building"></i>
+                    <span>الأقسام</span>
+                </a>
 <a class="nav-item admin-only" onclick="showPage('admin')" style="display:none;">
                     <i class="fas fa-cog"></i>
                     <span>إدارة النظام</span>
@@ -887,6 +891,29 @@
                 </div>
             </div>
 
+<div class="page-section" id="page-departments">
+                <div class="page-header">
+                    <h1 class="page-title">إدارة الأقسام</h1>
+                    <div class="page-actions no-print">
+                        <button class="btn btn-success btn-sm" onclick="openDepartmentModal()">
+                            <i class="fas fa-plus"></i> إضافة قسم
+                        </button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="data-table" id="departmentsTable">
+                                <thead>
+                                    <tr><th>الرقم</th><th>اسم القسم</th><th>ملاحظات</th><th class="no-print">إجراءات</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 <div class="page-section" id="page-admin">
                 <div class="page-header">
                     <h1 class="page-title">إدارة النظام</h1>
@@ -981,7 +1008,9 @@
                         </div>
                         <div class="form-group">
                             <label>القسم <span style="color: var(--danger);">*</span></label>
-                            <input type="text" class="form-control" id="department" placeholder="القسم" required>
+                            <select class="form-control" id="department" required>
+                                <option value="">-- اختر القسم --</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>حالة الطلب</label>
@@ -1630,14 +1659,95 @@ async function showPage(page) {
     event.currentTarget.classList.add('active');
 
     if (page === 'dashboard') await updateDashboard();
-    if (page === 'requests') await loadRequests();
+    if (page === 'requests') { await loadRequests(); await updateDepartmentSelect(); }
     if (page === 'inventory') { await loadInventory(); setTimeout(checkLowStock, 500); }
     if (page === 'alternatives') await loadAlternatives();
     if (page === 'admin') await loadUsers();
     if (page === 'documents') await loadDocuments();
     if (page === 'computer_items') await loadComputerItems();
+    if (page === 'departments') await loadDepartments();
 }
 
+
+// ==================== DEPARTMENTS ====================
+let editingDepartmentId = null;
+
+async function loadDepartments() {
+    const departments = await SupabaseAPI.request('departments', 'GET');
+    const tbody = document.querySelector('#departmentsTable tbody');
+    if (departments.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color: var(--text-light);"><i class="fas fa-building" style="font-size: 32px; display: block; margin-bottom: 10px;"></i>لا توجد أقسام مسجلة</td></tr>`;
+        return;
+    }
+    tbody.innerHTML = departments.sort((a, b) => (b.id || 0) - (a.id || 0)).map(d => `
+        <tr>
+            <td><strong>#${d.id}</strong></td>
+            <td style="font-weight: 700; font-size: 15px;">${d.name}</td>
+            <td>${d.notes || '-'}</td>
+            <td class="no-print">
+                <div class="action-btns">
+                    <button class="action-btn edit" onclick="openDepartmentModal(${d.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete" onclick="deleteDepartment(${d.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function updateDepartmentSelect() {
+    const departments = await SupabaseAPI.request('departments', 'GET');
+    const select = document.getElementById('department');
+    if (!select) return;
+    const currentVal = select.value;
+    select.innerHTML = '<option value="">-- اختر القسم --</option>' + 
+        departments.sort((a, b) => a.name.localeCompare(b.name)).map(d => 
+            `<option value="${d.name}">${d.name}</option>`
+        ).join('');
+    if (currentVal) select.value = currentVal;
+}
+
+async function openDepartmentModal(deptId) {
+    editingDepartmentId = deptId || null;
+    document.getElementById('departmentModalTitle').textContent = deptId ? 'تعديل قسم' : 'إضافة قسم جديد';
+    if (deptId) {
+        const departments = await SupabaseAPI.request('departments', 'GET');
+        const dept = departments.find(d => d.id === deptId);
+        if (dept) {
+            document.getElementById('departmentId').value = dept.id;
+            document.getElementById('departmentName').value = dept.name || '';
+            document.getElementById('departmentNotes').value = dept.notes || '';
+        }
+    } else {
+        document.getElementById('departmentId').value = '';
+        document.getElementById('departmentName').value = '';
+        document.getElementById('departmentNotes').value = '';
+    }
+    openModal('departmentModal');
+}
+
+async function saveDepartment() {
+    const name = document.getElementById('departmentName').value.trim();
+    const notes = document.getElementById('departmentNotes').value.trim();
+    if (!name) { showToast('error', 'خطأ', 'الرجاء إدخال اسم القسم'); return; }
+    const deptData = { name, notes };
+    if (editingDepartmentId) {
+        await SupabaseAPI.request('departments', 'PATCH', deptData, editingDepartmentId);
+    } else {
+        await SupabaseAPI.request('departments', 'POST', deptData);
+    }
+    closeModal('departmentModal');
+    await loadDepartments();
+    await updateDepartmentSelect();
+    showToast('success', 'تم الحفظ', editingDepartmentId ? 'تم تحديث القسم بنجاح' : 'تم إضافة القسم بنجاح');
+}
+
+async function deleteDepartment(id) {
+    if (!confirm('هل أنت متأكد من حذف هذا القسم؟')) return;
+    await SupabaseAPI.request('departments', 'DELETE', null, id);
+    await loadDepartments();
+    await updateDepartmentSelect();
+    showToast('success', 'تم الحذف', 'تم حذف القسم بنجاح');
+}
 
 // ==================== DOCUMENTS ====================
 let editingDocumentId = null;
@@ -2241,6 +2351,7 @@ async function openRequestModal(requestId) {
         document.getElementById('requestId').value = '';
         tempProcedures = [];
         tempAttachments = [];
+        await updateDepartmentSelect();
         window.pendingProcedureAttachment = null;
         document.getElementById('procedureAttachmentName').textContent = 'لم يتم اختيار ملف';
         document.getElementById('procedureAttachmentName').style.color = 'var(--text-light)';
@@ -3273,7 +3384,7 @@ async function resetAllData() {
     if (!confirm('تحذير: سيتم مسح جميع البيانات! هل أنت متأكد؟')) return;
     if (!confirm('هل أنت متأكد تماماً؟ لا يمكن التراجع عن هذا الإجراء!')) return;
 
-    const tables = ['requests', 'transactions', 'inventory_history', 'alt_models', 'assignments', 'documents', 'computer_items', 'inventory'];
+    const tables = ['requests', 'transactions', 'inventory_history', 'alt_models', 'assignments', 'documents', 'computer_items', 'inventory', 'departments'];
     for (const table of tables) {
         const items = await SupabaseAPI.request(table, 'GET');
         for (const item of items) {
@@ -3352,9 +3463,10 @@ function exportAllData() {
         SupabaseAPI.request('assignments', 'GET'),
         SupabaseAPI.request('users', 'GET'),
         SupabaseAPI.request('documents', 'GET'),
-        SupabaseAPI.request('computer_items', 'GET')
-    ]).then(([requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users, documents, computerItems]) => {
-        const data = { requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users, documents, computerItems, exportDate: new Date().toISOString() };
+        SupabaseAPI.request('computer_items', 'GET'),
+        SupabaseAPI.request('departments', 'GET')
+    ]).then(([requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users, documents, computerItems, departments]) => {
+        const data = { requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users, documents, computerItems, departments, exportDate: new Date().toISOString() };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -3395,7 +3507,8 @@ function importBackup(input) {
                 importTable('alt_models', data.altModels || []),
                 importTable('assignments', data.assignments || []),
                 importTable('documents', data.documents || []),
-                importTable('computer_items', data.computerItems || [])
+                importTable('computer_items', data.computerItems || []),
+                importTable('departments', data.departments || [])
             ]).then(() => {
                 if (data.users && data.users.length > 0) importTable('users', data.users);
                 input.value = '';
@@ -4014,6 +4127,33 @@ async function confirmDocxImport() {
                     <i class="fas fa-check"></i> تأكيد الاستيراد
                 </button>
                 <button class="btn btn-secondary" onclick="closeModal('importDocxModal')">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Modal -->
+    <div class="modal-overlay" id="departmentModal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 id="departmentModalTitle">إضافة قسم</h3>
+                <button class="modal-close" onclick="closeModal('departmentModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="departmentId">
+                <div class="form-group full-width">
+                    <label>اسم القسم <span style="color: var(--danger);">*</span></label>
+                    <input type="text" class="form-control" id="departmentName" placeholder="اسم القسم" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>ملاحظات</label>
+                    <textarea class="form-control" id="departmentNotes" placeholder="ملاحظات..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('departmentModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveDepartment()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
             </div>
         </div>
     </div>
