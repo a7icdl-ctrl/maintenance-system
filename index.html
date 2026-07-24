@@ -290,7 +290,7 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <!-- SUPABASE CONFIG SCREEN -->
-    <div class="login-container" id="configScreen">
+    <div class="login-container" id="configScreen" style="display:none !important;">
         <div class="login-card" style="max-width: 700px;">
             <div class="login-icon">
                 <i class="fas fa-cloud"></i>
@@ -3596,39 +3596,17 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
         LocalDB.init();
 
-        // Check saved settings
-        const savedUrl = localStorage.getItem('supabase_url');
-        const savedKey = localStorage.getItem('supabase_key');
-        const useLocal = localStorage.getItem('use_local') === 'true';
+        // Always use built-in server credentials, skip config screen
+        SUPABASE_URL = DEFAULT_SUPABASE_URL;
+        SUPABASE_KEY = DEFAULT_SUPABASE_KEY;
+        USE_LOCAL = false;
+        localStorage.setItem('supabase_url', DEFAULT_SUPABASE_URL);
+        localStorage.setItem('supabase_key', DEFAULT_SUPABASE_KEY);
+        localStorage.setItem('use_local', 'false');
 
-        if ((savedUrl && savedKey && !useLocal) || useLocal) {
-            // Settings exist, go to login
-            document.getElementById('configScreen').style.display = 'none';
-            document.getElementById('loginScreen').style.display = 'flex';
-            updateConnectionStatus();
-        } else {
-            // First time - show config screen (already visible by default)
-            document.getElementById('configScreen').style.display = 'flex';
-            document.getElementById('loginScreen').style.display = 'none';
-
-            // Auto-save credentials and go to login
-            if (DEFAULT_SUPABASE_URL && DEFAULT_SUPABASE_KEY) {
-                SUPABASE_URL = DEFAULT_SUPABASE_URL;
-                SUPABASE_KEY = DEFAULT_SUPABASE_KEY;
-                USE_LOCAL = false;
-                localStorage.setItem('supabase_url', DEFAULT_SUPABASE_URL);
-                localStorage.setItem('supabase_key', DEFAULT_SUPABASE_KEY);
-                localStorage.setItem('use_local', 'false');
-
-                document.getElementById('configScreen').style.display = 'none';
-                document.getElementById('loginScreen').style.display = 'flex';
-                updateConnectionStatus();
-                showToast('info', 'متصل', 'تم الاتصال بالسيرفر تلقائياً');
-            } else {
-                if (DEFAULT_SUPABASE_URL) document.getElementById('supabaseUrl').value = DEFAULT_SUPABASE_URL;
-                if (DEFAULT_SUPABASE_KEY) document.getElementById('supabaseKey').value = DEFAULT_SUPABASE_KEY;
-            }
-        }
+        document.getElementById('configScreen').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'flex';
+        updateConnectionStatus();
 
         // Enter key support
         const loginPass = document.getElementById('loginPassword');
