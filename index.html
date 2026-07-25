@@ -475,10 +475,7 @@
                     <i class="fas fa-laptop"></i>
                     <span>الأجهزة البديلة</span>
                 </a>
-                <a class="nav-item" onclick="showPage('import')">
-                    <i class="fas fa-file-import"></i>
-                    <span>استيراد الطلبات</span>
-                </a>
+                
                                                 <a class="nav-item" onclick="showPage('computer_items')">
                     <i class="fas fa-desktop"></i>
                     <span>المواد الحاسوبية</span>
@@ -620,6 +617,9 @@
                     <div class="page-actions no-print">
                         <button class="btn btn-success btn-sm" onclick="openRequestModal()">
                             <i class="fas fa-plus"></i> طلب جديد
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="showPage('import')">
+                            <i class="fas fa-file-import"></i> استيراد الطلبات
                         </button>
                         <button class="btn btn-primary btn-sm" onclick="printRequests()">
                             <i class="fas fa-print"></i> طباعة
@@ -2431,7 +2431,17 @@ async function showPage(page) {
     document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('page-' + page).classList.add('active');
-    event.currentTarget.classList.add('active');
+    // Highlight the corresponding nav item if it exists
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(n => {
+        const onclick = n.getAttribute('onclick');
+        if (onclick && onclick.includes("'" + page + "'") || onclick && onclick.includes('"' + page + '"')) {
+            n.classList.add('active');
+        }
+    });
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    }
 
     if (page === 'dashboard') await updateDashboard();
     if (page === 'requests') { await loadRequests(); await updateDepartmentSelect(); }
