@@ -269,6 +269,30 @@
         .sync-status.online { background: rgba(16,185,129,0.15); color: #047857; }
         .sync-status.offline { background: rgba(239,68,68,0.15); color: #b91c1c; }
         .sync-status.syncing { background: rgba(245,158,11,0.15); color: #b45309; }
+
+        /* Request Map Styles */
+        .request-map-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 10px; }
+        .map-column { background: #f8fafc; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+        .map-column-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 16px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .map-group-name { display: flex; align-items: center; gap: 8px; }
+        .map-group-count { background: white; padding: 4px 14px; border-radius: 20px; font-size: 14px; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .map-column-body { padding: 15px; display: flex; flex-direction: column; gap: 12px; max-height: 65vh; overflow-y: auto; flex: 1; }
+        .map-card { background: white; border-radius: 12px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-right: 3px solid var(--primary); transition: all 0.2s ease; cursor: default; }
+        .map-card:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .map-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9; }
+        .map-card-body { font-size: 13px; color: var(--text-medium); line-height: 1.9; }
+        .map-card-body i { color: var(--primary-light); width: 18px; margin-left: 6px; font-size: 12px; }
+        .map-total-bar { background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 12px; padding: 15px 25px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-right: 4px solid var(--primary); }
+        .map-total-bar h4 { color: #1e40af; font-size: 16px; margin: 0; }
+        .map-total-bar .total-number { font-size: 28px; font-weight: 800; color: var(--primary); }
+        @media print {
+            .map-column { break-inside: avoid; page-break-inside: avoid; }
+            .request-map-grid { grid-template-columns: repeat(3, 1fr); }
+            .map-column-body { max-height: none; overflow: visible; }
+            .modal-overlay { position: static; display: block !important; background: white; padding: 0; }
+            .modal { box-shadow: none; max-width: 100%; animation: none; }
+            .modal-header, .modal-footer { display: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -595,6 +619,9 @@
                         </button>
                         <button class="btn btn-primary btn-sm" onclick="printRequests()">
                             <i class="fas fa-print"></i> طباعة
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="openRequestMap()">
+                            <i class="fas fa-map"></i> خريطة الطلبات
                         </button>
                     </div>
                 </div>
@@ -1747,6 +1774,88 @@ async function deleteDepartment(id) {
     await loadDepartments();
     await updateDepartmentSelect();
     showToast('success', 'تم الحذف', 'تم حذف القسم بنجاح');
+}
+
+// ==================== REQUEST MAP ====================
+async function openRequestMap() {
+    await loadRequestMap();
+    openModal('requestMapModal');
+}
+
+async function loadRequestMap() {
+    const requests = await SupabaseAPI.request('requests', 'GET');
+    const departments = await SupabaseAPI.request('departments', 'GET');
+
+    const excludedStatuses = ['completed', 'cancelled', 'duplicate'];
+    const activeRequests = requests.filter(r => !excludedStatuses.includes(r.status));
+
+    // Build mapping: department name -> group name (from notes)
+    const deptMap = {};
+    departments.forEach(d => {
+        deptMap[d.name] = (d.notes && d.notes.trim()) ? d.notes.trim() : d.name;
+    });
+
+    // Group requests by group name
+    const groups = {};
+    activeRequests.forEach(req => {
+        const deptName = req.department || 'غير محدد';
+        const groupName = deptMap[deptName] || deptName;
+        if (!groups[groupName]) groups[groupName] = [];
+        groups[groupName].push(req);
+    });
+
+    document.getElementById('mapTotalRequests').textContent = activeRequests.length;
+
+    const container = document.getElementById('requestMapContainer');
+    const groupNames = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length);
+
+    if (groupNames.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state" style="grid-column: 1 / -1;">
+                <i class="fas fa-map"></i>
+                <h3>لا توجد طلبات نشطة</h3>
+                <p>جميع الطلبات إما مكتملة أو ملغية أو مكررة</p>
+            </div>`;
+        return;
+    }
+
+    const colors = ['#4f46e5', '#06b6d4', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899', '#f97316', '#0ea5e9', '#6366f1', '#14b8a6', '#ef4444', '#84cc16'];
+
+    container.innerHTML = groupNames.map((groupName, idx) => {
+        const color = colors[idx % colors.length];
+        const reqs = groups[groupName];
+        return `
+            <div class="map-column" style="border-top: 4px solid ${color};">
+                <div class="map-column-header" style="background: ${color}08; color: ${color};">
+                    <span class="map-group-name"><i class="fas fa-layer-group"></i> ${groupName}</span>
+                    <span class="map-group-count" style="color: ${color};">${reqs.length}</span>
+                </div>
+                <div class="map-column-body">
+                    ${reqs.sort((a, b) => (b.id || 0) - (a.id || 0)).map(r => `
+                        <div class="map-card" style="border-right-color: ${color};">
+                            <div class="map-card-header">
+                                <strong style="color: ${color}; font-size: 15px;">#${r.request_number || r.requestNumber}</strong>
+                                <span class="badge badge-${r.status}">${getStatusLabel(r.status)}</span>
+                            </div>
+                            <div class="map-card-body">
+                                <div><i class="fas fa-desktop"></i> ${r.device_name || r.deviceName || '-'}</div>
+                                <div><i class="fas fa-hashtag"></i> ${r.computer_number || r.computerNumber || '-'}</div>
+                                <div><i class="fas fa-user"></i> ${r.employee_name || r.employeeName || '-'}</div>
+                                <div><i class="fas fa-building"></i> ${r.department || '-'}</div>
+                                <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed #e2e8f0; font-size: 11px; color: var(--text-light);">
+                                    <i class="fas fa-calendar-alt"></i> ${formatDate(r.created_at || r.createdAt)}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function printRequestMap() {
+    window.print();
 }
 
 // ==================== DOCUMENTS ====================
@@ -3898,7 +4007,31 @@ function printReport() {
                 .badge-warning { background: rgba(245,158,11,0.15); color: #b45309; }
                 .badge-new { background: rgba(99,102,241,0.15); color: #4338ca; }
                 @media print { body { padding: 15px; } }
-            </style>
+        
+        /* Request Map Styles */
+        .request-map-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 10px; }
+        .map-column { background: #f8fafc; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+        .map-column-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 16px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .map-group-name { display: flex; align-items: center; gap: 8px; }
+        .map-group-count { background: white; padding: 4px 14px; border-radius: 20px; font-size: 14px; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .map-column-body { padding: 15px; display: flex; flex-direction: column; gap: 12px; max-height: 65vh; overflow-y: auto; flex: 1; }
+        .map-card { background: white; border-radius: 12px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-right: 3px solid var(--primary); transition: all 0.2s ease; cursor: default; }
+        .map-card:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .map-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9; }
+        .map-card-body { font-size: 13px; color: var(--text-medium); line-height: 1.9; }
+        .map-card-body i { color: var(--primary-light); width: 18px; margin-left: 6px; font-size: 12px; }
+        .map-total-bar { background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 12px; padding: 15px 25px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-right: 4px solid var(--primary); }
+        .map-total-bar h4 { color: #1e40af; font-size: 16px; margin: 0; }
+        .map-total-bar .total-number { font-size: 28px; font-weight: 800; color: var(--primary); }
+        @media print {
+            .map-column { break-inside: avoid; page-break-inside: avoid; }
+            .request-map-grid { grid-template-columns: repeat(3, 1fr); }
+            .map-column-body { max-height: none; overflow: visible; }
+            .modal-overlay { position: static; display: block !important; background: white; padding: 0; }
+            .modal { box-shadow: none; max-width: 100%; animation: none; }
+            .modal-header, .modal-footer { display: none !important; }
+        }
+    </style>
         </head>
         <body>
             <div class="report-header">
@@ -3907,7 +4040,29 @@ function printReport() {
                 <p>تم إنشاؤه بواسطة: ${currentUser?.full_name || currentUser?.fullName || 'System'}</p>
             </div>
             ${element.innerHTML}
-        </body>
+            <!-- Request Map Modal -->
+    <div class="modal-overlay" id="requestMapModal">
+        <div class="modal" style="max-width: 95vw; width: 95vw; max-height: 92vh;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">
+                <h3 style="color: white;"><i class="fas fa-map" style="margin-left: 10px;"></i> خريطة توزيع طلبات الصيانة</h3>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="btn btn-success btn-sm no-print" onclick="printRequestMap()" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white;">
+                        <i class="fas fa-print"></i> طباعة الخريطة
+                    </button>
+                    <button class="modal-close" style="background: rgba(255,255,255,0.2); color: white;" onclick="closeModal('requestMapModal')">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body" style="padding: 20px; background: #f1f5f9;">
+                <div class="map-total-bar no-print">
+                    <h4><i class="fas fa-clipboard-list"></i> إجمالي الطلبات المعروضة</h4>
+                    <div class="total-number" id="mapTotalRequests">0</div>
+                </div>
+                <div class="request-map-grid" id="requestMapContainer"></div>
+            </div>
+        </div>
+    </div>
+
+</body>
         </html>
     `);
     printWindow.document.close();
@@ -4132,6 +4287,28 @@ async function confirmDocxImport() {
                 <button class="btn btn-primary" onclick="saveDepartment()">
                     <i class="fas fa-save"></i> حفظ
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Map Modal -->
+    <div class="modal-overlay" id="requestMapModal">
+        <div class="modal" style="max-width: 95vw; width: 95vw; max-height: 92vh;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">
+                <h3 style="color: white;"><i class="fas fa-map" style="margin-left: 10px;"></i> خريطة توزيع طلبات الصيانة</h3>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="btn btn-success btn-sm no-print" onclick="printRequestMap()" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white;">
+                        <i class="fas fa-print"></i> طباعة الخريطة
+                    </button>
+                    <button class="modal-close" style="background: rgba(255,255,255,0.2); color: white;" onclick="closeModal('requestMapModal')">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body" style="padding: 20px; background: #f1f5f9;">
+                <div class="map-total-bar no-print">
+                    <h4><i class="fas fa-clipboard-list"></i> إجمالي الطلبات المعروضة</h4>
+                    <div class="total-number" id="mapTotalRequests">0</div>
+                </div>
+                <div class="request-map-grid" id="requestMapContainer"></div>
             </div>
         </div>
     </div>
