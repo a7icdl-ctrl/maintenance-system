@@ -2276,8 +2276,156 @@ async function deleteDocument(id) {
     showToast('success', 'تم الحذف', 'تم حذف الوثيقة بنجاح');
 }
 
-function printDocument(id) { window.print(); }
-function printDocuments() { window.print(); }
+async function printDocument(id) {
+    const documents = await SupabaseAPI.request('documents', 'GET');
+    const doc = documents.find(d => d.id === id);
+    if (!doc) return;
+
+    const categoryLabels = {
+        report: 'تقرير', memo_internal: 'مذكرة داخلية', invoice: 'فاتورة',
+        official_letter: 'كتاب رسمي', maintenance_contract: 'عقد صيانة', other: 'أخرى'
+    };
+
+    const attachmentsHtml = (doc.attachments || []).length > 0
+        ? doc.attachments.map(att => `
+            <div style="margin-bottom: 8px; padding: 10px; background: #f0f9ff; border-radius: 8px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas ${getFileIcon(att.filename)}" style="color: #4f46e5; font-size: 18px;"></i>
+                <div style="flex: 1;">
+                    <div style="font-size: 13px; font-weight: 600;">${att.description || att.filename}</div>
+                    <div style="font-size: 11px; color: #64748b;">${att.filename} • ${formatFileSize(att.size)}</div>
+                </div>
+            </div>
+        `).join('')
+        : '<p style="color: #94a3b8;">لا توجد مرفقات</p>';
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>وثيقة #${doc.document_number || doc.documentNumber || doc.id}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Tajawal', sans-serif; padding: 30px; color: #1e293b; background: #fff; }
+                .header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #6366f1; }
+                .header h1 { color: #6366f1; font-size: 24px; margin-bottom: 8px; }
+                .header p { color: #64748b; font-size: 13px; }
+                .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+                .info-item { background: #f8fafc; padding: 12px 15px; border-radius: 8px; border-right: 3px solid #e2e8f0; }
+                .info-item strong { color: #475569; font-size: 12px; display: block; margin-bottom: 4px; }
+                .info-item span { color: #1e293b; font-size: 14px; font-weight: 700; }
+                .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+                .badge-success { background: rgba(16,185,129,0.15); color: #047857; }
+                .badge-info { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+                .badge-warning { background: rgba(245,158,11,0.15); color: #b45309; }
+                .badge-secondary { background: rgba(139,92,246,0.15); color: #7c3aed; }
+                .badge-inprogress { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+                .badge-new { background: rgba(99,102,241,0.15); color: #4338ca; }
+                .section { margin-bottom: 20px; }
+                .section-title { font-size: 16px; font-weight: 700; color: #6366f1; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+                .section-content { background: #f8fafc; padding: 15px; border-radius: 8px; line-height: 1.8; white-space: pre-wrap; }
+                .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 12px; }
+                @media print { body { padding: 15px; } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>${doc.title}</h1>
+                <p>رقم الوثيقة: #${doc.document_number || doc.documentNumber || doc.id} | التاريخ: ${formatDate(doc.document_date || doc.documentDate || doc.created_at)}</p>
+            </div>
+            <div class="info-grid">
+                <div class="info-item"><strong>التصنيف</strong><span class="badge badge-${doc.category === 'report' ? 'success' : doc.category === 'memo_internal' ? 'info' : doc.category === 'invoice' ? 'warning' : doc.category === 'official_letter' ? 'secondary' : doc.category === 'maintenance_contract' ? 'inprogress' : 'new'}">${categoryLabels[doc.category] || doc.category}</span></div>
+                <div class="info-item"><strong>الموظف</strong><span>${doc.created_by || doc.createdBy || '-'}</span></div>
+            </div>
+            <div class="section">
+                <div class="section-title"><i class="fas fa-align-right"></i> الوصف</div>
+                <div class="section-content">${doc.description || 'لا يوجد وصف'}</div>
+            </div>
+            <div class="section">
+                <div class="section-title"><i class="fas fa-sticky-note"></i> الملاحظات</div>
+                <div class="section-content">${doc.notes || 'لا توجد ملاحظات'}</div>
+            </div>
+            <div class="section">
+                <div class="section-title"><i class="fas fa-paperclip"></i> المرفقات (${(doc.attachments || []).length})</div>
+                <div class="section-content">${attachmentsHtml}</div>
+            </div>
+            <div class="footer">
+                <p>تم طباعة هذه الوثيقة من نظام إدارة الصيانة</p>
+                <p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 500);
+}
+async function printDocuments() {
+    const documents = await SupabaseAPI.request('documents', 'GET');
+    const categoryLabels = {
+        report: 'تقرير', memo_internal: 'مذكرة داخلية', invoice: 'فاتورة',
+        official_letter: 'كتاب رسمي', maintenance_contract: 'عقد صيانة', other: 'أخرى'
+    };
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>الوثائق والملاحظات</title>
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Tajawal', sans-serif; padding: 25px; color: #1e293b; background: #fff; }
+                .header { text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #6366f1; }
+                .header h1 { color: #6366f1; font-size: 22px; margin-bottom: 6px; }
+                .header p { color: #64748b; font-size: 12px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                th { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); padding: 10px; text-align: right; font-weight: 700; font-size: 12px; border-bottom: 2px solid #e2e8f0; }
+                td { padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 12px; color: #475569; }
+                .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+                .badge-success { background: rgba(16,185,129,0.15); color: #047857; }
+                .badge-info { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+                .badge-warning { background: rgba(245,158,11,0.15); color: #b45309; }
+                .badge-secondary { background: rgba(139,92,246,0.15); color: #7c3aed; }
+                .badge-inprogress { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+                .badge-new { background: rgba(99,102,241,0.15); color: #4338ca; }
+                .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 11px; }
+                @media print { body { padding: 15px; } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>الوثائق والملاحظات</h1>
+                <p>إجمالي الوثائق: ${documents.length} | تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
+            </div>
+            <table>
+                <thead>
+                    <tr><th>#</th><th>العنوان</th><th>التصنيف</th><th>الوصف</th><th>التاريخ</th><th>الموظف</th></tr>
+                </thead>
+                <tbody>
+                    ${documents.sort((a, b) => (b.id || 0) - (a.id || 0)).map(d => `
+                        <tr>
+                            <td><strong>#${d.document_number || d.documentNumber || d.id}</strong></td>
+                            <td>${d.title}</td>
+                            <td><span class="badge badge-${d.category === 'report' ? 'success' : d.category === 'memo_internal' ? 'info' : d.category === 'invoice' ? 'warning' : d.category === 'official_letter' ? 'secondary' : d.category === 'maintenance_contract' ? 'inprogress' : 'new'}">${categoryLabels[d.category] || d.category}</span></td>
+                            <td>${d.description ? d.description.substring(0, 60) + (d.description.length > 60 ? '...' : '') : '-'}</td>
+                            <td>${formatDate(d.document_date || d.documentDate || d.created_at)}</td>
+                            <td>${d.created_by || d.createdBy || '-'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            <div class="footer">
+                <p>تم طباعة هذه القائمة من نظام إدارة الصيانة</p>
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 500);
+}
 
 
 // ==================== COMPUTER ITEMS ====================
@@ -2450,8 +2598,139 @@ async function deleteComputerItem(id) {
     showToast('success', 'تم الحذف', 'تم حذف المادة بنجاح');
 }
 
-function printComputerItem(id) { window.print(); }
-function printComputerItems() { window.print(); }
+async function printComputerItem(id) {
+    const items = await SupabaseAPI.request('computer_items', 'GET');
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    const categoryLabels = { Desktop: 'Desktop', Notebook: 'Notebook', Printer: 'Printer', Other: 'Other' };
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>مادة حاسوبية #${item.item_number || item.itemNumber || item.id}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Tajawal', sans-serif; padding: 30px; color: #1e293b; background: #fff; }
+                .header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #0ea5e9; }
+                .header h1 { color: #0ea5e9; font-size: 24px; margin-bottom: 8px; }
+                .header p { color: #64748b; font-size: 13px; }
+                .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+                .info-item { background: #f8fafc; padding: 12px 15px; border-radius: 8px; border-right: 3px solid #e2e8f0; }
+                .info-item strong { color: #475569; font-size: 12px; display: block; margin-bottom: 4px; }
+                .info-item span { color: #1e293b; font-size: 14px; font-weight: 700; }
+                .section { margin-bottom: 20px; }
+                .section-title { font-size: 16px; font-weight: 700; color: #0ea5e9; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+                .section-content { background: #f8fafc; padding: 15px; border-radius: 8px; line-height: 1.8; white-space: pre-wrap; }
+                .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+                .badge-info { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+                .badge-secondary { background: rgba(139,92,246,0.15); color: #7c3aed; }
+                .badge-warning { background: rgba(245,158,11,0.15); color: #b45309; }
+                .badge-new { background: rgba(99,102,241,0.15); color: #4338ca; }
+                .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 12px; }
+                @media print { body { padding: 15px; } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>تفاصيل المادة الحاسوبية</h1>
+                <p>رقم المادة: ${item.item_number || item.itemNumber || item.id} | تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
+            </div>
+            <div class="info-grid">
+                <div class="info-item"><strong>التصنيف</strong><span class="badge badge-${item.category === 'Desktop' ? 'info' : item.category === 'Notebook' ? 'secondary' : item.category === 'Printer' ? 'warning' : 'new'}">${categoryLabels[item.category] || item.category}</span></div>
+                <div class="info-item"><strong>الكمية</strong><span style="font-size: 18px; color: #0ea5e9;">${item.qty}</span></div>
+                <div class="info-item"><strong>تاريخ الإضافة</strong><span>${formatDate(item.created_at)}</span></div>
+                <div class="info-item"><strong>الموظف</strong><span>${item.created_by || item.createdBy || '-'}</span></div>
+            </div>
+            <div class="section">
+                <div class="section-title"><i class="fas fa-align-right"></i> اسم المادة ومواصفاتها</div>
+                <div class="section-content">${item.name}</div>
+            </div>
+            <div class="section">
+                <div class="section-title"><i class="fas fa-sticky-note"></i> الملاحظات</div>
+                <div class="section-content">${item.notes || 'لا توجد ملاحظات'}</div>
+            </div>
+            <div class="footer">
+                <p>تم طباعة هذه المادة من نظام إدارة الصيانة</p>
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 500);
+}
+async function printComputerItems() {
+    const items = await SupabaseAPI.request('computer_items', 'GET');
+    const categoryColors = { Desktop: 'info', Notebook: 'secondary', Printer: 'warning', Other: 'new' };
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>المواد الحاسوبية</title>
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Tajawal', sans-serif; padding: 25px; color: #1e293b; background: #fff; }
+                .header { text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #0ea5e9; }
+                .header h1 { color: #0ea5e9; font-size: 22px; margin-bottom: 6px; }
+                .header p { color: #64748b; font-size: 12px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                th { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); padding: 10px; text-align: right; font-weight: 700; font-size: 12px; border-bottom: 2px solid #e2e8f0; }
+                td { padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 12px; color: #475569; }
+                .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+                .badge-info { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+                .badge-secondary { background: rgba(139,92,246,0.15); color: #7c3aed; }
+                .badge-warning { background: rgba(245,158,11,0.15); color: #b45309; }
+                .badge-new { background: rgba(99,102,241,0.15); color: #4338ca; }
+                tfoot td { background: #f1f5f9; font-weight: 700; }
+                .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 11px; }
+                @media print { body { padding: 15px; } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>المواد الحاسوبية</h1>
+                <p>إجمالي المواد: ${items.length} | تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
+            </div>
+            <table>
+                <thead>
+                    <tr><th>#</th><th>التصنيف</th><th>رقم المادة</th><th>اسم المادة ومواصفاتها</th><th>الكمية</th><th>الملاحظات</th><th>تاريخ الإضافة</th><th>المستخدم</th></tr>
+                </thead>
+                <tbody>
+                    ${items.sort((a, b) => (b.id || 0) - (a.id || 0)).map((i, idx) => `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td><span class="badge badge-${categoryColors[i.category] || 'new'}">${i.category}</span></td>
+                            <td><strong>${i.item_number || i.itemNumber || '-'}</strong></td>
+                            <td style="max-width: 250px; white-space: normal;">${i.name}</td>
+                            <td><strong>${i.qty}</strong></td>
+                            <td>${i.notes || '-'}</td>
+                            <td>${formatDate(i.created_at)}</td>
+                            <td>${i.created_by || i.createdBy || '-'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" style="text-align: left;">المجموع الكلي:</td>
+                        <td style="font-size: 16px; color: #0ea5e9;"><strong>${items.reduce((sum, i) => sum + (parseInt(i.qty) || 0), 0)}</strong></td>
+                        <td colspan="3"></td>
+                    </tr>
+                </tfoot>
+            </table>
+            <div class="footer">
+                <p>تم طباعة هذه القائمة من نظام إدارة الصيانة</p>
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 500);
+}
 
 // ==================== TOAST ====================
 function showToast(type, title, message) {
@@ -2872,11 +3151,159 @@ async function deleteRequest(id) {
     showToast('success', 'تم الحذف', 'تم حذف الطلب بنجاح');
 }
 
-function printRequest(id) {
-    window.print();
+async function printRequest(id) {
+    const requests = await SupabaseAPI.request('requests', 'GET');
+    const req = requests.find(r => r.id === id);
+    if (!req) return;
+
+    const proceduresHtml = (req.procedures || []).length > 0 
+        ? req.procedures.map(p => `
+            <div style="margin-bottom: 10px; padding: 10px; background: #f8fafc; border-right: 3px solid #4f46e5; border-radius: 8px;">
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 5px;"><i class="fas fa-calendar-alt"></i> ${p.date}</div>
+                <div style="font-size: 14px; color: #1e293b;">${p.text}</div>
+                ${p.attachment ? `<div style="margin-top: 8px; font-size: 12px; color: #4f46e5;"><i class="fas fa-paperclip"></i> ${p.attachment.description || p.attachment.filename}</div>` : ''}
+            </div>
+        `).join('')
+        : '<p style="color: #94a3b8;">لا توجد إجراءات مسجلة</p>';
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>طلب صيانة #${req.request_number || req.requestNumber}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Tajawal', sans-serif; padding: 30px; color: #1e293b; background: #fff; }
+                .header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #4f46e5; }
+                .header h1 { color: #4f46e5; font-size: 24px; margin-bottom: 8px; }
+                .header p { color: #64748b; font-size: 13px; }
+                .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+                .info-item { background: #f8fafc; padding: 12px 15px; border-radius: 8px; border-right: 3px solid #e2e8f0; }
+                .info-item strong { color: #475569; font-size: 12px; display: block; margin-bottom: 4px; }
+                .info-item span { color: #1e293b; font-size: 14px; font-weight: 700; }
+                .section { margin-bottom: 20px; }
+                .section-title { font-size: 16px; font-weight: 700; color: #4f46e5; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+                .section-content { background: #f8fafc; padding: 15px; border-radius: 8px; line-height: 1.8; }
+                .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+                .badge-new { background: rgba(99,102,241,0.15); color: #4338ca; }
+                .badge-inprogress { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+                .badge-pending { background: rgba(245,158,11,0.15); color: #b45309; }
+                .badge-withdrawn { background: rgba(139,92,246,0.15); color: #7c3aed; }
+                .badge-active { background: rgba(6,182,212,0.15); color: #0e7490; }
+                .badge-completed { background: rgba(16,185,129,0.15); color: #047857; }
+                .badge-cancelled { background: rgba(239,68,68,0.15); color: #b91c1c; }
+                .badge-duplicate { background: rgba(236,72,153,0.15); color: #be185d; }
+                .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 12px; }
+                @media print { body { padding: 15px; } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>طلب صيانة</h1>
+                <p>رقم الطلب: #${req.request_number || req.requestNumber} | التاريخ: ${formatDate(req.created_at || req.createdAt)}</p>
+            </div>
+            <div class="info-grid">
+                <div class="info-item"><strong>الرقم الحاسوبي</strong><span>${req.computer_number || req.computerNumber || '-'}</span></div>
+                <div class="info-item"><strong>الجهاز</strong><span>${req.device_name || req.deviceName || '-'}</span></div>
+                <div class="info-item"><strong>الموظف</strong><span>${req.employee_name || req.employeeName || '-'}</span></div>
+                <div class="info-item"><strong>القسم</strong><span>${req.department || '-'}</span></div>
+                <div class="info-item"><strong>الحالة</strong><span class="badge badge-${req.status}">${getStatusLabel(req.status)}</span></div>
+                <div class="info-item"><strong>تاريخ الإنشاء</strong><span>${formatDate(req.created_at || req.createdAt)}</span></div>
+            </div>
+            <div class="section">
+                <div class="section-title"><i class="fas fa-exclamation-circle"></i> وصف المشكلة</div>
+                <div class="section-content">${req.issue_description || req.issueDescription || 'لا يوجد وصف'}</div>
+            </div>
+            <div class="section">
+                <div class="section-title"><i class="fas fa-clipboard-check"></i> الإجراءات الفنية</div>
+                <div class="section-content">${proceduresHtml}</div>
+            </div>
+            <div class="footer">
+                <p>تم طباعة هذا الطلب من نظام إدارة الصيانة</p>
+                <p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 500);
 }
 
-function printRequests() { window.print(); }
+async function printRequests() {
+    const requests = await SupabaseAPI.request('requests', 'GET');
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>قائمة طلبات الصيانة</title>
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Tajawal', sans-serif; padding: 25px; color: #1e293b; background: #fff; }
+                .header { text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #4f46e5; }
+                .header h1 { color: #4f46e5; font-size: 22px; margin-bottom: 6px; }
+                .header p { color: #64748b; font-size: 12px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                th { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); padding: 10px; text-align: right; font-weight: 700; font-size: 12px; border-bottom: 2px solid #e2e8f0; }
+                td { padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 12px; color: #475569; }
+                .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+                .badge-new { background: rgba(99,102,241,0.15); color: #4338ca; }
+                .badge-inprogress { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+                .badge-pending { background: rgba(245,158,11,0.15); color: #b45309; }
+                .badge-withdrawn { background: rgba(139,92,246,0.15); color: #7c3aed; }
+                .badge-active { background: rgba(6,182,212,0.15); color: #0e7490; }
+                .badge-completed { background: rgba(16,185,129,0.15); color: #047857; }
+                .badge-cancelled { background: rgba(239,68,68,0.15); color: #b91c1c; }
+                .badge-duplicate { background: rgba(236,72,153,0.15); color: #be185d; }
+                .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 11px; }
+                @media print { body { padding: 15px; } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>قائمة طلبات الصيانة</h1>
+                <p>إجمالي الطلبات: ${requests.length} | تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>رقم الطلب</th>
+                        <th>الرقم الحاسوبي</th>
+                        <th>الجهاز</th>
+                        <th>الموظف</th>
+                        <th>القسم</th>
+                        <th>الحالة</th>
+                        <th>التاريخ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${requests.sort((a, b) => (b.id || 0) - (a.id || 0)).map(r => `
+                        <tr>
+                            <td><strong>#${r.request_number || r.requestNumber}</strong></td>
+                            <td>${r.computer_number || r.computerNumber || '-'}</td>
+                            <td>${r.device_name || r.deviceName || '-'}</td>
+                            <td>${r.employee_name || r.employeeName || '-'}</td>
+                            <td>${r.department || '-'}</td>
+                            <td><span class="badge badge-${r.status}">${getStatusLabel(r.status)}</span></td>
+                            <td>${formatDate(r.created_at || r.createdAt)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            <div class="footer">
+                <p>تم طباعة هذه القائمة من نظام إدارة الصيانة</p>
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 500);
+}
 
 // ==================== INVENTORY ====================
 async function loadInventory() {
@@ -3154,7 +3581,68 @@ function checkLowStock() {
     });
 }
 
-function printInventory() { window.print(); }
+async function printInventory() {
+    const inventory = await SupabaseAPI.request('inventory', 'GET');
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>قطع الغيار والمستلزمات</title>
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Tajawal', sans-serif; padding: 25px; color: #1e293b; background: #fff; }
+                .header { text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #10b981; }
+                .header h1 { color: #10b981; font-size: 22px; margin-bottom: 6px; }
+                .header p { color: #64748b; font-size: 12px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                th { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); padding: 10px; text-align: right; font-weight: 700; font-size: 12px; border-bottom: 2px solid #e2e8f0; }
+                td { padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 12px; color: #475569; }
+                .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: 5px; }
+                .in-stock { background: #10b981; }
+                .low-stock { background: #f59e0b; }
+                .out-stock { background: #ef4444; }
+                .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 11px; }
+                @media print { body { padding: 15px; } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>قطع الغيار والمستلزمات</h1>
+                <p>إجمالي المواد: ${inventory.length} | تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
+            </div>
+            <table>
+                <thead>
+                    <tr><th>المادة</th><th>الرصيد</th><th>الحد الأقصى</th><th>النسبة</th><th>الحالة</th></tr>
+                </thead>
+                <tbody>
+                    ${inventory.map(item => {
+                        const maxQty = item.max_qty || item.maxQty || 1;
+                        const qty = item.qty || 0;
+                        const percentage = maxQty > 0 ? Math.round((qty / maxQty) * 100) : 0;
+                        const statusClass = qty === 0 ? 'out-stock' : qty <= 3 ? 'low-stock' : 'in-stock';
+                        const statusText = qty === 0 ? 'نفذت' : qty <= 3 ? 'منخفض' : 'متوفر';
+                        return `<tr>
+                            <td><strong>${item.name}</strong></td>
+                            <td>${qty}</td>
+                            <td>${maxQty}</td>
+                            <td>${percentage}%</td>
+                            <td><span class="status-dot ${statusClass}"></span> ${statusText}</td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+            <div class="footer">
+                <p>تم طباعة هذه القائمة من نظام إدارة الصيانة</p>
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 500);
+}
 
 // ==================== ALTERNATIVES ====================
 async function loadAlternatives() {
@@ -3416,7 +3904,92 @@ async function deleteAssignment(id) {
     showToast('success', 'تم الحذف', 'تم حذف التسليم');
 }
 
-function printAlternatives() { window.print(); }
+async function printAlternatives() {
+    const altDevices = await SupabaseAPI.request('alt_devices', 'GET');
+    const altModels = await SupabaseAPI.request('alt_models', 'GET');
+    const assignments = await SupabaseAPI.request('assignments', 'GET');
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>الأجهزة البديلة</title>
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Tajawal', sans-serif; padding: 25px; color: #1e293b; background: #fff; }
+                .header { text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #8b5cf6; }
+                .header h1 { color: #8b5cf6; font-size: 22px; margin-bottom: 6px; }
+                .header p { color: #64748b; font-size: 12px; }
+                h2 { font-size: 16px; color: #4f46e5; margin: 20px 0 10px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                th { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); padding: 10px; text-align: right; font-weight: 700; font-size: 12px; border-bottom: 2px solid #e2e8f0; }
+                td { padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 12px; color: #475569; }
+                .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+                .badge-inprogress { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+                .badge-completed { background: rgba(16,185,129,0.15); color: #047857; }
+                .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 11px; }
+                @media print { body { padding: 15px; } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>الأجهزة البديلة</h1>
+                <p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
+            </div>
+            <h2><i class="fas fa-laptop"></i> ملخص الكميات</h2>
+            <table>
+                <thead><tr><th>نوع الجهاز</th><th>إجمالي</th><th>الحد الأقصى</th><th>النسبة</th></tr></thead>
+                <tbody>
+                    ${altDevices.map(dev => {
+                        const models = altModels.filter(m => m.type === dev.type);
+                        const total = models.length;
+                        const totalQty = dev.total_qty || dev.totalQty || 1;
+                        const percentage = totalQty > 0 ? Math.round((total / totalQty) * 100) : 0;
+                        return `<tr><td><strong>${dev.type}</strong></td><td>${total}</td><td>${totalQty}</td><td>${percentage}%</td></tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+            <h2><i class="fas fa-list"></i> قائمة الموديلات</h2>
+            <table>
+                <thead><tr><th>النوع</th><th>الموديل</th><th>الرقم التسلسلي</th><th>الحالة</th><th>الموقع</th></tr></thead>
+                <tbody>
+                    ${altModels.sort((a, b) => (b.id || 0) - (a.id || 0)).map(m => `
+                        <tr>
+                            <td>${m.type}</td>
+                            <td><strong>${m.model}</strong></td>
+                            <td>${m.serial || 'بدون'}</td>
+                            <td>${m.status === 'available' ? '<span class="badge badge-completed">متاح</span>' : '<span class="badge badge-inprogress">غير متاح</span>'}</td>
+                            <td>${m.location || '-'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            <h2><i class="fas fa-hand-holding"></i> التسليمات</h2>
+            <table>
+                <thead><tr><th>الجهاز</th><th>الموديل</th><th>الموظف</th><th>تاريخ التسليم</th><th>الحالة</th></tr></thead>
+                <tbody>
+                    ${assignments.sort((a, b) => (b.id || 0) - (a.id || 0)).map(a => `
+                        <tr>
+                            <td>${a.device_type || a.deviceType}</td>
+                            <td>${a.model}</td>
+                            <td>${a.employee}</td>
+                            <td>${a.assign_date || a.assignDate}</td>
+                            <td><span class="badge badge-${a.status === 'active' ? 'inprogress' : 'completed'}">${a.status === 'active' ? 'مسلم' : 'مسترجع'}</span></td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            <div class="footer">
+                <p>تم طباعة هذه القائمة من نظام إدارة الصيانة</p>
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 500);
+}
 
 // ==================== IMPORT ====================
 function handleFileImport(input) {
@@ -3724,7 +4297,100 @@ function formatDate(dateStr) {
     return d.toLocaleDateString('ar-SA');
 }
 
-function printPage() { window.print(); }
+async function printPage() {
+    const requests = await SupabaseAPI.request('requests', 'GET');
+    const inventory = await SupabaseAPI.request('inventory', 'GET');
+    const altModels = await SupabaseAPI.request('alt_models', 'GET');
+    const documents = await SupabaseAPI.request('documents', 'GET');
+    const computerItems = await SupabaseAPI.request('computer_items', 'GET');
+
+    const hiddenStatuses = ['completed', 'cancelled', 'duplicate'];
+    const activeRequests = requests.filter(r => !hiddenStatuses.includes(r.status)).slice(0, 10);
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>لوحة التحكم - نظام إدارة الصيانة</title>
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Tajawal', sans-serif; padding: 25px; color: #1e293b; background: #fff; }
+                .header { text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #4f46e5; }
+                .header h1 { color: #4f46e5; font-size: 24px; margin-bottom: 6px; }
+                .header p { color: #64748b; font-size: 12px; }
+                .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 25px; }
+                .stat-card { background: #f8fafc; border-radius: 10px; padding: 15px; text-align: center; border-top: 3px solid; }
+                .stat-card.primary { border-color: #4f46e5; }
+                .stat-card.success { border-color: #10b981; }
+                .stat-card.warning { border-color: #f59e0b; }
+                .stat-card.danger { border-color: #ef4444; }
+                .stat-card.info { border-color: #3b82f6; }
+                .stat-card.secondary { border-color: #8b5cf6; }
+                .stat-value { font-size: 22px; font-weight: 800; margin-bottom: 3px; }
+                .stat-label { font-size: 11px; color: #64748b; }
+                h2 { font-size: 16px; color: #4f46e5; margin: 20px 0 10px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                th { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); padding: 10px; text-align: right; font-weight: 700; font-size: 12px; border-bottom: 2px solid #e2e8f0; }
+                td { padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 12px; color: #475569; }
+                .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+                .badge-new { background: rgba(99,102,241,0.15); color: #4338ca; }
+                .badge-inprogress { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+                .badge-pending { background: rgba(245,158,11,0.15); color: #b45309; }
+                .badge-withdrawn { background: rgba(139,92,246,0.15); color: #7c3aed; }
+                .badge-active { background: rgba(6,182,212,0.15); color: #0e7490; }
+                .badge-completed { background: rgba(16,185,129,0.15); color: #047857; }
+                .badge-cancelled { background: rgba(239,68,68,0.15); color: #b91c1c; }
+                .badge-duplicate { background: rgba(236,72,153,0.15); color: #be185d; }
+                .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 11px; }
+                @media print { body { padding: 15px; } .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+                @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>لوحة التحكم</h1>
+                <p>نظام إدارة الصيانة | تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card primary"><div class="stat-value" style="color: #4f46e5;">${requests.length}</div><div class="stat-label">إجمالي الطلبات</div></div>
+                <div class="stat-card info"><div class="stat-value" style="color: #3b82f6;">${requests.filter(r => r.status === 'inprogress').length}</div><div class="stat-label">قيد التنفيذ</div></div>
+                <div class="stat-card warning"><div class="stat-value" style="color: #f59e0b;">${requests.filter(r => r.status === 'pending').length}</div><div class="stat-label">قيد الانتظار</div></div>
+                <div class="stat-card success"><div class="stat-value" style="color: #10b981;">${requests.filter(r => r.status === 'completed').length}</div><div class="stat-label">مكتمل</div></div>
+                <div class="stat-card danger"><div class="stat-value" style="color: #ef4444;">${requests.filter(r => r.status === 'cancelled').length}</div><div class="stat-label">ملغي</div></div>
+                <div class="stat-card secondary"><div class="stat-value" style="color: #8b5cf6;">${altModels.filter(m => m.status === 'available').length}</div><div class="stat-label">أجهزة بديلة</div></div>
+                <div class="stat-card primary"><div class="stat-value" style="color: #6366f1;">${documents.length}</div><div class="stat-label">الوثائق</div></div>
+                <div class="stat-card info"><div class="stat-value" style="color: #0ea5e9;">${computerItems.length}</div><div class="stat-label">المواد الحاسوبية</div></div>
+            </div>
+            <h2><i class="fas fa-history"></i> الطلبات النشطة</h2>
+            <table>
+                <thead>
+                    <tr><th>الرقم الحاسوبي</th><th>الموظف</th><th>القسم</th><th>وصف المشكلة</th><th>الحالة</th><th>التاريخ</th></tr>
+                </thead>
+                <tbody>
+                    ${activeRequests.map(r => `
+                        <tr>
+                            <td><strong>${r.computer_number || r.computerNumber || '-'}</strong></td>
+                            <td>${r.employee_name || r.employeeName || '-'}</td>
+                            <td>${r.department || '-'}</td>
+                            <td style="max-width: 200px; white-space: normal; font-size: 11px;">${r.issue_description || r.issueDescription || '-'}</td>
+                            <td><span class="badge badge-${r.status}">${getStatusLabel(r.status)}</span></td>
+                            <td>${formatDate(r.created_at || r.createdAt)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            <div class="footer">
+                <p>تم طباعة هذه الصفحة من نظام إدارة الصيانة</p>
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 500);
+}
 
 // ==================== INIT ====================
 document.addEventListener('DOMContentLoaded', function() {
