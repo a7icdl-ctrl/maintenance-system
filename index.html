@@ -1838,6 +1838,56 @@ let editingRequestId = null;
 let tempProcedures = [];
 let tempAttachments = [];
 
+// ==================== IDLE TIMEOUT ====================
+let lastActivity = Date.now();
+let idleTimer = null;
+const IDLE_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
+
+function resetIdleTimer() {
+    lastActivity = Date.now();
+}
+
+function startIdleTimer() {
+    resetIdleTimer();
+    if (idleTimer) clearInterval(idleTimer);
+    idleTimer = setInterval(() => {
+        if (!currentUser) {
+            clearInterval(idleTimer);
+            idleTimer = null;
+            return;
+        }
+        const now = Date.now();
+        const diff = now - lastActivity;
+        if (diff >= IDLE_TIMEOUT) {
+            showToast('warning', 'انتهاء الجلسة', 'تم تسجيل الخروج تلقائياً بسبب عدم النشاط');
+            handleLogout();
+        }
+    }, 30000); // check every 30 seconds
+}
+
+function stopIdleTimer() {
+    if (idleTimer) {
+        clearInterval(idleTimer);
+        idleTimer = null;
+    }
+}
+
+function attachIdleListeners() {
+    document.addEventListener('click', resetIdleTimer);
+    document.addEventListener('keydown', resetIdleTimer);
+    document.addEventListener('mousemove', resetIdleTimer);
+    document.addEventListener('scroll', resetIdleTimer);
+    document.addEventListener('touchstart', resetIdleTimer);
+}
+
+function detachIdleListeners() {
+    document.removeEventListener('click', resetIdleTimer);
+    document.removeEventListener('keydown', resetIdleTimer);
+    document.removeEventListener('mousemove', resetIdleTimer);
+    document.removeEventListener('scroll', resetIdleTimer);
+    document.removeEventListener('touchstart', resetIdleTimer);
+}
+
 // ==================== CONFIG SCREEN ====================
 function resetConfig() {
     if (confirm('هل أنت متأكد من إعادة ضبط الإعدادات؟')) {
@@ -1957,6 +2007,8 @@ async function handleLogin() {
     if (user) {
         currentUser = user;
         localStorage.setItem('currentUser', JSON.stringify(user));
+        attachIdleListeners();
+        startIdleTimer();
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('appContainer').style.display = 'block';
         document.getElementById('userName').textContent = user.full_name || user.fullName || user.username;
@@ -1999,6 +2051,8 @@ function ensureDefaultUser() {
 }
 
 function handleLogout() {
+    stopIdleTimer();
+    detachIdleListeners();
     currentUser = null;
     localStorage.removeItem('currentUser');
     document.getElementById('appContainer').style.display = 'none';
@@ -5196,8 +5250,7 @@ async function confirmImportDocx() {
                 procedures: [],
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
-                created_by: currentUser?.full_name || currentUser?.fullName || 'Import',
-                imported: true
+                created_by: currentUser?.full_name || currentUser?.fullName || 'Import'
             };
             try {
                 await SupabaseAPI.request('requests', 'POST', reqData);
@@ -5268,8 +5321,7 @@ async function processImportedRequests(data) {
                 procedures: [],
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
-                created_by: currentUser?.full_name || currentUser?.fullName || 'Import',
-                imported: true
+                created_by: currentUser?.full_name || currentUser?.fullName || 'Import'
             });
             count++;
         }
@@ -5680,6 +5732,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (savedUser) {
             try {
                 currentUser = JSON.parse(savedUser);
+                attachIdleListeners();
+                startIdleTimer();
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('appContainer').style.display = 'block';
                 document.getElementById('userName').textContent = currentUser.full_name || currentUser.fullName || currentUser.username;
