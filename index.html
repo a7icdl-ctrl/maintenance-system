@@ -489,6 +489,10 @@
                     <span>الوثائق والملاحظات</span>
                     <span class="nav-badge" id="documentsBadge">0</span>
                 </a>
+                <a class="nav-item" onclick="showPage('advanced_search')">
+                    <i class="fas fa-search-plus"></i>
+                    <span>بحث متقدم</span>
+                </a>
                 <a class="nav-item" onclick="showPage('departments')">
                     <i class="fas fa-building"></i>
                     <span>الأقسام</span>
@@ -964,7 +968,286 @@
                 </div>
             </div>
 
-<div class="page-section" id="page-departments">
+<div class="page-section" id="page-advanced_search">
+                <div class="page-header">
+                    <h1 class="page-title">بحث متقدم</h1>
+                    <div class="page-actions no-print">
+                        <button class="btn btn-success btn-sm" onclick="exportSearchResults()">
+                            <i class="fas fa-file-csv"></i> تصدير النتائج
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="printSearchResults()">
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 20px;">
+                    <div class="card-header" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">
+                        <h3 style="color: white;"><i class="fas fa-sliders-h"></i> معايير البحث</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="tabs no-print">
+                            <button class="tab-btn active" onclick="showSearchTab('requests')">طلبات الصيانة</button>
+                            <button class="tab-btn" onclick="showSearchTab('inventory')">قطع الغيار</button>
+                            <button class="tab-btn" onclick="showSearchTab('alternatives')">الأجهزة البديلة</button>
+                            <button class="tab-btn" onclick="showSearchTab('documents')">الوثائق</button>
+                            <button class="tab-btn" onclick="showSearchTab('computer_items')">المواد الحاسوبية</button>
+                        </div>
+
+                        <!-- Search: Requests -->
+                        <div class="tab-content active" id="search-tab-requests">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>من تاريخ</label>
+                                    <input type="date" class="form-control" id="searchReqFromDate">
+                                </div>
+                                <div class="form-group">
+                                    <label>إلى تاريخ</label>
+                                    <input type="date" class="form-control" id="searchReqToDate">
+                                </div>
+                                <div class="form-group">
+                                    <label>الحالة</label>
+                                    <select class="form-control" id="searchReqStatus">
+                                        <option value="">جميع الحالات</option>
+                                        <option value="new">جديد</option>
+                                        <option value="inprogress">قيد التنفيذ</option>
+                                        <option value="pending">قيد الانتظار</option>
+                                        <option value="withdrawn">مسحوب</option>
+                                        <option value="active">مشغل</option>
+                                        <option value="completed">مكتمل</option>
+                                        <option value="cancelled">ملغي</option>
+                                        <option value="duplicate">مكرر</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>القسم</label>
+                                    <select class="form-control" id="searchReqDepartment">
+                                        <option value="">جميع الأقسام</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>الموظف</label>
+                                    <input type="text" class="form-control" id="searchReqEmployee" placeholder="اسم الموظف">
+                                </div>
+                                <div class="form-group">
+                                    <label>الرقم الحاسوبي</label>
+                                    <input type="text" class="form-control" id="searchReqComputer" placeholder="الرقم الحاسوبي">
+                                </div>
+                                <div class="form-group">
+                                    <label>الجهاز / المعدات</label>
+                                    <input type="text" class="form-control" id="searchReqDevice" placeholder="اسم الجهاز">
+                                </div>
+                                <div class="form-group">
+                                    <label>رقم الطلب</label>
+                                    <input type="text" class="form-control" id="searchReqNumber" placeholder="رقم الطلب">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>وصف المشكلة (بحث نصي)</label>
+                                    <input type="text" class="form-control" id="searchReqIssue" placeholder="كلمة في وصف المشكلة...">
+                                </div>
+                            </div>
+                            <div style="text-align: left; margin-top: 15px;">
+                                <button class="btn btn-primary" onclick="performAdvancedSearch('requests')">
+                                    <i class="fas fa-search"></i> بحث
+                                </button>
+                                <button class="btn btn-secondary" onclick="clearSearchForm('requests')" style="margin-right: 10px;">
+                                    <i class="fas fa-eraser"></i> مسح
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Search: Inventory -->
+                        <div class="tab-content" id="search-tab-inventory">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>من تاريخ الصرف</label>
+                                    <input type="date" class="form-control" id="searchInvFromDate">
+                                </div>
+                                <div class="form-group">
+                                    <label>إلى تاريخ الصرف</label>
+                                    <input type="date" class="form-control" id="searchInvToDate">
+                                </div>
+                                <div class="form-group">
+                                    <label>المادة</label>
+                                    <select class="form-control" id="searchInvItem">
+                                        <option value="">جميع المواد</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>الموظف</label>
+                                    <input type="text" class="form-control" id="searchInvEmployee" placeholder="اسم الموظف">
+                                </div>
+                                <div class="form-group">
+                                    <label>التالف</label>
+                                    <select class="form-control" id="searchInvDamaged">
+                                        <option value="">الكل</option>
+                                        <option value="yes">نعم</option>
+                                        <option value="no">لا</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>نوع العملية</label>
+                                    <select class="form-control" id="searchInvType">
+                                        <option value="">الكل</option>
+                                        <option value="out">صرف</option>
+                                        <option value="in">إضافة</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="text-align: left; margin-top: 15px;">
+                                <button class="btn btn-primary" onclick="performAdvancedSearch('inventory')">
+                                    <i class="fas fa-search"></i> بحث
+                                </button>
+                                <button class="btn btn-secondary" onclick="clearSearchForm('inventory')" style="margin-right: 10px;">
+                                    <i class="fas fa-eraser"></i> مسح
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Search: Alternatives -->
+                        <div class="tab-content" id="search-tab-alternatives">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>نوع الجهاز</label>
+                                    <select class="form-control" id="searchAltType">
+                                        <option value="">جميع الأنواع</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>الحالة</label>
+                                    <select class="form-control" id="searchAltStatus">
+                                        <option value="">الكل</option>
+                                        <option value="available">متاح</option>
+                                        <option value="unavailable">غير متاح</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>الموقع</label>
+                                    <input type="text" class="form-control" id="searchAltLocation" placeholder="الموقع / المكان">
+                                </div>
+                                <div class="form-group">
+                                    <label>الموديل</label>
+                                    <input type="text" class="form-control" id="searchAltModel" placeholder="اسم الموديل">
+                                </div>
+                                <div class="form-group">
+                                    <label>الرقم التسلسلي</label>
+                                    <input type="text" class="form-control" id="searchAltSerial" placeholder="الرقم التسلسلي">
+                                </div>
+                                <div class="form-group">
+                                    <label>الموظف المستلم</label>
+                                    <input type="text" class="form-control" id="searchAltEmployee" placeholder="اسم الموظف">
+                                </div>
+                            </div>
+                            <div style="text-align: left; margin-top: 15px;">
+                                <button class="btn btn-primary" onclick="performAdvancedSearch('alternatives')">
+                                    <i class="fas fa-search"></i> بحث
+                                </button>
+                                <button class="btn btn-secondary" onclick="clearSearchForm('alternatives')" style="margin-right: 10px;">
+                                    <i class="fas fa-eraser"></i> مسح
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Search: Documents -->
+                        <div class="tab-content" id="search-tab-documents">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>من تاريخ</label>
+                                    <input type="date" class="form-control" id="searchDocFromDate">
+                                </div>
+                                <div class="form-group">
+                                    <label>إلى تاريخ</label>
+                                    <input type="date" class="form-control" id="searchDocToDate">
+                                </div>
+                                <div class="form-group">
+                                    <label>التصنيف</label>
+                                    <select class="form-control" id="searchDocCategory">
+                                        <option value="">جميع التصنيفات</option>
+                                        <option value="report">تقرير</option>
+                                        <option value="memo_internal">مذكرة داخلية</option>
+                                        <option value="invoice">فاتورة</option>
+                                        <option value="official_letter">كتاب رسمي</option>
+                                        <option value="maintenance_contract">عقد صيانة</option>
+                                        <option value="other">أخرى</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>العنوان</label>
+                                    <input type="text" class="form-control" id="searchDocTitle" placeholder="عنوان الوثيقة">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>وصف / ملاحظات (بحث نصي)</label>
+                                    <input type="text" class="form-control" id="searchDocText" placeholder="كلمة في الوصف أو الملاحظات...">
+                                </div>
+                            </div>
+                            <div style="text-align: left; margin-top: 15px;">
+                                <button class="btn btn-primary" onclick="performAdvancedSearch('documents')">
+                                    <i class="fas fa-search"></i> بحث
+                                </button>
+                                <button class="btn btn-secondary" onclick="clearSearchForm('documents')" style="margin-right: 10px;">
+                                    <i class="fas fa-eraser"></i> مسح
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Search: Computer Items -->
+                        <div class="tab-content" id="search-tab-computer_items">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>من تاريخ</label>
+                                    <input type="date" class="form-control" id="searchCompFromDate">
+                                </div>
+                                <div class="form-group">
+                                    <label>إلى تاريخ</label>
+                                    <input type="date" class="form-control" id="searchCompToDate">
+                                </div>
+                                <div class="form-group">
+                                    <label>التصنيف</label>
+                                    <select class="form-control" id="searchCompCategory">
+                                        <option value="">جميع التصنيفات</option>
+                                        <option value="Desktop">Desktop</option>
+                                        <option value="Notebook">Notebook</option>
+                                        <option value="Printer">Printer</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>رقم المادة</label>
+                                    <input type="text" class="form-control" id="searchCompNumber" placeholder="رقم المادة">
+                                </div>
+                                <div class="form-group">
+                                    <label>اسم المادة</label>
+                                    <input type="text" class="form-control" id="searchCompName" placeholder="اسم المادة">
+                                </div>
+                                <div class="form-group">
+                                    <label>الكمية (أقل من أو يساوي)</label>
+                                    <input type="number" class="form-control" id="searchCompQty" placeholder="الكمية" min="0">
+                                </div>
+                            </div>
+                            <div style="text-align: left; margin-top: 15px;">
+                                <button class="btn btn-primary" onclick="performAdvancedSearch('computer_items')">
+                                    <i class="fas fa-search"></i> بحث
+                                </button>
+                                <button class="btn btn-secondary" onclick="clearSearchForm('computer_items')" style="margin-right: 10px;">
+                                    <i class="fas fa-eraser"></i> مسح
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Results -->
+                <div class="card" id="searchResultsCard" style="display: none;">
+                    <div class="card-header" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe);">
+                        <h3><i class="fas fa-list-alt" style="color: var(--primary);"></i> نتائج البحث <span id="searchResultsCount" style="font-size: 14px; color: var(--text-light);"></span></h3>
+                    </div>
+                    <div class="card-body" id="searchResultsBody">
+                        <!-- Results will be injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-section" id="page-departments">
                 <div class="page-header">
                     <h1 class="page-title">إدارة الأقسام</h1>
                     <div class="page-actions no-print">
@@ -1724,6 +2007,425 @@ function handleLogout() {
     showToast('info', 'تسجيل خروج', 'تم تسجيل الخروج بنجاح');
 }
 
+// ==================== ADVANCED SEARCH ====================
+let currentSearchType = 'requests';
+let currentSearchResults = [];
+
+function showSearchTab(tab) {
+    document.querySelectorAll('#page-advanced_search .tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#page-advanced_search .tab-content').forEach(c => c.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('search-tab-' + tab).classList.add('active');
+    currentSearchType = tab;
+    document.getElementById('searchResultsCard').style.display = 'none';
+}
+
+async function loadSearchDropdowns() {
+    // Load departments for request search
+    const departments = await SupabaseAPI.request('departments', 'GET');
+    const deptSelect = document.getElementById('searchReqDepartment');
+    if (deptSelect) {
+        deptSelect.innerHTML = '<option value="">جميع الأقسام</option>' +
+            departments.sort((a, b) => a.name.localeCompare(b.name)).map(d =>
+                `<option value="${d.name}">${d.name}</option>`
+            ).join('');
+    }
+
+    // Load inventory items for inventory search
+    const inventory = await SupabaseAPI.request('inventory', 'GET');
+    const invSelect = document.getElementById('searchInvItem');
+    if (invSelect) {
+        invSelect.innerHTML = '<option value="">جميع المواد</option>' +
+            inventory.sort((a, b) => a.name.localeCompare(b.name)).map(i =>
+                `<option value="${i.name}">${i.name}</option>`
+            ).join('');
+    }
+
+    // Load alt device types for alternatives search
+    const altDevices = await SupabaseAPI.request('alt_devices', 'GET');
+    const altSelect = document.getElementById('searchAltType');
+    if (altSelect) {
+        altSelect.innerHTML = '<option value="">جميع الأنواع</option>' +
+            altDevices.map(d => `<option value="${d.type}">${d.type}</option>`).join('');
+    }
+}
+
+function clearSearchForm(type) {
+    const container = document.getElementById('search-tab-' + type);
+    if (!container) return;
+    container.querySelectorAll('input, select').forEach(el => {
+        if (el.tagName === 'SELECT') el.selectedIndex = 0;
+        else el.value = '';
+    });
+    document.getElementById('searchResultsCard').style.display = 'none';
+}
+
+async function performAdvancedSearch(type) {
+    currentSearchType = type;
+    currentSearchResults = [];
+    let resultsHtml = '';
+    let count = 0;
+
+    if (type === 'requests') {
+        const requests = await SupabaseAPI.request('requests', 'GET');
+        const fromDate = document.getElementById('searchReqFromDate').value;
+        const toDate = document.getElementById('searchReqToDate').value;
+        const status = document.getElementById('searchReqStatus').value;
+        const department = document.getElementById('searchReqDepartment').value;
+        const employee = document.getElementById('searchReqEmployee').value.toLowerCase();
+        const computer = document.getElementById('searchReqComputer').value.toLowerCase();
+        const device = document.getElementById('searchReqDevice').value.toLowerCase();
+        const reqNumber = document.getElementById('searchReqNumber').value.toLowerCase();
+        const issue = document.getElementById('searchReqIssue').value.toLowerCase();
+
+        let filtered = requests;
+
+        if (fromDate) {
+            const from = new Date(fromDate);
+            from.setHours(0, 0, 0, 0);
+            filtered = filtered.filter(r => new Date(r.created_at || r.createdAt || 0) >= from);
+        }
+        if (toDate) {
+            const to = new Date(toDate);
+            to.setHours(23, 59, 59, 999);
+            filtered = filtered.filter(r => new Date(r.created_at || r.createdAt || 0) <= to);
+        }
+        if (status) filtered = filtered.filter(r => r.status === status);
+        if (department) filtered = filtered.filter(r => r.department === department);
+        if (employee) filtered = filtered.filter(r => (r.employee_name || r.employeeName || '').toLowerCase().includes(employee));
+        if (computer) filtered = filtered.filter(r => (r.computer_number || r.computerNumber || '').toLowerCase().includes(computer));
+        if (device) filtered = filtered.filter(r => (r.device_name || r.deviceName || '').toLowerCase().includes(device));
+        if (reqNumber) filtered = filtered.filter(r => (r.request_number || r.requestNumber || '').toLowerCase().includes(reqNumber));
+        if (issue) filtered = filtered.filter(r => (r.issue_description || r.issueDescription || '').toLowerCase().includes(issue));
+
+        currentSearchResults = filtered;
+        count = filtered.length;
+
+        resultsHtml = `<div class="table-container"><table class="data-table">
+            <thead><tr><th>رقم الطلب</th><th>الرقم الحاسوبي</th><th>الجهاز</th><th>الموظف</th><th>القسم</th><th>الحالة</th><th>تاريخ الطلب</th></tr></thead>
+            <tbody>${filtered.sort((a, b) => (b.id || 0) - (a.id || 0)).map(r => `
+                <tr>
+                    <td><strong>#${r.request_number || r.requestNumber}</strong></td>
+                    <td>${r.computer_number || r.computerNumber || '-'}</td>
+                    <td>${r.device_name || r.deviceName || '-'}</td>
+                    <td>${r.employee_name || r.employeeName || '-'}</td>
+                    <td>${r.department || '-'}</td>
+                    <td><span class="badge badge-${r.status}">${getStatusLabel(r.status)}</span></td>
+                    <td>${formatDate(r.created_at || r.createdAt)}</td>
+                </tr>
+            `).join('')}</tbody></table></div>`;
+
+    } else if (type === 'inventory') {
+        const transactions = await SupabaseAPI.request('transactions', 'GET');
+        const history = await SupabaseAPI.request('inventory_history', 'GET');
+        const fromDate = document.getElementById('searchInvFromDate').value;
+        const toDate = document.getElementById('searchInvToDate').value;
+        const itemName = document.getElementById('searchInvItem').value;
+        const employee = document.getElementById('searchInvEmployee').value.toLowerCase();
+        const damaged = document.getElementById('searchInvDamaged').value;
+        const opType = document.getElementById('searchInvType').value;
+
+        let filtered = transactions;
+        if (fromDate) filtered = filtered.filter(t => t.date >= fromDate);
+        if (toDate) filtered = filtered.filter(t => t.date <= toDate);
+        if (itemName) filtered = filtered.filter(t => (t.item_name || t.itemName) === itemName);
+        if (employee) filtered = filtered.filter(t => (t.employee || '').toLowerCase().includes(employee));
+        if (damaged) filtered = filtered.filter(t => t.damaged === damaged);
+
+        // Also search history if operation type is specified
+        if (opType) {
+            let histFiltered = history;
+            if (fromDate) histFiltered = histFiltered.filter(h => h.date >= fromDate);
+            if (toDate) histFiltered = histFiltered.filter(h => h.date <= toDate);
+            if (itemName) histFiltered = histFiltered.filter(h => (h.item_name || h.itemName) === itemName);
+            if (employee) histFiltered = histFiltered.filter(h => (h.user || '').toLowerCase().includes(employee));
+            histFiltered = histFiltered.filter(h => h.type === opType);
+            currentSearchResults = { transactions: filtered, history: histFiltered };
+            count = filtered.length + histFiltered.length;
+
+            resultsHtml = `<h4 style="margin-bottom: 10px; color: var(--primary);"><i class="fas fa-exchange-alt"></i> حركات الصرف</h4>
+            <div class="table-container" style="margin-bottom: 20px;"><table class="data-table">
+            <thead><tr><th>المادة</th><th>الكمية</th><th>الموظف</th><th>التاريخ</th><th>التالف</th><th>ملاحظات</th></tr></thead>
+            <tbody>${filtered.sort((a, b) => (b.id || 0) - (a.id || 0)).map(t => `
+                <tr><td>${t.item_name || t.itemName}</td><td>${t.qty}</td><td>${t.employee}</td><td>${t.date}</td>
+                <td>${t.damaged === 'yes' ? '<span class="badge badge-cancelled">نعم</span>' : '<span class="badge badge-completed">لا</span>'}</td>
+                <td>${t.notes || '-'}</td></tr>
+            `).join('')}</tbody></table></div>
+            <h4 style="margin-bottom: 10px; color: var(--primary);"><i class="fas fa-history"></i> سجل المخزون</h4>
+            <div class="table-container"><table class="data-table">
+            <thead><tr><th>المادة</th><th>النوع</th><th>الكمية</th><th>الرصيد السابق</th><th>الرصيد الجديد</th><th>التاريخ</th><th>المستخدم</th></tr></thead>
+            <tbody>${histFiltered.sort((a, b) => (b.id || 0) - (a.id || 0)).map(h => `
+                <tr><td>${h.item_name || h.itemName}</td>
+                <td><span class="badge badge-${h.type === 'out' ? 'danger' : 'success'}">${h.type === 'out' ? 'صرف' : 'إضافة'}</span></td>
+                <td>${h.qty}</td><td>${h.old_qty || h.oldQty}</td><td>${h.new_qty || h.newQty}</td>
+                <td>${h.date}</td><td>${h.user}</td></tr>
+            `).join('')}</tbody></table></div>`;
+        } else {
+            currentSearchResults = filtered;
+            count = filtered.length;
+            resultsHtml = `<div class="table-container"><table class="data-table">
+            <thead><tr><th>المادة</th><th>الكمية</th><th>الموظف</th><th>التاريخ</th><th>التالف</th><th>ملاحظات</th></tr></thead>
+            <tbody>${filtered.sort((a, b) => (b.id || 0) - (a.id || 0)).map(t => `
+                <tr><td>${t.item_name || t.itemName}</td><td>${t.qty}</td><td>${t.employee}</td><td>${t.date}</td>
+                <td>${t.damaged === 'yes' ? '<span class="badge badge-cancelled">نعم</span>' : '<span class="badge badge-completed">لا</span>'}</td>
+                <td>${t.notes || '-'}</td></tr>
+            `).join('')}</tbody></table></div>`;
+        }
+
+    } else if (type === 'alternatives') {
+        const altModels = await SupabaseAPI.request('alt_models', 'GET');
+        const assignments = await SupabaseAPI.request('assignments', 'GET');
+        const deviceType = document.getElementById('searchAltType').value;
+        const status = document.getElementById('searchAltStatus').value;
+        const location = document.getElementById('searchAltLocation').value.toLowerCase();
+        const model = document.getElementById('searchAltModel').value.toLowerCase();
+        const serial = document.getElementById('searchAltSerial').value.toLowerCase();
+        const employee = document.getElementById('searchAltEmployee').value.toLowerCase();
+
+        let filtered = altModels;
+        if (deviceType) filtered = filtered.filter(m => m.type === deviceType);
+        if (status) filtered = filtered.filter(m => m.status === status);
+        if (location) filtered = filtered.filter(m => (m.location || '').toLowerCase().includes(location));
+        if (model) filtered = filtered.filter(m => (m.model || '').toLowerCase().includes(model));
+        if (serial) filtered = filtered.filter(m => (m.serial || '').toLowerCase().includes(serial));
+
+        let filteredAssignments = assignments;
+        if (employee) filteredAssignments = filteredAssignments.filter(a => (a.employee || '').toLowerCase().includes(employee));
+        if (deviceType) filteredAssignments = filteredAssignments.filter(a => (a.device_type || a.deviceType) === deviceType);
+
+        currentSearchResults = { models: filtered, assignments: filteredAssignments };
+        count = filtered.length + filteredAssignments.length;
+
+        resultsHtml = `<h4 style="margin-bottom: 10px; color: var(--primary);"><i class="fas fa-laptop"></i> الموديلات (${filtered.length})</h4>
+        <div class="table-container" style="margin-bottom: 20px;"><table class="data-table">
+        <thead><tr><th>النوع</th><th>الموديل</th><th>الرقم التسلسلي</th><th>الحالة</th><th>الموقع</th></tr></thead>
+        <tbody>${filtered.sort((a, b) => (b.id || 0) - (a.id || 0)).map(m => `
+            <tr><td>${m.type}</td><td><strong>${m.model}</strong></td><td>${m.serial || 'بدون'}</td>
+            <td>${m.status === 'available' ? '<span class="badge badge-completed">متاح</span>' : '<span class="badge badge-inprogress">غير متاح</span>'}</td>
+            <td>${m.location || '-'}</td></tr>
+        `).join('')}</tbody></table></div>
+        <h4 style="margin-bottom: 10px; color: var(--primary);"><i class="fas fa-hand-holding"></i> التسليمات (${filteredAssignments.length})</h4>
+        <div class="table-container"><table class="data-table">
+        <thead><tr><th>الجهاز</th><th>الموديل</th><th>الموظف</th><th>الموقع</th><th>تاريخ التسليم</th><th>الحالة</th></tr></thead>
+        <tbody>${filteredAssignments.sort((a, b) => (b.id || 0) - (a.id || 0)).map(a => `
+            <tr><td>${a.device_type || a.deviceType}</td><td>${a.model}</td><td>${a.employee}</td>
+            <td>${a.location}</td><td>${a.assign_date || a.assignDate}</td>
+            <td><span class="badge badge-${a.status === 'active' ? 'inprogress' : 'completed'}">${a.status === 'active' ? 'مسلم' : 'مسترجع'}</span></td></tr>
+        `).join('')}</tbody></table></div>`;
+
+    } else if (type === 'documents') {
+        const documents = await SupabaseAPI.request('documents', 'GET');
+        const fromDate = document.getElementById('searchDocFromDate').value;
+        const toDate = document.getElementById('searchDocToDate').value;
+        const category = document.getElementById('searchDocCategory').value;
+        const title = document.getElementById('searchDocTitle').value.toLowerCase();
+        const text = document.getElementById('searchDocText').value.toLowerCase();
+
+        let filtered = documents;
+        if (fromDate) {
+            const from = new Date(fromDate);
+            filtered = filtered.filter(d => new Date(d.document_date || d.documentDate || d.created_at || 0) >= from);
+        }
+        if (toDate) {
+            const to = new Date(toDate);
+            to.setHours(23, 59, 59, 999);
+            filtered = filtered.filter(d => new Date(d.document_date || d.documentDate || d.created_at || 0) <= to);
+        }
+        if (category) filtered = filtered.filter(d => d.category === category);
+        if (title) filtered = filtered.filter(d => (d.title || '').toLowerCase().includes(title));
+        if (text) filtered = filtered.filter(d =>
+            (d.description || '').toLowerCase().includes(text) ||
+            (d.notes || '').toLowerCase().includes(text)
+        );
+
+        currentSearchResults = filtered;
+        count = filtered.length;
+        const categoryLabels = { report: 'تقرير', memo_internal: 'مذكرة داخلية', invoice: 'فاتورة', official_letter: 'كتاب رسمي', maintenance_contract: 'عقد صيانة', other: 'أخرى' };
+
+        resultsHtml = `<div class="table-container"><table class="data-table">
+        <thead><tr><th>#</th><th>العنوان</th><th>التصنيف</th><th>الوصف</th><th>التاريخ</th><th>الموظف</th></tr></thead>
+        <tbody>${filtered.sort((a, b) => (b.id || 0) - (a.id || 0)).map(d => `
+            <tr><td><strong>#${d.document_number || d.documentNumber || d.id}</strong></td>
+            <td>${d.title}</td>
+            <td><span class="badge badge-${d.category === 'report' ? 'success' : d.category === 'memo_internal' ? 'info' : d.category === 'invoice' ? 'warning' : d.category === 'official_letter' ? 'secondary' : d.category === 'maintenance_contract' ? 'inprogress' : 'new'}">${categoryLabels[d.category] || d.category}</span></td>
+            <td style="max-width: 250px; white-space: normal; font-size: 12px;">${d.description ? d.description.substring(0, 60) + '...' : '-'}</td>
+            <td>${formatDate(d.document_date || d.documentDate || d.created_at)}</td>
+            <td>${d.created_by || d.createdBy || '-'}</td></tr>
+        `).join('')}</tbody></table></div>`;
+
+    } else if (type === 'computer_items') {
+        const items = await SupabaseAPI.request('computer_items', 'GET');
+        const fromDate = document.getElementById('searchCompFromDate').value;
+        const toDate = document.getElementById('searchCompToDate').value;
+        const category = document.getElementById('searchCompCategory').value;
+        const number = document.getElementById('searchCompNumber').value.toLowerCase();
+        const name = document.getElementById('searchCompName').value.toLowerCase();
+        const qty = document.getElementById('searchCompQty').value;
+
+        let filtered = items;
+        if (fromDate) {
+            const from = new Date(fromDate);
+            filtered = filtered.filter(i => new Date(i.created_at || 0) >= from);
+        }
+        if (toDate) {
+            const to = new Date(toDate);
+            to.setHours(23, 59, 59, 999);
+            filtered = filtered.filter(i => new Date(i.created_at || 0) <= to);
+        }
+        if (category) filtered = filtered.filter(i => i.category === category);
+        if (number) filtered = filtered.filter(i => (i.item_number || i.itemNumber || '').toLowerCase().includes(number));
+        if (name) filtered = filtered.filter(i => (i.name || '').toLowerCase().includes(name));
+        if (qty !== '') filtered = filtered.filter(i => (parseInt(i.qty) || 0) <= parseInt(qty));
+
+        currentSearchResults = filtered;
+        count = filtered.length;
+        const categoryColors = { Desktop: 'info', Notebook: 'secondary', Printer: 'warning', Other: 'new' };
+
+        resultsHtml = `<div class="table-container"><table class="data-table">
+        <thead><tr><th>#</th><th>التصنيف</th><th>رقم المادة</th><th>اسم المادة</th><th>الكمية</th><th>التاريخ</th><th>المستخدم</th></tr></thead>
+        <tbody>${filtered.sort((a, b) => (b.id || 0) - (a.id || 0)).map((i, idx) => `
+            <tr><td>${idx + 1}</td>
+            <td><span class="badge badge-${categoryColors[i.category] || 'new'}">${i.category}</span></td>
+            <td><strong>${i.item_number || i.itemNumber || '-'}</strong></td>
+            <td style="max-width: 250px; white-space: normal;">${i.name}</td>
+            <td><strong>${i.qty}</strong></td>
+            <td>${formatDate(i.created_at)}</td>
+            <td>${i.created_by || i.createdBy || '-'}</td></tr>
+        `).join('')}</tbody></table></div>`;
+    }
+
+    document.getElementById('searchResultsCount').textContent = `(${count} نتيجة)`;
+    document.getElementById('searchResultsBody').innerHTML = resultsHtml || '<div class="empty-state"><i class="fas fa-search" style="font-size: 48px; color: var(--border-color); margin-bottom: 15px;"></i><h3>لا توجد نتائج</h3><p>جرب تغيير معايير البحث</p></div>';
+    document.getElementById('searchResultsCard').style.display = 'block';
+    document.getElementById('searchResultsCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function exportSearchResults() {
+    if (!currentSearchResults || (Array.isArray(currentSearchResults) && currentSearchResults.length === 0)) {
+        showToast('warning', 'تنبيه', 'لا توجد نتائج للتصدير'); return;
+    }
+
+    showToast('info', 'جاري التصدير', 'جاري إنشاء ملف CSV...');
+    let csv = '\uFEFF';
+    const statusLabels = { new: 'جديد', inprogress: 'قيد التنفيذ', pending: 'قيد الانتظار', withdrawn: 'مسحوب', active: 'مشغل', completed: 'مكتمل', cancelled: 'ملغي', duplicate: 'مكرر' };
+
+    if (currentSearchType === 'requests') {
+        const data = Array.isArray(currentSearchResults) ? currentSearchResults : [];
+        csv += 'رقم الطلب,الرقم الحاسوبي,الجهاز,الموظف,القسم,الحالة,تاريخ الطلب,وصف المشكلة\n';
+        data.forEach(r => {
+            csv += `"${r.request_number || r.requestNumber || ''}","${r.computer_number || r.computerNumber || ''}","${(r.device_name || r.deviceName || '').replace(/"/g, '""')}","${(r.employee_name || r.employeeName || '').replace(/"/g, '""')}","${(r.department || '').replace(/"/g, '""')}","${statusLabels[r.status] || r.status}","${formatDate(r.created_at || r.createdAt)}","${(r.issue_description || r.issueDescription || '').replace(/"/g, '""').replace(/\n/g, ' ')}"\n`;
+        });
+    } else if (currentSearchType === 'inventory') {
+        const data = Array.isArray(currentSearchResults) ? currentSearchResults : (currentSearchResults.transactions || []);
+        csv += 'المادة,الكمية,الموظف,التاريخ,التالف,ملاحظات\n';
+        data.forEach(t => {
+            csv += `"${t.item_name || t.itemName || ''}","${t.qty}","${t.employee || ''}","${t.date}","${t.damaged === 'yes' ? 'نعم' : 'لا'}","${(t.notes || '').replace(/"/g, '""')}"\n`;
+        });
+    } else if (currentSearchType === 'alternatives') {
+        const models = currentSearchResults.models || [];
+        csv += 'النوع,الموديل,الرقم التسلسلي,الحالة,الموقع\n';
+        models.forEach(m => {
+            csv += `"${m.type}","${m.model}","${m.serial || ''}","${m.status === 'available' ? 'متاح' : 'غير متاح'}","${m.location || ''}"\n`;
+        });
+    } else if (currentSearchType === 'documents') {
+        const data = Array.isArray(currentSearchResults) ? currentSearchResults : [];
+        const catLabels = { report: 'تقرير', memo_internal: 'مذكرة داخلية', invoice: 'فاتورة', official_letter: 'كتاب رسمي', maintenance_contract: 'عقد صيانة', other: 'أخرى' };
+        csv += 'رقم الوثيقة,العنوان,التصنيف,الوصف,التاريخ,الموظف\n';
+        data.forEach(d => {
+            csv += `"${d.document_number || d.documentNumber || d.id}","${(d.title || '').replace(/"/g, '""')}","${catLabels[d.category] || d.category}","${(d.description || '').replace(/"/g, '""').replace(/\n/g, ' ')}","${formatDate(d.document_date || d.documentDate || d.created_at)}","${d.created_by || d.createdBy || ''}"\n`;
+        });
+    } else if (currentSearchType === 'computer_items') {
+        const data = Array.isArray(currentSearchResults) ? currentSearchResults : [];
+        csv += 'التصنيف,رقم المادة,اسم المادة,الكمية,التاريخ,الملاحظات\n';
+        data.forEach(i => {
+            csv += `"${i.category}","${i.item_number || i.itemNumber || ''}","${(i.name || '').replace(/"/g, '""')}","${i.qty}","${formatDate(i.created_at)}","${(i.notes || '').replace(/"/g, '""')}"\n`;
+        });
+    }
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'نتائج_البحث_' + currentSearchType + '_' + new Date().toISOString().split('T')[0] + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('success', 'تم التصدير', 'تم تصدير نتائج البحث إلى CSV');
+}
+
+async function printSearchResults() {
+    const resultsBody = document.getElementById('searchResultsBody').innerHTML;
+    const count = document.getElementById('searchResultsCount').textContent;
+    const typeLabels = { requests: 'طلبات الصيانة', inventory: 'قطع الغيار', alternatives: 'الأجهزة البديلة', documents: 'الوثائق', computer_items: 'المواد الحاسوبية' };
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>نتائج البحث - ${typeLabels[currentSearchType]}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Tajawal', sans-serif; padding: 25px; color: #1e293b; background: #fff; }
+                .header { text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #4f46e5; }
+                .header h1 { color: #4f46e5; font-size: 22px; margin-bottom: 6px; }
+                .header p { color: #64748b; font-size: 12px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                th { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); padding: 10px; text-align: right; font-weight: 700; font-size: 12px; border-bottom: 2px solid #e2e8f0; }
+                td { padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 12px; color: #475569; }
+                .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+                .badge-new { background: rgba(99,102,241,0.15); color: #4338ca; }
+                .badge-inprogress { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+                .badge-pending { background: rgba(245,158,11,0.15); color: #b45309; }
+                .badge-withdrawn { background: rgba(139,92,246,0.15); color: #7c3aed; }
+                .badge-active { background: rgba(6,182,212,0.15); color: #0e7490; }
+                .badge-completed { background: rgba(16,185,129,0.15); color: #047857; }
+                .badge-cancelled { background: rgba(239,68,68,0.15); color: #b91c1c; }
+                .badge-duplicate { background: rgba(236,72,153,0.15); color: #be185d; }
+                .badge-success { background: rgba(16,185,129,0.15); color: #047857; }
+                .badge-info { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+                .badge-warning { background: rgba(245,158,11,0.15); color: #b45309; }
+                .badge-secondary { background: rgba(139,92,246,0.15); color: #7c3aed; }
+                .badge-danger { background: rgba(239,68,68,0.15); color: #b91c1c; }
+                h4 { font-size: 15px; color: #4f46e5; margin: 15px 0 8px; }
+                .print-footer { margin-top: 35px; padding-top: 15px; border-top: 2px solid #e2e8f0; text-align: center; }
+                .print-footer-line { height: 3px; background: linear-gradient(90deg, #4f46e5, #06b6d4, #f59e0b); border-radius: 2px; margin-bottom: 15px; }
+                .print-footer-content { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+                .print-footer-brand { font-size: 14px; font-weight: 700; color: #4f46e5; display: flex; align-items: center; gap: 6px; }
+                .print-footer-copy { font-size: 12px; color: #64748b; }
+                .print-footer-dev { font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center; }
+                .print-footer-dev strong { color: #4f46e5; }
+                .print-footer-sep { color: #cbd5e1; margin: 0 4px; }
+                .print-footer-date { font-size: 10px; color: #cbd5e1; margin-top: 4px; }
+                @media print { body { padding: 15px; } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>نتائج البحث المتقدم</h1>
+                <p>القسم: ${typeLabels[currentSearchType]} ${count} | تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
+            </div>
+            ${resultsBody}
+            <div class="print-footer">
+                <div class="print-footer-line"></div>
+                <div class="print-footer-content">
+                    <div class="print-footer-brand"><i class="fas fa-tools"></i><span>نظام إدارة الصيانة</span></div>
+                    <div class="print-footer-copy"><i class="fas fa-copyright"></i> جميع الحقوق محفوظة &copy; 2026</div>
+                    <div class="print-footer-dev"><i class="fas fa-code"></i> تم تطويره بواسطة <strong>أحمد رحيل</strong><span class="print-footer-sep">|</span><i class="fas fa-phone-alt"></i><span dir="ltr">0797767862</span></div>
+                    <div class="print-footer-date"><i class="fas fa-print"></i> تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}</div>
+                </div>
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 500);
+}
+
 // ==================== NAVIGATION ====================
 async function showPage(page) {
     document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
@@ -1739,6 +2441,7 @@ async function showPage(page) {
     if (page === 'documents') await loadDocuments();
     if (page === 'computer_items') await loadComputerItems();
     if (page === 'departments') await loadDepartments();
+    if (page === 'advanced_search') { await loadSearchDropdowns(); document.getElementById('searchResultsCard').style.display = 'none'; }
 }
 
 
