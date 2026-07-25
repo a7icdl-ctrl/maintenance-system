@@ -2328,6 +2328,22 @@ async function printDocument(id) {
                 .section-content { background: #f8fafc; padding: 15px; border-radius: 8px; line-height: 1.8; white-space: pre-wrap; }
                 .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 12px; }
                 @media print { body { padding: 15px; } }
+
+                .print-footer { margin-top: 35px; padding-top: 15px; border-top: 2px solid #e2e8f0; text-align: center; }
+                .print-footer-line { height: 3px; background: linear-gradient(90deg, #4f46e5, #06b6d4, #f59e0b); border-radius: 2px; margin-bottom: 15px; }
+                .print-footer-content { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+                .print-footer-brand { font-size: 14px; font-weight: 700; color: #4f46e5; display: flex; align-items: center; gap: 6px; }
+                .print-footer-brand i { font-size: 16px; }
+                .print-footer-copy { font-size: 12px; color: #64748b; }
+                .print-footer-dev { font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center; }
+                .print-footer-dev strong { color: #4f46e5; }
+                .print-footer-sep { color: #cbd5e1; margin: 0 4px; }
+                .print-footer-date { font-size: 10px; color: #cbd5e1; margin-top: 4px; }
+                @media print {
+                    .print-footer { page-break-inside: avoid; }
+                    .print-footer-line { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                }
+
             </style>
         </head>
         <body>
@@ -2351,10 +2367,32 @@ async function printDocument(id) {
                 <div class="section-title"><i class="fas fa-paperclip"></i> المرفقات (${(doc.attachments || []).length})</div>
                 <div class="section-content">${attachmentsHtml}</div>
             </div>
-            <div class="footer">
-                <p>تم طباعة هذه الوثيقة من نظام إدارة الصيانة</p>
-                <p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
-            </div>
+
+                <div class="print-footer">
+                    <div class="print-footer-line"></div>
+                    <div class="print-footer-content">
+                        <div class="print-footer-brand">
+                            <i class="fas fa-tools"></i>
+                            <span>نظام إدارة الصيانة</span>
+                        </div>
+                        <div class="print-footer-copy">
+                            <i class="fas fa-copyright"></i>
+                            جميع الحقوق محفوظة &copy; 2026
+                        </div>
+                        <div class="print-footer-dev">
+                            <i class="fas fa-code"></i>
+                            تم تطويره بواسطة <strong>أحمد رحيل</strong>
+                            <span class="print-footer-sep">|</span>
+                            <i class="fas fa-phone-alt"></i>
+                            <span dir="ltr">0797767862</span>
+                        </div>
+                        <div class="print-footer-date">
+                            <i class="fas fa-print"></i>
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                        </div>
+                    </div>
+                </div>
+
         </body>
         </html>
     `);
@@ -2393,6 +2431,22 @@ async function printDocuments() {
                 .badge-new { background: rgba(99,102,241,0.15); color: #4338ca; }
                 .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 11px; }
                 @media print { body { padding: 15px; } }
+
+                .print-footer { margin-top: 35px; padding-top: 15px; border-top: 2px solid #e2e8f0; text-align: center; }
+                .print-footer-line { height: 3px; background: linear-gradient(90deg, #4f46e5, #06b6d4, #f59e0b); border-radius: 2px; margin-bottom: 15px; }
+                .print-footer-content { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+                .print-footer-brand { font-size: 14px; font-weight: 700; color: #4f46e5; display: flex; align-items: center; gap: 6px; }
+                .print-footer-brand i { font-size: 16px; }
+                .print-footer-copy { font-size: 12px; color: #64748b; }
+                .print-footer-dev { font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center; }
+                .print-footer-dev strong { color: #4f46e5; }
+                .print-footer-sep { color: #cbd5e1; margin: 0 4px; }
+                .print-footer-date { font-size: 10px; color: #cbd5e1; margin-top: 4px; }
+                @media print {
+                    .print-footer { page-break-inside: avoid; }
+                    .print-footer-line { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                }
+
             </style>
         </head>
         <body>
@@ -2417,9 +2471,32 @@ async function printDocuments() {
                     `).join('')}
                 </tbody>
             </table>
-            <div class="footer">
-                <p>تم طباعة هذه القائمة من نظام إدارة الصيانة</p>
-            </div>
+
+                <div class="print-footer">
+                    <div class="print-footer-line"></div>
+                    <div class="print-footer-content">
+                        <div class="print-footer-brand">
+                            <i class="fas fa-tools"></i>
+                            <span>نظام إدارة الصيانة</span>
+                        </div>
+                        <div class="print-footer-copy">
+                            <i class="fas fa-copyright"></i>
+                            جميع الحقوق محفوظة &copy; 2026
+                        </div>
+                        <div class="print-footer-dev">
+                            <i class="fas fa-code"></i>
+                            تم تطويره بواسطة <strong>أحمد رحيل</strong>
+                            <span class="print-footer-sep">|</span>
+                            <i class="fas fa-phone-alt"></i>
+                            <span dir="ltr">0797767862</span>
+                        </div>
+                        <div class="print-footer-date">
+                            <i class="fas fa-print"></i>
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                        </div>
+                    </div>
+                </div>
+
         </body>
         </html>
     `);
@@ -2631,6 +2708,22 @@ async function printComputerItem(id) {
                 .badge-new { background: rgba(99,102,241,0.15); color: #4338ca; }
                 .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 12px; }
                 @media print { body { padding: 15px; } }
+
+                .print-footer { margin-top: 35px; padding-top: 15px; border-top: 2px solid #e2e8f0; text-align: center; }
+                .print-footer-line { height: 3px; background: linear-gradient(90deg, #4f46e5, #06b6d4, #f59e0b); border-radius: 2px; margin-bottom: 15px; }
+                .print-footer-content { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+                .print-footer-brand { font-size: 14px; font-weight: 700; color: #4f46e5; display: flex; align-items: center; gap: 6px; }
+                .print-footer-brand i { font-size: 16px; }
+                .print-footer-copy { font-size: 12px; color: #64748b; }
+                .print-footer-dev { font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center; }
+                .print-footer-dev strong { color: #4f46e5; }
+                .print-footer-sep { color: #cbd5e1; margin: 0 4px; }
+                .print-footer-date { font-size: 10px; color: #cbd5e1; margin-top: 4px; }
+                @media print {
+                    .print-footer { page-break-inside: avoid; }
+                    .print-footer-line { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                }
+
             </style>
         </head>
         <body>
@@ -2652,9 +2745,32 @@ async function printComputerItem(id) {
                 <div class="section-title"><i class="fas fa-sticky-note"></i> الملاحظات</div>
                 <div class="section-content">${item.notes || 'لا توجد ملاحظات'}</div>
             </div>
-            <div class="footer">
-                <p>تم طباعة هذه المادة من نظام إدارة الصيانة</p>
-            </div>
+
+                <div class="print-footer">
+                    <div class="print-footer-line"></div>
+                    <div class="print-footer-content">
+                        <div class="print-footer-brand">
+                            <i class="fas fa-tools"></i>
+                            <span>نظام إدارة الصيانة</span>
+                        </div>
+                        <div class="print-footer-copy">
+                            <i class="fas fa-copyright"></i>
+                            جميع الحقوق محفوظة &copy; 2026
+                        </div>
+                        <div class="print-footer-dev">
+                            <i class="fas fa-code"></i>
+                            تم تطويره بواسطة <strong>أحمد رحيل</strong>
+                            <span class="print-footer-sep">|</span>
+                            <i class="fas fa-phone-alt"></i>
+                            <span dir="ltr">0797767862</span>
+                        </div>
+                        <div class="print-footer-date">
+                            <i class="fas fa-print"></i>
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                        </div>
+                    </div>
+                </div>
+
         </body>
         </html>
     `);
@@ -2689,6 +2805,22 @@ async function printComputerItems() {
                 tfoot td { background: #f1f5f9; font-weight: 700; }
                 .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 11px; }
                 @media print { body { padding: 15px; } }
+
+                .print-footer { margin-top: 35px; padding-top: 15px; border-top: 2px solid #e2e8f0; text-align: center; }
+                .print-footer-line { height: 3px; background: linear-gradient(90deg, #4f46e5, #06b6d4, #f59e0b); border-radius: 2px; margin-bottom: 15px; }
+                .print-footer-content { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+                .print-footer-brand { font-size: 14px; font-weight: 700; color: #4f46e5; display: flex; align-items: center; gap: 6px; }
+                .print-footer-brand i { font-size: 16px; }
+                .print-footer-copy { font-size: 12px; color: #64748b; }
+                .print-footer-dev { font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center; }
+                .print-footer-dev strong { color: #4f46e5; }
+                .print-footer-sep { color: #cbd5e1; margin: 0 4px; }
+                .print-footer-date { font-size: 10px; color: #cbd5e1; margin-top: 4px; }
+                @media print {
+                    .print-footer { page-break-inside: avoid; }
+                    .print-footer-line { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                }
+
             </style>
         </head>
         <body>
@@ -2722,9 +2854,32 @@ async function printComputerItems() {
                     </tr>
                 </tfoot>
             </table>
-            <div class="footer">
-                <p>تم طباعة هذه القائمة من نظام إدارة الصيانة</p>
-            </div>
+
+                <div class="print-footer">
+                    <div class="print-footer-line"></div>
+                    <div class="print-footer-content">
+                        <div class="print-footer-brand">
+                            <i class="fas fa-tools"></i>
+                            <span>نظام إدارة الصيانة</span>
+                        </div>
+                        <div class="print-footer-copy">
+                            <i class="fas fa-copyright"></i>
+                            جميع الحقوق محفوظة &copy; 2026
+                        </div>
+                        <div class="print-footer-dev">
+                            <i class="fas fa-code"></i>
+                            تم تطويره بواسطة <strong>أحمد رحيل</strong>
+                            <span class="print-footer-sep">|</span>
+                            <i class="fas fa-phone-alt"></i>
+                            <span dir="ltr">0797767862</span>
+                        </div>
+                        <div class="print-footer-date">
+                            <i class="fas fa-print"></i>
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                        </div>
+                    </div>
+                </div>
+
         </body>
         </html>
     `);
@@ -3198,6 +3353,22 @@ async function printRequest(id) {
                 .badge-duplicate { background: rgba(236,72,153,0.15); color: #be185d; }
                 .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 12px; }
                 @media print { body { padding: 15px; } }
+
+                .print-footer { margin-top: 35px; padding-top: 15px; border-top: 2px solid #e2e8f0; text-align: center; }
+                .print-footer-line { height: 3px; background: linear-gradient(90deg, #4f46e5, #06b6d4, #f59e0b); border-radius: 2px; margin-bottom: 15px; }
+                .print-footer-content { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+                .print-footer-brand { font-size: 14px; font-weight: 700; color: #4f46e5; display: flex; align-items: center; gap: 6px; }
+                .print-footer-brand i { font-size: 16px; }
+                .print-footer-copy { font-size: 12px; color: #64748b; }
+                .print-footer-dev { font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center; }
+                .print-footer-dev strong { color: #4f46e5; }
+                .print-footer-sep { color: #cbd5e1; margin: 0 4px; }
+                .print-footer-date { font-size: 10px; color: #cbd5e1; margin-top: 4px; }
+                @media print {
+                    .print-footer { page-break-inside: avoid; }
+                    .print-footer-line { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                }
+
             </style>
         </head>
         <body>
@@ -3221,10 +3392,32 @@ async function printRequest(id) {
                 <div class="section-title"><i class="fas fa-clipboard-check"></i> الإجراءات الفنية</div>
                 <div class="section-content">${proceduresHtml}</div>
             </div>
-            <div class="footer">
-                <p>تم طباعة هذا الطلب من نظام إدارة الصيانة</p>
-                <p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
-            </div>
+
+                <div class="print-footer">
+                    <div class="print-footer-line"></div>
+                    <div class="print-footer-content">
+                        <div class="print-footer-brand">
+                            <i class="fas fa-tools"></i>
+                            <span>نظام إدارة الصيانة</span>
+                        </div>
+                        <div class="print-footer-copy">
+                            <i class="fas fa-copyright"></i>
+                            جميع الحقوق محفوظة &copy; 2026
+                        </div>
+                        <div class="print-footer-dev">
+                            <i class="fas fa-code"></i>
+                            تم تطويره بواسطة <strong>أحمد رحيل</strong>
+                            <span class="print-footer-sep">|</span>
+                            <i class="fas fa-phone-alt"></i>
+                            <span dir="ltr">0797767862</span>
+                        </div>
+                        <div class="print-footer-date">
+                            <i class="fas fa-print"></i>
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                        </div>
+                    </div>
+                </div>
+
         </body>
         </html>
     `);
@@ -3262,6 +3455,22 @@ async function printRequests() {
                 .badge-duplicate { background: rgba(236,72,153,0.15); color: #be185d; }
                 .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 11px; }
                 @media print { body { padding: 15px; } }
+
+                .print-footer { margin-top: 35px; padding-top: 15px; border-top: 2px solid #e2e8f0; text-align: center; }
+                .print-footer-line { height: 3px; background: linear-gradient(90deg, #4f46e5, #06b6d4, #f59e0b); border-radius: 2px; margin-bottom: 15px; }
+                .print-footer-content { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+                .print-footer-brand { font-size: 14px; font-weight: 700; color: #4f46e5; display: flex; align-items: center; gap: 6px; }
+                .print-footer-brand i { font-size: 16px; }
+                .print-footer-copy { font-size: 12px; color: #64748b; }
+                .print-footer-dev { font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center; }
+                .print-footer-dev strong { color: #4f46e5; }
+                .print-footer-sep { color: #cbd5e1; margin: 0 4px; }
+                .print-footer-date { font-size: 10px; color: #cbd5e1; margin-top: 4px; }
+                @media print {
+                    .print-footer { page-break-inside: avoid; }
+                    .print-footer-line { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                }
+
             </style>
         </head>
         <body>
@@ -3295,9 +3504,32 @@ async function printRequests() {
                     `).join('')}
                 </tbody>
             </table>
-            <div class="footer">
-                <p>تم طباعة هذه القائمة من نظام إدارة الصيانة</p>
-            </div>
+
+                <div class="print-footer">
+                    <div class="print-footer-line"></div>
+                    <div class="print-footer-content">
+                        <div class="print-footer-brand">
+                            <i class="fas fa-tools"></i>
+                            <span>نظام إدارة الصيانة</span>
+                        </div>
+                        <div class="print-footer-copy">
+                            <i class="fas fa-copyright"></i>
+                            جميع الحقوق محفوظة &copy; 2026
+                        </div>
+                        <div class="print-footer-dev">
+                            <i class="fas fa-code"></i>
+                            تم تطويره بواسطة <strong>أحمد رحيل</strong>
+                            <span class="print-footer-sep">|</span>
+                            <i class="fas fa-phone-alt"></i>
+                            <span dir="ltr">0797767862</span>
+                        </div>
+                        <div class="print-footer-date">
+                            <i class="fas fa-print"></i>
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                        </div>
+                    </div>
+                </div>
+
         </body>
         </html>
     `);
@@ -3606,6 +3838,22 @@ async function printInventory() {
                 .out-stock { background: #ef4444; }
                 .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 11px; }
                 @media print { body { padding: 15px; } }
+
+                .print-footer { margin-top: 35px; padding-top: 15px; border-top: 2px solid #e2e8f0; text-align: center; }
+                .print-footer-line { height: 3px; background: linear-gradient(90deg, #4f46e5, #06b6d4, #f59e0b); border-radius: 2px; margin-bottom: 15px; }
+                .print-footer-content { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+                .print-footer-brand { font-size: 14px; font-weight: 700; color: #4f46e5; display: flex; align-items: center; gap: 6px; }
+                .print-footer-brand i { font-size: 16px; }
+                .print-footer-copy { font-size: 12px; color: #64748b; }
+                .print-footer-dev { font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center; }
+                .print-footer-dev strong { color: #4f46e5; }
+                .print-footer-sep { color: #cbd5e1; margin: 0 4px; }
+                .print-footer-date { font-size: 10px; color: #cbd5e1; margin-top: 4px; }
+                @media print {
+                    .print-footer { page-break-inside: avoid; }
+                    .print-footer-line { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                }
+
             </style>
         </head>
         <body>
@@ -3634,9 +3882,32 @@ async function printInventory() {
                     }).join('')}
                 </tbody>
             </table>
-            <div class="footer">
-                <p>تم طباعة هذه القائمة من نظام إدارة الصيانة</p>
-            </div>
+
+                <div class="print-footer">
+                    <div class="print-footer-line"></div>
+                    <div class="print-footer-content">
+                        <div class="print-footer-brand">
+                            <i class="fas fa-tools"></i>
+                            <span>نظام إدارة الصيانة</span>
+                        </div>
+                        <div class="print-footer-copy">
+                            <i class="fas fa-copyright"></i>
+                            جميع الحقوق محفوظة &copy; 2026
+                        </div>
+                        <div class="print-footer-dev">
+                            <i class="fas fa-code"></i>
+                            تم تطويره بواسطة <strong>أحمد رحيل</strong>
+                            <span class="print-footer-sep">|</span>
+                            <i class="fas fa-phone-alt"></i>
+                            <span dir="ltr">0797767862</span>
+                        </div>
+                        <div class="print-footer-date">
+                            <i class="fas fa-print"></i>
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                        </div>
+                    </div>
+                </div>
+
         </body>
         </html>
     `);
@@ -3931,6 +4202,22 @@ async function printAlternatives() {
                 .badge-completed { background: rgba(16,185,129,0.15); color: #047857; }
                 .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 11px; }
                 @media print { body { padding: 15px; } }
+
+                .print-footer { margin-top: 35px; padding-top: 15px; border-top: 2px solid #e2e8f0; text-align: center; }
+                .print-footer-line { height: 3px; background: linear-gradient(90deg, #4f46e5, #06b6d4, #f59e0b); border-radius: 2px; margin-bottom: 15px; }
+                .print-footer-content { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+                .print-footer-brand { font-size: 14px; font-weight: 700; color: #4f46e5; display: flex; align-items: center; gap: 6px; }
+                .print-footer-brand i { font-size: 16px; }
+                .print-footer-copy { font-size: 12px; color: #64748b; }
+                .print-footer-dev { font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center; }
+                .print-footer-dev strong { color: #4f46e5; }
+                .print-footer-sep { color: #cbd5e1; margin: 0 4px; }
+                .print-footer-date { font-size: 10px; color: #cbd5e1; margin-top: 4px; }
+                @media print {
+                    .print-footer { page-break-inside: avoid; }
+                    .print-footer-line { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                }
+
             </style>
         </head>
         <body>
@@ -3981,9 +4268,32 @@ async function printAlternatives() {
                     `).join('')}
                 </tbody>
             </table>
-            <div class="footer">
-                <p>تم طباعة هذه القائمة من نظام إدارة الصيانة</p>
-            </div>
+
+                <div class="print-footer">
+                    <div class="print-footer-line"></div>
+                    <div class="print-footer-content">
+                        <div class="print-footer-brand">
+                            <i class="fas fa-tools"></i>
+                            <span>نظام إدارة الصيانة</span>
+                        </div>
+                        <div class="print-footer-copy">
+                            <i class="fas fa-copyright"></i>
+                            جميع الحقوق محفوظة &copy; 2026
+                        </div>
+                        <div class="print-footer-dev">
+                            <i class="fas fa-code"></i>
+                            تم تطويره بواسطة <strong>أحمد رحيل</strong>
+                            <span class="print-footer-sep">|</span>
+                            <i class="fas fa-phone-alt"></i>
+                            <span dir="ltr">0797767862</span>
+                        </div>
+                        <div class="print-footer-date">
+                            <i class="fas fa-print"></i>
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                        </div>
+                    </div>
+                </div>
+
         </body>
         </html>
     `);
@@ -4382,9 +4692,32 @@ async function printPage() {
                     `).join('')}
                 </tbody>
             </table>
-            <div class="footer">
-                <p>تم طباعة هذه الصفحة من نظام إدارة الصيانة</p>
-            </div>
+
+                <div class="print-footer">
+                    <div class="print-footer-line"></div>
+                    <div class="print-footer-content">
+                        <div class="print-footer-brand">
+                            <i class="fas fa-tools"></i>
+                            <span>نظام إدارة الصيانة</span>
+                        </div>
+                        <div class="print-footer-copy">
+                            <i class="fas fa-copyright"></i>
+                            جميع الحقوق محفوظة &copy; 2026
+                        </div>
+                        <div class="print-footer-dev">
+                            <i class="fas fa-code"></i>
+                            تم تطويره بواسطة <strong>أحمد رحيل</strong>
+                            <span class="print-footer-sep">|</span>
+                            <i class="fas fa-phone-alt"></i>
+                            <span dir="ltr">0797767862</span>
+                        </div>
+                        <div class="print-footer-date">
+                            <i class="fas fa-print"></i>
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                        </div>
+                    </div>
+                </div>
+
         </body>
         </html>
     `);
@@ -4704,7 +5037,7 @@ function printReport() {
             <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
             <style>
                 * { margin: 0; padding: 0; box-sizing: border-box; }
-                body { font-family: 'Tajawal', sans-serif; padding: 30px; color: #1e293b; }
+                body { font-family: 'Tajawal', sans-serif; padding: 30px; color: #1e293b; background: #fff; }
                 .report-header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #4f46e5; }
                 .report-header h1 { color: #4f46e5; font-size: 28px; margin-bottom: 10px; }
                 .report-header p { color: #64748b; font-size: 14px; }
@@ -4719,31 +5052,17 @@ function printReport() {
                 .badge-warning { background: rgba(245,158,11,0.15); color: #b45309; }
                 .badge-new { background: rgba(99,102,241,0.15); color: #4338ca; }
                 @media print { body { padding: 15px; } }
-        
-        /* Request Map Styles */
-        .request-map-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 10px; }
-        .map-column { background: #f8fafc; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
-        .map-column-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 16px; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .map-group-name { display: flex; align-items: center; gap: 8px; }
-        .map-group-count { background: white; padding: 4px 14px; border-radius: 20px; font-size: 14px; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .map-column-body { padding: 15px; display: flex; flex-direction: column; gap: 12px; max-height: 65vh; overflow-y: auto; flex: 1; }
-        .map-card { background: white; border-radius: 12px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-right: 3px solid var(--primary); transition: all 0.2s ease; cursor: default; }
-        .map-card:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .map-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9; }
-        .map-card-body { font-size: 13px; color: var(--text-medium); line-height: 1.9; }
-        .map-card-body i { color: var(--primary-light); width: 18px; margin-left: 6px; font-size: 12px; }
-        .map-total-bar { background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 12px; padding: 15px 25px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-right: 4px solid var(--primary); }
-        .map-total-bar h4 { color: #1e40af; font-size: 16px; margin: 0; }
-        .map-total-bar .total-number { font-size: 28px; font-weight: 800; color: var(--primary); }
-        @media print {
-            .map-column { break-inside: avoid; page-break-inside: avoid; }
-            .request-map-grid { grid-template-columns: repeat(3, 1fr); }
-            .map-column-body { max-height: none; overflow: visible; }
-            .modal-overlay { position: static; display: block !important; background: white; padding: 0; }
-            .modal { box-shadow: none; max-width: 100%; animation: none; }
-            .modal-header, .modal-footer { display: none !important; }
-        }
-    </style>
+                .print-footer { margin-top: 35px; padding-top: 15px; border-top: 2px solid #e2e8f0; text-align: center; }
+                .print-footer-line { height: 3px; background: linear-gradient(90deg, #4f46e5, #06b6d4, #f59e0b); border-radius: 2px; margin-bottom: 15px; }
+                .print-footer-content { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+                .print-footer-brand { font-size: 14px; font-weight: 700; color: #4f46e5; display: flex; align-items: center; gap: 6px; }
+                .print-footer-brand i { font-size: 16px; }
+                .print-footer-copy { font-size: 12px; color: #64748b; }
+                .print-footer-dev { font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center; }
+                .print-footer-dev strong { color: #4f46e5; }
+                .print-footer-sep { color: #cbd5e1; margin: 0 4px; }
+                .print-footer-date { font-size: 10px; color: #cbd5e1; margin-top: 4px; }
+            </style>
         </head>
         <body>
             <div class="report-header">
@@ -4752,29 +5071,31 @@ function printReport() {
                 <p>تم إنشاؤه بواسطة: ${currentUser?.full_name || currentUser?.fullName || 'System'}</p>
             </div>
             ${element.innerHTML}
-            <!-- Request Map Modal -->
-    <div class="modal-overlay" id="requestMapModal">
-        <div class="modal" style="max-width: 95vw; width: 95vw; max-height: 92vh;">
-            <div class="modal-header" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">
-                <h3 style="color: white;"><i class="fas fa-map" style="margin-left: 10px;"></i> خريطة توزيع طلبات الصيانة</h3>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <button class="btn btn-success btn-sm no-print" onclick="printRequestMap()" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white;">
-                        <i class="fas fa-print"></i> طباعة الخريطة
-                    </button>
-                    <button class="modal-close" style="background: rgba(255,255,255,0.2); color: white;" onclick="closeModal('requestMapModal')">&times;</button>
+            <div class="print-footer">
+                <div class="print-footer-line"></div>
+                <div class="print-footer-content">
+                    <div class="print-footer-brand">
+                        <i class="fas fa-tools"></i>
+                        <span>نظام إدارة الصيانة</span>
+                    </div>
+                    <div class="print-footer-copy">
+                        <i class="fas fa-copyright"></i>
+                        جميع الحقوق محفوظة &copy; 2026
+                    </div>
+                    <div class="print-footer-dev">
+                        <i class="fas fa-code"></i>
+                        تم تطويره بواسطة <strong>أحمد رحيل</strong>
+                        <span class="print-footer-sep">|</span>
+                        <i class="fas fa-phone-alt"></i>
+                        <span dir="ltr">0797767862</span>
+                    </div>
+                    <div class="print-footer-date">
+                        <i class="fas fa-print"></i>
+                        تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                    </div>
                 </div>
             </div>
-            <div class="modal-body" style="padding: 20px; background: #f1f5f9;">
-                <div class="map-total-bar no-print">
-                    <h4><i class="fas fa-clipboard-list"></i> إجمالي الطلبات المعروضة</h4>
-                    <div class="total-number" id="mapTotalRequests">0</div>
-                </div>
-                <div class="request-map-grid" id="requestMapContainer"></div>
-            </div>
-        </div>
-    </div>
-
-</body>
+        </body>
         </html>
     `);
     printWindow.document.close();
