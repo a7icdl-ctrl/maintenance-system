@@ -753,11 +753,57 @@
 
             <div class="page-section" id="page-import">
                 <div class="page-header">
-                    <h1 class="page-title">استيراد الطلبات</h1>
+                    <h1 class="page-title">استيراد وتصدير الطلبات</h1>
+                    <div class="page-actions no-print">
+                        <button class="btn btn-success btn-sm" onclick="exportRequestsToCSV()">
+                            <i class="fas fa-file-csv"></i> تصدير CSV
+                        </button>
+                    </div>
                 </div>
                 <div class="card">
+                    <div class="card-header" style="background: linear-gradient(135deg, #f59e0b, #f97316);">
+                        <h3 style="color: white;"><i class="fas fa-file-word"></i> استيراد من ملف DOCX</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="file-upload-area" onclick="document.getElementById('importDocxFile').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <h4>اسحب ملف DOCX هنا أو انقر للاختيار</h4>
+                            <p>سيتم استخراج الجدول تلقائياً وإضافته إلى طلبات الصيانة</p>
+                            <input type="file" id="importDocxFile" style="display:none;" accept=".docx" onchange="handleImportDocx(this)">
+                        </div>
+                        <div style="margin-top: 20px; padding: 15px; background: #fef3c7; border-radius: 10px; border: 1px solid #f59e0b;">
+                            <h4 style="color: #92400e; margin-bottom: 10px; font-size: 14px;"><i class="fas fa-info-circle"></i> تعليمات استيراد DOCX:</h4>
+                            <ul style="font-size: 12px; color: #78350f; line-height: 2; margin-right: 20px;">
+                                <li>يجب أن يحتوي ملف DOCX على <strong>جدول</strong> واحد على الأقل</li>
+                                <li>الأعمدة المتوقعة: <strong>الرقم الحاسوبي | الجهاز | الموظف | القسم | وصف المشكلة | الحالة</strong></li>
+                                <li>سيتم إضافة كل صف كطلب جديد في النظام</li>
+                                <li>الحالة الافتراضية: <strong>جديد</strong> إذا لم تُحدد</li>
+                            </ul>
+                        </div>
+                        <div id="importDocxPreview" style="margin-top: 20px; display: none;">
+                            <h4 style="margin-bottom: 10px;"><i class="fas fa-list" style="color: var(--primary);"></i> معاينة البيانات المستخرجة:</h4>
+                            <div class="table-container">
+                                <table class="data-table" id="importDocxPreviewTable">
+                                    <thead>
+                                        <tr><th>الرقم الحاسوبي</th><th>الجهاز</th><th>الموظف</th><th>القسم</th><th>وصف المشكلة</th><th>الحالة</th></tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px; text-align: left; display: none;" id="importDocxConfirmArea">
+                            <button class="btn btn-success" onclick="confirmImportDocx()">
+                                <i class="fas fa-check"></i> تأكيد الاستيراد
+                            </button>
+                            <button class="btn btn-secondary" onclick="cancelImportDocx()" style="margin-right: 10px;">
+                                <i class="fas fa-times"></i> إلغاء
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 20px;">
                     <div class="card-header">
-                        <h3><i class="fas fa-file-import"></i> استيراد من ملف</h3>
+                        <h3><i class="fas fa-file-import"></i> استيراد من ملف CSV / JSON / TXT</h3>
                     </div>
                     <div class="card-body">
                         <div class="file-upload-area" onclick="document.getElementById('importFile').click()">
@@ -769,8 +815,8 @@
                         <div style="margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 10px;">
                             <h4 style="margin-bottom: 10px; font-size: 14px;"><i class="fas fa-info-circle" style="color: var(--info);"></i> تنسيق الملف المتوقع:</h4>
                             <p style="font-size: 13px; color: var(--text-medium); line-height: 1.8;">
-                                CSV: device,employee,department,issue,status<br>
-                                JSON: [{"device":"...", "employee":"...", "department":"...", "issue":"...", "status":"pending"}]
+                                CSV: computerNumber,device,employee,department,issue,status<br>
+                                JSON: [{"computerNumber":"...", "device":"...", "employee":"...", "department":"...", "issue":"...", "status":"new"}]
                             </p>
                         </div>
                     </div>
@@ -4337,6 +4383,159 @@ function importFromWeb() {
         const requests = Array.isArray(data) ? data : (data.requests || data.data || []);
         processImportedRequests(requests);
     }).catch(err => showToast('error', 'خطأ', 'فشل الاستيراد: ' + err.message));
+}
+
+// ==================== IMPORT DOCX FOR REQUESTS ====================
+let tempImportDocxData = [];
+
+async function handleImportDocx(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (!file.name.endsWith('.docx')) { showToast('error', 'خطأ', 'الرجاء اختيار ملف DOCX فقط'); input.value = ''; return; }
+    showToast('info', 'جاري المعالجة', 'جاري قراءة ملف DOCX...');
+
+    try {
+        const arrayBuffer = await file.arrayBuffer();
+        const zip = await JSZip.loadAsync(arrayBuffer);
+        const docXml = await zip.file('word/document.xml')?.async('text');
+        if (!docXml) { showToast('error', 'خطأ', 'لا يمكن قراءة محتوى الملف'); return; }
+
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(docXml, 'text/xml');
+        const tables = xmlDoc.getElementsByTagName('w:tbl');
+        if (tables.length === 0) { showToast('error', 'خطأ', 'لم يتم العثور على جداول في الملف'); return; }
+
+        const table = tables[0];
+        const rows = table.getElementsByTagName('w:tr');
+        const extractedData = [];
+
+        for (let i = 1; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('w:tc');
+            const cellTexts = [];
+            for (let j = 0; j < cells.length; j++) {
+                const texts = cells[j].getElementsByTagName('w:t');
+                let cellText = '';
+                for (let k = 0; k < texts.length; k++) {
+                    cellText += texts[k].textContent;
+                }
+                cellTexts.push(cellText.trim());
+            }
+            // Expected columns: computerNumber, device, employee, department, issue, status
+            if (cellTexts.length >= 4) {
+                extractedData.push({
+                    computer_number: cellTexts[0] || '',
+                    device_name: cellTexts[1] || '',
+                    employee_name: cellTexts[2] || '',
+                    department: cellTexts[3] || '',
+                    issue_description: cellTexts[4] || '',
+                    status: (cellTexts[5] || 'new').toLowerCase().trim()
+                });
+            }
+        }
+
+        if (extractedData.length === 0) { showToast('error', 'خطأ', 'لم يتم العثور على بيانات صالحة في الجدول'); return; }
+        tempImportDocxData = extractedData;
+
+        const tbody = document.querySelector('#importDocxPreviewTable tbody');
+        const statusLabels = { new: 'جديد', inprogress: 'قيد التنفيذ', pending: 'قيد الانتظار', withdrawn: 'مسحوب', active: 'مشغل', completed: 'مكتمل', cancelled: 'ملغي', duplicate: 'مكرر' };
+        tbody.innerHTML = extractedData.map((row, idx) => 
+            '<tr><td><strong>' + (row.computer_number || '-') + '</strong></td>' +
+            '<td>' + (row.device_name || '-') + '</td>' +
+            '<td>' + (row.employee_name || '-') + '</td>' +
+            '<td>' + (row.department || '-') + '</td>' +
+            '<td style="max-width: 200px; white-space: normal; font-size: 12px;">' + (row.issue_description || '-') + '</td>' +
+            '<td><span class="badge badge-' + row.status + '">' + (statusLabels[row.status] || row.status) + '</span></td></tr>'
+        ).join('');
+
+        document.getElementById('importDocxPreview').style.display = 'block';
+        document.getElementById('importDocxConfirmArea').style.display = 'block';
+        showToast('success', 'تم القراءة', 'تم استخراج ' + extractedData.length + ' طلب من الملف');
+    } catch (err) {
+        console.error('DOCX import error:', err);
+        showToast('error', 'خطأ', 'فشل قراءة ملف DOCX: ' + err.message);
+    }
+}
+
+function cancelImportDocx() {
+    tempImportDocxData = [];
+    document.getElementById('importDocxPreview').style.display = 'none';
+    document.getElementById('importDocxConfirmArea').style.display = 'none';
+    document.querySelector('#importDocxPreviewTable tbody').innerHTML = '';
+    document.getElementById('importDocxFile').value = '';
+}
+
+async function confirmImportDocx() {
+    if (tempImportDocxData.length === 0) { showToast('error', 'خطأ', 'لا توجد بيانات للاستيراد'); return; }
+    showToast('info', 'جاري الاستيراد', 'جاري إضافة ' + tempImportDocxData.length + ' طلب...');
+    let successCount = 0;
+    for (const row of tempImportDocxData) {
+        if (row.device_name && row.device_name.trim()) {
+            const reqData = {
+                request_number: await generateRequestNumber(),
+                computer_number: row.computer_number || 'N/A',
+                device_name: row.device_name,
+                employee_name: row.employee_name || 'غير محدد',
+                department: row.department || 'غير محدد',
+                status: ['new','inprogress','pending','withdrawn','active','completed','cancelled','duplicate'].includes(row.status) ? row.status : 'new',
+                issue_description: row.issue_description || '',
+                procedures: [],
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                created_by: currentUser?.full_name || currentUser?.fullName || 'Import',
+                imported: true
+            };
+            try {
+                await SupabaseAPI.request('requests', 'POST', reqData);
+                successCount++;
+            } catch (e) {
+                console.error('Import error for row:', row, e);
+            }
+        }
+    }
+    cancelImportDocx();
+    await updateDashboard();
+    await loadRequests();
+    showToast('success', 'تم الاستيراد', 'تم إضافة ' + successCount + ' طلب بنجاح من أصل ' + tempImportDocxData.length);
+}
+
+// ==================== EXPORT REQUESTS TO CSV ====================
+async function exportRequestsToCSV() {
+    const requests = await SupabaseAPI.request('requests', 'GET');
+    if (requests.length === 0) { showToast('warning', 'تنبيه', 'لا توجد طلبات للتصدير'); return; }
+
+    showToast('info', 'جاري التصدير', 'جاري إنشاء ملف CSV...');
+
+    const headers = ['رقم الطلب', 'الرقم الحاسوبي', 'الجهاز', 'الموظف', 'القسم', 'وصف المشكلة', 'الحالة', 'تاريخ الإنشاء', 'الموظف المنشئ'];
+    const statusLabels = { new: 'جديد', inprogress: 'قيد التنفيذ', pending: 'قيد الانتظار', withdrawn: 'مسحوب', active: 'مشغل', completed: 'مكتمل', cancelled: 'ملغي', duplicate: 'مكرر' };
+
+    let csv = '\uFEFF'; // BOM for Arabic
+    csv += headers.join(',') + '\n';
+
+    requests.sort((a, b) => (b.id || 0) - (a.id || 0)).forEach(r => {
+        const row = [
+            '"' + (r.request_number || r.requestNumber || '') + '"',
+            '"' + (r.computer_number || r.computerNumber || '') + '"',
+            '"' + (r.device_name || r.deviceName || '').replace(/"/g, '""') + '"',
+            '"' + (r.employee_name || r.employeeName || '').replace(/"/g, '""') + '"',
+            '"' + (r.department || '').replace(/"/g, '""') + '"',
+            '"' + (r.issue_description || r.issueDescription || '').replace(/"/g, '""').replace(/\n/g, ' ') + '"',
+            '"' + (statusLabels[r.status] || r.status) + '"',
+            '"' + formatDate(r.created_at || r.createdAt) + '"',
+            '"' + (r.created_by || r.createdBy || '').replace(/"/g, '""') + '"'
+        ];
+        csv += row.join(',') + '\n';
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'طلبات_الصيانة_' + new Date().toISOString().split('T')[0] + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('success', 'تم التصدير', 'تم تصدير ' + requests.length + ' طلب إلى ملف CSV');
 }
 
 async function processImportedRequests(data) {
