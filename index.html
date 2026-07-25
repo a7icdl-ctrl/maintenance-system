@@ -1956,6 +1956,7 @@ async function handleLogin() {
 
     if (user) {
         currentUser = user;
+        localStorage.setItem('currentUser', JSON.stringify(user));
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('appContainer').style.display = 'block';
         document.getElementById('userName').textContent = user.full_name || user.fullName || user.username;
@@ -1999,6 +2000,7 @@ function ensureDefaultUser() {
 
 function handleLogout() {
     currentUser = null;
+    localStorage.removeItem('currentUser');
     document.getElementById('appContainer').style.display = 'none';
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('loginUsername').value = '';
@@ -5638,7 +5640,7 @@ async function printPage() {
 }
 
 // ==================== INIT ====================
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // Block developer tools shortcuts
     document.addEventListener('keydown', function(e) {
         // F12
@@ -5671,8 +5673,33 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('use_local', 'false');
 
         document.getElementById('configScreen').style.display = 'none';
-        document.getElementById('loginScreen').style.display = 'flex';
         updateConnectionStatus();
+
+        // Auto-login: check if user session exists in localStorage
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            try {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+                document.getElementById('userName').textContent = currentUser.full_name || currentUser.fullName || currentUser.username;
+                document.getElementById('userAvatar').textContent = (currentUser.full_name || currentUser.fullName || currentUser.username).charAt(0);
+                document.getElementById('userRole').textContent = currentUser.role === 'admin' ? 'مدير النظام' : 'مستخدم';
+                if (currentUser.role === 'admin') {
+                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+                }
+                await updateDashboard();
+                await loadRequests();
+                await loadInventory();
+                await loadAlternatives();
+            } catch (e) {
+                console.error('Auto-login failed:', e);
+                localStorage.removeItem('currentUser');
+                document.getElementById('loginScreen').style.display = 'flex';
+            }
+        } else {
+            document.getElementById('loginScreen').style.display = 'flex';
+        }
 
         // Enter key support
         const loginPass = document.getElementById('loginPassword');
