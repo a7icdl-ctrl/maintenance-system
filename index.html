@@ -601,7 +601,7 @@
                         <div class="table-container">
                             <table class="data-table" id="dashboardRequestsTable">
                                 <thead>
-                                    <tr><th>رقم الطلب</th><th>الرقم الحاسوبي</th><th>الجهاز</th><th>الحالة</th><th>التاريخ</th></tr>
+                                    <tr><th>الرقم الحاسوبي</th><th>اسم الموظف</th><th>القسم</th><th>وصف المشكلة</th><th>الحالة</th><th>التاريخ</th></tr>
                                 </thead>
                                 <tbody></tbody>
                             </table>
@@ -647,7 +647,7 @@
                         <div class="table-container">
                             <table class="data-table" id="requestsTable">
                                 <thead>
-                                    <tr><th>رقم الطلب</th><th>الرقم الحاسوبي</th><th>الجهاز</th><th>الموظف</th><th>القسم</th><th>الحالة</th><th>تاريخ الطلب</th><th class="no-print">إجراءات</th></tr>
+                                    <tr><th>رقم الطلب</th><th>الرقم الحاسوبي</th><th>الجهاز</th><th>الموظف</th><th>القسم</th><th>وصف المشكلة</th><th>الحالة</th><th>تاريخ الطلب</th><th class="no-print">إجراءات</th></tr>
                                 </thead>
                                 <tbody></tbody>
                             </table>
@@ -1833,18 +1833,11 @@ async function loadRequestMap() {
                 <div class="map-column-body">
                     ${reqs.sort((a, b) => (b.id || 0) - (a.id || 0)).map(r => `
                         <div class="map-card" style="border-right-color: ${color};">
-                            <div class="map-card-header">
-                                <strong style="color: ${color}; font-size: 15px;">#${r.request_number || r.requestNumber}</strong>
-                                <span class="badge badge-${r.status}">${getStatusLabel(r.status)}</span>
-                            </div>
                             <div class="map-card-body">
-                                <div><i class="fas fa-desktop"></i> ${r.device_name || r.deviceName || '-'}</div>
-                                <div><i class="fas fa-hashtag"></i> ${r.computer_number || r.computerNumber || '-'}</div>
-                                <div><i class="fas fa-user"></i> ${r.employee_name || r.employeeName || '-'}</div>
-                                <div><i class="fas fa-building"></i> ${r.department || '-'}</div>
-                                <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed #e2e8f0; font-size: 11px; color: var(--text-light);">
-                                    <i class="fas fa-calendar-alt"></i> ${formatDate(r.created_at || r.createdAt)}
-                                </div>
+                                <div><i class="fas fa-hashtag"></i> <strong>الرقم الحاسوبي:</strong> ${r.computer_number || r.computerNumber || '-'}</div>
+                                <div><i class="fas fa-user"></i> <strong>الموظف:</strong> ${r.employee_name || r.employeeName || '-'}</div>
+                                <div><i class="fas fa-building"></i> <strong>القسم:</strong> ${r.department || '-'}</div>
+                                <div class="map-issue"><i class="fas fa-exclamation-circle"></i> <strong>المشكلة:</strong> ${r.issue_description || r.issueDescription || 'لا يوجد وصف'}</div>
                             </div>
                         </div>
                     `).join('')}
@@ -1855,7 +1848,54 @@ async function loadRequestMap() {
 }
 
 function printRequestMap() {
-    window.print();
+    const mapContent = document.getElementById('requestMapContainer').innerHTML;
+    const totalCount = document.getElementById('mapTotalRequests').textContent;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>خريطة طلبات الصيانة</title>
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Tajawal', sans-serif; padding: 25px; color: #1e293b; background: #f1f5f9; }
+                .print-header { text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #4f46e5; }
+                .print-header h1 { color: #4f46e5; font-size: 26px; margin-bottom: 8px; }
+                .print-header p { color: #64748b; font-size: 13px; }
+                .print-total { background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 12px; padding: 12px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-right: 4px solid #4f46e5; }
+                .print-total h4 { color: #1e40af; font-size: 15px; margin: 0; }
+                .print-total .total-number { font-size: 24px; font-weight: 800; color: #4f46e5; }
+                .request-map-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+                .map-column { background: #f8fafc; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; page-break-inside: avoid; break-inside: avoid; }
+                .map-column-header { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 15px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+                .map-group-name { display: flex; align-items: center; gap: 8px; }
+                .map-group-count { background: white; padding: 3px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+                .map-column-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+                .map-card { background: white; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-right: 3px solid; }
+                .map-card-body { font-size: 13px; color: #475569; line-height: 1.9; }
+                .map-card-body i { color: #818cf8; width: 18px; margin-left: 6px; font-size: 12px; }
+                .map-issue { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e2e8f0; font-size: 12px; color: #64748b; }
+                .map-issue i { color: #f59e0b; }
+                @media print { body { padding: 15px; } .request-map-grid { grid-template-columns: repeat(3, 1fr); } }
+            </style>
+        </head>
+        <body>
+            <div class="print-header">
+                <h1>خريطة توزيع طلبات الصيانة</h1>
+                <p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
+            </div>
+            <div class="print-total">
+                <h4>إجمالي الطلبات المعروضة</h4>
+                <div class="total-number">${totalCount}</div>
+            </div>
+            <div class="request-map-grid">${mapContent}</div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 600);
 }
 
 // ==================== DOCUMENTS ====================
@@ -2721,6 +2761,7 @@ async function loadRequests() {
             <td>${r.device_name || r.deviceName}</td>
             <td>${r.employee_name || r.employeeName}</td>
             <td>${r.department}</td>
+            <td style="max-width: 200px; white-space: normal; font-size: 13px;">${r.issue_description || r.issueDescription || '-'}</td>
             <td><span class="badge badge-${r.status}">${getStatusLabel(r.status)}</span></td>
             <td>${formatDate(r.created_at || r.createdAt)}</td>
             <td class="no-print">
@@ -3660,11 +3701,16 @@ async function updateDashboard() {
     const activeRequests = requests.filter(r => !hiddenStatuses.includes(r.status));
 
     const tbody = document.querySelector('#dashboardRequestsTable tbody');
-    tbody.innerHTML = activeRequests.sort((a, b) => (b.id || 0) - (a.id || 0)).slice(0, 8).map(r => `
+    tbody.innerHTML = activeRequests.sort((a, b) => {
+        const dateA = new Date(a.created_at || a.createdAt || 0);
+        const dateB = new Date(b.created_at || b.createdAt || 0);
+        return dateA - dateB;
+    }).slice(0, 8).map(r => `
         <tr>
-            <td><strong>#${r.request_number || r.requestNumber}</strong></td>
-            <td>${r.computer_number || r.computerNumber}</td>
-            <td>${r.device_name || r.deviceName}</td>
+            <td><strong>${r.computer_number || r.computerNumber || '-'}</strong></td>
+            <td>${r.employee_name || r.employeeName || '-'}</td>
+            <td>${r.department || '-'}</td>
+            <td style="max-width: 250px; white-space: normal; font-size: 13px;">${r.issue_description || r.issueDescription || '-'}</td>
             <td><span class="badge badge-${r.status}">${getStatusLabel(r.status)}</span></td>
             <td>${formatDate(r.created_at || r.createdAt)}</td>
         </tr>
