@@ -220,6 +220,19 @@
         .toast-content h4 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
         .toast-content p { font-size: 13px; color: var(--text-medium); }
         @media print { .sidebar, .page-actions, .action-btns, .btn, .no-print { display: none !important; } .main-content { margin-right: 0 !important; padding: 20px !important; } .card { box-shadow: none !important; border: 1px solid #ddd !important; } }
+
+        /* Read-Only Mode Styles */
+        body.readonly-mode .no-readonly { display: none !important; }
+        body.readonly-mode .action-btns { display: none !important; }
+        body.readonly-mode .modal-footer .btn-primary,
+        body.readonly-mode .modal-footer .btn-success,
+        body.readonly-mode .modal-footer .btn-danger,
+        body.readonly-mode .modal-footer .btn-warning { display: none !important; }
+        body.readonly-mode .modal-footer .btn-secondary { display: inline-flex !important; }
+        body.readonly-mode .file-upload-area { pointer-events: none; opacity: 0.5; }
+        body.readonly-mode input[type="file"] { display: none !important; }
+        .readonly-badge { display: none; background: linear-gradient(135deg, #f59e0b, #f97316); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-right: 10px; }
+        body.readonly-mode .readonly-badge { display: inline-flex; align-items: center; gap: 6px; }
         .page-section { display: none; }
         .page-section.active { display: block; }
         .procedure-item { background: #f8fafc; border-radius: 10px; padding: 15px; margin-bottom: 10px; border-right: 3px solid var(--primary); }
@@ -522,6 +535,9 @@
         </div>
 
         <div class="main-content">
+            <div class="readonly-badge no-print" id="readonlyBadge" style="position: fixed; top: 15px; left: 15px; z-index: 999; box-shadow: 0 4px 15px rgba(245,158,11,0.3);">
+                <i class="fas fa-eye-slash"></i> وضع القراءة فقط
+            </div>
             <div class="page-section active" id="page-dashboard">
                 <div class="page-header">
                     <h1 class="page-title">لوحة التحكم</h1>
@@ -620,10 +636,10 @@
                 <div class="page-header">
                     <h1 class="page-title">طلبات الصيانة</h1>
                     <div class="page-actions no-print">
-                        <button class="btn btn-success btn-sm" onclick="openRequestModal()">
+                        <button class="btn btn-success btn-sm no-readonly" onclick="if(checkReadOnly())return;openRequestModal()">
                             <i class="fas fa-plus"></i> طلب جديد
                         </button>
-                        <button class="btn btn-warning btn-sm" onclick="showPage('import')">
+                        <button class="btn btn-warning btn-sm no-readonly" onclick="if(checkReadOnly())return;showPage('import')">
                             <i class="fas fa-file-import"></i> استيراد الطلبات
                         </button>
                         <button class="btn btn-primary btn-sm" onclick="printRequests()">
@@ -669,10 +685,10 @@
                 <div class="page-header">
                     <h1 class="page-title">قطع الغيار والمستلزمات</h1>
                     <div class="page-actions no-print">
-                        <button class="btn btn-success btn-sm" onclick="openAddStockModal()">
+                        <button class="btn btn-success btn-sm no-readonly" onclick="if(checkReadOnly())return;openAddStockModal()">
                             <i class="fas fa-plus-circle"></i> إضافة مخزون
                         </button>
-                        <button class="btn btn-warning btn-sm" onclick="openInventoryModal()">
+                        <button class="btn btn-warning btn-sm no-readonly" onclick="if(checkReadOnly())return;openInventoryModal()">
                             <i class="fas fa-minus-circle"></i> صرف قطعة
                         </button>
                         <button class="btn btn-primary btn-sm" onclick="printInventory()">
@@ -722,10 +738,10 @@
                 <div class="page-header">
                     <h1 class="page-title">الأجهزة البديلة</h1>
                     <div class="page-actions no-print">
-                        <button class="btn btn-success btn-sm" onclick="openAltModal()">
+                        <button class="btn btn-success btn-sm no-readonly" onclick="if(checkReadOnly())return;openAltModal()">
                             <i class="fas fa-plus"></i> إضافة موديل
                         </button>
-                        <button class="btn btn-info btn-sm" onclick="openAssignModal()">
+                        <button class="btn btn-info btn-sm no-readonly" onclick="if(checkReadOnly())return;openAssignModal()">
                             <i class="fas fa-hand-holding"></i> تسليم جهاز
                         </button>
                         <button class="btn btn-primary btn-sm" onclick="printAlternatives()">
@@ -871,13 +887,13 @@
                 <div class="page-header">
                     <h1 class="page-title">المواد الحاسوبية</h1>
                     <div class="page-actions no-print">
-                        <button class="btn btn-success btn-sm" onclick="openComputerItemModal()">
+                        <button class="btn btn-success btn-sm no-readonly" onclick="if(checkReadOnly())return;openComputerItemModal()">
                             <i class="fas fa-plus"></i> إضافة مادة
                         </button>
                         <button class="btn btn-info btn-sm" onclick="openComputerItemReportModal()">
                             <i class="fas fa-chart-bar"></i> تقارير
                         </button>
-                        <button class="btn btn-warning btn-sm" onclick="openImportDocxModal()">
+                        <button class="btn btn-warning btn-sm no-readonly" onclick="if(checkReadOnly())return;openImportDocxModal()">
                             <i class="fas fa-file-word"></i> استيراد من DOCX
                         </button>
                         <button class="btn btn-primary btn-sm" onclick="printComputerItems()">
@@ -926,7 +942,7 @@
                 <div class="page-header">
                     <h1 class="page-title">الوثائق والملاحظات</h1>
                     <div class="page-actions no-print">
-                        <button class="btn btn-success btn-sm" onclick="openDocumentModal()">
+                        <button class="btn btn-success btn-sm no-readonly" onclick="if(checkReadOnly())return;openDocumentModal()">
                             <i class="fas fa-plus"></i> إضافة وثيقة
                         </button>
                         <button class="btn btn-primary btn-sm" onclick="printDocuments()">
@@ -1356,7 +1372,7 @@
                 <div class="page-header">
                     <h1 class="page-title">إدارة الأقسام</h1>
                     <div class="page-actions no-print">
-                        <button class="btn btn-success btn-sm" onclick="openDepartmentModal()">
+                        <button class="btn btn-success btn-sm no-readonly" onclick="if(checkReadOnly())return;openDepartmentModal()">
                             <i class="fas fa-plus"></i> إضافة قسم
                         </button>
                     </div>
@@ -1404,8 +1420,20 @@
                                         <option value="admin">مدير</option>
                                     </select>
                                 </div>
+                                <div class="form-group full-width">
+                                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 12px; background: #fef3c7; border-radius: 10px; border: 1px solid #f59e0b;">
+                                        <input type="checkbox" id="newReadOnly" style="width: 20px; height: 20px; cursor: pointer;">
+                                        <span style="font-weight: 700; color: #92400e;">
+                                            <i class="fas fa-eye" style="margin-left: 6px;"></i>
+                                            وضع القراءة فقط (Read-Only)
+                                        </span>
+                                    </label>
+                                    <p style="font-size: 12px; color: #78350f; margin-top: 6px; margin-right: 32px;">
+                                        عند تفعيل هذا الخيار، سيتمكن المستخدم من مشاهدة جميع البيانات والتنقل بين التبويبات فقط دون إمكانية إجراء أي تعديل أو إضافة أو حذف.
+                                    </p>
+                                </div>
                             </div>
-                            <button class="btn btn-success btn-sm" style="margin-top: 15px;" onclick="addUser()">
+                            <button class="btn btn-success btn-sm no-readonly" style="margin-top: 15px;" onclick="if(checkReadOnly())return;addUser()">
                                 <i class="fas fa-plus"></i> إضافة مستخدم
                             </button>
                         </div>
@@ -1413,13 +1441,13 @@
                     <div class="admin-card danger-zone">
                         <h4><i class="fas fa-exclamation-triangle"></i> منطقة الخطر</h4>
                         <p>تنبيه: هذه الإجراءات لا يمكن التراجع عنها!</p>
-                        <button class="btn btn-danger" onclick="resetAllData()">
+                        <button class="btn btn-danger no-readonly" onclick="if(checkReadOnly())return;resetAllData()">
                             <i class="fas fa-trash-alt"></i> مسح جميع البيانات
                         </button>
-                        <button class="btn btn-warning" style="margin-top: 10px;" onclick="resetUsers()">
+                        <button class="btn btn-warning no-readonly" style="margin-top: 10px;" onclick="if(checkReadOnly())return;resetUsers()">
                             <i class="fas fa-user-times"></i> إعادة تعيين المستخدمين
                         </button>
-                        <button class="btn btn-success" style="margin-top: 10px;" onclick="resetInventoryDefaults()">
+                        <button class="btn btn-success no-readonly" style="margin-top: 10px;" onclick="if(checkReadOnly())return;resetInventoryDefaults()">
                             <i class="fas fa-boxes"></i> إعادة تعيين المخزون الافتراضي
                         </button>
                     </div>
@@ -2118,9 +2146,24 @@ async function handleLogin() {
         document.getElementById('appContainer').style.display = 'block';
         document.getElementById('userName').textContent = user.full_name || user.fullName || user.username;
         document.getElementById('userAvatar').textContent = (user.full_name || user.fullName || user.username).charAt(0);
-        document.getElementById('userRole').textContent = user.role === 'admin' ? 'مدير النظام' : 'مستخدم';
 
-        if (user.role === 'admin') {
+        // Handle read-only mode
+        const isReadOnly = user.read_only === true || user.readOnly === true;
+        currentUser.isReadOnly = isReadOnly;
+
+        if (isReadOnly) {
+            document.body.classList.add('readonly-mode');
+            document.getElementById('userRole').textContent = 'مستخدم (قراءة فقط)';
+            showToast('info', 'وضع القراءة فقط', 'لديك صلاحية المشاهدة فقط. لا يمكنك إجراء أي تعديلات.');
+        } else {
+            document.body.classList.remove('readonly-mode');
+            document.getElementById('userRole').textContent = user.role === 'admin' ? 'مدير النظام' : 'مستخدم';
+        }
+
+        if (user.role === 'admin' && !isReadOnly) {
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+        } else if (isReadOnly) {
+            // Read-only users can see all pages but cannot act
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
         }
 
@@ -2592,6 +2635,15 @@ async function printSearchResults() {
     setTimeout(() => { printWindow.print(); }, 500);
 }
 
+// ==================== READ-ONLY CHECK ====================
+function checkReadOnly() {
+    if (currentUser && currentUser.isReadOnly) {
+        showToast('warning', 'غير مصرح', 'أنت في وضع القراءة فقط. لا يمكنك إجراء أي تعديلات.');
+        return true;
+    }
+    return false;
+}
+
 // ==================== NAVIGATION ====================
 async function showPage(page) {
     // Admin-only pages check
@@ -2645,8 +2697,8 @@ async function loadDepartments() {
             <td>${d.notes || '-'}</td>
             <td class="no-print">
                 <div class="action-btns">
-                    <button class="action-btn edit" onclick="openDepartmentModal(${d.id})" title="تعديل"><i class="fas fa-edit"></i></button>
-                    <button class="action-btn delete" onclick="deleteDepartment(${d.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                    <button class="action-btn edit no-readonly" onclick="openDepartmentModal(${d.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete no-readonly" onclick="deleteDepartment(${d.id})" title="حذف"><i class="fas fa-trash"></i></button>
                 </div>
             </td>
         </tr>
@@ -2685,6 +2737,7 @@ async function openDepartmentModal(deptId) {
 }
 
 async function saveDepartment() {
+    if (checkReadOnly()) return;
     const name = document.getElementById('departmentName').value.trim();
     const notes = document.getElementById('departmentNotes').value.trim();
     if (!name) { showToast('error', 'خطأ', 'الرجاء إدخال اسم القسم'); return; }
@@ -2701,6 +2754,7 @@ async function saveDepartment() {
 }
 
 async function deleteDepartment(id) {
+    if (checkReadOnly()) return;
     if (!confirm('هل أنت متأكد من حذف هذا القسم؟')) return;
     await SupabaseAPI.request('departments', 'DELETE', null, id);
     await loadDepartments();
@@ -2871,9 +2925,9 @@ async function loadDocuments() {
             <td class="no-print">
                 <div class="action-btns">
                     <button class="action-btn view" onclick="previewDocument(${d.id})" title="معاينة"><i class="fas fa-file-alt"></i></button>
-                    <button class="action-btn edit" onclick="openDocumentModal(${d.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn edit no-readonly" onclick="openDocumentModal(${d.id})" title="تعديل"><i class="fas fa-edit"></i></button>
                     <button class="action-btn print" onclick="printDocument(${d.id})" title="طباعة"><i class="fas fa-print"></i></button>
-                    <button class="action-btn delete" onclick="deleteDocument(${d.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                    <button class="action-btn delete no-readonly" onclick="deleteDocument(${d.id})" title="حذف"><i class="fas fa-trash"></i></button>
                 </div>
             </td>
         </tr>
@@ -3017,6 +3071,7 @@ function removeDocumentAttachment(attId) {
 }
 
 async function saveDocument() {
+    if (checkReadOnly()) return;
     const title = document.getElementById('documentTitle').value.trim();
     const category = document.getElementById('documentCategory').value;
 
@@ -3201,6 +3256,7 @@ async function viewDocument(id) {
 }
 
 async function deleteDocument(id) {
+    if (checkReadOnly()) return;
     if (!confirm('هل أنت متأكد من حذف هذه الوثيقة؟')) return;
     await SupabaseAPI.request('documents', 'DELETE', null, id);
     await loadDocuments();
@@ -3473,9 +3529,9 @@ async function loadComputerItems() {
             <td class="no-print">
                 <div class="action-btns">
                     <button class="action-btn view" onclick="viewComputerItem(${i.id})" title="عرض"><i class="fas fa-eye"></i></button>
-                    <button class="action-btn edit" onclick="openComputerItemModal(${i.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn edit no-readonly" onclick="openComputerItemModal(${i.id})" title="تعديل"><i class="fas fa-edit"></i></button>
                     <button class="action-btn print" onclick="printComputerItem(${i.id})" title="طباعة"><i class="fas fa-print"></i></button>
-                    <button class="action-btn delete" onclick="deleteComputerItem(${i.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                    <button class="action-btn delete no-readonly" onclick="deleteComputerItem(${i.id})" title="حذف"><i class="fas fa-trash"></i></button>
                 </div>
             </td>
         </tr>
@@ -3512,6 +3568,7 @@ async function openComputerItemModal(itemId) {
 }
 
 async function saveComputerItem() {
+    if (checkReadOnly()) return;
     const category = document.getElementById('computerItemCategory').value;
     const itemNumber = document.getElementById('computerItemNumber').value.trim();
     const name = document.getElementById('computerItemName').value.trim();
@@ -3600,6 +3657,7 @@ async function viewComputerItem(id) {
 }
 
 async function deleteComputerItem(id) {
+    if (checkReadOnly()) return;
     if (!confirm('هل أنت متأكد من حذف هذه المادة؟')) return;
     await SupabaseAPI.request('computer_items', 'DELETE', null, id);
     await loadComputerItems();
@@ -4066,6 +4124,7 @@ function renderProcedures() {
 }
 
 async function saveRequest() {
+    if (checkReadOnly()) return;
     const computerNumber = document.getElementById('computerNumber').value.trim();
     const deviceName = document.getElementById('deviceName').value.trim();
     const employeeName = document.getElementById('employeeName').value.trim();
@@ -4137,9 +4196,9 @@ async function loadRequests() {
             <td class="no-print">
                 <div class="action-btns">
                     <button class="action-btn view" onclick="viewRequest(${r.id})" title="عرض"><i class="fas fa-eye"></i></button>
-                    <button class="action-btn edit" onclick="openRequestModal(${r.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn edit no-readonly" onclick="openRequestModal(${r.id})" title="تعديل"><i class="fas fa-edit"></i></button>
                     <button class="action-btn print" onclick="printRequest(${r.id})" title="طباعة"><i class="fas fa-print"></i></button>
-                    <button class="action-btn delete" onclick="deleteRequest(${r.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                    <button class="action-btn delete no-readonly" onclick="deleteRequest(${r.id})" title="حذف"><i class="fas fa-trash"></i></button>
                 </div>
             </td>
         </tr>
@@ -4235,6 +4294,7 @@ async function viewRequest(id) {
 }
 
 async function deleteRequest(id) {
+    if (checkReadOnly()) return;
     if (!confirm('هل أنت متأكد من حذف هذا الطلب؟')) return;
     await SupabaseAPI.request('requests', 'DELETE', null, id);
     await loadRequests();
@@ -4570,6 +4630,7 @@ function openInventoryModal() {
 }
 
 async function saveInventoryTransaction() {
+    if (checkReadOnly()) return;
     const itemId = parseInt(document.getElementById('invItemSelect').value);
     const qty = parseInt(document.getElementById('invQty').value);
     const employee = document.getElementById('invEmployee').value.trim();
@@ -4676,6 +4737,7 @@ function showAddStockAlert(message, type) {
 }
 
 async function saveAddStock() {
+    if (checkReadOnly()) return;
     const itemId = parseInt(document.getElementById('addStockItemSelect').value);
     const qty = parseInt(document.getElementById('addStockQty').value);
     const notes = document.getElementById('addStockNotes').value.trim();
@@ -4919,8 +4981,8 @@ async function loadAlternatives() {
             <td><span class="badge badge-${a.status === 'active' ? 'inprogress' : 'completed'}">${a.status === 'active' ? 'مسلم' : 'مسترجع'}</span></td>
             <td class="no-print">
                 <div class="action-btns">
-                    ${a.status === 'active' ? `<button class="action-btn view" onclick="returnAssignment(${a.id})" title="استرجاع"><i class="fas fa-undo"></i></button>` : ''}
-                    <button class="action-btn delete" onclick="deleteAssignment(${a.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                    ${a.status === 'active' ? `<button class="action-btn view no-readonly" onclick="returnAssignment(${a.id})" title="استرجاع"><i class="fas fa-undo"></i></button>` : ''}
+                    <button class="action-btn delete no-readonly" onclick="deleteAssignment(${a.id})" title="حذف"><i class="fas fa-trash"></i></button>
                 </div>
             </td>
         </tr>
@@ -4959,6 +5021,7 @@ function openAltModal() {
 }
 
 async function saveAltModel() {
+    if (checkReadOnly()) return;
     const type = document.getElementById('altTypeSelect').value;
     const model = document.getElementById('altModel').value.trim();
     const serial = document.getElementById('altSerial').value.trim();
@@ -5012,6 +5075,7 @@ async function editAltModel(id) {
 }
 
 async function deleteAltModel(id) {
+    if (checkReadOnly()) return;
     if (!confirm('هل أنت متأكد من حذف هذا الموديل؟')) return;
     await SupabaseAPI.request('alt_models', 'DELETE', null, id);
     await loadAlternatives();
@@ -5036,6 +5100,7 @@ function openAssignModal() {
 }
 
 async function saveAssignment() {
+    if (checkReadOnly()) return;
     const modelId = parseInt(document.getElementById('assignModel').value);
     const employee = document.getElementById('assignEmployee').value.trim();
     const location = document.getElementById('assignLocation').value.trim();
@@ -5072,6 +5137,7 @@ async function saveAssignment() {
 }
 
 async function returnAssignment(id) {
+    if (checkReadOnly()) return;
     const assignments = await SupabaseAPI.request('assignments', 'GET');
     const assignment = assignments.find(a => a.id === id);
     if (!assignment) return;
@@ -5093,6 +5159,7 @@ async function returnAssignment(id) {
 }
 
 async function deleteAssignment(id) {
+    if (checkReadOnly()) return;
     if (!confirm('هل أنت متأكد من حذف هذا التسليم؟')) return;
     const assignments = await SupabaseAPI.request('assignments', 'GET');
     const assignment = assignments.find(a => a.id === id);
@@ -5355,6 +5422,7 @@ function cancelImportDocx() {
 }
 
 async function confirmImportDocx() {
+    if (checkReadOnly()) return;
     if (tempImportDocxData.length === 0) { showToast('error', 'خطأ', 'لا توجد بيانات للاستيراد'); return; }
     showToast('info', 'جاري الاستيراد', 'جاري إضافة ' + tempImportDocxData.length + ' طلب...');
     let successCount = 0;
@@ -5428,6 +5496,7 @@ async function exportRequestsToCSV() {
 }
 
 async function processImportedRequests(data) {
+    if (checkReadOnly()) return;
     let count = 0;
     for (const item of data) {
         if (item.device || item.deviceName) {
@@ -5456,25 +5525,31 @@ async function processImportedRequests(data) {
 async function loadUsers() {
     const users = await SupabaseAPI.request('users', 'GET');
     const container = document.getElementById('usersList');
-    container.innerHTML = users.map(u => `
+    container.innerHTML = users.map(u => {
+        const isReadOnly = u.read_only === true || u.readOnly === true;
+        const roleText = u.role === 'admin' ? 'مدير' : 'مستخدم';
+        const readOnlyTag = isReadOnly ? '<span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; margin-right: 6px;"><i class="fas fa-eye"></i> قراءة فقط</span>' : '';
+        return `
         <div class="user-list-item">
             <div class="user-list-info">
-                <div class="user-list-avatar">${(u.full_name || u.fullName).charAt(0)}</div>
+                <div class="user-list-avatar" style="${isReadOnly ? 'background: linear-gradient(135deg, #f59e0b, #f97316);' : ''}">${(u.full_name || u.fullName).charAt(0)}</div>
                 <div>
-                    <div class="user-list-name">${u.full_name || u.fullName} (${u.username})</div>
-                    <div class="user-list-role">${u.role === 'admin' ? 'مدير' : 'مستخدم'}</div>
+                    <div class="user-list-name">${u.full_name || u.fullName} (${u.username}) ${readOnlyTag}</div>
+                    <div class="user-list-role">${roleText}</div>
                 </div>
             </div>
-            ${u.username !== 'admin' ? `<button class="action-btn delete" onclick="deleteUser(${u.id})" title="حذف"><i class="fas fa-trash"></i></button>` : ''}
+            ${u.username !== 'admin' ? `<button class="action-btn delete no-readonly" onclick="if(checkReadOnly())return;deleteUser(${u.id})" title="حذف"><i class="fas fa-trash"></i></button>` : ''}
         </div>
-    `).join('');
+    `}).join('');
 }
 
 async function addUser() {
+    if (checkReadOnly()) return;
     const username = document.getElementById('newUsername').value.trim();
     const password = document.getElementById('newPassword').value;
     const fullName = document.getElementById('newFullName').value.trim();
     const role = document.getElementById('newRole').value;
+    const readOnly = document.getElementById('newReadOnly').checked;
 
     if (!username || !password || !fullName) { showToast('error', 'خطأ', 'الرجاء ملء جميع الحقول'); return; }
 
@@ -5482,7 +5557,7 @@ async function addUser() {
     if (users.find(u => u.username === username)) { showToast('error', 'خطأ', 'اسم المستخدم موجود مسبقاً'); return; }
 
     await SupabaseAPI.request('users', 'POST', {
-        username, password, full_name: fullName, role,
+        username, password, full_name: fullName, role, read_only: readOnly,
         created_at: new Date().toISOString()
     });
 
@@ -5494,6 +5569,7 @@ async function addUser() {
 }
 
 async function deleteUser(id) {
+    if (checkReadOnly()) return;
     if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
     await SupabaseAPI.request('users', 'DELETE', null, id);
     await loadUsers();
@@ -5501,6 +5577,7 @@ async function deleteUser(id) {
 }
 
 async function resetAllData() {
+    if (checkReadOnly()) return;
     if (!confirm('تحذير: سيتم مسح جميع البيانات! هل أنت متأكد؟')) return;
     if (!confirm('هل أنت متأكد تماماً؟ لا يمكن التراجع عن هذا الإجراء!')) return;
 
@@ -5520,6 +5597,7 @@ async function resetAllData() {
 }
 
 async function resetUsers() {
+    if (checkReadOnly()) return;
     if (!confirm('هل أنت متأكد من إعادة تعيين المستخدمين؟')) return;
     const users = await SupabaseAPI.request('users', 'GET');
     for (const u of users) { if (u.username !== 'admin') await SupabaseAPI.request('users', 'DELETE', null, u.id); }
@@ -5528,6 +5606,7 @@ async function resetUsers() {
 }
 
 async function resetInventoryDefaults() {
+    if (checkReadOnly()) return;
     if (!confirm('هل أنت متأكد من إعادة تعيين مخزون قطع الغيار للقيم الافتراضية؟')) return;
     if (!confirm('تحذير: سيتم مسح جميع قطع الغيار الحالية واستبدالها بالقيم الافتراضية. لا يمكن التراجع!')) return;
 
@@ -5597,6 +5676,7 @@ function exportAllData() {
 }
 
 function importBackup(input) {
+    if (checkReadOnly()) { input.value = ''; showToast('error', 'غير مصرح', 'أنت في وضع القراءة فقط'); return; }
     const file = input.files[0];
     if (!file) return;
     if (!file.name.endsWith('.json')) { showToast('error', 'خطأ', 'الرجاء اختيار ملف JSON فقط'); input.value = ''; return; }
@@ -6296,6 +6376,7 @@ async function handleDocxImport(input) {
 }
 
 async function confirmDocxImport() {
+    if (checkReadOnly()) return;
     if (docxImportPreviewData.length === 0) { showToast('error', 'خطأ', 'لا توجد بيانات للاستيراد'); return; }
     showToast('info', 'جاري الاستيراد', 'جاري إضافة ' + docxImportPreviewData.length + ' مادة...');
     let successCount = 0;
