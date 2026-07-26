@@ -4003,7 +4003,11 @@ async function loadRequests() {
     }
     if (statusFilter) filtered = filtered.filter(r => r.status === statusFilter);
 
-    tbody.innerHTML = filtered.sort((a, b) => (b.id || 0) - (a.id || 0)).map(r => `
+    tbody.innerHTML = filtered.sort((a, b) => {
+        const numA = parseInt(a.request_number || a.requestNumber || '0');
+        const numB = parseInt(b.request_number || b.requestNumber || '0');
+        return numA - numB;
+    }).map(r => `
         <tr>
             <td><strong>#${r.request_number || r.requestNumber}</strong></td>
             <td>${r.computer_number || r.computerNumber}</td>
@@ -5554,7 +5558,7 @@ async function updateDashboard() {
         const dateA = new Date(a.created_at || a.createdAt || 0);
         const dateB = new Date(b.created_at || b.createdAt || 0);
         return dateA - dateB;
-    }).slice(0, 8).map(r => `
+    }).map(r => `
         <tr>
             <td><strong>${r.computer_number || r.computerNumber || '-'}</strong></td>
             <td>${r.employee_name || r.employeeName || '-'}</td>
