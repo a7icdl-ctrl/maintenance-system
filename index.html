@@ -307,7 +307,247 @@
             .modal { box-shadow: none; max-width: 100%; animation: none; }
             .modal-header, .modal-footer { display: none !important; }
         }
-    </style>
+    
+        /* ==================== DARK MODE ==================== */
+        html[data-theme="dark"] {
+            --bg-gradient-1: #0f172a;
+            --bg-gradient-2: #1e293b;
+            --bg-gradient-3: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.95);
+            --text-dark: #f1f5f9;
+            --text-medium: #cbd5e1;
+            --text-light: #94a3b8;
+            --border-color: #334155;
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            --shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        html[data-theme="dark"] body {
+            background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 50%, var(--bg-gradient-3) 100%);
+            color: var(--text-dark);
+        }
+        html[data-theme="dark"] .login-card {
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        html[data-theme="dark"] .login-card h1,
+        html[data-theme="dark"] .login-card .subtitle {
+            color: var(--text-dark);
+        }
+        html[data-theme="dark"] .form-control {
+            background: #1e293b;
+            border-color: #475569;
+            color: var(--text-dark);
+        }
+        html[data-theme="dark"] .form-control:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.15);
+        }
+        html[data-theme="dark"] .stat-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        html[data-theme="dark"] .stat-value {
+            color: var(--text-dark);
+        }
+        html[data-theme="dark"] .stat-label {
+            color: var(--text-medium);
+        }
+        html[data-theme="dark"] .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        html[data-theme="dark"] .card-header {
+            border-bottom-color: var(--border-color);
+        }
+        html[data-theme="dark"] .card-header h3 {
+            color: var(--text-dark);
+        }
+        html[data-theme="dark"] .data-table th {
+            background: linear-gradient(135deg, #334155, #1e293b);
+            color: var(--text-dark);
+            border-bottom-color: var(--border-color);
+        }
+        html[data-theme="dark"] .data-table td {
+            color: var(--text-medium);
+            border-bottom-color: var(--border-color);
+        }
+        html[data-theme="dark"] .data-table tr:hover td {
+            background: rgba(79,70,229,0.08);
+        }
+        html[data-theme="dark"] .modal {
+            background: #1e293b;
+        }
+        html[data-theme="dark"] .modal-header {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-bottom-color: var(--border-color);
+        }
+        html[data-theme="dark"] .modal-header h3 {
+            color: var(--text-dark);
+        }
+        html[data-theme="dark"] .modal-body {
+            color: var(--text-medium);
+        }
+        html[data-theme="dark"] .modal-footer {
+            background: #1e293b;
+            border-top-color: var(--border-color);
+        }
+        html[data-theme="dark"] .modal-close {
+            background: rgba(239,68,68,0.2);
+        }
+        html[data-theme="dark"] .tabs {
+            background: rgba(255,255,255,0.05);
+        }
+        html[data-theme="dark"] .tab-btn {
+            color: var(--text-medium);
+        }
+        html[data-theme="dark"] .tab-btn.active {
+            background: #334155;
+            color: var(--primary-light);
+        }
+        html[data-theme="dark"] .search-box input {
+            background: #1e293b;
+            border-color: #475569;
+            color: var(--text-dark);
+        }
+        html[data-theme="dark"] .inventory-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        html[data-theme="dark"] .device-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        html[data-theme="dark"] .device-model-item {
+            background: #0f172a;
+        }
+        html[data-theme="dark"] .device-model-item:hover {
+            background: #1e293b;
+        }
+        html[data-theme="dark"] .procedure-item {
+            background: #0f172a;
+        }
+        html[data-theme="dark"] .file-upload-area {
+            background: #0f172a;
+            border-color: #475569;
+        }
+        html[data-theme="dark"] .file-upload-area h4 {
+            color: var(--text-dark);
+        }
+        html[data-theme="dark"] .file-upload-area p {
+            color: var(--text-light);
+        }
+        html[data-theme="dark"] .attachment-item {
+            background: #0f172a;
+        }
+        html[data-theme="dark"] .admin-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        html[data-theme="dark"] .user-list-item {
+            background: #0f172a;
+        }
+        html[data-theme="dark"] .config-box {
+            background: linear-gradient(135deg, #1e3a5f, #0f172a);
+            border-color: var(--primary-light);
+        }
+        html[data-theme="dark"] .config-box h4 {
+            color: var(--primary-light);
+        }
+        html[data-theme="dark"] .config-box code {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        html[data-theme="dark"] .danger-zone {
+            background: rgba(239,68,68,0.05);
+        }
+        html[data-theme="dark"] .empty-state h3 {
+            color: var(--text-dark);
+        }
+        html[data-theme="dark"] .empty-state p {
+            color: var(--text-light);
+        }
+        html[data-theme="dark"] .page-title {
+            color: var(--text-dark);
+        }
+        html[data-theme="dark"] .toast {
+            background: #1e293b;
+        }
+        html[data-theme="dark"] .toast-content h4 {
+            color: var(--text-dark);
+        }
+        html[data-theme="dark"] .toast-content p {
+            color: var(--text-medium);
+        }
+        html[data-theme="dark"] .loading-overlay {
+            background: rgba(15, 23, 42, 0.9);
+        }
+        html[data-theme="dark"] .loading-overlay p {
+            color: var(--text-medium);
+        }
+        html[data-theme="dark"] .spinner {
+            border-color: #334155;
+            border-top-color: var(--primary-light);
+        }
+        html[data-theme="dark"] select.form-control option {
+            background: #1e293b;
+            color: var(--text-dark);
+        }
+        html[data-theme="dark"] .request-map-grid .map-column {
+            background: #0f172a;
+        }
+        html[data-theme="dark"] .map-card {
+            background: #1e293b;
+        }
+        html[data-theme="dark"] .map-total-bar {
+            background: linear-gradient(135deg, #1e3a5f, #0f172a);
+        }
+        html[data-theme="dark"] .map-total-bar h4 {
+            color: var(--primary-light);
+        }
+        html[data-theme="dark"] ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        html[data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        }
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+        .theme-toggle .toggle-icon {
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .theme-toggle.dark-mode {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+        }
+        .theme-toggle.dark-mode:hover {
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        }
+</style>
 </head>
 <body>
 
@@ -542,6 +782,9 @@
                 <div class="page-header">
                     <h1 class="page-title">لوحة التحكم</h1>
                     <div class="page-actions no-print">
+                        <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="تبديل الثيم">
+                            <i class="fas fa-sun toggle-icon" id="themeToggleIcon"></i>
+                        </button>
                         <span class="sync-status online" id="dashboardSyncStatus"><i class="fas fa-wifi"></i> متصل بالسيرفر</span>
                         <button class="btn btn-primary btn-sm" onclick="printPage()">
                             <i class="fas fa-print"></i> طباعة
@@ -5893,6 +6136,59 @@ async function printPage() {
 }
 
 // ==================== INIT ====================
+
+// ==================== THEME TOGGLE ====================
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('app_theme', newTheme);
+    updateThemeToggleIcon(newTheme);
+
+    // Re-render charts if on reports page to update colors
+    if (document.getElementById('page-reports').classList.contains('active')) {
+        setTimeout(() => loadReportsCharts(), 100);
+    }
+
+    showToast('success', 'تم التبديل', newTheme === 'dark' ? 'تم تفعيل الوضع الداكن' : 'تم تفعيل الوضع الفاتح');
+}
+
+function updateThemeToggleIcon(theme) {
+    const btn = document.getElementById('themeToggleBtn');
+    const icon = document.getElementById('themeToggleIcon');
+    if (!btn || !icon) return;
+
+    if (theme === 'dark') {
+        btn.classList.add('dark-mode');
+        btn.title = 'تبديل للوضع الفاتح';
+        icon.className = 'fas fa-moon toggle-icon';
+    } else {
+        btn.classList.remove('dark-mode');
+        btn.title = 'تبديل للوضع الداكن';
+        icon.className = 'fas fa-sun toggle-icon';
+    }
+}
+
+function loadTheme() {
+    const savedTheme = localStorage.getItem('app_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeToggleIcon(savedTheme);
+}
+
+// ==================== ENHANCED CHARTS FOR DARK MODE ====================
+// Override chart defaults for dark mode
+function getChartGridColor() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
+}
+
+function getChartTextColor() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return isDark ? '#cbd5e1' : '#475569';
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
     // Block developer tools shortcuts
     document.addEventListener('keydown', function(e) {
@@ -5915,6 +6211,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
 
     try {
+        loadTheme();
         LocalDB.init();
 
         // Always use built-in server credentials, skip config screen
