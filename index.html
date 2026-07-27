@@ -44,216 +44,7 @@
             background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 50%, var(--bg-gradient-3) 100%);
             min-height: 100vh; color: var(--text-dark); overflow-x: hidden;
         }
-        /* DARK MODE VARIABLES */
-        [data-theme="dark"] {
-            --primary: #6366f1; --primary-light: #818cf8; --primary-dark: #4f46e5;
-            --secondary: #22d3ee; --accent: #fbbf24; --success: #34d399;
-            --danger: #f87171; --warning: #fbbf24; --info: #60a5fa;
-            --bg-gradient-1: #0f172a; --bg-gradient-2: #1e293b; --bg-gradient-3: #334155;
-            --card-bg: rgba(30, 41, 59, 0.95);
-            --text-dark: #f1f5f9; --text-medium: #cbd5e1; --text-light: #94a3b8;
-            --border-color: #334155;
-            --shadow: 0 10px 40px rgba(0,0,0,0.3); --shadow-hover: 0 20px 60px rgba(0,0,0,0.4);
-        }
-        [data-theme="dark"] body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-            color: var(--text-dark);
-        }
-        [data-theme="dark"] .sidebar {
-            background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-        }
-        [data-theme="dark"] .login-card,
-        [data-theme="dark"] .stat-card,
-        [data-theme="dark"] .card,
-        [data-theme="dark"] .inventory-card,
-        [data-theme="dark"] .device-card,
-        [data-theme="dark"] .admin-card,
-        [data-theme="dark"] .modal,
-        [data-theme="dark"] .toast,
-        [data-theme="dark"] .map-column,
-        [data-theme="dark"] .map-card {
-            background: rgba(30, 41, 59, 0.95);
-            border-color: rgba(255,255,255,0.08);
-            color: var(--text-dark);
-        }
-        [data-theme="dark"] .form-control,
-        [data-theme="dark"] .search-box input {
-            background: #334155;
-            border-color: #475569;
-            color: var(--text-dark);
-        }
-        [data-theme="dark"] .form-control:focus,
-        [data-theme="dark"] .search-box input:focus {
-            background: #334155;
-            border-color: var(--primary-light);
-            color: var(--text-dark);
-        }
-        [data-theme="dark"] .data-table th {
-            background: linear-gradient(135deg, #334155, #475569);
-            color: var(--text-dark);
-            border-bottom-color: #475569;
-        }
-        [data-theme="dark"] .data-table td {
-            border-bottom-color: #334155;
-            color: var(--text-medium);
-        }
-        [data-theme="dark"] .data-table tr:hover td {
-            background: rgba(99,102,241,0.08);
-        }
-        [data-theme="dark"] .modal-header,
-        [data-theme="dark"] .modal-footer {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border-color: #334155;
-        }
-        [data-theme="dark"] .modal-header h3,
-        [data-theme="dark"] .card-header h3,
-        [data-theme="dark"] .page-title,
-        [data-theme="dark"] .stat-value,
-        [data-theme="dark"] .inventory-card-title,
-        [data-theme="dark"] .device-card-title,
-        [data-theme="dark"] .map-group-name {
-            color: var(--text-dark);
-        }
-        [data-theme="dark"] .stat-label,
-        [data-theme="dark"] .card-header h3 i,
-        [data-theme="dark"] .login-card .subtitle {
-            color: var(--text-medium);
-        }
-        [data-theme="dark"] .nav-item {
-            color: rgba(255,255,255,0.6);
-        }
-        [data-theme="dark"] .nav-item:hover,
-        [data-theme="dark"] .nav-item.active {
-            background: rgba(255,255,255,0.08);
-            color: white;
-        }
-        [data-theme="dark"] .tab-btn {
-            color: var(--text-medium);
-        }
-        [data-theme="dark"] .tab-btn.active {
-            background: #334155;
-            color: var(--primary-light);
-        }
-        [data-theme="dark"] .tabs {
-            background: rgba(255,255,255,0.05);
-        }
-        [data-theme="dark"] .procedure-item,
-        [data-theme="dark"] .device-model-item,
-        [data-theme="dark"] .user-list-item,
-        [data-theme="dark"] .attachment-item {
-            background: #334155;
-        }
-        [data-theme="dark"] .file-upload-area {
-            background: #334155;
-            border-color: #475569;
-        }
-        [data-theme="dark"] .file-upload-area:hover {
-            background: rgba(99,102,241,0.08);
-            border-color: var(--primary-light);
-        }
-        [data-theme="dark"] .empty-state h3 {
-            color: var(--text-dark);
-        }
-        [data-theme="dark"] .empty-state p {
-            color: var(--text-light);
-        }
-        [data-theme="dark"] .empty-state i {
-            color: #475569;
-        }
-        [data-theme="dark"] .loading-overlay {
-            background: rgba(15, 23, 42, 0.9);
-        }
-        [data-theme="dark"] .config-box {
-            background: linear-gradient(135deg, #1e293b, #334155);
-            border-color: var(--primary-light);
-        }
-        [data-theme="dark"] .config-box h4 {
-            color: var(--primary-light);
-        }
-        [data-theme="dark"] .config-box code {
-            background: #0f172a;
-            color: #e2e8f0;
-        }
-        [data-theme="dark"] .danger-zone {
-            background: rgba(239,68,68,0.05);
-        }
-        [data-theme="dark"] .map-total-bar {
-            background: linear-gradient(135deg, #1e293b, #334155);
-        }
-        [data-theme="dark"] .map-total-bar h4 {
-            color: var(--primary-light);
-        }
-        [data-theme="dark"] ::-webkit-scrollbar-track {
-            background: #1e293b;
-        }
-        [data-theme="dark"] ::-webkit-scrollbar-thumb {
-            background: #475569;
-        }
-        [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
-        }
-        [data-theme="dark"] .readonly-badge {
-            box-shadow: 0 4px 15px rgba(245,158,11,0.2);
-        }
-        /* Theme Toggle Switch */
-        .theme-toggle-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 15px;
-            margin-top: 10px;
-            background: rgba(255,255,255,0.08);
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        .theme-toggle-wrapper:hover {
-            background: rgba(255,255,255,0.12);
-        }
-        .theme-toggle-label {
-            color: white;
-            font-family: 'Tajawal', sans-serif;
-            font-weight: 600;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .theme-toggle-label i {
-            font-size: 16px;
-            width: 24px;
-            text-align: center;
-        }
-        .theme-toggle-switch {
-            position: relative;
-            width: 50px;
-            height: 26px;
-            background: #475569;
-            border-radius: 26px;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-        .theme-toggle-switch::after {
-            content: '';
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 20px;
-            height: 20px;
-            background: white;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .theme-toggle-wrapper.active .theme-toggle-switch {
-            background: linear-gradient(135deg, #f59e0b, #f97316);
-        }
-        .theme-toggle-wrapper.active .theme-toggle-switch::after {
-            transform: translateX(24px);
-        }
-                .bg-particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .bg-particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
         .particle { position: absolute; border-radius: 50%; opacity: 0.15; animation: float 20s infinite ease-in-out; }
         .particle:nth-child(1) { width: 80px; height: 80px; background: var(--primary); top: 10%; left: 10%; animation-delay: 0s; }
         .particle:nth-child(2) { width: 120px; height: 120px; background: var(--secondary); top: 70%; left: 80%; animation-delay: 2s; }
@@ -494,20 +285,20 @@
         .sync-status.syncing { background: rgba(245,158,11,0.15); color: #b45309; }
 
         /* Request Map Styles */
-        .request-map-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 10px; }
+        .request-map-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; padding: 8px; }
         .map-column { background: #f8fafc; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
-        .map-column-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 16px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .map-column-header { padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 14px; border-bottom: 1px solid rgba(0,0,0,0.05); }
         .map-group-name { display: flex; align-items: center; gap: 8px; }
         .map-group-count { background: white; padding: 4px 14px; border-radius: 20px; font-size: 14px; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .map-column-body { padding: 15px; display: flex; flex-direction: column; gap: 12px; max-height: 65vh; overflow-y: auto; flex: 1; }
-        .map-card { background: white; border-radius: 12px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-right: 3px solid var(--primary); transition: all 0.2s ease; cursor: default; }
+        .map-column-body { padding: 8px; display: flex; flex-direction: column; gap: 6px; max-height: 65vh; overflow-y: auto; flex: 1; }
+        .map-card { background: white; border-radius: 8px; padding: 8px 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-right: 3px solid var(--primary); transition: all 0.2s ease; cursor: default; }
         .map-card:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .map-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9; }
-        .map-card-body { font-size: 13px; color: var(--text-medium); line-height: 1.9; }
-        .map-card-body i { color: var(--primary-light); width: 18px; margin-left: 6px; font-size: 12px; }
-        .map-total-bar { background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 12px; padding: 15px 25px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-right: 4px solid var(--primary); }
-        .map-total-bar h4 { color: #1e40af; font-size: 16px; margin: 0; }
-        .map-total-bar .total-number { font-size: 28px; font-weight: 800; color: var(--primary); }
+        .map-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid #f1f5f9; }
+        .map-card-body { font-size: 11.5px; color: var(--text-medium); line-height: 1.5; }
+        .map-card-body i { color: var(--primary-light); width: 14px; margin-left: 4px; font-size: 10px; }
+        .map-total-bar { background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 10px; padding: 10px 18px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-right: 4px solid var(--primary); }
+        .map-total-bar h4 { color: #1e40af; font-size: 14px; margin: 0; }
+        .map-total-bar .total-number { font-size: 22px; font-weight: 800; color: var(--primary); }
         @media print {
             .map-column { break-inside: avoid; page-break-inside: avoid; }
             .request-map-grid { grid-template-columns: repeat(3, 1fr); }
@@ -737,15 +528,7 @@
                 <div style="margin-top: 10px; text-align: center;">
                     <span class="sync-status online" id="sidebarSyncStatus" style="font-size: 11px;"><i class="fas fa-wifi"></i> متصل</span>
                 </div>
-                                <div class="theme-toggle-wrapper" id="themeToggleWrapper" onclick="toggleTheme()">
-                    <div class="theme-toggle-label">
-                        <i class="fas fa-moon" id="themeIcon"></i>
-                        <span id="themeText">الوضع الداكن</span>
-                    </div>
-                    <div class="theme-toggle-switch" id="themeToggleSwitch"></div>
-                </div>
-
-<button class="logout-btn" onclick="handleLogout()">
+                <button class="logout-btn" onclick="handleLogout()">
                     <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
                 </button>
             </div>
@@ -3037,7 +2820,7 @@ async function loadRequestMap() {
                     ${reqs.sort((a, b) => (b.id || 0) - (a.id || 0)).map(r => `
                         <div class="map-card" style="border-right-color: ${color};">
                             <div class="map-card-body">
-                                <div><i class="fas fa-hashtag"></i> <strong>الرقم الحاسوبي:</strong> ${r.computer_number || r.computerNumber || '-'}</div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;"><span class="badge badge-${r.status}" style="font-size:10px;padding:2px 8px;">${getStatusLabel(r.status)}</span><span style="font-size: 10px; color: var(--text-light);font-weight:600;">#${r.request_number || r.requestNumber}</span></div>
                                 <div><i class="fas fa-user"></i> <strong>الموظف:</strong> ${r.employee_name || r.employeeName || '-'}</div>
                                 <div><i class="fas fa-building"></i> <strong>القسم:</strong> ${r.department || '-'}</div>
                                 <div class="map-issue"><i class="fas fa-exclamation-circle"></i> <strong>المشكلة:</strong> ${r.issue_description || r.issueDescription || 'لا يوجد وصف'}</div>
@@ -3067,19 +2850,19 @@ function printRequestMap() {
                 .print-header { text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #4f46e5; }
                 .print-header h1 { color: #4f46e5; font-size: 26px; margin-bottom: 8px; }
                 .print-header p { color: #64748b; font-size: 13px; }
-                .print-total { background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 12px; padding: 12px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-right: 4px solid #4f46e5; }
-                .print-total h4 { color: #1e40af; font-size: 15px; margin: 0; }
-                .print-total .total-number { font-size: 24px; font-weight: 800; color: #4f46e5; }
-                .request-map-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-                .map-column { background: #f8fafc; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; page-break-inside: avoid; break-inside: avoid; }
-                .map-column-header { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 15px; border-bottom: 1px solid rgba(0,0,0,0.05); }
-                .map-group-name { display: flex; align-items: center; gap: 8px; }
-                .map-group-count { background: white; padding: 3px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-                .map-column-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-                .map-card { background: white; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-right: 3px solid; }
-                .map-card-body { font-size: 13px; color: #475569; line-height: 1.9; }
-                .map-card-body i { color: #818cf8; width: 18px; margin-left: 6px; font-size: 12px; }
-                .map-issue { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e2e8f0; font-size: 12px; color: #64748b; }
+                .print-total { background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 10px; padding: 8px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-right: 4px solid #4f46e5; }
+                .print-total h4 { color: #1e40af; font-size: 13px; margin: 0; }
+                .print-total .total-number { font-size: 20px; font-weight: 800; color: #4f46e5; }
+                .request-map-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+                .map-column { background: #f8fafc; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; page-break-inside: avoid; break-inside: avoid; }
+                .map-column-header { padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 13px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+                .map-group-name { display: flex; align-items: center; gap: 6px; }
+                .map-group-count { background: white; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+                .map-column-body { padding: 6px; display: flex; flex-direction: column; gap: 5px; }
+                .map-card { background: white; border-radius: 8px; padding: 6px 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-right: 3px solid; }
+                .map-card-body { font-size: 11px; color: #475569; line-height: 1.5; }
+                .map-card-body i { color: #818cf8; width: 14px; margin-left: 4px; font-size: 10px; }
+                .map-issue { margin-top: 3px; padding-top: 3px; border-top: 1px dashed #e2e8f0; font-size: 10px; color: #64748b; }
                 .map-issue i { color: #f59e0b; }
                 @media print { body { padding: 15px; } .request-map-grid { grid-template-columns: repeat(3, 1fr); } }
             </style>
@@ -6109,57 +5892,6 @@ async function printPage() {
     setTimeout(() => { printWindow.print(); }, 500);
 }
 
-// ==================== THEME TOGGLE ====================
-function toggleTheme() {
-    const html = document.documentElement;
-    const currentTheme = html.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-    if (newTheme === 'dark') {
-        html.setAttribute('data-theme', 'dark');
-    } else {
-        html.removeAttribute('data-theme');
-    }
-    localStorage.setItem('theme', newTheme);
-
-    updateThemeUI(newTheme);
-
-    // Re-render charts if on reports page with active charts
-    if (document.getElementById('page-reports') && document.getElementById('page-reports').classList.contains('active')) {
-        setTimeout(() => loadReportsCharts(), 100);
-    }
-}
-
-function updateThemeUI(theme) {
-    const wrapper = document.getElementById('themeToggleWrapper');
-    const icon = document.getElementById('themeIcon');
-    const text = document.getElementById('themeText');
-    if (!wrapper || !icon || !text) return;
-
-    if (theme === 'dark') {
-        wrapper.classList.add('active');
-        icon.className = 'fas fa-sun';
-        text.textContent = 'الوضع الفاتح';
-    } else {
-        wrapper.classList.remove('active');
-        icon.className = 'fas fa-moon';
-        text.textContent = 'الوضع الداكن';
-    }
-}
-
-function initTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const theme = savedTheme || (prefersDark ? 'dark' : 'light');
-
-    if (theme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-        document.documentElement.removeAttribute('data-theme');
-    }
-    updateThemeUI(theme);
-}
-
 // ==================== INIT ====================
 document.addEventListener('DOMContentLoaded', async function() {
     // Block developer tools shortcuts
@@ -6184,9 +5916,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     try {
         LocalDB.init();
-
-        // Initialize theme
-        initTheme();
 
         // Always use built-in server credentials, skip config screen
         SUPABASE_URL = DEFAULT_SUPABASE_URL;
