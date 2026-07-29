@@ -693,6 +693,12 @@
                 <i class="fas fa-sign-in-alt"></i>
                 تسجيل الدخول
             </button>
+            <div style="margin-top: 12px; text-align: center;">
+                <a href="#" onclick="openForgotPasswordModal(); return false;" style="color: var(--primary); font-size: 13px; font-weight: 600; text-decoration: none; transition: color 0.3s;">
+                    <i class="fas fa-key" style="margin-left: 5px;"></i> نسيت كلمة المرور؟
+                </a>
+            </div>
+
             <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); text-align: center;">
                 <p style="font-size: 12px; color: var(--text-light);">
                     <i class="fas fa-lock"></i> 
@@ -734,6 +740,10 @@
                     <i class="fas fa-desktop"></i>
                     <span>المواد الحاسوبية</span>
                     <span class="nav-badge" id="computerItemsBadge">0</span>
+                </a>
+<a class="nav-item" onclick="showPage('tender')">
+                    <i class="fas fa-file-contract"></i>
+                    <span>تفاصيل عطاء الصيانة</span>
                 </a>
 <a class="nav-item admin-only" onclick="showPage('documents')" style="display:none;">
                     <i class="fas fa-file-alt"></i>
@@ -1711,6 +1721,25 @@
             </div>
         </div>
     </div>
+
+
+            <div class="page-section" id="page-tender">
+                <div class="page-header">
+                    <h1 class="page-title">تفاصيل عطاء الصيانة</h1>
+                    <div class="page-actions no-print">
+                        <button class="btn btn-success btn-sm no-readonly" id="tenderAddBtn" onclick="if(checkReadOnly())return;openTenderModal()">
+                            <i class="fas fa-plus"></i> <span id="tenderBtnText">إدخال بيانات العطاء</span>
+                        </button>
+                        <button class="btn btn-danger btn-sm no-readonly" id="tenderDeleteBtn" style="display:none;" onclick="if(checkReadOnly())return;deleteTender()">
+                            <i class="fas fa-trash"></i> حذف البيانات
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="printTender()">
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                    </div>
+                </div>
+                <div id="tenderContent"></div>
+            </div>
 
     <div class="modal-overlay" id="requestModal">
         <div class="modal">
@@ -2871,7 +2900,78 @@ async function printSearchResults() {
                     <div class="print-footer-date"><i class="fas fa-print"></i> تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}</div>
                 </div>
             </div>
-        </body>
+        
+    <!-- Tender Modal -->
+    <div class="modal-overlay" id="tenderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="tenderModalTitle">بيانات عطاء الصيانة</h3>
+                <button class="modal-close" onclick="closeModal('tenderModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="tenderForm">
+                    <input type="hidden" id="tenderId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>رقم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderNumber" placeholder="أدخل رقم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم قرار الإحالة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderDecision" placeholder="رقم قرار الإحالة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderName" placeholder="اسم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الشركة المنفذة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderCompany" placeholder="اسم الشركة المنفذة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ أمر مباشرة العمل <span style="color: var(--danger);">*</span></label>
+                            <input type="date" class="form-control" id="tenderWorkOrderDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم مندوب الشركة</label>
+                            <input type="text" class="form-control" id="tenderRep" placeholder="اسم المندوب">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم هاتف المندوب</label>
+                            <input type="tel" class="form-control" id="tenderPhone" placeholder="رقم الهاتف" dir="ltr">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="tenderEmail" placeholder="email@example.com" dir="ltr">
+                        </div>
+                        <div class="form-group full-width">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-paperclip" style="color: var(--primary);"></i>
+                                مرفق نسخة العطاء
+                            </label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-upload"></i> اختيار ملف
+                                    <input type="file" id="tenderAttachment" style="display: none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleTenderAttachment(this)">
+                                </label>
+                                <span id="tenderAttachmentName" style="font-size: 12px; color: var(--text-light);">لم يتم اختيار ملف</span>
+                            </div>
+                            <p style="font-size: 11px; color: var(--text-light); margin-top: 5px;">PDF, Word, Images - الحد الأقصى 10 ميجا</p>
+                            <div id="tenderAttachmentPreview" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('tenderModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveTender()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
         </html>
     `);
     printWindow.document.close();
@@ -2920,6 +3020,7 @@ async function showPage(page) {
     if (page === 'departments') await loadDepartments();
     if (page === 'reports') { setTimeout(() => loadReportsCharts(), 100); }
     if (page === 'advanced_search') { await loadSearchDropdowns(); document.getElementById('searchResultsCard').style.display = 'none'; }
+    if (page === 'tender') { await loadTender(); }
 }
 
 
@@ -3120,7 +3221,78 @@ function printRequestMap() {
                 <div class="total-number">${totalCount}</div>
             </div>
             <div class="request-map-grid">${mapContent}</div>
-        </body>
+        
+    <!-- Tender Modal -->
+    <div class="modal-overlay" id="tenderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="tenderModalTitle">بيانات عطاء الصيانة</h3>
+                <button class="modal-close" onclick="closeModal('tenderModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="tenderForm">
+                    <input type="hidden" id="tenderId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>رقم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderNumber" placeholder="أدخل رقم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم قرار الإحالة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderDecision" placeholder="رقم قرار الإحالة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderName" placeholder="اسم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الشركة المنفذة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderCompany" placeholder="اسم الشركة المنفذة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ أمر مباشرة العمل <span style="color: var(--danger);">*</span></label>
+                            <input type="date" class="form-control" id="tenderWorkOrderDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم مندوب الشركة</label>
+                            <input type="text" class="form-control" id="tenderRep" placeholder="اسم المندوب">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم هاتف المندوب</label>
+                            <input type="tel" class="form-control" id="tenderPhone" placeholder="رقم الهاتف" dir="ltr">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="tenderEmail" placeholder="email@example.com" dir="ltr">
+                        </div>
+                        <div class="form-group full-width">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-paperclip" style="color: var(--primary);"></i>
+                                مرفق نسخة العطاء
+                            </label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-upload"></i> اختيار ملف
+                                    <input type="file" id="tenderAttachment" style="display: none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleTenderAttachment(this)">
+                                </label>
+                                <span id="tenderAttachmentName" style="font-size: 12px; color: var(--text-light);">لم يتم اختيار ملف</span>
+                            </div>
+                            <p style="font-size: 11px; color: var(--text-light); margin-top: 5px;">PDF, Word, Images - الحد الأقصى 10 ميجا</p>
+                            <div id="tenderAttachmentPreview" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('tenderModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveTender()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
         </html>
     `);
     printWindow.document.close();
@@ -3624,7 +3796,78 @@ async function printDocument(id) {
                     </div>
                 </div>
 
-        </body>
+        
+    <!-- Tender Modal -->
+    <div class="modal-overlay" id="tenderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="tenderModalTitle">بيانات عطاء الصيانة</h3>
+                <button class="modal-close" onclick="closeModal('tenderModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="tenderForm">
+                    <input type="hidden" id="tenderId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>رقم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderNumber" placeholder="أدخل رقم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم قرار الإحالة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderDecision" placeholder="رقم قرار الإحالة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderName" placeholder="اسم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الشركة المنفذة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderCompany" placeholder="اسم الشركة المنفذة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ أمر مباشرة العمل <span style="color: var(--danger);">*</span></label>
+                            <input type="date" class="form-control" id="tenderWorkOrderDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم مندوب الشركة</label>
+                            <input type="text" class="form-control" id="tenderRep" placeholder="اسم المندوب">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم هاتف المندوب</label>
+                            <input type="tel" class="form-control" id="tenderPhone" placeholder="رقم الهاتف" dir="ltr">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="tenderEmail" placeholder="email@example.com" dir="ltr">
+                        </div>
+                        <div class="form-group full-width">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-paperclip" style="color: var(--primary);"></i>
+                                مرفق نسخة العطاء
+                            </label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-upload"></i> اختيار ملف
+                                    <input type="file" id="tenderAttachment" style="display: none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleTenderAttachment(this)">
+                                </label>
+                                <span id="tenderAttachmentName" style="font-size: 12px; color: var(--text-light);">لم يتم اختيار ملف</span>
+                            </div>
+                            <p style="font-size: 11px; color: var(--text-light); margin-top: 5px;">PDF, Word, Images - الحد الأقصى 10 ميجا</p>
+                            <div id="tenderAttachmentPreview" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('tenderModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveTender()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
         </html>
     `);
     printWindow.document.close();
@@ -3728,7 +3971,78 @@ async function printDocuments() {
                     </div>
                 </div>
 
-        </body>
+        
+    <!-- Tender Modal -->
+    <div class="modal-overlay" id="tenderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="tenderModalTitle">بيانات عطاء الصيانة</h3>
+                <button class="modal-close" onclick="closeModal('tenderModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="tenderForm">
+                    <input type="hidden" id="tenderId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>رقم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderNumber" placeholder="أدخل رقم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم قرار الإحالة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderDecision" placeholder="رقم قرار الإحالة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderName" placeholder="اسم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الشركة المنفذة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderCompany" placeholder="اسم الشركة المنفذة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ أمر مباشرة العمل <span style="color: var(--danger);">*</span></label>
+                            <input type="date" class="form-control" id="tenderWorkOrderDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم مندوب الشركة</label>
+                            <input type="text" class="form-control" id="tenderRep" placeholder="اسم المندوب">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم هاتف المندوب</label>
+                            <input type="tel" class="form-control" id="tenderPhone" placeholder="رقم الهاتف" dir="ltr">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="tenderEmail" placeholder="email@example.com" dir="ltr">
+                        </div>
+                        <div class="form-group full-width">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-paperclip" style="color: var(--primary);"></i>
+                                مرفق نسخة العطاء
+                            </label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-upload"></i> اختيار ملف
+                                    <input type="file" id="tenderAttachment" style="display: none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleTenderAttachment(this)">
+                                </label>
+                                <span id="tenderAttachmentName" style="font-size: 12px; color: var(--text-light);">لم يتم اختيار ملف</span>
+                            </div>
+                            <p style="font-size: 11px; color: var(--text-light); margin-top: 5px;">PDF, Word, Images - الحد الأقصى 10 ميجا</p>
+                            <div id="tenderAttachmentPreview" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('tenderModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveTender()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
         </html>
     `);
     printWindow.document.close();
@@ -4004,7 +4318,78 @@ async function printComputerItem(id) {
                     </div>
                 </div>
 
-        </body>
+        
+    <!-- Tender Modal -->
+    <div class="modal-overlay" id="tenderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="tenderModalTitle">بيانات عطاء الصيانة</h3>
+                <button class="modal-close" onclick="closeModal('tenderModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="tenderForm">
+                    <input type="hidden" id="tenderId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>رقم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderNumber" placeholder="أدخل رقم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم قرار الإحالة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderDecision" placeholder="رقم قرار الإحالة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderName" placeholder="اسم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الشركة المنفذة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderCompany" placeholder="اسم الشركة المنفذة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ أمر مباشرة العمل <span style="color: var(--danger);">*</span></label>
+                            <input type="date" class="form-control" id="tenderWorkOrderDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم مندوب الشركة</label>
+                            <input type="text" class="form-control" id="tenderRep" placeholder="اسم المندوب">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم هاتف المندوب</label>
+                            <input type="tel" class="form-control" id="tenderPhone" placeholder="رقم الهاتف" dir="ltr">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="tenderEmail" placeholder="email@example.com" dir="ltr">
+                        </div>
+                        <div class="form-group full-width">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-paperclip" style="color: var(--primary);"></i>
+                                مرفق نسخة العطاء
+                            </label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-upload"></i> اختيار ملف
+                                    <input type="file" id="tenderAttachment" style="display: none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleTenderAttachment(this)">
+                                </label>
+                                <span id="tenderAttachmentName" style="font-size: 12px; color: var(--text-light);">لم يتم اختيار ملف</span>
+                            </div>
+                            <p style="font-size: 11px; color: var(--text-light); margin-top: 5px;">PDF, Word, Images - الحد الأقصى 10 ميجا</p>
+                            <div id="tenderAttachmentPreview" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('tenderModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveTender()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
         </html>
     `);
     printWindow.document.close();
@@ -4113,7 +4498,78 @@ async function printComputerItems() {
                     </div>
                 </div>
 
-        </body>
+        
+    <!-- Tender Modal -->
+    <div class="modal-overlay" id="tenderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="tenderModalTitle">بيانات عطاء الصيانة</h3>
+                <button class="modal-close" onclick="closeModal('tenderModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="tenderForm">
+                    <input type="hidden" id="tenderId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>رقم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderNumber" placeholder="أدخل رقم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم قرار الإحالة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderDecision" placeholder="رقم قرار الإحالة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderName" placeholder="اسم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الشركة المنفذة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderCompany" placeholder="اسم الشركة المنفذة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ أمر مباشرة العمل <span style="color: var(--danger);">*</span></label>
+                            <input type="date" class="form-control" id="tenderWorkOrderDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم مندوب الشركة</label>
+                            <input type="text" class="form-control" id="tenderRep" placeholder="اسم المندوب">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم هاتف المندوب</label>
+                            <input type="tel" class="form-control" id="tenderPhone" placeholder="رقم الهاتف" dir="ltr">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="tenderEmail" placeholder="email@example.com" dir="ltr">
+                        </div>
+                        <div class="form-group full-width">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-paperclip" style="color: var(--primary);"></i>
+                                مرفق نسخة العطاء
+                            </label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-upload"></i> اختيار ملف
+                                    <input type="file" id="tenderAttachment" style="display: none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleTenderAttachment(this)">
+                                </label>
+                                <span id="tenderAttachmentName" style="font-size: 12px; color: var(--text-light);">لم يتم اختيار ملف</span>
+                            </div>
+                            <p style="font-size: 11px; color: var(--text-light); margin-top: 5px;">PDF, Word, Images - الحد الأقصى 10 ميجا</p>
+                            <div id="tenderAttachmentPreview" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('tenderModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveTender()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
         </html>
     `);
     printWindow.document.close();
@@ -4657,7 +5113,78 @@ async function printRequest(id) {
                     </div>
                 </div>
 
-        </body>
+        
+    <!-- Tender Modal -->
+    <div class="modal-overlay" id="tenderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="tenderModalTitle">بيانات عطاء الصيانة</h3>
+                <button class="modal-close" onclick="closeModal('tenderModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="tenderForm">
+                    <input type="hidden" id="tenderId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>رقم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderNumber" placeholder="أدخل رقم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم قرار الإحالة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderDecision" placeholder="رقم قرار الإحالة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderName" placeholder="اسم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الشركة المنفذة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderCompany" placeholder="اسم الشركة المنفذة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ أمر مباشرة العمل <span style="color: var(--danger);">*</span></label>
+                            <input type="date" class="form-control" id="tenderWorkOrderDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم مندوب الشركة</label>
+                            <input type="text" class="form-control" id="tenderRep" placeholder="اسم المندوب">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم هاتف المندوب</label>
+                            <input type="tel" class="form-control" id="tenderPhone" placeholder="رقم الهاتف" dir="ltr">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="tenderEmail" placeholder="email@example.com" dir="ltr">
+                        </div>
+                        <div class="form-group full-width">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-paperclip" style="color: var(--primary);"></i>
+                                مرفق نسخة العطاء
+                            </label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-upload"></i> اختيار ملف
+                                    <input type="file" id="tenderAttachment" style="display: none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleTenderAttachment(this)">
+                                </label>
+                                <span id="tenderAttachmentName" style="font-size: 12px; color: var(--text-light);">لم يتم اختيار ملف</span>
+                            </div>
+                            <p style="font-size: 11px; color: var(--text-light); margin-top: 5px;">PDF, Word, Images - الحد الأقصى 10 ميجا</p>
+                            <div id="tenderAttachmentPreview" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('tenderModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveTender()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
         </html>
     `);
     printWindow.document.close();
@@ -4769,7 +5296,78 @@ async function printRequests() {
                     </div>
                 </div>
 
-        </body>
+        
+    <!-- Tender Modal -->
+    <div class="modal-overlay" id="tenderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="tenderModalTitle">بيانات عطاء الصيانة</h3>
+                <button class="modal-close" onclick="closeModal('tenderModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="tenderForm">
+                    <input type="hidden" id="tenderId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>رقم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderNumber" placeholder="أدخل رقم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم قرار الإحالة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderDecision" placeholder="رقم قرار الإحالة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderName" placeholder="اسم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الشركة المنفذة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderCompany" placeholder="اسم الشركة المنفذة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ أمر مباشرة العمل <span style="color: var(--danger);">*</span></label>
+                            <input type="date" class="form-control" id="tenderWorkOrderDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم مندوب الشركة</label>
+                            <input type="text" class="form-control" id="tenderRep" placeholder="اسم المندوب">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم هاتف المندوب</label>
+                            <input type="tel" class="form-control" id="tenderPhone" placeholder="رقم الهاتف" dir="ltr">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="tenderEmail" placeholder="email@example.com" dir="ltr">
+                        </div>
+                        <div class="form-group full-width">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-paperclip" style="color: var(--primary);"></i>
+                                مرفق نسخة العطاء
+                            </label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-upload"></i> اختيار ملف
+                                    <input type="file" id="tenderAttachment" style="display: none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleTenderAttachment(this)">
+                                </label>
+                                <span id="tenderAttachmentName" style="font-size: 12px; color: var(--text-light);">لم يتم اختيار ملف</span>
+                            </div>
+                            <p style="font-size: 11px; color: var(--text-light); margin-top: 5px;">PDF, Word, Images - الحد الأقصى 10 ميجا</p>
+                            <div id="tenderAttachmentPreview" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('tenderModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveTender()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
         </html>
     `);
     printWindow.document.close();
@@ -5149,7 +5747,78 @@ async function printInventory() {
                     </div>
                 </div>
 
-        </body>
+        
+    <!-- Tender Modal -->
+    <div class="modal-overlay" id="tenderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="tenderModalTitle">بيانات عطاء الصيانة</h3>
+                <button class="modal-close" onclick="closeModal('tenderModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="tenderForm">
+                    <input type="hidden" id="tenderId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>رقم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderNumber" placeholder="أدخل رقم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم قرار الإحالة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderDecision" placeholder="رقم قرار الإحالة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderName" placeholder="اسم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الشركة المنفذة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderCompany" placeholder="اسم الشركة المنفذة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ أمر مباشرة العمل <span style="color: var(--danger);">*</span></label>
+                            <input type="date" class="form-control" id="tenderWorkOrderDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم مندوب الشركة</label>
+                            <input type="text" class="form-control" id="tenderRep" placeholder="اسم المندوب">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم هاتف المندوب</label>
+                            <input type="tel" class="form-control" id="tenderPhone" placeholder="رقم الهاتف" dir="ltr">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="tenderEmail" placeholder="email@example.com" dir="ltr">
+                        </div>
+                        <div class="form-group full-width">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-paperclip" style="color: var(--primary);"></i>
+                                مرفق نسخة العطاء
+                            </label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-upload"></i> اختيار ملف
+                                    <input type="file" id="tenderAttachment" style="display: none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleTenderAttachment(this)">
+                                </label>
+                                <span id="tenderAttachmentName" style="font-size: 12px; color: var(--text-light);">لم يتم اختيار ملف</span>
+                            </div>
+                            <p style="font-size: 11px; color: var(--text-light); margin-top: 5px;">PDF, Word, Images - الحد الأقصى 10 ميجا</p>
+                            <div id="tenderAttachmentPreview" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('tenderModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveTender()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
         </html>
     `);
     printWindow.document.close();
@@ -5540,7 +6209,78 @@ async function printAlternatives() {
                     </div>
                 </div>
 
-        </body>
+        
+    <!-- Tender Modal -->
+    <div class="modal-overlay" id="tenderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="tenderModalTitle">بيانات عطاء الصيانة</h3>
+                <button class="modal-close" onclick="closeModal('tenderModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="tenderForm">
+                    <input type="hidden" id="tenderId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>رقم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderNumber" placeholder="أدخل رقم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم قرار الإحالة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderDecision" placeholder="رقم قرار الإحالة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderName" placeholder="اسم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الشركة المنفذة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderCompany" placeholder="اسم الشركة المنفذة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ أمر مباشرة العمل <span style="color: var(--danger);">*</span></label>
+                            <input type="date" class="form-control" id="tenderWorkOrderDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم مندوب الشركة</label>
+                            <input type="text" class="form-control" id="tenderRep" placeholder="اسم المندوب">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم هاتف المندوب</label>
+                            <input type="tel" class="form-control" id="tenderPhone" placeholder="رقم الهاتف" dir="ltr">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="tenderEmail" placeholder="email@example.com" dir="ltr">
+                        </div>
+                        <div class="form-group full-width">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-paperclip" style="color: var(--primary);"></i>
+                                مرفق نسخة العطاء
+                            </label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-upload"></i> اختيار ملف
+                                    <input type="file" id="tenderAttachment" style="display: none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleTenderAttachment(this)">
+                                </label>
+                                <span id="tenderAttachmentName" style="font-size: 12px; color: var(--text-light);">لم يتم اختيار ملف</span>
+                            </div>
+                            <p style="font-size: 11px; color: var(--text-light); margin-top: 5px;">PDF, Word, Images - الحد الأقصى 10 ميجا</p>
+                            <div id="tenderAttachmentPreview" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('tenderModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveTender()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
         </html>
     `);
     printWindow.document.close();
@@ -5906,9 +6646,10 @@ function exportAllData() {
         SupabaseAPI.request('users', 'GET'),
         SupabaseAPI.request('documents', 'GET'),
         SupabaseAPI.request('computer_items', 'GET'),
-        SupabaseAPI.request('departments', 'GET')
-    ]).then(([requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users, documents, computerItems, departments]) => {
-        const data = { requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users, documents, computerItems, departments, exportDate: new Date().toISOString() };
+        SupabaseAPI.request('departments', 'GET'),
+        SupabaseAPI.request('tenders', 'GET')
+    ]).then(([requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users, documents, computerItems, departments, tenders]) => {
+        const data = { requests, inventory, transactions, inventoryHistory, altDevices, altModels, assignments, users, documents, computerItems, departments, tenders, exportDate: new Date().toISOString() };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -5951,11 +6692,12 @@ function importBackup(input) {
                 importTable('assignments', data.assignments || []),
                 importTable('documents', data.documents || []),
                 importTable('computer_items', data.computerItems || []),
-                importTable('departments', data.departments || [])
+                importTable('departments', data.departments || []),
+                importTable('tenders', data.tenders || [])
             ]).then(() => {
                 if (data.users && data.users.length > 0) importTable('users', data.users);
                 input.value = '';
-                updateDashboard(); loadRequests(); loadInventory(); loadAlternatives(); loadUsers();
+                updateDashboard(); loadRequests(); loadInventory(); loadAlternatives(); loadUsers(); loadTender();
                 const backupDate = data.exportDate ? new Date(data.exportDate).toLocaleDateString('ar-SA') : 'غير معروف';
                 showToast('success', 'تم الاستيراد', `تم استعادة البيانات بنجاح!\nتاريخ النسخة: ${backupDate}`);
             });
@@ -6128,12 +6870,443 @@ async function printPage() {
                     </div>
                 </div>
 
+        
+    <!-- Tender Modal -->
+    <div class="modal-overlay" id="tenderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="tenderModalTitle">بيانات عطاء الصيانة</h3>
+                <button class="modal-close" onclick="closeModal('tenderModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="tenderForm">
+                    <input type="hidden" id="tenderId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>رقم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderNumber" placeholder="أدخل رقم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم قرار الإحالة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderDecision" placeholder="رقم قرار الإحالة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderName" placeholder="اسم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الشركة المنفذة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderCompany" placeholder="اسم الشركة المنفذة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ أمر مباشرة العمل <span style="color: var(--danger);">*</span></label>
+                            <input type="date" class="form-control" id="tenderWorkOrderDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم مندوب الشركة</label>
+                            <input type="text" class="form-control" id="tenderRep" placeholder="اسم المندوب">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم هاتف المندوب</label>
+                            <input type="tel" class="form-control" id="tenderPhone" placeholder="رقم الهاتف" dir="ltr">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="tenderEmail" placeholder="email@example.com" dir="ltr">
+                        </div>
+                        <div class="form-group full-width">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-paperclip" style="color: var(--primary);"></i>
+                                مرفق نسخة العطاء
+                            </label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-upload"></i> اختيار ملف
+                                    <input type="file" id="tenderAttachment" style="display: none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleTenderAttachment(this)">
+                                </label>
+                                <span id="tenderAttachmentName" style="font-size: 12px; color: var(--text-light);">لم يتم اختيار ملف</span>
+                            </div>
+                            <p style="font-size: 11px; color: var(--text-light); margin-top: 5px;">PDF, Word, Images - الحد الأقصى 10 ميجا</p>
+                            <div id="tenderAttachmentPreview" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('tenderModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveTender()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 500);
+}
+
+
+// ==================== TENDER (عطاء الصيانة) ====================
+let currentTender = null;
+let tenderTempAttachment = null;
+
+async function loadTender() {
+    const tenders = await SupabaseAPI.request('tenders', 'GET');
+    const container = document.getElementById('tenderContent');
+    const btnText = document.getElementById('tenderBtnText');
+    const addBtn = document.getElementById('tenderAddBtn');
+    const delBtn = document.getElementById('tenderDeleteBtn');
+
+    if (tenders && tenders.length > 0) {
+        currentTender = tenders[0];
+        if (btnText) btnText.textContent = 'تعديل بيانات العطاء';
+        if (addBtn) { addBtn.classList.remove('btn-success'); addBtn.classList.add('btn-warning'); }
+        if (delBtn) delBtn.style.display = 'inline-flex';
+
+        const t = currentTender;
+        const attHtml = t.attachment ? `
+            <div class="attachment-item" style="margin-top: 15px;">
+                <div class="attachment-info">
+                    <div class="attachment-icon"><i class="fas ${getFileIcon(t.attachment.filename)}"></i></div>
+                    <div class="attachment-details">
+                        <h5>${t.attachment.description || t.attachment.filename}</h5>
+                        <p>${t.attachment.filename} • ${formatFileSize(t.attachment.size)}</p>
+                    </div>
+                </div>
+                <div class="attachment-actions">
+                    <button type="button" class="action-btn view" onclick="downloadAttachment('${t.attachment.data}', '${t.attachment.filename}')" title="تحميل المرفق"><i class="fas fa-download"></i></button>
+                    <button type="button" class="action-btn delete no-readonly" onclick="if(checkReadOnly())return;deleteTenderAttachment()" title="حذف المرفق"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        ` : '<p style="color: var(--text-light); margin-top: 10px;"><i class="fas fa-paperclip"></i> لا يوجد مرفق</p>';
+
+        container.innerHTML = `
+            <div class="card" style="border-right: 5px solid var(--primary); overflow: hidden;">
+                <div class="card-header" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe);">
+                    <h3><i class="fas fa-file-contract" style="color: var(--primary);"></i> ${t.tender_name || t.tenderName || 'عطاء الصيانة'}</h3>
+                    <span class="badge badge-primary" style="font-size: 13px;"><i class="fas fa-hashtag"></i> ${t.tender_number || t.tenderNumber}</span>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                        <div style="background: #f8fafc; border-radius: 12px; padding: 20px; border-right: 4px solid var(--primary);">
+                            <h4 style="color: var(--primary); margin-bottom: 15px; font-size: 15px;"><i class="fas fa-info-circle"></i> معلومات العطاء</h4>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
+                                    <span style="color: var(--text-light); font-size: 13px;">رقم العطاء</span>
+                                    <span style="font-weight: 700; color: var(--text-dark);">${t.tender_number || t.tenderNumber || '-'}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
+                                    <span style="color: var(--text-light); font-size: 13px;">رقم قرار الإحالة</span>
+                                    <span style="font-weight: 700; color: var(--text-dark);">${t.decision_number || t.decisionNumber || '-'}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
+                                    <span style="color: var(--text-light); font-size: 13px;">اسم العطاء</span>
+                                    <span style="font-weight: 700; color: var(--text-dark);">${t.tender_name || t.tenderName || '-'}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
+                                    <span style="color: var(--text-light); font-size: 13px;">تاريخ أمر المباشرة</span>
+                                    <span style="font-weight: 700; color: var(--text-dark);">${t.work_order_date || t.workOrderDate || '-'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; border-radius: 12px; padding: 20px; border-right: 4px solid var(--success);">
+                            <h4 style="color: var(--success); margin-bottom: 15px; font-size: 15px;"><i class="fas fa-building"></i> الشركة المنفذة</h4>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
+                                    <span style="color: var(--text-light); font-size: 13px;">اسم الشركة</span>
+                                    <span style="font-weight: 700; color: var(--text-dark);">${t.company_name || t.companyName || '-'}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
+                                    <span style="color: var(--text-light); font-size: 13px;">اسم المندوب</span>
+                                    <span style="font-weight: 700; color: var(--text-dark);">${t.company_rep || t.companyRep || '-'}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
+                                    <span style="color: var(--text-light); font-size: 13px;">رقم الهاتف</span>
+                                    <span style="font-weight: 700; color: var(--text-dark); direction: ltr; text-align: left;">${t.company_phone || t.companyPhone || '-'}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
+                                    <span style="color: var(--text-light); font-size: 13px;">البريد الإلكتروني</span>
+                                    <span style="font-weight: 700; color: var(--text-dark); direction: ltr; text-align: left;">${t.company_email || t.companyEmail || '-'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; background: #f8fafc; border-radius: 12px; padding: 20px; border-right: 4px solid var(--info);">
+                        <h4 style="color: var(--info); margin-bottom: 10px; font-size: 15px;"><i class="fas fa-paperclip"></i> المرفقات</h4>
+                        ${attHtml}
+                    </div>
+
+                    <div style="margin-top: 15px; text-align: left; color: var(--text-light); font-size: 12px;">
+                        <i class="fas fa-clock"></i> آخر تحديث: ${formatDate(t.updated_at || t.updatedAt || t.created_at || t.createdAt)}
+                    </div>
+                </div>
+            </div>
+        `;
+    } else {
+        currentTender = null;
+        if (btnText) btnText.textContent = 'إدخال بيانات العطاء';
+        if (addBtn) { addBtn.classList.remove('btn-warning'); addBtn.classList.add('btn-success'); }
+        if (delBtn) delBtn.style.display = 'none';
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-file-contract"></i>
+                <h3>لا توجد بيانات عطاء</h3>
+                <p>لم يتم إدخال بيانات عطاء الصيانة بعد. اضغط على "إدخال بيانات العطاء" لإضافة البيانات.</p>
+            </div>
+        `;
+    }
+}
+
+function openTenderModal() {
+    tenderTempAttachment = null;
+    document.getElementById('tenderModalTitle').textContent = currentTender ? 'تعديل بيانات العطاء' : 'إدخال بيانات عطاء الصيانة';
+    document.getElementById('tenderAttachmentName').textContent = 'لم يتم اختيار ملف';
+    document.getElementById('tenderAttachmentName').style.color = 'var(--text-light)';
+    document.getElementById('tenderAttachmentPreview').innerHTML = '';
+
+    if (currentTender) {
+        const t = currentTender;
+        document.getElementById('tenderId').value = t.id;
+        document.getElementById('tenderNumber').value = t.tender_number || t.tenderNumber || '';
+        document.getElementById('tenderDecision').value = t.decision_number || t.decisionNumber || '';
+        document.getElementById('tenderName').value = t.tender_name || t.tenderName || '';
+        document.getElementById('tenderCompany').value = t.company_name || t.companyName || '';
+        document.getElementById('tenderWorkOrderDate').value = t.work_order_date || t.workOrderDate || '';
+        document.getElementById('tenderRep').value = t.company_rep || t.companyRep || '';
+        document.getElementById('tenderPhone').value = t.company_phone || t.companyPhone || '';
+        document.getElementById('tenderEmail').value = t.company_email || t.companyEmail || '';
+
+        if (t.attachment) {
+            tenderTempAttachment = t.attachment;
+            document.getElementById('tenderAttachmentName').textContent = '✅ ' + t.attachment.filename;
+            document.getElementById('tenderAttachmentName').style.color = 'var(--success)';
+            renderTenderAttachmentPreview();
+        }
+    } else {
+        document.getElementById('tenderForm').reset();
+        document.getElementById('tenderId').value = '';
+    }
+    openModal('tenderModal');
+}
+
+function handleTenderAttachment(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+        showToast('error', 'خطأ', 'حجم الملف يتجاوز 10 ميجابايت');
+        input.value = '';
+        return;
+    }
+    const desc = prompt('وصف الملف (اختياري):', file.name);
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        tenderTempAttachment = {
+            id: Date.now(),
+            description: desc || file.name,
+            filename: file.name,
+            size: file.size,
+            type: file.type,
+            data: e.target.result
+        };
+        document.getElementById('tenderAttachmentName').textContent = '✅ ' + file.name;
+        document.getElementById('tenderAttachmentName').style.color = 'var(--success)';
+        renderTenderAttachmentPreview();
+        showToast('success', 'تم', 'تم إرفاق الملف بنجاح');
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+}
+
+function renderTenderAttachmentPreview() {
+    const container = document.getElementById('tenderAttachmentPreview');
+    if (!tenderTempAttachment) {
+        container.innerHTML = '';
+        return;
+    }
+    container.innerHTML = `
+        <div class="attachment-item">
+            <div class="attachment-info">
+                <div class="attachment-icon"><i class="fas ${getFileIcon(tenderTempAttachment.filename)}"></i></div>
+                <div class="attachment-details">
+                    <h5>${tenderTempAttachment.description || tenderTempAttachment.filename}</h5>
+                    <p>${tenderTempAttachment.filename} • ${formatFileSize(tenderTempAttachment.size)}</p>
+                </div>
+            </div>
+            <div class="attachment-actions">
+                <button type="button" class="action-btn delete" onclick="removeTenderAttachment()" title="إزالة المرفق"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    `;
+}
+
+function removeTenderAttachment() {
+    if (!confirm('هل أنت متأكد من إزالة المرفق؟')) return;
+    tenderTempAttachment = null;
+    document.getElementById('tenderAttachmentName').textContent = 'لم يتم اختيار ملف';
+    document.getElementById('tenderAttachmentName').style.color = 'var(--text-light)';
+    renderTenderAttachmentPreview();
+}
+
+async function deleteTenderAttachment() {
+    if (checkReadOnly()) return;
+    if (!confirm('هل أنت متأكد من حذف المرفق من بيانات العطاء؟')) return;
+    if (currentTender) {
+        const updates = {
+            attachment: null,
+            updated_at: new Date().toISOString()
+        };
+        await SupabaseAPI.request('tenders', 'PATCH', updates, currentTender.id);
+        await loadTender();
+        showToast('success', 'تم', 'تم حذف المرفق بنجاح');
+    }
+}
+
+async function saveTender() {
+    if (checkReadOnly()) return;
+    const number = document.getElementById('tenderNumber').value.trim();
+    const decision = document.getElementById('tenderDecision').value.trim();
+    const name = document.getElementById('tenderName').value.trim();
+    const company = document.getElementById('tenderCompany').value.trim();
+    const workDate = document.getElementById('tenderWorkOrderDate').value;
+
+    if (!number || !decision || !name || !company || !workDate) {
+        showToast('error', 'خطأ', 'الرجاء ملء جميع الحقول المطلوبة');
+        return;
+    }
+
+    const data = {
+        tender_number: number,
+        decision_number: decision,
+        tender_name: name,
+        company_name: company,
+        work_order_date: workDate,
+        company_rep: document.getElementById('tenderRep').value.trim(),
+        company_phone: document.getElementById('tenderPhone').value.trim(),
+        company_email: document.getElementById('tenderEmail').value.trim(),
+        attachment: tenderTempAttachment,
+        updated_at: new Date().toISOString(),
+        created_by: currentUser?.full_name || currentUser?.fullName || 'System'
+    };
+
+    if (currentTender) {
+        await SupabaseAPI.request('tenders', 'PATCH', data, currentTender.id);
+        showToast('success', 'تم', 'تم تحديث بيانات العطاء بنجاح');
+    } else {
+        const existing = await SupabaseAPI.request('tenders', 'GET');
+        if (existing && existing.length > 0) {
+            showToast('error', 'خطأ', 'يوجد عطاء مسجل مسبقاً. يمكنك تعديله فقط.');
+            return;
+        }
+        data.created_at = new Date().toISOString();
+        await SupabaseAPI.request('tenders', 'POST', data);
+        showToast('success', 'تم', 'تم حفظ بيانات العطاء بنجاح');
+    }
+
+    closeModal('tenderModal');
+    await loadTender();
+}
+
+async function deleteTender() {
+    if (checkReadOnly()) return;
+    if (!confirm('هل أنت متأكد من حذف بيانات العطاء؟')) return;
+    if (currentTender) {
+        await SupabaseAPI.request('tenders', 'DELETE', null, currentTender.id);
+        currentTender = null;
+        await loadTender();
+        showToast('success', 'تم الحذف', 'تم حذف بيانات العطاء');
+    }
+}
+
+async function printTender() {
+    if (!currentTender) {
+        showToast('warning', 'تنبيه', 'لا توجد بيانات للطباعة');
+        return;
+    }
+    const t = currentTender;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>عطاء الصيانة - ${t.tender_name || t.tenderName}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Tajawal', sans-serif; padding: 30px; color: #1e293b; background: #fff; }
+                .header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #4f46e5; }
+                .header h1 { color: #4f46e5; font-size: 26px; margin-bottom: 8px; }
+                .header p { color: #64748b; font-size: 13px; }
+                .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+                .info-item { background: #f8fafc; padding: 15px; border-radius: 10px; border-right: 4px solid #4f46e5; }
+                .info-item.company { border-right-color: #10b981; }
+                .info-item strong { color: #475569; font-size: 12px; display: block; margin-bottom: 6px; }
+                .info-item span { color: #1e293b; font-size: 15px; font-weight: 700; }
+                .section { margin-bottom: 20px; }
+                .section-title { font-size: 16px; font-weight: 700; color: #4f46e5; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+                .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 12px; }
+                .print-footer { margin-top: 35px; padding-top: 15px; border-top: 2px solid #e2e8f0; text-align: center; }
+                .print-footer-line { height: 3px; background: linear-gradient(90deg, #4f46e5, #06b6d4, #f59e0b); border-radius: 2px; margin-bottom: 15px; }
+                .print-footer-content { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+                .print-footer-brand { font-size: 14px; font-weight: 700; color: #4f46e5; display: flex; align-items: center; gap: 6px; }
+                .print-footer-copy { font-size: 12px; color: #64748b; }
+                .print-footer-dev { font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center; }
+                .print-footer-dev strong { color: #4f46e5; }
+                .print-footer-sep { color: #cbd5e1; margin: 0 4px; }
+                .print-footer-date { font-size: 10px; color: #cbd5e1; margin-top: 4px; }
+                @media print { body { padding: 15px; } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>تفاصيل عطاء الصيانة</h1>
+                <p>رقم العطاء: ${t.tender_number || t.tenderNumber} | تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
+            </div>
+            <div class="info-grid">
+                <div class="info-item"><strong>رقم العطاء</strong><span>${t.tender_number || t.tenderNumber || '-'}</span></div>
+                <div class="info-item"><strong>رقم قرار الإحالة</strong><span>${t.decision_number || t.decisionNumber || '-'}</span></div>
+                <div class="info-item"><strong>اسم العطاء</strong><span>${t.tender_name || t.tenderName || '-'}</span></div>
+                <div class="info-item company"><strong>الشركة المنفذة</strong><span>${t.company_name || t.companyName || '-'}</span></div>
+                <div class="info-item"><strong>تاريخ أمر مباشرة العمل</strong><span>${t.work_order_date || t.workOrderDate || '-'}</span></div>
+                <div class="info-item company"><strong>اسم المندوب</strong><span>${t.company_rep || t.companyRep || '-'}</span></div>
+                <div class="info-item company"><strong>رقم الهاتف</strong><span dir="ltr">${t.company_phone || t.companyPhone || '-'}</span></div>
+                <div class="info-item company"><strong>البريد الإلكتروني</strong><span dir="ltr">${t.company_email || t.companyEmail || '-'}</span></div>
+            </div>
+            ${t.attachment ? `
+            <div class="section">
+                <div class="section-title"><i class="fas fa-paperclip"></i> المرفقات</div>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-file" style="color: #4f46e5; font-size: 24px;"></i>
+                        <div>
+                            <div style="font-weight: 700;">${t.attachment.description || t.attachment.filename}</div>
+                            <div style="font-size: 12px; color: #64748b;">${t.attachment.filename}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+            <div class="print-footer">
+                <div class="print-footer-line"></div>
+                <div class="print-footer-content">
+                    <div class="print-footer-brand"><i class="fas fa-tools"></i><span>نظام إدارة الصيانة</span></div>
+                    <div class="print-footer-copy"><i class="fas fa-copyright"></i> جميع الحقوق محفوظة &copy; 2026</div>
+                    <div class="print-footer-dev"><i class="fas fa-code"></i> تم تطويره بواسطة <strong>أحمد رحيل</strong><span class="print-footer-sep">|</span><i class="fas fa-phone-alt"></i><span dir="ltr">0797767862</span></div>
+                    <div class="print-footer-date"><i class="fas fa-print"></i> تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}</div>
+                </div>
+            </div>
         </body>
         </html>
     `);
     printWindow.document.close();
     setTimeout(() => { printWindow.print(); }, 500);
 }
+
 
 // ==================== INIT ====================
 
@@ -6591,7 +7764,78 @@ function printReport() {
                     </div>
                 </div>
             </div>
-        </body>
+        
+    <!-- Tender Modal -->
+    <div class="modal-overlay" id="tenderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="tenderModalTitle">بيانات عطاء الصيانة</h3>
+                <button class="modal-close" onclick="closeModal('tenderModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="tenderForm">
+                    <input type="hidden" id="tenderId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>رقم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderNumber" placeholder="أدخل رقم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم قرار الإحالة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderDecision" placeholder="رقم قرار الإحالة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderName" placeholder="اسم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الشركة المنفذة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderCompany" placeholder="اسم الشركة المنفذة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ أمر مباشرة العمل <span style="color: var(--danger);">*</span></label>
+                            <input type="date" class="form-control" id="tenderWorkOrderDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم مندوب الشركة</label>
+                            <input type="text" class="form-control" id="tenderRep" placeholder="اسم المندوب">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم هاتف المندوب</label>
+                            <input type="tel" class="form-control" id="tenderPhone" placeholder="رقم الهاتف" dir="ltr">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="tenderEmail" placeholder="email@example.com" dir="ltr">
+                        </div>
+                        <div class="form-group full-width">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-paperclip" style="color: var(--primary);"></i>
+                                مرفق نسخة العطاء
+                            </label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-upload"></i> اختيار ملف
+                                    <input type="file" id="tenderAttachment" style="display: none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleTenderAttachment(this)">
+                                </label>
+                                <span id="tenderAttachmentName" style="font-size: 12px; color: var(--text-light);">لم يتم اختيار ملف</span>
+                            </div>
+                            <p style="font-size: 11px; color: var(--text-light); margin-top: 5px;">PDF, Word, Images - الحد الأقصى 10 ميجا</p>
+                            <div id="tenderAttachmentPreview" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('tenderModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveTender()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
         </html>
     `);
     printWindow.document.close();
@@ -7008,6 +8252,171 @@ async function exportReportsToPDF() {
     });
 }
 
+
+
+// ==================== FORGOT PASSWORD ====================
+let fpCurrentStep = 1;
+let fpTargetUser = null;
+
+function openForgotPasswordModal() {
+    fpCurrentStep = 1;
+    fpTargetUser = null;
+    document.getElementById('fpStep1').style.display = 'block';
+    document.getElementById('fpStep2').style.display = 'none';
+    document.getElementById('fpStep3').style.display = 'none';
+    document.getElementById('fpOtpDisplay').style.display = 'none';
+    document.getElementById('fpUsername').value = '';
+    document.getElementById('fpOtpInput').value = '';
+    document.getElementById('fpNewPassword').value = '';
+    document.getElementById('fpConfirmPassword').value = '';
+    document.getElementById('fpActionBtn').innerHTML = '<i class="fas fa-paper-plane"></i> إنشاء رمز تحقق';
+    document.getElementById('fpActionBtn').onclick = handleForgotPasswordAction;
+    openModal('forgotPasswordModal');
+}
+
+async function handleForgotPasswordAction() {
+    if (fpCurrentStep === 1) {
+        await fpGenerateOtp();
+    } else if (fpCurrentStep === 2) {
+        await fpVerifyAndReset();
+    }
+}
+
+async function fpGenerateOtp() {
+    const username = document.getElementById('fpUsername').value.trim();
+    if (!username) {
+        showToast('error', 'خطأ', 'الرجاء إدخال اسم المستخدم');
+        return;
+    }
+
+    // Check if user exists
+    let user = null;
+    try {
+        const users = await SupabaseAPI.request('users', 'GET');
+        user = users.find(u => u.username === username);
+    } catch (e) {
+        console.log('DB check failed for forgot password');
+    }
+
+    // Also check hardcoded admin
+    if (!user && username === 'admin') {
+        user = { id: 1, username: 'admin', full_name: 'أحمد رحيل' };
+    }
+
+    if (!user) {
+        showToast('error', 'خطأ', 'اسم المستخدم غير موجود في النظام');
+        return;
+    }
+
+    fpTargetUser = user;
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiry = Date.now() + (5 * 60 * 1000); // 5 minutes
+
+    // Store in localStorage (simulating backend OTP storage)
+    localStorage.setItem('fp_otp_data', JSON.stringify({
+        otp: otp,
+        expiry: expiry,
+        username: username,
+        userId: user.id
+    }));
+
+    // Display OTP
+    document.getElementById('fpOtpCode').textContent = otp;
+    document.getElementById('fpOtpDisplay').style.display = 'block';
+
+    // Change button to continue
+    document.getElementById('fpActionBtn').innerHTML = '<i class="fas fa-arrow-left"></i> متابعة';
+
+    showToast('success', 'تم إنشاء الرمز', 'رمز التحقق: ' + otp + ' (صالح لمدة 5 دقائق)');
+
+    // Auto-advance after 2 seconds
+    setTimeout(() => {
+        fpCurrentStep = 2;
+        document.getElementById('fpStep1').style.display = 'none';
+        document.getElementById('fpStep2').style.display = 'block';
+        document.getElementById('fpActionBtn').innerHTML = '<i class="fas fa-save"></i> تغيير كلمة المرور';
+    }, 2000);
+}
+
+async function fpVerifyAndReset() {
+    const otpInput = document.getElementById('fpOtpInput').value.trim();
+    const newPassword = document.getElementById('fpNewPassword').value;
+    const confirmPassword = document.getElementById('fpConfirmPassword').value;
+
+    if (!otpInput || otpInput.length !== 6) {
+        showToast('error', 'خطأ', 'الرجاء إدخال رمز التحقق المكون من 6 أرقام');
+        return;
+    }
+    if (!newPassword || newPassword.length < 4) {
+        showToast('error', 'خطأ', 'كلمة المرور يجب أن تكون 4 أحرف على الأقل');
+        return;
+    }
+    if (newPassword !== confirmPassword) {
+        showToast('error', 'خطأ', 'كلمتا المرور غير متطابقتين');
+        return;
+    }
+
+    // Verify OTP from localStorage
+    const otpDataStr = localStorage.getItem('fp_otp_data');
+    if (!otpDataStr) {
+        showToast('error', 'خطأ', 'انتهت صلاحية رمز التحقق. ابدأ من جديد.');
+        fpCurrentStep = 1;
+        document.getElementById('fpStep1').style.display = 'block';
+        document.getElementById('fpStep2').style.display = 'none';
+        document.getElementById('fpActionBtn').innerHTML = '<i class="fas fa-paper-plane"></i> إنشاء رمز تحقق';
+        return;
+    }
+
+    const otpData = JSON.parse(otpDataStr);
+
+    if (Date.now() > otpData.expiry) {
+        showToast('error', 'خطأ', 'انتهت صلاحية رمز التحقق (5 دقائق)');
+        localStorage.removeItem('fp_otp_data');
+        return;
+    }
+
+    if (otpInput !== otpData.otp) {
+        showToast('error', 'خطأ', 'رمز التحقق غير صحيح');
+        return;
+    }
+
+    if (fpTargetUser && fpTargetUser.username !== otpData.username) {
+        showToast('error', 'خطأ', 'بيانات المستخدم غير متطابقة');
+        return;
+    }
+
+    // Update password
+    try {
+        if (fpTargetUser && fpTargetUser.id) {
+            await SupabaseAPI.request('users', 'PATCH', { password: newPassword }, fpTargetUser.id);
+        }
+        // Also update local storage if admin fallback
+        if (fpTargetUser && fpTargetUser.username === 'admin') {
+            let localUsers = JSON.parse(localStorage.getItem('local_users') || '[]');
+            const adminIdx = localUsers.findIndex(u => u.username === 'admin');
+            if (adminIdx !== -1) {
+                localUsers[adminIdx].password = newPassword;
+                localStorage.setItem('local_users', JSON.stringify(localUsers));
+            }
+        }
+
+        // Clear OTP data
+        localStorage.removeItem('fp_otp_data');
+
+        // Show success
+        fpCurrentStep = 3;
+        document.getElementById('fpStep2').style.display = 'none';
+        document.getElementById('fpStep3').style.display = 'block';
+        document.getElementById('fpFooter').innerHTML = `<button class="btn btn-success" onclick="closeModal('forgotPasswordModal')"><i class="fas fa-check"></i> تم</button>`;
+
+        showToast('success', 'تم التحديث', 'تم تغيير كلمة المرور بنجاح!');
+    } catch (err) {
+        showToast('error', 'خطأ', 'فشل تحديث كلمة المرور: ' + err.message);
+    }
+}
+
 </script>
 
 
@@ -7144,6 +8553,167 @@ async function exportReportsToPDF() {
                     <div class="total-number" id="mapTotalRequests">0</div>
                 </div>
                 <div class="request-map-grid" id="requestMapContainer"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Forgot Password Modal -->
+    <div class="modal-overlay" id="forgotPasswordModal">
+        <div class="modal" style="max-width: 450px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #f59e0b, #f97316);">
+                <h3 style="color: white;"><i class="fas fa-key" style="margin-left: 8px;"></i> استعادة كلمة المرور</h3>
+                <button class="modal-close" style="background: rgba(255,255,255,0.2); color: white;" onclick="closeModal('forgotPasswordModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Step 1: Request OTP -->
+                <div id="fpStep1">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #f59e0b, #f97316); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                            <i class="fas fa-shield-alt" style="font-size: 28px; color: white;"></i>
+                        </div>
+                        <p style="color: var(--text-medium); font-size: 14px; line-height: 1.8;">
+                            أدخل اسم المستخدم الخاص بك وسيتم إنشاء رمز تحقق مؤقت.<br>
+                            <strong style="color: var(--warning);">يرجى تذكر الرمز المعروض!</strong>
+                        </p>
+                    </div>
+                    <div class="form-group">
+                        <label>اسم المستخدم <span style="color: var(--danger);">*</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" class="form-control" id="fpUsername" placeholder="أدخل اسم المستخدم">
+                        </div>
+                    </div>
+                    <div id="fpOtpDisplay" style="display: none; margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 12px; text-align: center; border: 2px dashed #f59e0b;">
+                        <div style="font-size: 12px; color: #92400e; margin-bottom: 8px;"><i class="fas fa-clock"></i> صالح لمدة 5 دقائق</div>
+                        <div style="font-size: 32px; font-weight: 800; color: #92400e; letter-spacing: 8px; font-family: monospace;" id="fpOtpCode">------</div>
+                        <div style="font-size: 12px; color: #b45309; margin-top: 8px;">انسخ هذا الرمز ثم اضغط "متابعة"</div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Verify OTP & Reset -->
+                <div id="fpStep2" style="display: none;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #10b981, #34d399); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                            <i class="fas fa-check-circle" style="font-size: 24px; color: white;"></i>
+                        </div>
+                        <p style="color: var(--text-medium); font-size: 14px;">أدخل رمز التحقق وكلمة المرور الجديدة</p>
+                    </div>
+                    <div class="form-group">
+                        <label>رمز التحقق <span style="color: var(--danger);">*</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-shield-alt"></i>
+                            <input type="text" class="form-control" id="fpOtpInput" placeholder="أدخل الرمز المكون من 6 أرقام" maxlength="6" style="letter-spacing: 8px; text-align: center; font-weight: 700; font-size: 18px;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>كلمة المرور الجديدة <span style="color: var(--danger);">*</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" class="form-control" id="fpNewPassword" placeholder="أدخل كلمة المرور الجديدة">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>تأكيد كلمة المرور <span style="color: var(--danger);">*</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" class="form-control" id="fpConfirmPassword" placeholder="أعد إدخال كلمة المرور">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Success -->
+                <div id="fpStep3" style="display: none; text-align: center; padding: 20px;">
+                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px; animation: scaleIn 0.5s ease;">
+                        <i class="fas fa-check" style="font-size: 36px; color: white;"></i>
+                    </div>
+                    <h3 style="color: var(--success); margin-bottom: 10px;">تم التغيير بنجاح!</h3>
+                    <p style="color: var(--text-medium); font-size: 14px;">تم تحديث كلمة المرور. يمكنك الآن تسجيل الدخول.</p>
+                </div>
+            </div>
+            <div class="modal-footer" id="fpFooter">
+                <button class="btn btn-secondary" onclick="closeModal('forgotPasswordModal')">إلغاء</button>
+                <button class="btn btn-warning" id="fpActionBtn" onclick="handleForgotPasswordAction()">
+                    <i class="fas fa-paper-plane"></i> إنشاء رمز تحقق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes scaleIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+
+
+    <!-- Tender Modal -->
+    <div class="modal-overlay" id="tenderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="tenderModalTitle">بيانات عطاء الصيانة</h3>
+                <button class="modal-close" onclick="closeModal('tenderModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="tenderForm">
+                    <input type="hidden" id="tenderId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>رقم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderNumber" placeholder="أدخل رقم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم قرار الإحالة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderDecision" placeholder="رقم قرار الإحالة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم العطاء <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderName" placeholder="اسم العطاء" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الشركة المنفذة <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="tenderCompany" placeholder="اسم الشركة المنفذة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ أمر مباشرة العمل <span style="color: var(--danger);">*</span></label>
+                            <input type="date" class="form-control" id="tenderWorkOrderDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم مندوب الشركة</label>
+                            <input type="text" class="form-control" id="tenderRep" placeholder="اسم المندوب">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم هاتف المندوب</label>
+                            <input type="tel" class="form-control" id="tenderPhone" placeholder="رقم الهاتف" dir="ltr">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="tenderEmail" placeholder="email@example.com" dir="ltr">
+                        </div>
+                        <div class="form-group full-width">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-paperclip" style="color: var(--primary);"></i>
+                                مرفق نسخة العطاء
+                            </label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-upload"></i> اختيار ملف
+                                    <input type="file" id="tenderAttachment" style="display: none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleTenderAttachment(this)">
+                                </label>
+                                <span id="tenderAttachmentName" style="font-size: 12px; color: var(--text-light);">لم يتم اختيار ملف</span>
+                            </div>
+                            <p style="font-size: 11px; color: var(--text-light); margin-top: 5px;">PDF, Word, Images - الحد الأقصى 10 ميجا</p>
+                            <div id="tenderAttachmentPreview" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('tenderModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveTender()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
             </div>
         </div>
     </div>
