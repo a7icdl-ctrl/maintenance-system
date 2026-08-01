@@ -140,6 +140,95 @@
         .badge-completed { background: rgba(16,185,129,0.15); color: #047857; }
         .badge-cancelled { background: rgba(239,68,68,0.15); color: #b91c1c; }
         .badge-duplicate { background: rgba(236,72,153,0.15); color: #be185d; }
+
+        /* شرائح الحالة السريعة */
+        .status-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 800; line-height: 1.6; border: 1px solid transparent; white-space: nowrap; }
+        .status-chip i { font-size: 10px; }
+        .status-chip .chip-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 3px rgba(0,0,0,0.06); }
+        .status-chip.chip-new { background: rgba(99,102,241,0.12); color: #4338ca; border-color: rgba(99,102,241,0.35); }
+        .status-chip.chip-inprogress { background: rgba(59,130,246,0.12); color: #1d4ed8; border-color: rgba(59,130,246,0.35); }
+        .status-chip.chip-pending { background: rgba(245,158,11,0.12); color: #b45309; border-color: rgba(245,158,11,0.35); }
+        .status-chip.chip-withdrawn { background: rgba(139,92,246,0.12); color: #7c3aed; border-color: rgba(139,92,246,0.35); }
+        .status-chip.chip-active { background: rgba(6,182,212,0.12); color: #0e7490; border-color: rgba(6,182,212,0.35); }
+        .status-chip.chip-completed { background: rgba(16,185,129,0.12); color: #047857; border-color: rgba(16,185,129,0.35); }
+        .status-chip.chip-cancelled { background: rgba(239,68,68,0.12); color: #b91c1c; border-color: rgba(239,68,68,0.35); }
+        .status-chip.chip-duplicate { background: rgba(236,72,153,0.12); color: #be185d; border-color: rgba(236,72,153,0.35); }
+        .status-chip.chip-sm { font-size: 10px; padding: 2px 8px 2px 6px; }
+        /* شريط الإجراءات السريعة المتعددة */
+        .bulk-bar { display: none; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; padding: 10px 14px; border-radius: 14px; background: linear-gradient(135deg,#eef2ff,#f0f9ff); border: 1.5px solid #c7d2fe; box-shadow: 0 4px 14px rgba(79,70,229,.10); }
+        .bulk-bar.show { display: flex; }
+        .bulk-bar .bulk-count { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 900; color: #3730a3; background: #fff; border: 1.5px solid #c7d2fe; border-radius: 999px; padding: 5px 12px; }
+        .bulk-bar .bulk-sep { width: 1px; height: 22px; background: #c7d2fe; }
+        .bulk-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 10px; border: none; cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: 800; color: #fff; transition: all .18s ease; }
+        .bulk-btn i { font-size: 11px; }
+        .bulk-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 12px rgba(15,23,42,.16); }
+        .bulk-btn.b-team { background: #2563eb; }
+        .bulk-btn.b-progress { background: #4f46e5; }
+        .bulk-btn.b-pending { background: #d97706; }
+        .bulk-btn.b-complete { background: #059669; }
+        .bulk-btn.b-duplicate { background: #db2777; }
+        .bulk-btn.b-cancel { background: #dc2626; }
+        .bulk-btn.b-print { background: #0891b2; }
+        .bulk-btn.b-delete { background: #991b1b; }
+        .bulk-btn.b-clear { background: #64748b; }
+        /* ===== نافذة التأكيد وشريط التراجع ===== */
+        .confirm-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.55); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 12000; padding: 16px; }
+        .confirm-overlay.show { display: flex; animation: cfFade .18s ease; }
+        @keyframes cfFade { from { opacity: 0; } to { opacity: 1; } }
+        .confirm-box { width: 100%; max-width: 460px; background: #fff; border-radius: 18px; box-shadow: 0 24px 60px rgba(15,23,42,.30); overflow: hidden; animation: cfPop .2s ease; }
+        @keyframes cfPop { from { transform: translateY(14px) scale(.97); opacity: 0; } to { transform: none; opacity: 1; } }
+        .confirm-head { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1.5px solid #e2e8f0; }
+        .confirm-icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 19px; color: #fff; background: #4f46e5; flex-shrink: 0; }
+        .confirm-box.danger .confirm-icon { background: #dc2626; }
+        .confirm-box.success .confirm-icon { background: #059669; }
+        .confirm-box.warning .confirm-icon { background: #d97706; }
+        .confirm-head h3 { margin: 0; font-size: 16.5px; font-weight: 900; color: #0f172a; }
+        .confirm-head p { margin: 3px 0 0; font-size: 12.5px; color: #64748b; font-weight: 700; }
+        .confirm-body { padding: 16px 20px; font-size: 13.5px; color: #334155; font-weight: 700; line-height: 1.9; }
+        .confirm-body .cf-list { margin: 10px 0 0; max-height: 170px; overflow: auto; display: flex; flex-direction: column; gap: 6px; }
+        .confirm-body .cf-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 7px 11px; font-size: 12.5px; }
+        .confirm-body .cf-item b { color: #0f172a; }
+        .confirm-note { margin-top: 12px; }
+        .confirm-note label { display: block; font-size: 12.5px; font-weight: 800; color: #475569; margin-bottom: 6px; }
+        .confirm-note textarea { width: 100%; min-height: 68px; resize: vertical; padding: 9px 11px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-family: inherit; font-size: 13px; color: #0f172a; }
+        .confirm-foot { display: flex; gap: 10px; justify-content: flex-end; padding: 14px 20px 18px; }
+        .confirm-foot button { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 11px; border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 900; transition: all .18s ease; }
+        .confirm-foot .cf-cancel { background: #e2e8f0; color: #334155; }
+        .confirm-foot .cf-ok { background: #4f46e5; color: #fff; }
+        .confirm-box.danger .confirm-foot .cf-ok { background: #dc2626; }
+        .confirm-box.success .confirm-foot .cf-ok { background: #059669; }
+        .confirm-box.warning .confirm-foot .cf-ok { background: #d97706; }
+        .confirm-foot button:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(15,23,42,.18); }
+
+        .undo-bar { position: fixed; bottom: 22px; left: 50%; transform: translate(-50%, 120%); display: flex; align-items: center; gap: 12px; background: #0f172a; color: #fff; padding: 11px 14px 11px 16px; border-radius: 14px; box-shadow: 0 16px 40px rgba(15,23,42,.35); z-index: 12500; font-size: 13px; font-weight: 800; transition: transform .25s ease, opacity .25s ease; opacity: 0; max-width: calc(100% - 28px); }
+        .undo-bar.show { transform: translate(-50%, 0); opacity: 1; }
+        .undo-bar .undo-txt { display: flex; align-items: center; gap: 8px; }
+        .undo-bar .undo-txt i { color: #34d399; }
+        .undo-btn { display: inline-flex; align-items: center; gap: 6px; background: #4f46e5; color: #fff; border: none; border-radius: 10px; padding: 7px 13px; font-family: inherit; font-size: 12.5px; font-weight: 900; cursor: pointer; }
+        .undo-btn:hover { background: #4338ca; }
+        .undo-timer { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 900; background: rgba(255,255,255,.14); }
+        .undo-close { background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 14px; }
+        @media (max-width: 520px) { .undo-bar { flex-wrap: wrap; justify-content: center; text-align: center; } }
+        .bulk-select { padding: 7px 10px; border-radius: 10px; border: 1.5px solid #c7d2fe; background: #fff; color: #334155; font-family: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer; }
+        .row-check { width: 17px; height: 17px; cursor: pointer; accent-color: #4f46e5; }
+        tr.row-selected > td { background: #eef2ff !important; }
+        /* فلتر سريع حسب الحالة */
+        .quick-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+        .qf-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1.5px solid #e2e8f0; background: #fff; color: #475569; font-size: 12.5px; font-weight: 800; font-family: inherit; cursor: pointer; transition: all .18s ease; }
+        .qf-btn i { font-size: 11px; }
+        .qf-btn .qf-count { background: #f1f5f9; color: #475569; border-radius: 999px; padding: 1px 7px; font-size: 11px; font-weight: 800; }
+        .qf-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(15,23,42,.08); }
+        .qf-btn.active { color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(15,23,42,.15); }
+        .qf-btn.active .qf-count { background: rgba(255,255,255,.25); color: #fff; }
+        .qf-btn.active[data-status=""] { background: #334155; }
+        .qf-btn.active[data-status="inprogress"] { background: #2563eb; }
+        .qf-btn.active[data-status="pending"] { background: #d97706; }
+        .qf-btn.active[data-status="new"] { background: #4f46e5; }
+        .qf-btn.active[data-status="completed"] { background: #059669; }
+        .qf-btn.active[data-status="duplicate"] { background: #db2777; }
+        .qf-btn.active[data-status="cancelled"] { background: #dc2626; }
+        .status-chip.chip-inprogress i, .status-chip.chip-pending i { animation: chipPulse 1.6s ease-in-out infinite; }
+        @keyframes chipPulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
         .action-btns { display: flex; gap: 5px; }
         .action-btn { width: 34px; height: 34px; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-size: 13px; }
         .action-btn.view { background: rgba(59,130,246,0.1); color: var(--info); }
@@ -547,6 +636,55 @@
         .theme-toggle.dark-mode:hover {
             box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
         }
+/* ==================== نماذج ذكية ==================== */
+.sf-layout { display: grid; grid-template-columns: 300px 1fr; gap: 16px; align-items: start; }
+@media (max-width: 992px) { .sf-layout { grid-template-columns: 1fr; } }
+.sf-panel { background: var(--card-bg, #fff); border: 1px solid #e8edf3; border-radius: 16px; box-shadow: 0 1px 3px rgba(16,24,40,.06); overflow: hidden; }
+.sf-panel-head { display: flex; align-items: center; gap: 9px; padding: 13px 16px; background: #2563eb0f; border-bottom: 1px solid #2563eb22; }
+.sf-panel-head i { color: #2563eb; }
+.sf-panel-head h4 { margin: 0; font-size: 14.5px; font-weight: 800; color: #1e40af; }
+.sf-panel-body { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.sf-tpl-list { display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow-y: auto; }
+.sf-tpl { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border: 1px solid #e5e9f0; border-radius: 11px; cursor: pointer; transition: .2s; background: #fff; }
+.sf-tpl:hover { border-color: #93c5fd; background: #f8fbff; }
+.sf-tpl.active { border-color: #2563eb; background: #eff6ff; box-shadow: 0 0 0 3px #2563eb1a; }
+.sf-tpl-ico { width: 32px; height: 32px; flex: 0 0 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; background: #2563eb18; color: #2563eb; font-size: 13px; }
+.sf-tpl-txt { min-width: 0; flex: 1; }
+.sf-tpl-txt h5 { margin: 0; font-size: 13.5px; font-weight: 700; color: #1f2937; }
+.sf-tpl-txt p { margin: 2px 0 0; font-size: 11.5px; color: #8592a6; }
+.sf-tpl-badge { font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 999px; background: #f1f5f9; color: #64748b; }
+.sf-tpl-badge.custom { background: #ede9fe; color: #6d28d9; }
+.sf-toolbar .btn { width: auto !important; flex: 0 0 auto; }
+.sf-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px 14px; background: #f8fafc; border: 1px solid #e8edf3; border-radius: 14px; margin-bottom: 14px; }
+.sf-chipbar { display: flex; flex-wrap: wrap; gap: 6px; }
+.sf-chip { font-size: 11.5px; font-weight: 700; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 999px; padding: 5px 10px; cursor: pointer; }
+.sf-chip:hover { background: #dbeafe; }
+.sf-paper-wrap { background: #eef2f7; border-radius: 16px; padding: 18px; overflow-x: auto; }
+.sf-paper { background: #fff; width: 100%; max-width: 794px; min-height: 600px; margin: 0 auto; padding: 45px 50px; box-shadow: 0 6px 24px rgba(16,24,40,.14); border-radius: 4px; direction: rtl; font-family: 'Cairo', 'Tajawal', sans-serif; font-size: 15px; line-height: 2; color: #111827; outline: none; }
+.sf-paper[contenteditable="true"]:focus { box-shadow: 0 0 0 3px #2563eb33, 0 6px 24px rgba(16,24,40,.14); }
+.sf-paper h2 { text-align: center; font-size: 20px; margin: 0 0 18px; font-weight: 800; }
+.sf-paper h3 { font-size: 16px; margin: 18px 0 8px; font-weight: 800; }
+.sf-paper table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+.sf-paper table td, .sf-paper table th { border: 1px solid #cbd5e1; padding: 8px 10px; font-size: 14px; }
+.sf-paper table th { background: #f1f5f9; font-weight: 800; }
+.sf-paper ul { padding-right: 22px; }
+.sf-missing { background: #fef3c7; border-bottom: 1px dashed #d97706; padding: 0 3px; border-radius: 3px; }
+.sf-empty { text-align: center; padding: 60px 20px; color: #94a3b8; }
+.sf-empty i { font-size: 44px; display: block; margin-bottom: 14px; opacity: .6; }
+.sf-hint { font-size: 12px; color: #64748b; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 10px; padding: 9px 11px; }
+.sf-ph-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.sf-ph { font-size: 11.5px; font-family: monospace; direction: ltr; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 7px; padding: 4px 7px; cursor: pointer; color: #334155; }
+.sf-ph:hover { background: #e0e7ff; border-color: #a5b4fc; }
+html[data-theme="dark"] .sf-panel { background: #1e293b; border-color: #334155; }
+html[data-theme="dark"] .sf-tpl { background: #0f172a; border-color: #334155; }
+html[data-theme="dark"] .sf-tpl-txt h5 { color: #e2e8f0; }
+html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { background: #0f172a; border-color: #334155; }
+@media print {
+  body.sf-printing * { visibility: hidden !important; }
+  body.sf-printing .sf-paper, body.sf-printing .sf-paper * { visibility: visible !important; }
+  body.sf-printing .sf-paper { position: absolute; top: 0; right: 0; left: 0; margin: 0 auto; box-shadow: none !important; padding: 0 !important; max-width: 100% !important; }
+  body.sf-printing .sf-paper-wrap { background: #fff !important; padding: 0 !important; }
+}
 </style>
 </head>
 <body>
@@ -745,6 +883,10 @@
                     <i class="fas fa-file-contract"></i>
                     <span>تفاصيل عطاء الصيانة</span>
                 </a>
+                <a class="nav-item" onclick="showPage('smart_forms')">
+                    <i class="fas fa-wand-magic-sparkles"></i>
+                    <span>نماذج ذكية</span>
+                </a>
 <a class="nav-item admin-only" onclick="showPage('documents')" style="display:none;">
                     <i class="fas fa-file-alt"></i>
                     <span>الوثائق والملاحظات</span>
@@ -920,12 +1062,41 @@
                         <option value="duplicate">مكرر</option>
                     </select>
                 </div>
+                <div class="quick-filters no-print" id="requestQuickFilters">
+                    <button type="button" class="qf-btn active" data-status="" onclick="quickFilterRequests('')"><i class="fas fa-layer-group"></i> الكل <span class="qf-count" data-count="">0</span></button>
+                    <button type="button" class="qf-btn" data-status="inprogress" onclick="quickFilterRequests('inprogress')"><i class="fas fa-spinner"></i> قيد التنفيذ <span class="qf-count" data-count="inprogress">0</span></button>
+                    <button type="button" class="qf-btn" data-status="pending" onclick="quickFilterRequests('pending')"><i class="fas fa-hourglass-half"></i> قيد الانتظار <span class="qf-count" data-count="pending">0</span></button>
+                    <button type="button" class="qf-btn" data-status="new" onclick="quickFilterRequests('new')"><i class="fas fa-star"></i> جديد <span class="qf-count" data-count="new">0</span></button>
+                    <button type="button" class="qf-btn" data-status="completed" onclick="quickFilterRequests('completed')"><i class="fas fa-circle-check"></i> مكتمل <span class="qf-count" data-count="completed">0</span></button>
+                    <button type="button" class="qf-btn" data-status="duplicate" onclick="quickFilterRequests('duplicate')"><i class="fas fa-clone"></i> مكرر <span class="qf-count" data-count="duplicate">0</span></button>
+                    <button type="button" class="qf-btn" data-status="cancelled" onclick="quickFilterRequests('cancelled')"><i class="fas fa-circle-xmark"></i> ملغي <span class="qf-count" data-count="cancelled">0</span></button>
+                </div>
+                <div class="bulk-bar no-print" id="requestsBulkBar">
+                    <span class="bulk-count"><i class="fas fa-check-double"></i> محدد: <span id="bulkSelectedCount">0</span></span>
+                    <div class="bulk-sep"></div>
+                    <button type="button" class="bulk-btn b-team" onclick="bulkSendToMaintenance()"><i class="fas fa-people-carry-box"></i> إرسال إلى فريق الصيانة</button>
+                    <button type="button" class="bulk-btn b-progress" onclick="bulkChangeStatus('inprogress')"><i class="fas fa-spinner"></i> قيد التنفيذ</button>
+                    <button type="button" class="bulk-btn b-pending" onclick="bulkChangeStatus('pending')"><i class="fas fa-hourglass-half"></i> قيد الانتظار</button>
+                    <button type="button" class="bulk-btn b-complete" onclick="bulkChangeStatus('completed')"><i class="fas fa-circle-check"></i> مكتمل</button>
+                    <button type="button" class="bulk-btn b-duplicate" onclick="bulkChangeStatus('duplicate')"><i class="fas fa-clone"></i> مكرر</button>
+                    <button type="button" class="bulk-btn b-cancel" onclick="bulkChangeStatus('cancelled')"><i class="fas fa-circle-xmark"></i> ملغي</button>
+                    <div class="bulk-sep"></div>
+                    <select class="bulk-select" id="bulkStatusSelect" onchange="bulkChangeStatus(this.value); this.value='';">
+                        <option value="">حالة أخرى...</option>
+                        <option value="new">جديد</option>
+                        <option value="withdrawn">مسحوب</option>
+                        <option value="active">مشغل</option>
+                    </select>
+                    <button type="button" class="bulk-btn b-print" onclick="bulkPrintRequests()"><i class="fas fa-print"></i> طباعة المحدد</button>
+                    <button type="button" class="bulk-btn b-delete" onclick="bulkDeleteRequests()"><i class="fas fa-trash"></i> حذف المحدد</button>
+                    <button type="button" class="bulk-btn b-clear" onclick="clearRequestSelection()"><i class="fas fa-xmark"></i> إلغاء التحديد</button>
+                </div>
                 <div class="card">
                     <div class="card-body">
                         <div class="table-container">
                             <table class="data-table" id="requestsTable">
                                 <thead>
-                                    <tr><th>رقم الطلب</th><th>الرقم الحاسوبي</th><th>الجهاز</th><th>الموظف</th><th>القسم</th><th>وصف المشكلة</th><th>الحالة</th><th>تاريخ الطلب</th><th class="no-print">إجراءات</th></tr>
+                                    <tr><th class="no-print" style="width:38px;text-align:center;"><input type="checkbox" class="row-check" id="requestsSelectAll" onchange="toggleSelectAllRequests(this.checked)" title="تحديد الكل"></th><th>رقم الطلب</th><th>الرقم الحاسوبي</th><th>الجهاز</th><th>الموظف</th><th>القسم</th><th>وصف المشكلة</th><th>الحالة</th><th>تاريخ الطلب</th><th class="no-print">إجراءات</th></tr>
                                 </thead>
                                 <tbody></tbody>
                             </table>
@@ -1719,9 +1890,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
 
             <div class="page-section" id="page-tender">
                 <div class="page-header">
@@ -1740,6 +1908,85 @@
                 </div>
                 <div id="tenderContent"></div>
             </div>
+
+            <div class="page-section" id="page-smart_forms">
+                <div class="page-header">
+                    <h1 class="page-title">النماذج الذكية</h1>
+                    <div class="page-actions no-print">
+                        <button class="btn btn-success btn-sm no-readonly" onclick="if(checkReadOnly())return;openSmartTemplateModal()">
+                            <i class="fas fa-plus"></i> قالب جديد
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="resetSmartFormsTemplates()">
+                            <i class="fas fa-rotate-left"></i> استعادة القوالب الافتراضية
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sf-layout">
+                    <div style="display:flex;flex-direction:column;gap:14px;">
+                        <div class="sf-panel">
+                            <div class="sf-panel-head"><i class="fas fa-layer-group"></i><h4>القوالب</h4></div>
+                            <div class="sf-panel-body">
+                                <div class="sf-tpl-list" id="sfTemplateList"></div>
+                            </div>
+                        </div>
+                        <div class="sf-panel">
+                            <div class="sf-panel-head"><i class="fas fa-database"></i><h4>مصدر البيانات</h4></div>
+                            <div class="sf-panel-body">
+                                <div class="form-group" style="margin:0;">
+                                    <label class="form-label">طلب الصيانة</label>
+                                    <select class="form-control" id="sfRequestSelect" onchange="renderSmartForm()">
+                                        <option value="">-- بدون ربط (تعبئة يدوية) --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label class="form-label">المادة الحاسوبية (اختياري)</label>
+                                    <select class="form-control" id="sfItemSelect" onchange="renderSmartForm()">
+                                        <option value="">-- تحديد تلقائي --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label class="form-label">تاريخ النموذج</label>
+                                    <input type="date" class="form-control" id="sfFormDate" onchange="renderSmartForm()">
+                                </div>
+                                <div class="sf-hint"><i class="fas fa-circle-info"></i> يتم تعبئة بيانات الموظف والقسم والجهاز والعطاء والشركة تلقائيًا من النظام، والنص قابل للتعديل مباشرة قبل التصدير.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="sf-toolbar no-print">
+                            <button class="btn btn-primary btn-sm" onclick="renderSmartForm()"><i class="fas fa-wand-magic-sparkles"></i> تعبئة تلقائية</button>
+                            <button class="btn btn-secondary btn-sm" id="sfEditToggle" onclick="toggleSmartFormEdit()"><i class="fas fa-lock"></i> تمكين التعديل</button>
+                            <button class="btn btn-primary btn-sm" onclick="printSmartForm()"><i class="fas fa-print"></i> طباعة / PDF</button>
+                            <button class="btn btn-success btn-sm" onclick="exportSmartFormWord()"><i class="fas fa-file-word"></i> تصدير Word</button>
+                            <button class="btn btn-secondary btn-sm" onclick="exportSmartFormHtml()"><i class="fas fa-download"></i> تصدير HTML</button>
+                            <button class="btn btn-secondary btn-sm" onclick="copySmartFormText()"><i class="fas fa-copy"></i> نسخ النص</button>
+                            <span style="flex:1;"></span>
+                            <span class="sf-tpl-badge" id="sfMissingBadge">—</span>
+                        </div>
+                        <div class="sf-chipbar no-print" id="sfEditTools" style="display:none;margin-bottom:12px;">
+                            <span class="sf-chip" onclick="sfCmd('bold')"><i class="fas fa-bold"></i> عريض</span>
+                            <span class="sf-chip" onclick="sfCmd('underline')"><i class="fas fa-underline"></i> تسطير</span>
+                            <span class="sf-chip" onclick="sfCmd('italic')"><i class="fas fa-italic"></i> مائل</span>
+                            <span class="sf-chip" onclick="sfCmd('insertUnorderedList')"><i class="fas fa-list-ul"></i> قائمة</span>
+                            <span class="sf-chip" onclick="sfCmd('justifyRight')"><i class="fas fa-align-right"></i> يمين</span>
+                            <span class="sf-chip" onclick="sfCmd('justifyCenter')"><i class="fas fa-align-center"></i> وسط</span>
+                            <span class="sf-chip" onclick="sfCmd('removeFormat')"><i class="fas fa-eraser"></i> إزالة التنسيق</span>
+                        </div>
+                        <div class="sf-paper-wrap">
+                            <div class="sf-paper" id="sfPaper">
+                                <div class="sf-empty"><i class="fas fa-file-lines"></i><h3>اختر قالبًا للبدء</h3><p>حدد قالبًا من القائمة ثم اختر طلب الصيانة لتعبئة البيانات تلقائيًا.</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
 
     <div class="modal-overlay" id="requestModal">
         <div class="modal">
@@ -2586,12 +2833,12 @@ async function performAdvancedSearch(type) {
             <thead><tr><th>رقم الطلب</th><th>الرقم الحاسوبي</th><th>الجهاز</th><th>الموظف</th><th>القسم</th><th>الحالة</th><th>تاريخ الطلب</th></tr></thead>
             <tbody>${filtered.sort((a, b) => (b.id || 0) - (a.id || 0)).map(r => `
                 <tr>
-                    <td><strong>#${r.request_number || r.requestNumber}</strong></td>
+                    <td><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><strong>#${r.request_number || r.requestNumber}</strong>${getStatusChip(r.status, true)}</div></td>
                     <td>${r.computer_number || r.computerNumber || '-'}</td>
                     <td>${r.device_name || r.deviceName || '-'}</td>
                     <td>${r.employee_name || r.employeeName || '-'}</td>
                     <td>${r.department || '-'}</td>
-                    <td><span class="badge badge-${r.status}">${getStatusLabel(r.status)}</span></td>
+                    <td>${getStatusChip(r.status)}</td>
                     <td>${formatDate(r.created_at || r.createdAt)}</td>
                 </tr>
             `).join('')}</tbody></table></div>`;
@@ -2971,6 +3218,41 @@ async function printSearchResults() {
         </div>
     </div>
 
+    <div class="modal-overlay" id="smartTemplateModal">
+        <div class="modal" style="max-width: 820px;">
+            <div class="modal-header">
+                <h3 id="smartTemplateModalTitle">قالب ذكي جديد</h3>
+                <button class="modal-close" onclick="closeModal('smartTemplateModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="sfTplId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">اسم القالب *</label>
+                        <input type="text" class="form-control" id="sfTplName" placeholder="مثال: تقرير فني">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">وصف مختصر</label>
+                        <input type="text" class="form-control" id="sfTplDesc" placeholder="مثال: تقرير فني لعطل جهاز">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">محتوى القالب (يدعم HTML والمتغيرات)</label>
+                    <textarea class="form-control" id="sfTplBody" rows="14" style="direction:rtl;font-family:monospace;font-size:13px;" placeholder="اكتب نص النموذج واستخدم المتغيرات مثل {{employee_name}}"></textarea>
+                    <div class="sf-hint" style="margin-top:8px;">
+                        اضغط على أي متغير لإدراجه في نهاية النص:
+                        <div class="sf-ph-list" id="sfPlaceholderList"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger btn-sm" id="sfTplDeleteBtn" style="display:none;" onclick="deleteSmartTemplate()"><i class="fas fa-trash"></i> حذف القالب</button>
+                <button class="btn btn-secondary" onclick="closeModal('smartTemplateModal')">إلغاء</button>
+                <button class="btn btn-success" onclick="saveSmartTemplate()"><i class="fas fa-save"></i> حفظ القالب</button>
+            </div>
+        </div>
+    </div>
+
 </body>
         </html>
     `);
@@ -3021,6 +3303,7 @@ async function showPage(page) {
     if (page === 'reports') { setTimeout(() => loadReportsCharts(), 100); }
     if (page === 'advanced_search') { await loadSearchDropdowns(); document.getElementById('searchResultsCard').style.display = 'none'; }
     if (page === 'tender') { await loadTender(); }
+    if (page === 'smart_forms') { await loadSmartForms(); }
 }
 
 
@@ -3164,7 +3447,7 @@ async function loadRequestMap() {
                     ${reqs.sort((a, b) => (b.id || 0) - (a.id || 0)).map(r => `
                         <div class="map-card" style="border-right-color: ${color};">
                             <div class="map-card-body">
-                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;"><span class="badge badge-${r.status}" style="font-size:10px;padding:2px 8px;">${getStatusLabel(r.status)}</span><span style="font-size: 10px; color: var(--text-light);font-weight:600;">#${r.request_number || r.requestNumber}</span></div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">${getStatusChip(r.status, true)}<span style="font-size: 10px; color: var(--text-light);font-weight:600;">#${r.request_number || r.requestNumber}</span></div>
                                 <div><i class="fas fa-user"></i> <strong>الموظف:</strong> ${r.employee_name || r.employeeName || '-'}</div>
                                 <div><i class="fas fa-building"></i> <strong>القسم:</strong> ${r.department || '-'}</div>
                                 <div class="map-issue"><i class="fas fa-exclamation-circle"></i> <strong>المشكلة:</strong> ${r.issue_description || r.issueDescription || 'لا يوجد وصف'}</div>
@@ -4878,19 +5161,38 @@ async function loadRequests() {
     }
     if (statusFilter) filtered = filtered.filter(r => r.status === statusFilter);
 
-    tbody.innerHTML = filtered.sort((a, b) => {
-        const numA = parseInt(a.request_number || a.requestNumber || '0');
-        const numB = parseInt(b.request_number || b.requestNumber || '0');
-        return numA - numB;
-    }).map(r => `
-        <tr>
-            <td><strong>#${r.request_number || r.requestNumber}</strong></td>
+    const CLOSED_STATUSES = ['completed', 'duplicate', 'cancelled'];
+    const isClosed = (r) => CLOSED_STATUSES.includes(r.status);
+    const reqNum = (r) => parseInt(r.request_number || r.requestNumber || '0') || 0;
+
+    const sorted = [...filtered].sort((a, b) => {
+        const closedDiff = (isClosed(a) ? 1 : 0) - (isClosed(b) ? 1 : 0);
+        if (closedDiff !== 0) return closedDiff;
+        return reqNum(a) - reqNum(b);
+    });
+
+    const activeCount = sorted.filter(r => !isClosed(r)).length;
+    const closedCount = sorted.length - activeCount;
+    let dividerShown = false;
+
+    tbody.innerHTML = sorted.map((r, i) => `
+        ${(isClosed(r) && !dividerShown && (dividerShown = true)) ? `
+        <tr class="requests-divider-row">
+            <td colspan="10" style="background:#f1f5f9;border-top:2px solid #cbd5e1;padding:10px 14px;text-align:right;">
+                <span style="display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;color:#64748b;">
+                    <i class="fas fa-box-archive"></i> الطلبات المنتهية (مكتمل / مكرر / ملغي) — ${closedCount}
+                </span>
+            </td>
+        </tr>` : ''}
+        <tr data-request-row="${r.id}" class="${isClosed(r) ? 'request-closed-row ' : ''}${selectedRequestIds.has(r.id) ? 'row-selected' : ''}"${isClosed(r) ? ' style="opacity:.62;background:#fafafa;"' : ''}>
+            <td class="no-print" style="text-align:center;"><input type="checkbox" class="row-check request-row-check" value="${r.id}" ${selectedRequestIds.has(r.id) ? 'checked' : ''} onchange="toggleRequestSelection(${r.id}, this.checked)"></td>
+            <td><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><strong>#${r.request_number || r.requestNumber}</strong>${getStatusChip(r.status, true)}</div></td>
             <td>${r.computer_number || r.computerNumber}</td>
             <td>${r.device_name || r.deviceName}</td>
             <td>${r.employee_name || r.employeeName}</td>
             <td>${r.department}</td>
             <td style="max-width: 200px; white-space: normal; font-size: 13px;">${r.issue_description || r.issueDescription || '-'}</td>
-            <td><span class="badge badge-${r.status}">${getStatusLabel(r.status)}</span></td>
+            <td>${getStatusChip(r.status)}</td>
             <td>${formatDate(r.created_at || r.createdAt)}</td>
             <td class="no-print">
                 <div class="action-btns">
@@ -4903,11 +5205,276 @@ async function loadRequests() {
         </tr>
     `).join('');
 
+    visibleRequestIds = sorted.map(r => r.id);
+    [...selectedRequestIds].forEach(id => { if (!requests.some(r => r.id === id)) selectedRequestIds.delete(id); });
+    updateBulkBar();
+    updateQuickFilterCounts(requests);
+    syncQuickFilterUI();
     document.getElementById('requestsBadge').textContent = requests.length;
 }
 
-function filterRequests() { loadRequests(); }
+/* ===== الإجراءات السريعة المتعددة على الطلبات ===== */
+const selectedRequestIds = new Set();
+let visibleRequestIds = [];
 
+function toggleRequestSelection(id, checked) {
+    if (checked) selectedRequestIds.add(id); else selectedRequestIds.delete(id);
+    const row = document.querySelector(`tr[data-request-row="${id}"]`);
+    if (row) row.classList.toggle('row-selected', checked);
+    updateBulkBar();
+}
+
+function toggleSelectAllRequests(checked) {
+    document.querySelectorAll('#requestsTable .request-row-check').forEach(cb => {
+        cb.checked = checked;
+        const id = parseInt(cb.value);
+        if (checked) selectedRequestIds.add(id); else selectedRequestIds.delete(id);
+        const row = cb.closest('tr');
+        if (row) row.classList.toggle('row-selected', checked);
+    });
+    updateBulkBar();
+}
+
+function clearRequestSelection() {
+    selectedRequestIds.clear();
+    document.querySelectorAll('#requestsTable .request-row-check').forEach(cb => { cb.checked = false; cb.closest('tr')?.classList.remove('row-selected'); });
+    const all = document.getElementById('requestsSelectAll');
+    if (all) { all.checked = false; all.indeterminate = false; }
+    updateBulkBar();
+}
+
+function updateBulkBar() {
+    const bar = document.getElementById('requestsBulkBar');
+    const countEl = document.getElementById('bulkSelectedCount');
+    const n = selectedRequestIds.size;
+    if (countEl) countEl.textContent = n;
+    if (bar) bar.classList.toggle('show', n > 0);
+    const all = document.getElementById('requestsSelectAll');
+    if (all) {
+        const visibleSelected = visibleRequestIds.filter(id => selectedRequestIds.has(id)).length;
+        all.checked = visibleRequestIds.length > 0 && visibleSelected === visibleRequestIds.length;
+        all.indeterminate = visibleSelected > 0 && visibleSelected < visibleRequestIds.length;
+    }
+}
+
+function getSelectedRequestIds() {
+    if (selectedRequestIds.size === 0) {
+        showToast('warning', 'لا يوجد تحديد', 'يرجى تحديد طلب واحد على الأقل');
+        return null;
+    }
+    return [...selectedRequestIds];
+}
+
+/* ===== نافذة تأكيد مخصصة ===== */
+let _confirmResolver = null;
+function showConfirmDialog(opts) {
+    const o = Object.assign({ title: 'تأكيد الإجراء', subtitle: 'يرجى مراجعة التفاصيل قبل التنفيذ', body: '', icon: 'fa-question', style: '', okText: 'تأكيد', okIcon: 'fa-check', note: null }, opts || {});
+    const box = document.getElementById('confirmBox');
+    box.className = 'confirm-box' + (o.style ? ' ' + o.style : '');
+    document.getElementById('confirmIcon').innerHTML = `<i class="fas ${o.icon}"></i>`;
+    document.getElementById('confirmTitle').textContent = o.title;
+    document.getElementById('confirmSubtitle').textContent = o.subtitle;
+    let bodyHtml = o.body;
+    if (o.note !== null) {
+        bodyHtml += `<div class="confirm-note"><label>${o.note.label || 'ملاحظة (اختياري)'}</label><textarea id="confirmNoteInput">${o.note.value || ''}</textarea></div>`;
+    }
+    document.getElementById('confirmBody').innerHTML = bodyHtml;
+    document.getElementById('confirmOkBtn').innerHTML = `<i class="fas ${o.okIcon}"></i> ${o.okText}`;
+    document.getElementById('confirmOverlay').classList.add('show');
+    return new Promise(resolve => { _confirmResolver = resolve; });
+}
+function resolveConfirm(ok) {
+    const noteEl = document.getElementById('confirmNoteInput');
+    const note = noteEl ? noteEl.value : null;
+    document.getElementById('confirmOverlay').classList.remove('show');
+    const r = _confirmResolver; _confirmResolver = null;
+    if (r) r(ok ? { confirmed: true, note } : { confirmed: false, note: null });
+}
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && _confirmResolver) resolveConfirm(false);
+});
+
+function buildRequestsPreview(reqs) {
+    const items = reqs.slice(0, 30).map(r => `<div class="cf-item"><b>#${r.request_number || r.requestNumber || r.id}</b><span>${r.device_name || r.deviceName || ''}</span>${getStatusChip(r.status)}</div>`).join('');
+    const more = reqs.length > 30 ? `<div class="cf-item">… و ${reqs.length - 30} طلب آخر</div>` : '';
+    return `<div class="cf-list">${items}${more}</div>`;
+}
+
+/* ===== شريط التراجع ===== */
+let _undoAction = null, _undoTimerId = null, _undoTick = null;
+function showUndoBar(message, action, seconds = 10) {
+    _undoAction = action;
+    document.getElementById('undoMessage').textContent = message;
+    const bar = document.getElementById('undoBar');
+    const timerEl = document.getElementById('undoTimer');
+    let left = seconds;
+    timerEl.textContent = left;
+    bar.classList.add('show');
+    clearInterval(_undoTick); clearTimeout(_undoTimerId);
+    _undoTick = setInterval(() => {
+        left--; timerEl.textContent = Math.max(left, 0);
+        if (left <= 0) clearInterval(_undoTick);
+    }, 1000);
+    _undoTimerId = setTimeout(hideUndoBar, seconds * 1000);
+}
+function hideUndoBar() {
+    clearInterval(_undoTick); clearTimeout(_undoTimerId);
+    document.getElementById('undoBar').classList.remove('show');
+    _undoAction = null;
+}
+async function runUndo() {
+    const action = _undoAction;
+    hideUndoBar();
+    if (!action) return;
+    try {
+        await action();
+    } catch (e) {
+        console.error(e);
+        showToast('error', 'تعذّر التراجع', 'حدث خطأ أثناء إعادة الحالة السابقة');
+    }
+}
+async function restoreRequestSnapshots(snapshots) {
+    let ok = 0;
+    for (const snap of snapshots) {
+        try {
+            await SupabaseAPI.request('requests', 'PATCH', Object.assign({}, snap.data, { updated_at: new Date().toISOString() }), snap.id);
+            ok++;
+        } catch (e) { console.error(e); }
+    }
+    await loadRequests();
+    await updateDashboard();
+    showToast('success', 'تم التراجع', `تمت إعادة ${ok} من ${snapshots.length} طلب إلى حالتها السابقة`);
+}
+
+async function bulkChangeStatus(status) {
+    if (!status) return;
+    if (checkReadOnly()) return;
+    const ids = getSelectedRequestIds();
+    if (!ids) return;
+    const all = await SupabaseAPI.request('requests', 'GET');
+    const targets = ids.map(id => all.find(r => r.id === id)).filter(Boolean);
+    const res = await showConfirmDialog({
+        title: `تغيير حالة ${ids.length} طلب`,
+        subtitle: `الحالة الجديدة: ${getStatusLabel(status)}`,
+        icon: 'fa-arrows-rotate',
+        style: status === 'cancelled' ? 'danger' : status === 'completed' ? 'success' : 'warning',
+        okText: 'نعم، غيّر الحالة',
+        okIcon: 'fa-check-double',
+        body: `سيتم تغيير حالة الطلبات التالية إلى <b>"${getStatusLabel(status)}"</b>. يمكنك التراجع عن العملية بعد تنفيذها.${buildRequestsPreview(targets)}`
+    });
+    if (!res.confirmed) return;
+    const snapshots = targets.map(r => ({ id: r.id, data: { status: r.status } }));
+    let ok = 0;
+    for (const id of ids) {
+        try {
+            await SupabaseAPI.request('requests', 'PATCH', { status, updated_at: new Date().toISOString() }, id);
+            ok++;
+        } catch (e) { console.error(e); }
+    }
+    clearRequestSelection();
+    await loadRequests();
+    await updateDashboard();
+    showToast(ok === ids.length ? 'success' : 'warning', 'تم التحديث', `تم تغيير حالة ${ok} من ${ids.length} طلب إلى "${getStatusLabel(status)}"`);
+    showUndoBar(`تم تغيير حالة ${ok} طلب إلى "${getStatusLabel(status)}"`, () => restoreRequestSnapshots(snapshots));
+}
+
+async function bulkSendToMaintenance() {
+    if (checkReadOnly()) return;
+    const ids = getSelectedRequestIds();
+    if (!ids) return;
+    const all = await SupabaseAPI.request('requests', 'GET');
+    const targets = ids.map(id => all.find(r => r.id === id)).filter(Boolean);
+    const res = await showConfirmDialog({
+        title: `إرسال ${ids.length} طلب إلى فريق الصيانة`,
+        subtitle: 'سيتم تحويل الحالة إلى "قيد التنفيذ" وتسجيل ملاحظة',
+        icon: 'fa-people-carry-box',
+        okText: 'إرسال الآن',
+        okIcon: 'fa-paper-plane',
+        body: `سيتم إرسال الطلبات التالية إلى فريق الصيانة. يمكنك التراجع عن العملية بعد تنفيذها.${buildRequestsPreview(targets)}`,
+        note: { label: 'ملاحظة الإرسال (اختياري)', value: 'تم إرسال الطلب إلى فريق الصيانة للمعالجة' }
+    });
+    if (!res.confirmed) return;
+    const note = res.note;
+    const stamp = formatDate(new Date().toISOString());
+    const snapshots = targets.map(r => ({ id: r.id, data: { status: r.status, procedures: Array.isArray(r.procedures) ? r.procedures : [] } }));
+    let ok = 0;
+    for (const req of targets) {
+        const procedures = Array.isArray(req.procedures) ? [...req.procedures] : [];
+        procedures.push({ date: stamp, text: `📤 ${note || 'تم إرسال الطلب إلى فريق الصيانة'}` });
+        try {
+            await SupabaseAPI.request('requests', 'PATCH', { status: 'inprogress', procedures, updated_at: new Date().toISOString() }, req.id);
+            ok++;
+        } catch (e) { console.error(e); }
+    }
+    clearRequestSelection();
+    await loadRequests();
+    await updateDashboard();
+    showToast('success', 'تم الإرسال', `تم إرسال ${ok} طلب إلى فريق الصيانة وتحويلها إلى "قيد التنفيذ"`);
+    showUndoBar(`تم إرسال ${ok} طلب إلى فريق الصيانة`, () => restoreRequestSnapshots(snapshots));
+}
+
+async function bulkPrintRequests() {
+    const ids = getSelectedRequestIds();
+    if (!ids) return;
+    for (const id of ids) {
+        try { await printRequest(id); } catch (e) { console.error(e); }
+    }
+}
+
+async function bulkDeleteRequests() {
+    if (checkReadOnly()) return;
+    const ids = getSelectedRequestIds();
+    if (!ids) return;
+    const resDel = await showConfirmDialog({
+        title: `حذف ${ids.length} طلب نهائياً`,
+        subtitle: 'لا يمكن التراجع عن الحذف',
+        icon: 'fa-triangle-exclamation',
+        style: 'danger',
+        okText: 'نعم، احذف',
+        okIcon: 'fa-trash',
+        body: 'سيتم حذف الطلبات المحددة بشكل نهائي من النظام. <b>هذه العملية غير قابلة للتراجع.</b>'
+    });
+    if (!resDel.confirmed) return;
+    let ok = 0;
+    for (const id of ids) {
+        try { await SupabaseAPI.request('requests', 'DELETE', null, id); ok++; } catch (e) { console.error(e); }
+    }
+    clearRequestSelection();
+    await loadRequests();
+    await updateDashboard();
+    showToast('success', 'تم الحذف', `تم حذف ${ok} من ${ids.length} طلب`);
+}
+
+function filterRequests() { syncQuickFilterUI(); loadRequests(); }
+
+function quickFilterRequests(status) {
+    const sel = document.getElementById('requestStatusFilter');
+    if (sel) sel.value = status;
+    syncQuickFilterUI();
+    loadRequests();
+}
+
+function syncQuickFilterUI() {
+    const current = document.getElementById('requestStatusFilter')?.value || '';
+    document.querySelectorAll('#requestQuickFilters .qf-btn').forEach(b => {
+        b.classList.toggle('active', (b.dataset.status || '') === current);
+    });
+}
+
+function updateQuickFilterCounts(requests) {
+    const box = document.getElementById('requestQuickFilters');
+    if (!box) return;
+    box.querySelectorAll('.qf-count').forEach(el => {
+        const st = el.dataset.count || '';
+        el.textContent = st ? requests.filter(r => r.status === st).length : requests.length;
+    });
+}
+
+const STATUS_ICONS = { new: 'fa-star', inprogress: 'fa-spinner', pending: 'fa-hourglass-half', withdrawn: 'fa-hand-holding', active: 'fa-play', completed: 'fa-circle-check', cancelled: 'fa-circle-xmark', duplicate: 'fa-clone' };
+function getStatusChip(status, small) {
+    const st = status || 'new';
+    return `<span class="status-chip chip-${st}${small ? ' chip-sm' : ''}" title="${getStatusLabel(st)}"><span class="chip-dot"></span><i class="fas ${STATUS_ICONS[st] || 'fa-circle'}"></i>${getStatusLabel(st)}</span>`;
+}
 function getStatusLabel(status) {
     const labels = { new: 'جديد', inprogress: 'قيد التنفيذ', pending: 'قيد الانتظار', withdrawn: 'مسحوب', active: 'مشغل', completed: 'مكتمل', cancelled: 'ملغي', duplicate: 'مكرر' };
     return labels[status] || status;
@@ -4951,33 +5518,63 @@ async function viewRequest(id) {
         `).join('')
         : '<p style="color: var(--text-light);">لا توجد مرفقات</p>';
 
+    const infoItem = (icon, label, value) => `
+        <div style="background: var(--card-bg, #fff); border: 1px solid var(--border-color, #e2e8f0); border-right: 3px solid var(--primary); border-radius: 10px; padding: 10px 12px;">
+            <div style="font-size: 11px; color: var(--text-light, #94a3b8); font-weight: 700; margin-bottom: 4px;"><i class="fas ${icon}"></i> ${label}</div>
+            <div style="font-size: 14px; font-weight: 700; color: var(--text-dark, #1e293b); word-break: break-word;">${value || '-'}</div>
+        </div>`;
+
+    const sectionTitle = (icon, title, extra = '') => `
+        <div style="display: flex; align-items: center; gap: 8px; margin: 0 0 10px; padding-bottom: 8px; border-bottom: 2px solid var(--border-color, #e2e8f0);">
+            <i class="fas ${icon}" style="color: var(--primary);"></i>
+            <span style="font-size: 15px; font-weight: 800; color: var(--text-dark, #1e293b);">${title}</span>
+            ${extra ? `<span style="margin-right:auto; font-size: 12px; color: var(--text-light, #94a3b8); font-weight: 700;">${extra}</span>` : ''}
+        </div>`;
+
     const modalHtml = `
         <div class="modal-overlay active" id="viewModal">
-            <div class="modal" style="max-width: 600px;">
+            <div class="modal" style="max-width: 720px;">
                 <div class="modal-header">
-                    <h3>تفاصيل الطلب #${req.request_number || req.requestNumber}</h3>
+                    <h3><i class="fas fa-file-alt" style="margin-left: 8px;"></i> تفاصيل طلب الصيانة #${req.request_number || req.requestNumber}</h3>
                     <button class="modal-close" onclick="document.getElementById('viewModal').remove()">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                        <div><strong>الرقم الحاسوبي:</strong> ${req.computer_number || req.computerNumber}</div>
-                        <div><strong>الجهاز:</strong> ${req.device_name || req.deviceName}</div>
-                        <div><strong>الموظف:</strong> ${req.employee_name || req.employeeName}</div>
-                        <div><strong>القسم:</strong> ${req.department}</div>
-                        <div><strong>الحالة:</strong> <span class="badge badge-${req.status}">${getStatusLabel(req.status)}</span></div>
-                        <div><strong>التاريخ:</strong> ${formatDate(req.created_at || req.createdAt)}</div>
+
+                    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; margin-bottom: 20px; border-radius: 12px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff;">
+                        <div>
+                            <div style="font-size: 12px; opacity: 0.85; font-weight: 600;">رقم الطلب</div>
+                            <div style="font-size: 20px; font-weight: 900;">#${req.request_number || req.requestNumber}</div>
+                        </div>
+                        <div style="text-align: left;">
+                            <div style="font-size: 12px; opacity: 0.85; font-weight: 600;"><i class="fas fa-calendar-alt"></i> تاريخ الإنشاء</div>
+                            <div style="font-size: 14px; font-weight: 700;">${formatDate(req.created_at || req.createdAt)}</div>
+                        </div>
+                        <span class="badge badge-${req.status}" style="background: rgba(255,255,255,0.9);">${getStatusLabel(req.status)}</span>
                     </div>
-                    <div style="margin-bottom: 20px;">
-                        <strong>وصف المشكلة:</strong>
-                        <p style="margin-top: 8px; padding: 12px; background: #f8fafc; border-radius: 8px;">${req.issue_description || req.issueDescription || 'لا يوجد وصف'}</p>
+
+                    <div style="margin-bottom: 22px;">
+                        ${sectionTitle('fa-desktop', 'بيانات الجهاز والموظف')}
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+                            ${infoItem('fa-barcode', 'الرقم الحاسوبي', req.computer_number || req.computerNumber)}
+                            ${infoItem('fa-laptop', 'الجهاز', req.device_name || req.deviceName)}
+                            ${infoItem('fa-user', 'الموظف', req.employee_name || req.employeeName)}
+                            ${infoItem('fa-building', 'القسم', req.department)}
+                        </div>
                     </div>
-                    <div style="margin-bottom: 20px;">
-                        <strong>الإجراءات الفنية:</strong>
-                        <div style="margin-top: 10px;">${proceduresHtml}</div>
+
+                    <div style="margin-bottom: 22px;">
+                        ${sectionTitle('fa-exclamation-circle', 'وصف المشكلة')}
+                        <p style="margin: 0; padding: 14px; background: rgba(79,70,229,0.05); border-radius: 10px; line-height: 1.9; font-size: 14px;">${req.issue_description || req.issueDescription || 'لا يوجد وصف'}</p>
                     </div>
+
+                    <div style="margin-bottom: 22px;">
+                        ${sectionTitle('fa-clipboard-check', 'الإجراءات الفنية', `${(req.procedures || []).length} إجراء`)}
+                        <div>${proceduresHtml}</div>
+                    </div>
+
                     <div>
-                        <strong>التقارير المرفقة:</strong>
-                        <div style="margin-top: 10px;">${attachmentsHtml}</div>
+                        ${sectionTitle('fa-paperclip', 'التقارير والمرفقات', `${(req.attachments || []).length} مرفق`)}
+                        <div>${attachmentsHtml}</div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -5259,12 +5856,12 @@ async function printRequests() {
                 <tbody>
                     ${requests.sort((a, b) => (b.id || 0) - (a.id || 0)).map(r => `
                         <tr>
-                            <td><strong>#${r.request_number || r.requestNumber}</strong></td>
+                            <td><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><strong>#${r.request_number || r.requestNumber}</strong>${getStatusChip(r.status, true)}</div></td>
                             <td>${r.computer_number || r.computerNumber || '-'}</td>
                             <td>${r.device_name || r.deviceName || '-'}</td>
                             <td>${r.employee_name || r.employeeName || '-'}</td>
                             <td>${r.department || '-'}</td>
-                            <td><span class="badge badge-${r.status}">${getStatusLabel(r.status)}</span></td>
+                            <td>${getStatusChip(r.status)}</td>
                             <td>${formatDate(r.created_at || r.createdAt)}</td>
                         </tr>
                     `).join('')}
@@ -6746,7 +7343,7 @@ async function updateDashboard() {
             <td>${r.employee_name || r.employeeName || '-'}</td>
             <td>${r.department || '-'}</td>
             <td style="max-width: 250px; white-space: normal; font-size: 13px;">${r.issue_description || r.issueDescription || '-'}</td>
-            <td><span class="badge badge-${r.status}">${getStatusLabel(r.status)}</span></td>
+            <td>${getStatusChip(r.status)}</td>
             <td>${formatDate(r.created_at || r.createdAt)}</td>
         </tr>
     `).join('');
@@ -6838,7 +7435,7 @@ async function printPage() {
                             <td>${r.employee_name || r.employeeName || '-'}</td>
                             <td>${r.department || '-'}</td>
                             <td style="max-width: 200px; white-space: normal; font-size: 11px;">${r.issue_description || r.issueDescription || '-'}</td>
-                            <td><span class="badge badge-${r.status}">${getStatusLabel(r.status)}</span></td>
+                            <td>${getStatusChip(r.status)}</td>
                             <td>${formatDate(r.created_at || r.createdAt)}</td>
                         </tr>
                     `).join('')}
@@ -6983,67 +7580,71 @@ async function loadTender() {
             </div>
         ` : '<p style="color: var(--text-light); margin-top: 10px;"><i class="fas fa-paperclip"></i> لا يوجد مرفق</p>';
 
-        container.innerHTML = `
-            <div class="card" style="border-right: 5px solid var(--primary); overflow: hidden;">
-                <div class="card-header" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe);">
-                    <h3><i class="fas fa-file-contract" style="color: var(--primary);"></i> ${t.tender_name || t.tenderName || 'عطاء الصيانة'}</h3>
-                    <span class="badge badge-primary" style="font-size: 13px;"><i class="fas fa-hashtag"></i> ${t.tender_number || t.tenderNumber}</span>
+        const field = (icon, color, label, value, ltr) => `
+            <div style="display:flex;align-items:center;gap:11px;background:#f8fafc;border:1px solid #eef2f7;border-radius:12px;padding:14px;">
+                <div style="width:34px;height:34px;flex:0 0 34px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:${color}18;color:${color};font-size:14px;"><i class="fas ${icon}"></i></div>
+                <div style="min-width:0;flex:1;">
+                    <div style="font-size:11px;color:#8592a6;margin-bottom:3px;">${label}</div>
+                    <div style="font-size:14px;font-weight:700;color:#1f2937;word-break:break-word;line-height:1.5;${ltr ? 'direction:ltr;text-align:right;' : ''}">${value || '-'}</div>
                 </div>
-                <div class="card-body">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-                        <div style="background: #f8fafc; border-radius: 12px; padding: 20px; border-right: 4px solid var(--primary);">
-                            <h4 style="color: var(--primary); margin-bottom: 15px; font-size: 15px;"><i class="fas fa-info-circle"></i> معلومات العطاء</h4>
-                            <div style="display: flex; flex-direction: column; gap: 12px;">
-                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
-                                    <span style="color: var(--text-light); font-size: 13px;">رقم العطاء</span>
-                                    <span style="font-weight: 700; color: var(--text-dark);">${t.tender_number || t.tenderNumber || '-'}</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
-                                    <span style="color: var(--text-light); font-size: 13px;">رقم قرار الإحالة</span>
-                                    <span style="font-weight: 700; color: var(--text-dark);">${t.decision_number || t.decisionNumber || '-'}</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
-                                    <span style="color: var(--text-light); font-size: 13px;">اسم العطاء</span>
-                                    <span style="font-weight: 700; color: var(--text-dark);">${t.tender_name || t.tenderName || '-'}</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
-                                    <span style="color: var(--text-light); font-size: 13px;">تاريخ أمر المباشرة</span>
-                                    <span style="font-weight: 700; color: var(--text-dark);">${t.work_order_date || t.workOrderDate || '-'}</span>
-                                </div>
-                            </div>
-                        </div>
+            </div>`;
 
-                        <div style="background: #f8fafc; border-radius: 12px; padding: 20px; border-right: 4px solid var(--success);">
-                            <h4 style="color: var(--success); margin-bottom: 15px; font-size: 15px;"><i class="fas fa-building"></i> الشركة المنفذة</h4>
-                            <div style="display: flex; flex-direction: column; gap: 12px;">
-                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
-                                    <span style="color: var(--text-light); font-size: 13px;">اسم الشركة</span>
-                                    <span style="font-weight: 700; color: var(--text-dark);">${t.company_name || t.companyName || '-'}</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
-                                    <span style="color: var(--text-light); font-size: 13px;">اسم المندوب</span>
-                                    <span style="font-weight: 700; color: var(--text-dark);">${t.company_rep || t.companyRep || '-'}</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
-                                    <span style="color: var(--text-light); font-size: 13px;">رقم الهاتف</span>
-                                    <span style="font-weight: 700; color: var(--text-dark); direction: ltr; text-align: left;">${t.company_phone || t.companyPhone || '-'}</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
-                                    <span style="color: var(--text-light); font-size: 13px;">البريد الإلكتروني</span>
-                                    <span style="font-weight: 700; color: var(--text-dark); direction: ltr; text-align: left;">${t.company_email || t.companyEmail || '-'}</span>
-                                </div>
-                            </div>
+        const panel = (icon, color, title, body, grow) => `
+            <div style="background:#fff;border:1px solid #e8edf3;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(16,24,40,.06);display:flex;flex-direction:column;">
+                <div style="display:flex;align-items:center;gap:10px;padding:13px 18px;background:${color}0f;border-bottom:1px solid ${color}22;">
+                    <i class="fas ${icon}" style="color:${color};font-size:14px;"></i>
+                    <h4 style="margin:0;font-size:14.5px;color:${color};font-weight:800;">${title}</h4>
+                </div>
+                <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">${body}</div>
+            </div>`;
+
+        const grid2 = (items) => `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px;">${items}</div>`;
+
+        const attBody = t.attachment ? attHtml : `
+            <div style="border:2px dashed #cbd5e1;border-radius:14px;padding:18px 14px;text-align:center;color:#94a3b8;background:#f8fafc;">
+                <i class="fas fa-paperclip" style="font-size:26px;display:block;margin-bottom:10px;opacity:.7;"></i>
+                <div style="font-size:13.5px;font-weight:700;color:#64748b;">لا يوجد مرفق للعطاء</div>
+                <div style="font-size:12px;margin-top:5px;">يمكن إرفاق نسخة العطاء من زر «تعديل بيانات العطاء»</div>
+            </div>`;
+
+        container.innerHTML = `
+            <div style="display:flex;flex-direction:column;gap:14px;">
+
+                <div style="background:linear-gradient(135deg,#1e40af,#2563eb 55%,#3b82f6);border-radius:18px;padding:20px 24px;color:#fff;box-shadow:0 8px 20px rgba(37,99,235,.22);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;">
+                    <div style="display:flex;align-items:center;gap:14px;min-width:0;">
+                        <div style="width:52px;height:52px;flex:0 0 52px;border-radius:15px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:22px;"><i class="fas fa-file-contract"></i></div>
+                        <div style="min-width:0;">
+                            <div style="font-size:11.5px;opacity:.85;margin-bottom:4px;letter-spacing:.3px;">عطاء الصيانة</div>
+                            <h3 style="margin:0;font-size:20px;font-weight:800;color:#fff;line-height:1.4;">${t.tender_name || t.tenderName || 'عطاء الصيانة'}</h3>
                         </div>
                     </div>
-
-                    <div style="margin-top: 20px; background: #f8fafc; border-radius: 12px; padding: 20px; border-right: 4px solid var(--info);">
-                        <h4 style="color: var(--info); margin-bottom: 10px; font-size: 15px;"><i class="fas fa-paperclip"></i> المرفقات</h4>
-                        ${attHtml}
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                        <span style="background:rgba(255,255,255,.18);border-radius:999px;padding:8px 15px;font-size:12.5px;font-weight:700;"><i class="fas fa-hashtag"></i> ${t.tender_number || t.tenderNumber || '-'}</span>
+                        <span style="background:rgba(255,255,255,.18);border-radius:999px;padding:8px 15px;font-size:12.5px;font-weight:700;"><i class="fas fa-gavel"></i> قرار الإحالة: ${t.decision_number || t.decisionNumber || '-'}</span>
+                        <span style="background:rgba(255,255,255,.18);border-radius:999px;padding:8px 15px;font-size:12.5px;font-weight:700;"><i class="fas fa-calendar-check"></i> المباشرة: ${t.work_order_date || t.workOrderDate || '-'}</span>
                     </div>
+                </div>
 
-                    <div style="margin-top: 15px; text-align: left; color: var(--text-light); font-size: 12px;">
-                        <i class="fas fa-clock"></i> آخر تحديث: ${formatDate(t.updated_at || t.updatedAt || t.created_at || t.createdAt)}
-                    </div>
+                ${panel('fa-info-circle', '#2563eb', 'معلومات العطاء', grid2(
+                    field('fa-hashtag', '#2563eb', 'رقم العطاء', t.tender_number || t.tenderNumber) +
+                    field('fa-gavel', '#7c3aed', 'رقم قرار الإحالة', t.decision_number || t.decisionNumber) +
+                    field('fa-file-signature', '#0891b2', 'اسم العطاء', t.tender_name || t.tenderName) +
+                    field('fa-calendar-check', '#059669', 'تاريخ أمر المباشرة', t.work_order_date || t.workOrderDate)
+                ))}
+
+                ${panel('fa-building', '#059669', 'بيانات الشركة المنفذة', grid2(
+                    field('fa-industry', '#059669', 'اسم الشركة', t.company_name || t.companyName) +
+                    field('fa-user-tie', '#ea580c', 'اسم المندوب', t.company_rep || t.companyRep) +
+                    field('fa-phone', '#2563eb', 'رقم الهاتف', t.company_phone || t.companyPhone, true) +
+                    field('fa-envelope', '#7c3aed', 'البريد الإلكتروني', t.company_email || t.companyEmail, true)
+                ))}
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px;align-items:start;">
+                    ${panel('fa-paperclip', '#0891b2', 'مرفقات العطاء', attBody)}
+                    ${panel('fa-clock', '#64748b', 'سجل البيانات',
+                        field('fa-calendar-plus', '#059669', 'تاريخ الإنشاء', formatDate(t.created_at || t.createdAt)) +
+                        field('fa-rotate', '#2563eb', 'آخر تحديث', formatDate(t.updated_at || t.updatedAt || t.created_at || t.createdAt))
+                    )}
                 </div>
             </div>
         `;
@@ -8417,6 +9018,390 @@ async function fpVerifyAndReset() {
     }
 }
 
+
+// ==================== النماذج الذكية (Smart Forms) ====================
+const SF_STORE_KEY = 'smartForms_templates_v1';
+let sfTemplates = [];
+let sfActiveTemplateId = null;
+let sfEditMode = false;
+let sfRequestsCache = [];
+let sfItemsCache = [];
+
+const SF_PLACEHOLDERS = [
+    ['{{employee_name}}', 'اسم الموظف'],
+    ['{{department}}', 'القسم / الدائرة'],
+    ['{{device_name}}', 'اسم الجهاز / المادة الحاسوبية'],
+    ['{{computer_number}}', 'رقم الجهاز'],
+    ['{{request_number}}', 'رقم طلب الصيانة'],
+    ['{{request_status}}', 'حالة الطلب'],
+    ['{{issue_description}}', 'وصف العطل'],
+    ['{{procedures}}', 'الإجراءات المتخذة'],
+    ['{{request_date}}', 'تاريخ الطلب'],
+    ['{{item_name}}', 'اسم المادة (من الأصناف)'],
+    ['{{item_number}}', 'رقم المادة'],
+    ['{{item_category}}', 'تصنيف المادة'],
+    ['{{tender_name}}', 'اسم العطاء'],
+    ['{{tender_number}}', 'رقم العطاء'],
+    ['{{decision_number}}', 'رقم قرار الإحالة'],
+    ['{{company_name}}', 'اسم الشركة المنفذة'],
+    ['{{company_rep}}', 'اسم مندوب الشركة'],
+    ['{{company_phone}}', 'هاتف الشركة'],
+    ['{{work_order_date}}', 'تاريخ أمر المباشرة'],
+    ['{{today}}', 'تاريخ اليوم'],
+    ['{{user_name}}', 'اسم المستخدم الحالي'],
+];
+
+const SF_DEFAULT_TEMPLATES = [
+    {
+        id: 'tech_report',
+        name: 'تقرير فني',
+        desc: 'تقرير فني لعطل جهاز وطلب استبدال قطعة',
+        builtin: true,
+        body: `<h2>تقرير فني</h2>
+<p>تم الكشف الفني على <b>{{device_name}}</b> رقم <b>{{computer_number}}</b> العائدة للموظف <b>{{employee_name}}</b> / <b>{{department}}</b>، من قبل الشركة المنفذة لعطاء <b>{{tender_name}}</b> رقم <b>({{tender_number}})</b>، والمجدد بموجب قرار إحالة رقم <b>({{decision_number}})</b> لشركة <b>{{company_name}}</b>.</p>
+<p>وقد تبين بعد إجراء الفحص الفني وجود عطل في <b>_______________</b>، والتي تستدعي الاستبدال، وذلك وفقًا للتقرير الفني الصادر عن مندوب الشركة <b>{{company_rep}}</b> بتاريخ <b>{{today}}</b> والمرفق طيه.</p>
+<p>لذا، يرجى التكرم بالإيعاز لمن يلزم باتخاذ الإجراءات اللازمة لتوفير القطعة المذكورة في تقرير الشركة، ليتسنى للشركة استبدالها وإعادة الجهاز إلى الخدمة.</p>
+<p>وتفضلوا بقبول فائق الاحترام،،،</p>
+<h3>المرفقات:</h3>
+<ul><li>التقرير الفني الصادر عن الشركة.</li></ul>
+<p>المتابع لعطاء {{tender_name}} ({{tender_number}})</p>
+<p>{{today}}</p>
+<p><b>{{user_name}}</b></p>`
+    },
+    {
+        id: 'transfer_note',
+        name: 'مذكرة تحويل إلى الشركة',
+        desc: 'تحويل طلب صيانة إلى الشركة المنفذة',
+        builtin: true,
+        body: `<h2>مذكرة تحويل صيانة</h2>
+<p>الســـادة / شركة <b>{{company_name}}</b> المحترمين</p>
+<p>الموضوع: تحويل طلب صيانة رقم <b>({{request_number}})</b></p>
+<p>يرجى التكرم بإجراء اللازم لصيانة <b>{{device_name}}</b> رقم <b>{{computer_number}}</b> العائد للموظف <b>{{employee_name}}</b> / <b>{{department}}</b>، وذلك ضمن عطاء <b>{{tender_name}}</b> رقم <b>({{tender_number}})</b> وقرار الإحالة رقم <b>({{decision_number}})</b>.</p>
+<table>
+  <tr><th style="width:35%">رقم الطلب</th><td>{{request_number}}</td></tr>
+  <tr><th>تاريخ الطلب</th><td>{{request_date}}</td></tr>
+  <tr><th>وصف العطل</th><td>{{issue_description}}</td></tr>
+  <tr><th>الإجراءات السابقة</th><td>{{procedures}}</td></tr>
+  <tr><th>حالة الطلب</th><td>{{request_status}}</td></tr>
+</table>
+<p>يرجى التنسيق مع مندوب الشركة <b>{{company_rep}}</b> (هاتف: {{company_phone}}).</p>
+<p>وتفضلوا بقبول فائق الاحترام،،،</p>
+<p>{{today}} — <b>{{user_name}}</b></p>`
+    },
+    {
+        id: 'part_request',
+        name: 'طلب توفير قطعة',
+        desc: 'طلب تزويد قطعة غيار لجهاز',
+        builtin: true,
+        body: `<h2>طلب توفير قطعة</h2>
+<p>استنادًا إلى نتائج الكشف الفني على <b>{{device_name}}</b> رقم <b>{{computer_number}}</b> العائد للموظف <b>{{employee_name}}</b> / <b>{{department}}</b>، يرجى التكرم بتوفير القطعة التالية:</p>
+<table>
+  <tr><th>اسم القطعة</th><th>الرقم</th><th>التصنيف</th><th>الكمية</th></tr>
+  <tr><td>{{item_name}}</td><td>{{item_number}}</td><td>{{item_category}}</td><td>1</td></tr>
+</table>
+<p>وذلك ضمن عطاء <b>{{tender_name}}</b> رقم <b>({{tender_number}})</b> المحال إلى شركة <b>{{company_name}}</b> بموجب قرار الإحالة رقم <b>({{decision_number}})</b> وأمر المباشرة بتاريخ <b>{{work_order_date}}</b>.</p>
+<p>وصف العطل: {{issue_description}}</p>
+<p>وتفضلوا بقبول فائق الاحترام،،،</p>
+<p>{{today}} — <b>{{user_name}}</b></p>`
+    },
+    {
+        id: 'return_service',
+        name: 'إشعار إعادة جهاز للخدمة',
+        desc: 'إشعار إنجاز الصيانة وإعادة الجهاز',
+        builtin: true,
+        body: `<h2>إشعار إعادة جهاز إلى الخدمة</h2>
+<p>نُشعركم بأنه تم إنجاز أعمال الصيانة على <b>{{device_name}}</b> رقم <b>{{computer_number}}</b> العائد للموظف <b>{{employee_name}}</b> / <b>{{department}}</b>، بموجب طلب الصيانة رقم <b>({{request_number}})</b> بتاريخ <b>{{request_date}}</b>.</p>
+<p><b>الإجراءات المنفذة:</b></p>
+<p>{{procedures}}</p>
+<p>وقد تم إعادة الجهاز إلى الخدمة بتاريخ <b>{{today}}</b> بواسطة شركة <b>{{company_name}}</b> ضمن عطاء <b>{{tender_name}}</b> رقم <b>({{tender_number}})</b>.</p>
+<p>وتفضلوا بقبول فائق الاحترام،،،</p>
+<p><b>{{user_name}}</b></p>`
+    }
+];
+
+function loadSmartTemplates() {
+    let custom = [];
+    try { custom = JSON.parse(localStorage.getItem(SF_STORE_KEY) || '[]'); } catch (e) { custom = []; }
+    const removed = custom.filter(t => t.__deleted).map(t => t.id);
+    sfTemplates = SF_DEFAULT_TEMPLATES
+        .filter(t => !removed.includes(t.id))
+        .map(t => {
+            const override = custom.find(c => c.id === t.id && !c.__deleted);
+            return override ? { ...t, ...override, builtin: true } : t;
+        })
+        .concat(custom.filter(c => !c.__deleted && !SF_DEFAULT_TEMPLATES.some(d => d.id === c.id)));
+}
+
+function persistSmartTemplates(list) {
+    localStorage.setItem(SF_STORE_KEY, JSON.stringify(list));
+}
+
+function readSmartStore() {
+    try { return JSON.parse(localStorage.getItem(SF_STORE_KEY) || '[]'); } catch (e) { return []; }
+}
+
+function resetSmartFormsTemplates() {
+    localStorage.removeItem(SF_STORE_KEY);
+    loadSmartTemplates();
+    renderSmartTemplateList();
+    renderSmartForm();
+    showToast('success', 'تم', 'تمت استعادة القوالب الافتراضية');
+}
+
+async function loadSmartForms() {
+    loadSmartTemplates();
+    renderSmartTemplateList();
+
+    const dateInput = document.getElementById('sfFormDate');
+    if (dateInput && !dateInput.value) dateInput.value = new Date().toISOString().split('T')[0];
+
+    try {
+        sfRequestsCache = await SupabaseAPI.request('requests', 'GET') || [];
+    } catch (e) { sfRequestsCache = []; }
+    try {
+        sfItemsCache = await SupabaseAPI.request('computer_items', 'GET') || [];
+    } catch (e) { sfItemsCache = []; }
+    if (!currentTender) { try { const tn = await SupabaseAPI.request('tenders', 'GET'); if (tn && tn.length) currentTender = tn[0]; } catch (e) {} }
+
+    const reqSel = document.getElementById('sfRequestSelect');
+    if (reqSel) {
+        const prev = reqSel.value;
+        const sorted = [...sfRequestsCache].sort((a, b) => (parseInt(b.request_number || b.requestNumber || 0) || 0) - (parseInt(a.request_number || a.requestNumber || 0) || 0));
+        reqSel.innerHTML = '<option value="">-- بدون ربط (تعبئة يدوية) --</option>' + sorted.map(r =>
+            `<option value="${r.id}">#${r.request_number || r.requestNumber || r.id} — ${(r.employee_name || r.employeeName || 'بدون موظف')} — ${(r.device_name || r.deviceName || '')}</option>`
+        ).join('');
+        if (prev) reqSel.value = prev;
+    }
+    const itemSel = document.getElementById('sfItemSelect');
+    if (itemSel) {
+        const prev = itemSel.value;
+        itemSel.innerHTML = '<option value="">-- تحديد تلقائي --</option>' + [...sfItemsCache]
+            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+            .map(i => `<option value="${i.id}">${i.item_number || i.itemNumber || '-'} — ${i.name || ''}</option>`).join('');
+        if (prev) itemSel.value = prev;
+    }
+    renderSmartForm();
+}
+
+function renderSmartTemplateList() {
+    const box = document.getElementById('sfTemplateList');
+    if (!box) return;
+    if (!sfTemplates.length) {
+        box.innerHTML = '<div class="sf-hint">لا توجد قوالب. أضف قالبًا جديدًا.</div>';
+        return;
+    }
+    box.innerHTML = sfTemplates.map(t => `
+        <div class="sf-tpl ${t.id === sfActiveTemplateId ? 'active' : ''}" onclick="selectSmartTemplate('${t.id}')">
+            <div class="sf-tpl-ico"><i class="fas ${t.builtin ? 'fa-file-contract' : 'fa-file-pen'}"></i></div>
+            <div class="sf-tpl-txt">
+                <h5>${t.name}</h5>
+                <p>${t.desc || ''}</p>
+            </div>
+            <span class="sf-tpl-badge ${t.builtin ? '' : 'custom'}">${t.builtin ? 'جاهز' : 'مخصص'}</span>
+            <button class="action-btn edit no-readonly" title="تعديل القالب" onclick="event.stopPropagation();openSmartTemplateModal('${t.id}')"><i class="fas fa-pen"></i></button>
+        </div>
+    `).join('');
+}
+
+function selectSmartTemplate(id) {
+    sfActiveTemplateId = id;
+    renderSmartTemplateList();
+    renderSmartForm();
+}
+
+function sfEscape(v) {
+    return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function sfBuildData() {
+    const reqId = document.getElementById('sfRequestSelect')?.value || '';
+    const itemId = document.getElementById('sfItemSelect')?.value || '';
+    const dateVal = document.getElementById('sfFormDate')?.value || '';
+    const r = sfRequestsCache.find(x => String(x.id) === String(reqId)) || {};
+    let item = sfItemsCache.find(x => String(x.id) === String(itemId));
+    if (!item && r) {
+        const dev = (r.device_name || r.deviceName || '').toLowerCase();
+        if (dev) item = sfItemsCache.find(x => (x.name || '').toLowerCase().includes(dev) || dev.includes((x.name || '').toLowerCase()));
+    }
+    item = item || {};
+    const t = currentTender || {};
+    const statusNames = { new: 'جديد', inprogress: 'قيد التنفيذ', pending: 'معلق', completed: 'مكتمل', cancelled: 'ملغي', duplicate: 'مكرر' };
+    let procs = '';
+    const pv = r.procedures;
+    if (Array.isArray(pv)) procs = pv.map(p => (typeof p === 'string' ? p : (p.text || p.description || p.note || JSON.stringify(p)))).join(' • ');
+    else if (typeof pv === 'string') procs = pv;
+
+    const fmt = (d) => { if (!d) return ''; try { return new Date(d).toLocaleDateString('en-GB'); } catch (e) { return d; } };
+
+    return {
+        employee_name: r.employee_name || r.employeeName || '',
+        department: r.department || '',
+        device_name: r.device_name || r.deviceName || '',
+        computer_number: r.computer_number || r.computerNumber || '',
+        request_number: r.request_number || r.requestNumber || '',
+        request_status: statusNames[r.status] || r.status || '',
+        issue_description: r.issue_description || r.issueDescription || '',
+        procedures: procs,
+        request_date: fmt(r.created_at || r.createdAt),
+        item_name: item.name || '',
+        item_number: item.item_number || item.itemNumber || '',
+        item_category: item.category || '',
+        tender_name: t.tender_name || t.tenderName || '',
+        tender_number: t.tender_number || t.tenderNumber || '',
+        decision_number: t.decision_number || t.decisionNumber || '',
+        company_name: t.company_name || t.companyName || '',
+        company_rep: t.company_rep || t.companyRep || '',
+        company_phone: t.company_phone || t.companyPhone || '',
+        work_order_date: t.work_order_date || t.workOrderDate || '',
+        today: dateVal ? fmt(dateVal) : fmt(new Date()),
+        user_name: (currentUser && (currentUser.name || currentUser.username)) || ''
+    };
+}
+
+function renderSmartForm() {
+    const paper = document.getElementById('sfPaper');
+    if (!paper) return;
+    const tpl = sfTemplates.find(t => t.id === sfActiveTemplateId);
+    const badge = document.getElementById('sfMissingBadge');
+    if (!tpl) {
+        paper.innerHTML = '<div class="sf-empty"><i class="fas fa-file-lines"></i><h3>اختر قالبًا للبدء</h3><p>حدد قالبًا من القائمة ثم اختر طلب الصيانة لتعبئة البيانات تلقائيًا.</p></div>';
+        if (badge) badge.textContent = '—';
+        return;
+    }
+    const data = sfBuildData();
+    let missing = 0;
+    const html = String(tpl.body).replace(/\{\{\s*([a-z_]+)\s*\}\}/gi, (m, key) => {
+        const val = data[key.toLowerCase()];
+        if (val === undefined) return m;
+        if (!String(val).trim()) { missing++; return `<span class="sf-missing" title="بيانات غير متوفرة — يمكن تعبئتها يدويًا">[${key}]</span>`; }
+        return sfEscape(val);
+    });
+    paper.innerHTML = html;
+    if (badge) badge.textContent = missing ? `${missing} حقل بحاجة لتعبئة يدوية` : 'كل الحقول مكتملة';
+}
+
+function toggleSmartFormEdit() {
+    const paper = document.getElementById('sfPaper');
+    const btn = document.getElementById('sfEditToggle');
+    const tools = document.getElementById('sfEditTools');
+    if (!paper) return;
+    sfEditMode = !sfEditMode;
+    paper.setAttribute('contenteditable', sfEditMode ? 'true' : 'false');
+    if (tools) tools.style.display = sfEditMode ? 'flex' : 'none';
+    if (btn) btn.innerHTML = sfEditMode
+        ? '<i class="fas fa-lock-open"></i> إيقاف التعديل'
+        : '<i class="fas fa-lock"></i> تمكين التعديل';
+    if (sfEditMode) { paper.focus(); showToast('info', 'التعديل مفعّل', 'يمكنك الآن تعديل نص النموذج مباشرة'); }
+}
+
+function sfCmd(cmd) {
+    document.getElementById('sfPaper')?.focus();
+    try { document.execCommand(cmd, false, null); } catch (e) {}
+}
+
+function printSmartForm() {
+    document.body.classList.add('sf-printing');
+    const after = () => { document.body.classList.remove('sf-printing'); window.removeEventListener('afterprint', after); };
+    window.addEventListener('afterprint', after);
+    setTimeout(() => { window.print(); setTimeout(after, 800); }, 80);
+}
+
+function sfCurrentDocHtml() {
+    const paper = document.getElementById('sfPaper');
+    const tpl = sfTemplates.find(t => t.id === sfActiveTemplateId);
+    const title = tpl ? tpl.name : 'نموذج';
+    const inner = (paper?.innerHTML || '').replace(/class="sf-missing"[^>]*/g, '');
+    return { title, html: `<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>${title}</title>
+<style>body{font-family:'Cairo','Tajawal',Arial,sans-serif;direction:rtl;font-size:15px;line-height:2;color:#111;padding:40px;}
+h2{text-align:center;font-size:20px;}table{width:100%;border-collapse:collapse;margin:12px 0;}td,th{border:1px solid #999;padding:8px;}th{background:#f1f5f9;}</style>
+</head><body>${inner}</body></html>` };
+}
+
+function sfDownload(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+function exportSmartFormWord() {
+    if (!sfActiveTemplateId) { showToast('error', 'تنبيه', 'اختر قالبًا أولاً'); return; }
+    const { title, html } = sfCurrentDocHtml();
+    sfDownload(new Blob(['\ufeff' + html], { type: 'application/msword' }), `${title}.doc`);
+    showToast('success', 'تم التصدير', 'تم تنزيل النموذج بصيغة Word');
+}
+
+function exportSmartFormHtml() {
+    if (!sfActiveTemplateId) { showToast('error', 'تنبيه', 'اختر قالبًا أولاً'); return; }
+    const { title, html } = sfCurrentDocHtml();
+    sfDownload(new Blob([html], { type: 'text/html;charset=utf-8' }), `${title}.html`);
+    showToast('success', 'تم التصدير', 'تم تنزيل النموذج بصيغة HTML');
+}
+
+function copySmartFormText() {
+    const paper = document.getElementById('sfPaper');
+    if (!paper) return;
+    const text = paper.innerText || '';
+    if (navigator.clipboard) navigator.clipboard.writeText(text);
+    showToast('success', 'تم النسخ', 'تم نسخ نص النموذج إلى الحافظة');
+}
+
+// ---------- إدارة القوالب ----------
+function openSmartTemplateModal(id) {
+    const tpl = id ? sfTemplates.find(t => t.id === id) : null;
+    document.getElementById('smartTemplateModalTitle').textContent = tpl ? 'تعديل القالب: ' + tpl.name : 'قالب ذكي جديد';
+    document.getElementById('sfTplId').value = tpl ? tpl.id : '';
+    document.getElementById('sfTplName').value = tpl ? tpl.name : '';
+    document.getElementById('sfTplDesc').value = tpl ? (tpl.desc || '') : '';
+    document.getElementById('sfTplBody').value = tpl ? tpl.body : '<h2>عنوان النموذج</h2>\n<p>اسم الموظف: {{employee_name}} / القسم: {{department}}</p>\n<p>الجهاز: {{device_name}} رقم {{computer_number}}</p>\n<p>{{today}} — {{user_name}}</p>';
+    document.getElementById('sfTplDeleteBtn').style.display = tpl ? 'inline-flex' : 'none';
+    const list = document.getElementById('sfPlaceholderList');
+    if (list) list.innerHTML = SF_PLACEHOLDERS.map(([p, label]) => `<span class="sf-ph" title="${label}" onclick="sfInsertPlaceholder('${p}')">${p}</span>`).join('');
+    openModal('smartTemplateModal');
+}
+
+function sfInsertPlaceholder(ph) {
+    const ta = document.getElementById('sfTplBody');
+    if (!ta) return;
+    const pos = ta.selectionStart ?? ta.value.length;
+    ta.value = ta.value.slice(0, pos) + ph + ta.value.slice(pos);
+    ta.focus();
+    ta.selectionStart = ta.selectionEnd = pos + ph.length;
+}
+
+function saveSmartTemplate() {
+    const id = document.getElementById('sfTplId').value;
+    const name = document.getElementById('sfTplName').value.trim();
+    const desc = document.getElementById('sfTplDesc').value.trim();
+    const body = document.getElementById('sfTplBody').value;
+    if (!name || !body.trim()) { showToast('error', 'بيانات ناقصة', 'أدخل اسم القالب ومحتواه'); return; }
+    const store = readSmartStore().filter(t => t.id !== (id || '__none__'));
+    store.push({ id: id || ('tpl_' + Date.now()), name, desc, body });
+    persistSmartTemplates(store);
+    loadSmartTemplates();
+    sfActiveTemplateId = id || store[store.length - 1].id;
+    renderSmartTemplateList();
+    renderSmartForm();
+    closeModal('smartTemplateModal');
+    showToast('success', 'تم الحفظ', 'تم حفظ القالب بنجاح');
+}
+
+function deleteSmartTemplate() {
+    const id = document.getElementById('sfTplId').value;
+    if (!id) return;
+    if (!confirm('هل تريد حذف هذا القالب؟')) return;
+    const isBuiltin = SF_DEFAULT_TEMPLATES.some(t => t.id === id);
+    const store = readSmartStore().filter(t => t.id !== id);
+    if (isBuiltin) store.push({ id, __deleted: true });
+    persistSmartTemplates(store);
+    loadSmartTemplates();
+    if (sfActiveTemplateId === id) sfActiveTemplateId = null;
+    renderSmartTemplateList();
+    renderSmartForm();
+    closeModal('smartTemplateModal');
+    showToast('success', 'تم الحذف', 'تم حذف القالب');
+}
 </script>
 
 
@@ -8716,6 +9701,33 @@ async function fpVerifyAndReset() {
                 </button>
             </div>
         </div>
+    </div>
+
+
+    <!-- نافذة التأكيد الموحدة -->
+    <div class="confirm-overlay no-print" id="confirmOverlay" onclick="if(event.target===this) resolveConfirm(false)">
+        <div class="confirm-box" id="confirmBox">
+            <div class="confirm-head">
+                <div class="confirm-icon" id="confirmIcon"><i class="fas fa-question"></i></div>
+                <div>
+                    <h3 id="confirmTitle">تأكيد الإجراء</h3>
+                    <p id="confirmSubtitle">يرجى مراجعة التفاصيل قبل التنفيذ</p>
+                </div>
+            </div>
+            <div class="confirm-body" id="confirmBody"></div>
+            <div class="confirm-foot">
+                <button type="button" class="cf-cancel" onclick="resolveConfirm(false)"><i class="fas fa-xmark"></i> إلغاء</button>
+                <button type="button" class="cf-ok" id="confirmOkBtn" onclick="resolveConfirm(true)"><i class="fas fa-check"></i> تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- شريط التراجع -->
+    <div class="undo-bar no-print" id="undoBar">
+        <span class="undo-txt"><i class="fas fa-circle-check"></i> <span id="undoMessage">تم تنفيذ التغيير</span></span>
+        <button type="button" class="undo-btn" onclick="runUndo()"><i class="fas fa-rotate-left"></i> تراجع</button>
+        <span class="undo-timer" id="undoTimer">10</span>
+        <button type="button" class="undo-close" onclick="hideUndoBar()" title="إغلاق"><i class="fas fa-xmark"></i></button>
     </div>
 
 </body>
