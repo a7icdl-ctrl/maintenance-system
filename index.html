@@ -1125,6 +1125,95 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
     .ivd-empty { text-align: center; padding: 38px 12px; color: var(--text-light); font-weight: 700; }
     .ivd-empty i { display: block; font-size: 28px; margin-bottom: 8px; opacity: .5; }
     html[data-theme="dark"] .ivd-stat, html[data-theme="dark"] .ivd-row { background: rgba(255,255,255,.03); }
+
+    /* ===== date range filter inside movement log ===== */
+    .ivd-range { display:flex; flex-wrap:wrap; align-items:flex-end; gap:10px; margin:12px 0 4px; padding:12px 14px;
+        border:1px dashed color-mix(in srgb, var(--primary) 26%, transparent); border-radius:14px;
+        background: color-mix(in srgb, var(--primary) 5%, transparent); }
+    .ivd-range .ivd-rf { display:flex; flex-direction:column; gap:5px; }
+    .ivd-range label { font-size:11px; font-weight:800; color:var(--text-light); }
+    .ivd-range input[type=date] { font-family:'Tajawal',sans-serif; font-size:12.5px; font-weight:700; color:inherit;
+        padding:8px 10px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-card,transparent); outline:none; transition:.18s; }
+    .ivd-range input[type=date]:focus { border-color:var(--primary); box-shadow:0 0 0 4px color-mix(in srgb, var(--primary) 14%, transparent); }
+    .ivd-presets { display:flex; flex-wrap:wrap; gap:6px; margin-inline-start:auto; }
+    .ivd-preset { border:1px solid var(--border-color); background:transparent; color:var(--text-medium);
+        font-family:'Tajawal',sans-serif; font-size:11.5px; font-weight:800; padding:6px 11px; border-radius:999px; cursor:pointer; transition:.18s; }
+    .ivd-preset:hover { border-color:var(--primary); color:var(--primary); }
+    .ivd-preset.is-active { background:linear-gradient(135deg,var(--primary),color-mix(in srgb,var(--primary) 55%, #06b6d4)); color:#fff; border-color:transparent; }
+    .ivd-range-info { width:100%; font-size:11.5px; font-weight:700; color:var(--text-light); display:flex; align-items:center; gap:6px; }
+
+    /* ===== ALTERNATIVE DEVICES — redesign ===== */
+    .alt-hero { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:16px; }
+    .alt-kpi { position:relative; overflow:hidden; display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:16px;
+        border:1px solid color-mix(in srgb, var(--kc) 24%, var(--border-color)); background:var(--bg-card);
+        box-shadow:0 14px 28px -24px color-mix(in srgb, var(--kc) 90%, transparent); }
+    .alt-kpi::after { content:''; position:absolute; inset-block:0; inset-inline-end:0; width:5px; background:linear-gradient(180deg,var(--kc),transparent); }
+    .alt-kpi i { width:42px; height:42px; display:grid; place-items:center; border-radius:13px; font-size:17px;
+        background:color-mix(in srgb, var(--kc) 14%, transparent); color:var(--kc); }
+    .alt-kpi b { display:block; font-size:23px; font-weight:900; line-height:1.1; color:var(--text-dark); }
+    .alt-kpi small { font-size:11.5px; font-weight:700; color:var(--text-light); }
+
+    .alt-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin:6px 0 16px; }
+    .alt-search { position:relative; flex:1 1 240px; min-width:210px; }
+    .alt-search i { position:absolute; inset-inline-start:12px; top:50%; transform:translateY(-50%); color:var(--text-light); font-size:13px; }
+    .alt-search input { width:100%; padding:11px 38px 11px 14px; border-radius:12px; border:1px solid var(--border-color);
+        font-family:'Tajawal',sans-serif; font-size:13px; background:var(--bg-card); color:inherit; outline:none; transition:.18s; }
+    .alt-search input:focus { border-color:var(--primary); box-shadow:0 0 0 4px color-mix(in srgb, var(--primary) 13%, transparent); }
+    .alt-chip { display:inline-flex; align-items:center; gap:7px; padding:9px 14px; border-radius:999px; cursor:pointer;
+        border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-medium);
+        font-family:'Tajawal',sans-serif; font-size:12px; font-weight:800; transition:.18s; }
+    .alt-chip span { background:color-mix(in srgb, var(--text-light) 16%, transparent); padding:1px 8px; border-radius:999px; font-size:11px; }
+    .alt-chip.is-active { color:#fff; border-color:transparent; box-shadow:0 8px 18px -10px color-mix(in srgb, var(--cc,var(--primary)) 80%, transparent);
+        background:linear-gradient(135deg, var(--cc,var(--primary)), color-mix(in srgb, var(--cc,var(--primary)) 60%, #0ea5e9)); }
+    .alt-chip.is-active span { background:rgba(255,255,255,.22); color:#fff; }
+
+    .alt-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+    .alt-card { position:relative; overflow:hidden; padding:18px; border-radius:18px; border:1px solid var(--border-color);
+        background:var(--bg-card); box-shadow:var(--shadow); transition:transform .22s cubic-bezier(.22,.68,.36,1), box-shadow .22s, border-color .22s;
+        animation: altIn .45s both cubic-bezier(.22,.68,.36,1); }
+    @keyframes altIn { from { opacity:0; transform:translateY(14px) scale(.985); } to { opacity:1; transform:none; } }
+    .alt-card::before { content:''; position:absolute; inset-inline:0; top:0; height:4px; background:linear-gradient(90deg,var(--ac2),color-mix(in srgb,var(--ac2) 30%,transparent)); }
+    .alt-card:hover { transform:translateY(-5px); border-color:color-mix(in srgb, var(--ac2) 45%, var(--border-color));
+        box-shadow:0 22px 40px -24px color-mix(in srgb, var(--ac2) 80%, transparent), var(--shadow-hover); }
+    .alt-card-head { display:flex; align-items:center; gap:12px; }
+    .alt-ring { position:relative; width:66px; height:66px; border-radius:50%; flex:0 0 auto;
+        background:conic-gradient(var(--ac2) calc(var(--pct) * 1%), color-mix(in srgb, var(--text-light) 18%, transparent) 0); display:grid; place-items:center; }
+    .alt-ring::after { content:''; position:absolute; inset:6px; border-radius:50%; background:var(--bg-card); }
+    .alt-ring b { position:relative; z-index:1; font-size:14px; font-weight:900; color:var(--ac2); }
+    .alt-card h4 { margin:0 0 4px; font-size:15px; font-weight:900; color:var(--text-dark); }
+    .alt-card .alt-sub { font-size:11.5px; font-weight:700; color:var(--text-light); }
+    .alt-facts { display:flex; gap:8px; margin-top:14px; }
+    .alt-fact { flex:1; text-align:center; padding:9px 6px; border-radius:12px; background:color-mix(in srgb, var(--fc) 11%, transparent); }
+    .alt-fact b { display:block; font-size:17px; font-weight:900; color:var(--fc); line-height:1.2; }
+    .alt-fact small { font-size:10.5px; font-weight:800; color:var(--text-light); }
+
+    /* tracking */
+    .alt-track { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px; }
+    .altt-card { border:1px solid var(--border-color); border-radius:18px; background:var(--bg-card); overflow:hidden;
+        box-shadow:var(--shadow); animation: altIn .45s both cubic-bezier(.22,.68,.36,1); }
+    .altt-head { display:flex; align-items:center; gap:10px; padding:14px 16px;
+        background:linear-gradient(135deg, color-mix(in srgb, var(--ac2) 14%, transparent), transparent);
+        border-bottom:1px solid var(--border-color); }
+    .altt-head i.hicon { width:34px; height:34px; display:grid; place-items:center; border-radius:11px; font-size:14px;
+        background:color-mix(in srgb, var(--ac2) 16%, transparent); color:var(--ac2); }
+    .altt-head h4 { margin:0; font-size:14.5px; font-weight:900; color:var(--text-dark); flex:1; }
+    .altt-count { font-size:11.5px; font-weight:900; padding:4px 10px; border-radius:999px;
+        background:color-mix(in srgb, var(--ac2) 14%, transparent); color:var(--ac2); }
+    .altm-list { padding:10px; display:flex; flex-direction:column; gap:8px; max-height:340px; overflow-y:auto; scrollbar-width:thin; }
+    .altm-row { --rc:var(--success); display:flex; align-items:center; gap:10px; padding:11px 12px; border-radius:13px; cursor:pointer;
+        border:1px solid var(--border-color); border-inline-start:4px solid var(--rc); background:transparent; transition:.18s; }
+    .altm-row:hover { background:color-mix(in srgb, var(--rc) 8%, transparent); transform:translateX(-3px); }
+    .altm-row.busy { --rc:var(--danger); }
+    .altm-main { flex:1; min-width:0; }
+    .altm-name { font-size:13px; font-weight:900; color:var(--text-dark); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .altm-tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:5px; }
+    .altm-tag { font-size:10.5px; font-weight:800; color:var(--text-light); background:color-mix(in srgb, var(--text-light) 12%, transparent);
+        padding:2px 8px; border-radius:999px; display:inline-flex; align-items:center; gap:4px; }
+    .altm-pill { font-size:11px; font-weight:900; padding:4px 10px; border-radius:999px; white-space:nowrap;
+        background:color-mix(in srgb, var(--rc) 14%, transparent); color:var(--rc); }
+    .alt-empty { padding:34px 16px; text-align:center; color:var(--text-light); font-size:13px; font-weight:700; }
+    .alt-empty i { display:block; font-size:26px; margin-bottom:8px; opacity:.5; }
+
     </style>
 </head>
 <body>
@@ -1721,16 +1810,26 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                         </button>
                     </div>
                 </div>
+                <div class="alt-hero" id="altHero"></div>
                 <div class="tabs no-print">
-                    <button class="tab-btn active" onclick="showAltTab('summary')">ملخص الكميات</button>
-                    <button class="tab-btn" onclick="showAltTab('tracking')">التتبع الفردي</button>
-                    <button class="tab-btn" onclick="showAltTab('assignments')">التسليمات</button>
+                    <button class="tab-btn active" onclick="showAltTab('summary')"><i class="fas fa-layer-group"></i> ملخص الكميات</button>
+                    <button class="tab-btn" onclick="showAltTab('tracking')"><i class="fas fa-barcode"></i> التتبع الفردي</button>
+                    <button class="tab-btn" onclick="showAltTab('assignments')"><i class="fas fa-hand-holding-hand"></i> التسليمات</button>
+                </div>
+                <div class="alt-toolbar no-print">
+                    <div class="alt-search">
+                        <i class="fas fa-magnifying-glass"></i>
+                        <input type="text" id="altSearch" placeholder="ابحث بنوع الجهاز أو الموديل أو الرقم التسلسلي أو الموقع..." oninput="renderAlternatives()">
+                    </div>
+                    <button type="button" class="alt-chip is-active" data-s="all" style="--cc:var(--primary)" onclick="setAltFilter('all')"><i class="fas fa-list"></i> الكل <span id="altCountAll">0</span></button>
+                    <button type="button" class="alt-chip" data-s="available" style="--cc:var(--success)" onclick="setAltFilter('available')"><i class="fas fa-circle-check"></i> متاح <span id="altCountAvail">0</span></button>
+                    <button type="button" class="alt-chip" data-s="unavailable" style="--cc:var(--danger)" onclick="setAltFilter('unavailable')"><i class="fas fa-circle-xmark"></i> غير متاح <span id="altCountBusy">0</span></button>
                 </div>
                 <div class="tab-content active" id="tab-summary">
-                    <div class="inventory-grid" id="altSummaryGrid"></div>
+                    <div class="alt-grid" id="altSummaryGrid"></div>
                 </div>
                 <div class="tab-content" id="tab-tracking">
-                    <div class="device-tracker" id="altTrackingGrid"></div>
+                    <div class="alt-track" id="altTrackingGrid"></div>
                 </div>
                 <div class="tab-content" id="tab-assignments">
                     <div class="card">
@@ -6517,7 +6616,7 @@ function filterInventoryCards() {
 }
 
 // ==================== INVENTORY ITEM DETAILS (history per card) ====================
-let invDetailsState = { item: null, moves: [], filter: 'all' };
+let invDetailsState = { item: null, moves: [], filter: 'all', from: '', to: '', preset: 'all' };
 
 function invParseDate(v) {
     if (!v) return 0;
@@ -6582,7 +6681,7 @@ async function openInvDetails(itemId) {
     });
     moves.sort((a, b) => (b.ts - a.ts));
 
-    invDetailsState = { item, moves, filter: 'all' };
+    invDetailsState = { item, moves, filter: 'all', from: '', to: '', preset: 'all' };
 
     const totalOut = moves.filter(m => m.type === 'out').reduce((s, m) => s + m.qty, 0);
     const totalIn = moves.filter(m => m.type === 'in').reduce((s, m) => s + m.qty, 0);
@@ -6614,6 +6713,20 @@ async function openInvDetails(itemId) {
                 <button type="button" class="ivd-tab" data-f="out" onclick="setInvDetailsFilter('out')"><i class="fas fa-arrow-up-from-bracket"></i> الصرفيات <span>${moves.filter(m => m.type === 'out').length}</span></button>
                 <button type="button" class="ivd-tab" data-f="in" onclick="setInvDetailsFilter('in')"><i class="fas fa-arrow-down-to-bracket"></i> الإضافات <span>${moves.filter(m => m.type === 'in').length}</span></button>
             </div>
+            <div class="ivd-range">
+                <div class="ivd-rf"><label for="ivdFrom"><i class="fas fa-calendar-day"></i> من تاريخ</label>
+                    <input type="date" id="ivdFrom" onchange="setInvDetailsRange()"></div>
+                <div class="ivd-rf"><label for="ivdTo"><i class="fas fa-calendar-check"></i> إلى تاريخ</label>
+                    <input type="date" id="ivdTo" onchange="setInvDetailsRange()"></div>
+                <div class="ivd-presets">
+                    <button type="button" class="ivd-preset is-active" data-p="all" onclick="applyInvDatePreset('all')">كل الفترات</button>
+                    <button type="button" class="ivd-preset" data-p="7" onclick="applyInvDatePreset('7')">آخر 7 أيام</button>
+                    <button type="button" class="ivd-preset" data-p="30" onclick="applyInvDatePreset('30')">آخر 30 يوم</button>
+                    <button type="button" class="ivd-preset" data-p="month" onclick="applyInvDatePreset('month')">هذا الشهر</button>
+                    <button type="button" class="ivd-preset" data-p="year" onclick="applyInvDatePreset('year')">هذه السنة</button>
+                </div>
+                <div class="ivd-range-info" id="ivdRangeInfo"></div>
+            </div>
             <div id="ivdList"></div>
         </div>
     `;
@@ -6627,11 +6740,66 @@ function setInvDetailsFilter(f) {
     renderInvDetailsList();
 }
 
+function invFmtDate(ts) {
+    const d = new Date(ts);
+    return isNaN(d) ? '-' : `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function invDateInput(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+
+function setInvDetailsRange(preset) {
+    invDetailsState.from = invDateInput('ivdFrom');
+    invDetailsState.to = invDateInput('ivdTo');
+    invDetailsState.preset = preset || 'custom';
+    if (!invDetailsState.from && !invDetailsState.to) invDetailsState.preset = 'all';
+    document.querySelectorAll('.ivd-preset').forEach(b => b.classList.toggle('is-active', b.dataset.p === invDetailsState.preset));
+    renderInvDetailsList();
+}
+
+function applyInvDatePreset(p) {
+    const now = new Date();
+    let from = '', to = invFmtDate(now.getTime());
+    if (p === 'all') { from = ''; to = ''; }
+    else if (p === '7') from = invFmtDate(now.getTime() - 6 * 86400000);
+    else if (p === '30') from = invFmtDate(now.getTime() - 29 * 86400000);
+    else if (p === 'month') from = invFmtDate(new Date(now.getFullYear(), now.getMonth(), 1).getTime());
+    else if (p === 'year') from = invFmtDate(new Date(now.getFullYear(), 0, 1).getTime());
+    const fEl = document.getElementById('ivdFrom'), tEl = document.getElementById('ivdTo');
+    if (fEl) fEl.value = from;
+    if (tEl) tEl.value = to;
+    setInvDetailsRange(p);
+}
+
+function invMovesInRange() {
+    const { moves, from, to } = invDetailsState;
+    if (!from && !to) return moves.slice();
+    const min = from ? new Date(from + 'T00:00:00').getTime() : -Infinity;
+    const max = to ? new Date(to + 'T23:59:59').getTime() : Infinity;
+    return moves.filter(m => m.ts && m.ts >= min && m.ts <= max);
+}
+
 function renderInvDetailsList() {
     const box = document.getElementById('ivdList');
     if (!box) return;
-    const { moves, filter } = invDetailsState;
-    const list = moves.filter(m => filter === 'all' || m.type === filter);
+    const { filter, from, to } = invDetailsState;
+    const inRange = invMovesInRange();
+    const list = inRange.filter(m => filter === 'all' || m.type === filter);
+
+    // live counters on the tabs
+    const counts = { all: inRange.length, out: inRange.filter(m => m.type === 'out').length, in: inRange.filter(m => m.type === 'in').length };
+    document.querySelectorAll('#ivdTabs .ivd-tab').forEach(b => { const sp = b.querySelector('span'); if (sp) sp.textContent = counts[b.dataset.f] ?? 0; });
+
+    const info = document.getElementById('ivdRangeInfo');
+    if (info) {
+        const outQ = list.filter(m => m.type === 'out').reduce((s, m) => s + m.qty, 0);
+        const inQ = list.filter(m => m.type === 'in').reduce((s, m) => s + m.qty, 0);
+        const label = (!from && !to) ? 'كل الفترات' : `${from || '…'} ← ${to || 'اليوم'}`;
+        info.innerHTML = `<i class="fas fa-filter"></i> ${label} • ${list.length} حركة • مصروف ${outQ} • مضاف ${inQ}` +
+            ((from || to) ? ` <button type="button" class="ivd-preset" style="margin-inline-start:auto" onclick="applyInvDatePreset('all')"><i class="fas fa-rotate-left"></i> مسح الفترة</button>` : '');
+    }
+    if (!list.length && (from || to)) {
+        box.innerHTML = `<div class="ivd-empty"><i class="fas fa-calendar-xmark"></i>لا توجد حركات في الفترة المحددة</div>`;
+        return;
+    }
     if (!list.length) {
         box.innerHTML = `<div class="ivd-empty"><i class="fas fa-inbox"></i>لا توجد حركات مسجلة لهذه القطعة</div>`;
         return;
@@ -7056,63 +7224,118 @@ async function printInventory() {
 }
 
 // ==================== ALTERNATIVES ====================
-async function loadAlternatives() {
-    const altDevices = await SupabaseAPI.request('alt_devices', 'GET');
-    const altModels = await SupabaseAPI.request('alt_models', 'GET');
-    const assignments = await SupabaseAPI.request('assignments', 'GET');
+let altState = { devices: [], models: [], assignments: [], filter: 'all' };
+const ALT_PALETTE = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6', '#f97316'];
 
+function altIconFor(type) {
+    const t = String(type || '');
+    if (/لاب|laptop|نوت/i.test(t)) return 'fa-laptop';
+    if (/طابع|print/i.test(t)) return 'fa-print';
+    if (/شاش|screen|monitor/i.test(t)) return 'fa-display';
+    if (/هاتف|جوال|phone/i.test(t)) return 'fa-mobile-screen';
+    if (/سكان|scan/i.test(t)) return 'fa-scanner-image';
+    if (/راوتر|شبك|switch|router/i.test(t)) return 'fa-network-wired';
+    if (/ups|طاق|بطار/i.test(t)) return 'fa-car-battery';
+    return 'fa-desktop';
+}
+
+function setAltFilter(f) {
+    altState.filter = f;
+    document.querySelectorAll('.alt-chip').forEach(b => b.classList.toggle('is-active', b.dataset.s === f));
+    renderAlternatives();
+}
+
+function renderAlternatives() {
+    const { devices, models, assignments, filter } = altState;
+    const q = (document.getElementById('altSearch')?.value || '').trim().toLowerCase();
+    const isAvail = m => m.status === 'available';
+    const matches = m => !q || [m.model, m.serial, m.location, m.type].some(v => String(v || '').toLowerCase().includes(q));
+
+    // KPIs
+    const totalCap = devices.reduce((s, d) => s + (Number(d.total_qty || d.totalQty) || 0), 0);
+    const avail = models.filter(isAvail).length;
+    const activeAssign = assignments.filter(a => a.status === 'active').length;
+    const hero = document.getElementById('altHero');
+    if (hero) hero.innerHTML = [
+        ['var(--primary)', 'fa-shapes', devices.length, 'أنواع الأجهزة'],
+        ['#0ea5e9', 'fa-boxes-stacked', `${models.length}<small style="font-size:13px;font-weight:800;color:var(--text-light)"> / ${totalCap}</small>`, 'إجمالي المسجل مقابل السعة'],
+        ['var(--success)', 'fa-circle-check', avail, 'أجهزة متاحة الآن'],
+        ['var(--warning)', 'fa-hand-holding-hand', activeAssign, 'تسليمات قائمة'],
+    ].map(([c, ic, v, l]) => `<div class="alt-kpi" style="--kc:${c}"><i class="fas ${ic}"></i><div><b>${v}</b><small>${l}</small></div></div>`).join('');
+
+    const setTxt2 = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+    setTxt2('altCountAll', models.length);
+    setTxt2('altCountAvail', avail);
+    setTxt2('altCountBusy', models.length - avail);
+
+    const visible = models.filter(m => matches(m) && (filter === 'all' || (filter === 'available' ? isAvail(m) : !isAvail(m))));
+
+    // ---- summary cards ----
     const summaryGrid = document.getElementById('altSummaryGrid');
-    summaryGrid.innerHTML = altDevices.map(dev => {
-        const models = altModels.filter(m => m.type === dev.type);
-        const available = models.filter(m => m.status === 'available').length;
-        const total = models.length;
-        const totalQty = dev.total_qty || dev.totalQty || 1;
-        const percentage = totalQty > 0 ? (total / totalQty) * 100 : 0;
-        const statusClass = total === 0 ? 'out-stock' : total <= 2 ? 'low-stock' : 'in-stock';
+    const typeCards = devices.map((dev, idx) => {
+        const all = models.filter(m => m.type === dev.type);
+        const shown = visible.filter(m => m.type === dev.type);
+        if (q || filter !== 'all') { if (!shown.length && !String(dev.type || '').toLowerCase().includes(q)) return ''; }
+        const total = all.length;
+        const av = all.filter(isAvail).length;
+        const cap = Number(dev.total_qty || dev.totalQty) || 0;
+        const pct = cap > 0 ? Math.min(100, Math.round((total / cap) * 100)) : (total ? 100 : 0);
+        const color = total === 0 ? 'var(--danger)' : (cap && total < cap) ? 'var(--warning)' : ALT_PALETTE[idx % ALT_PALETTE.length];
         return `
-            <div class="inventory-card ${statusClass}">
-                <div class="inventory-card-header">
-                    <div class="inventory-card-title">${dev.type}</div>
-                    <div class="inventory-card-qty">${total}/${totalQty}</div>
+            <div class="alt-card" style="--ac2:${color}; animation-delay:${Math.min(idx, 12) * 40}ms">
+                <div class="alt-card-head">
+                    <div class="alt-ring" style="--pct:${pct}"><b>${pct}%</b></div>
+                    <div style="min-width:0">
+                        <h4><i class="fas ${altIconFor(dev.type)}" style="margin-inline-end:6px;opacity:.75"></i>${dev.type}</h4>
+                        <div class="alt-sub">مسجل ${total} من سعة ${cap || '—'}</div>
+                    </div>
                 </div>
-                <div style="font-size: 12px; color: var(--text-light);">متاح: ${available} | الكل: ${total}</div>
-                <div class="inventory-card-bar">
-                    <div class="inventory-card-bar-fill" style="width: ${percentage}%"></div>
+                <div class="alt-facts">
+                    <div class="alt-fact" style="--fc:var(--success)"><b>${av}</b><small>متاح</small></div>
+                    <div class="alt-fact" style="--fc:var(--danger)"><b>${total - av}</b><small>غير متاح</small></div>
+                    <div class="alt-fact" style="--fc:var(--primary)"><b>${cap ? Math.max(0, cap - total) : 0}</b><small>ناقص للسعة</small></div>
                 </div>
-            </div>
-        `;
-    }).join('');
+            </div>`;
+    }).filter(Boolean).join('');
+    if (summaryGrid) summaryGrid.innerHTML = typeCards || `<div class="alt-empty"><i class="fas fa-inbox"></i>لا توجد نتائج مطابقة</div>`;
 
+    // ---- individual tracking ----
     const trackingGrid = document.getElementById('altTrackingGrid');
-    trackingGrid.innerHTML = altDevices.map(dev => {
-        const models = altModels.filter(m => m.type === dev.type);
+    const trackCards = devices.map((dev, idx) => {
+        const rows = visible.filter(m => m.type === dev.type);
+        const all = models.filter(m => m.type === dev.type);
+        if ((q || filter !== 'all') && !rows.length) return '';
+        const color = ALT_PALETTE[idx % ALT_PALETTE.length];
         return `
-            <div class="device-card">
-                <div class="device-card-header">
-                    <div class="device-card-title">${dev.type}</div>
-                    <div class="device-card-total">${models.length}/${dev.total_qty || dev.totalQty}</div>
+            <div class="altt-card" style="--ac2:${color}; animation-delay:${Math.min(idx, 12) * 40}ms">
+                <div class="altt-head">
+                    <i class="fas ${altIconFor(dev.type)} hicon"></i>
+                    <h4>${dev.type}</h4>
+                    <span class="altt-count">${rows.length}${rows.length !== all.length ? ` من ${all.length}` : ''} / ${dev.total_qty || dev.totalQty || 0}</span>
                 </div>
-                <div class="device-models-list">
-                    ${models.length > 0 ? models.map(m => `
-                        <div class="device-model-item" onclick="editAltModel(${m.id})">
-                            <div>
-                                <div class="device-model-name">${m.model}</div>
-                                <div style="font-size: 11px; color: var(--text-light);">SN: ${m.serial || 'بدون رقم'} | ${m.location || 'غير محدد'}</div>
+                <div class="altm-list">
+                    ${rows.length ? rows.map(m => `
+                        <div class="altm-row ${m.status === 'available' ? '' : 'busy'}" onclick="editAltModel(${m.id})" title="تعديل الموديل">
+                            <div class="altm-main">
+                                <div class="altm-name">${m.model || 'بدون اسم'}</div>
+                                <div class="altm-tags">
+                                    <span class="altm-tag"><i class="fas fa-barcode"></i>${m.serial || 'بدون رقم'}</span>
+                                    <span class="altm-tag"><i class="fas fa-location-dot"></i>${m.location || 'غير محدد'}</span>
+                                </div>
                             </div>
-                            <div class="device-model-status">
-                                <span class="status-dot ${m.status === 'available' ? 'available' : 'unavailable'}"></span>
-                                <span style="font-size: 12px;">${m.status === 'available' ? 'متاح' : 'غير متاح'}</span>
-                                <button class="action-btn delete" onclick="event.stopPropagation(); deleteAltModel(${m.id})" title="حذف"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                    `).join('') : '<p style="color: var(--text-light); text-align: center;">لا توجد موديلات مسجلة</p>'}
+                            <span class="altm-pill">${m.status === 'available' ? 'متاح' : 'غير متاح'}</span>
+                            <button class="action-btn delete no-readonly" onclick="event.stopPropagation(); deleteAltModel(${m.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                        </div>`).join('') : `<div class="alt-empty"><i class="fas fa-inbox"></i>لا توجد موديلات مسجلة</div>`}
                 </div>
-            </div>
-        `;
-    }).join('');
+            </div>`;
+    }).filter(Boolean).join('');
+    if (trackingGrid) trackingGrid.innerHTML = trackCards || `<div class="alt-empty"><i class="fas fa-magnifying-glass"></i>لا توجد أجهزة مطابقة للبحث</div>`;
 
+    // ---- assignments table ----
     const assignTbody = document.querySelector('#assignmentsTable tbody');
-    assignTbody.innerHTML = assignments.sort((a, b) => (b.id || 0) - (a.id || 0)).map(a => `
+    if (assignTbody) {
+        const list = assignments.filter(a => !q || [a.device_type || a.deviceType, a.model, a.employee, a.location].some(v => String(v || '').toLowerCase().includes(q)));
+        assignTbody.innerHTML = list.sort((a, b) => (b.id || 0) - (a.id || 0)).map(a => `
         <tr>
             <td>${a.device_type || a.deviceType}</td>
             <td>${a.model}</td>
@@ -7127,8 +7350,18 @@ async function loadAlternatives() {
                     <button class="action-btn delete no-readonly" onclick="deleteAssignment(${a.id})" title="حذف"><i class="fas fa-trash"></i></button>
                 </div>
             </td>
-        </tr>
-    `).join('');
+        </tr>`).join('') || `<tr><td colspan="8" style="text-align:center;color:var(--text-light);padding:22px">لا توجد تسليمات مطابقة</td></tr>`;
+    }
+}
+
+async function loadAlternatives() {
+    const altDevices = await SupabaseAPI.request('alt_devices', 'GET');
+    const altModels = await SupabaseAPI.request('alt_models', 'GET');
+    const assignments = await SupabaseAPI.request('assignments', 'GET');
+    altState.devices = altDevices || [];
+    altState.models = altModels || [];
+    altState.assignments = assignments || [];
+    renderAlternatives();
 
     const typeSelect = document.getElementById('altTypeSelect');
     if (typeSelect) {
