@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -3623,7 +3624,7 @@ async function printSearchResults() {
                     <div class="print-footer-brand"><i class="fas fa-tools"></i><span>نظام إدارة الصيانة</span></div>
                     <div class="print-footer-copy"><i class="fas fa-copyright"></i> جميع الحقوق محفوظة &copy; 2026</div>
                     <div class="print-footer-dev"><i class="fas fa-code"></i> تم تطويره بواسطة <strong>أحمد رحيل</strong><span class="print-footer-sep">|</span><i class="fas fa-phone-alt"></i><span dir="ltr">0797767862</span></div>
-                    <div class="print-footer-date"><i class="fas fa-print"></i> تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}</div>
+                    <div class="print-footer-date"><i class="fas fa-print"></i> تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')} ${new Date().toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn')}</div>
                 </div>
             </div>
         
@@ -4378,7 +4379,7 @@ async function printDocument(id) {
                         </div>
                         <div class="print-footer-date">
                             <i class="fas fa-print"></i>
-                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')} ${new Date().toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn')}
                         </div>
                     </div>
                 </div>
@@ -4483,7 +4484,7 @@ async function printDocuments() {
                         </div>
                         <div class="print-footer-date">
                             <i class="fas fa-print"></i>
-                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')} ${new Date().toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn')}
                         </div>
                     </div>
                 </div>
@@ -4760,7 +4761,7 @@ async function printComputerItem(id) {
                         </div>
                         <div class="print-footer-date">
                             <i class="fas fa-print"></i>
-                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')} ${new Date().toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn')}
                         </div>
                     </div>
                 </div>
@@ -4870,7 +4871,7 @@ async function printComputerItems() {
                         </div>
                         <div class="print-footer-date">
                             <i class="fas fa-print"></i>
-                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')} ${new Date().toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn')}
                         </div>
                     </div>
                 </div>
@@ -5937,7 +5938,7 @@ function buildRequestDocHTML(req) {
                         </div>
                         <div class="print-footer-date">
                             <i class="fas fa-print"></i>
-                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')} ${new Date().toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn')}
                         </div>
                     </div>
                 </div>
@@ -5965,60 +5966,114 @@ async function exportRequestPDF(id) {
     await exportRequestDoc(req);
 }
 
+// ==== تصدير PDF بجودة عالية للغة العربية (تنزيل مباشر) ====
+// يتم رسم التقرير عبر SVG foreignObject حتى يقوم المتصفح نفسه بتشكيل
+// وربط الحروف العربية (بدل html2canvas الذي كان يعكس ويبعثر الحروف)،
+// ثم يُحوَّل الناتج إلى صورة داخل ملف PDF ويُنزَّل مباشرة.
 const PDF_PAGE_WIDTH_PX = 794;
+let __pdfFontCss = null;
+
+async function __fetchAsDataURL(url) {
+    const res = await fetch(url, { mode: 'cors' });
+    const blob = await res.blob();
+    return await new Promise((resolve, reject) => {
+        const fr = new FileReader();
+        fr.onload = () => resolve(fr.result);
+        fr.onerror = reject;
+        fr.readAsDataURL(blob);
+    });
+}
+
+// تحميل الخطوط وتحويلها إلى base64 لتضمينها داخل ملف الـ SVG
+async function __getEmbeddedFontCss() {
+    if (__pdfFontCss !== null) return __pdfFontCss;
+    let css = '';
+    const sources = [
+        'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap',
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'
+    ];
+    for (const src of sources) {
+        try {
+            const res = await fetch(src, { mode: 'cors' });
+            let text = await res.text();
+            const urls = [...new Set((text.match(/url\(([^)]+)\)/g) || []).map(m =>
+                m.slice(4, -1).replace(/['"]/g, '').trim()
+            ))];
+            for (const u of urls) {
+                if (u.startsWith('data:')) continue;
+                const abs = new URL(u, src.startsWith('http') ? src : location.href).href;
+                try {
+                    const dataUrl = await __fetchAsDataURL(abs);
+                    text = text.split(u).join(dataUrl);
+                } catch (e) { /* تجاهل الخط غير المتاح */ }
+            }
+            css += text + '\n';
+        } catch (e) { /* تجاهل */ }
+    }
+    __pdfFontCss = css;
+    return css;
+}
+
+// تحويل عنصر HTML إلى canvas بواسطة محرك عرض المتصفح (يدعم العربية 100%)
+async function __htmlToCanvas(html, widthPx, heightPx, scale) {
+    const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${widthPx}" height="${heightPx}">` +
+        `<foreignObject width="100%" height="100%">` +
+        `<div xmlns="http://www.w3.org/1999/xhtml" dir="rtl" lang="ar">${html}</div>` +
+        `</foreignObject></svg>`;
+    const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = () => reject(new Error('svg render failed'));
+        img.src = url;
+    });
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.floor(widthPx * scale);
+    canvas.height = Math.floor(heightPx * scale);
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return canvas;
+}
 
 async function exportRequestDoc(req) {
-    if (typeof html2canvas === 'undefined') { showToast('error', 'خطأ', 'مكتبة PDF غير متوفرة'); return; }
-
-    const parsed = new DOMParser().parseFromString(buildRequestDocHTML(req), 'text/html');
-
-    // Scope the print stylesheet to the export container so it can't clash with the app
-    let css = [...parsed.querySelectorAll('style')].map(el => el.textContent).join('\n');
-    css = css.replace(/@media\s+print\s*\{[\s\S]*?\n\s*\}/g, '');
-    css = css.replace(/(^|\})\s*\*\s*\{/g, '$1 #pdfExportHolder *, #pdfExportHolder {');
-    css = css.replace(/(^|\})\s*body\s*\{/g, '$1 #pdfExportHolder {');
-    css = css.replace(/(^|\})\s*\.([a-z0-9_-]+)/gi, '$1 #pdfExportHolder .$2');
-
-    const oldWrap = document.getElementById('pdfExportWrap');
-    if (oldWrap) oldWrap.remove();
-
-    // Off-screen wrapper keeps it invisible; the inner holder stays "normal"
-    // so html2pdf's internal clone renders correctly (not blank).
-    const wrap = document.createElement('div');
-    wrap.id = 'pdfExportWrap';
-    wrap.style.cssText = 'position:fixed;top:0;left:-20000px;width:' + PDF_PAGE_WIDTH_PX + 'px;height:1px;overflow:hidden;opacity:1;z-index:-1;';
-
-    const holder = document.createElement('div');
-    holder.id = 'pdfExportHolder';
-    holder.setAttribute('dir', 'rtl');
-    holder.style.cssText = "width:" + PDF_PAGE_WIDTH_PX + "px;background:#ffffff;font-family:'Tajawal',sans-serif;color:#1e293b;font-size:13px;padding:22px 26px;";
-    holder.innerHTML = `<style>${css}</style>` + parsed.body.innerHTML;
-    wrap.appendChild(holder);
-    document.body.appendChild(wrap);
-
+    const num = req.request_number || req.requestNumber || req.id;
     showToast('info', 'جاري التصدير', 'يتم إنشاء ملف PDF...');
     try {
-        await new Promise(r => setTimeout(r, 300));
-        if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (e) {} }
-
-        const canvas = await html2canvas(holder, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: PDF_PAGE_WIDTH_PX,
-            width: PDF_PAGE_WIDTH_PX,
-            onclone: (doc) => {
-                const w = doc.getElementById('pdfExportWrap');
-                if (w) w.style.cssText = 'position:static;width:' + PDF_PAGE_WIDTH_PX + 'px;height:auto;overflow:visible;opacity:1;';
-                const el = doc.getElementById('pdfExportHolder');
-                if (el) { el.style.position = 'static'; el.style.opacity = '1'; el.style.visibility = 'visible'; }
-            }
-        });
-
         const { jsPDF } = window.jspdf || {};
         if (!jsPDF) throw new Error('jsPDF غير متوفر');
+
+        const parsed = new DOMParser().parseFromString(buildRequestDocHTML(req), 'text/html');
+        let css = [...parsed.querySelectorAll('style')].map(el => el.textContent).join('\n');
+        css = css.replace(/@media\s+print\s*\{[\s\S]*?\n\s*\}/g, '');
+        const fontCss = await __getEmbeddedFontCss();
+
+        // قياس الارتفاع الحقيقي للمحتوى قبل الرسم
+        const probe = document.createElement('div');
+        probe.style.cssText = 'position:fixed;left:-20000px;top:0;width:' + PDF_PAGE_WIDTH_PX + 'px;background:#fff;';
+        probe.setAttribute('dir', 'rtl');
+        probe.innerHTML = `<style>${css}</style><div class="pdf-body">${parsed.body.innerHTML}</div>`;
+        probe.querySelector('.pdf-body').style.cssText =
+            "font-family:'Tajawal',sans-serif;color:#1e293b;font-size:13px;padding:22px 26px;background:#fff;";
+        document.body.appendChild(probe);
+        await new Promise(r => setTimeout(r, 60));
+        const contentHeight = Math.max(400, Math.ceil(probe.querySelector('.pdf-body').getBoundingClientRect().height));
+        probe.remove();
+
+        const inner =
+            `<style>${fontCss}\n${css}\n
+              html,body{margin:0;padding:0;}
+              .pdf-body{font-family:'Tajawal','Segoe UI',sans-serif;color:#1e293b;font-size:13px;
+                        padding:22px 26px;background:#ffffff;width:${PDF_PAGE_WIDTH_PX}px;box-sizing:border-box;}
+            </style>` +
+            `<div class="pdf-body">${parsed.body.innerHTML}</div>`;
+
+        const scale = 2;
+        const canvas = await __htmlToCanvas(inner, PDF_PAGE_WIDTH_PX, contentHeight, scale);
+
         const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
         const pageW = 210, pageH = 297, margin = 8;
         const contentW = pageW - margin * 2;
@@ -6032,23 +6087,41 @@ async function exportRequestDoc(req) {
             const slice = document.createElement('canvas');
             slice.width = canvas.width;
             slice.height = sliceH;
-            const ctx = slice.getContext('2d');
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, slice.width, slice.height);
-            ctx.drawImage(canvas, 0, offset, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+            const sctx = slice.getContext('2d');
+            sctx.fillStyle = '#ffffff';
+            sctx.fillRect(0, 0, slice.width, slice.height);
+            sctx.drawImage(canvas, 0, offset, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
             if (pageIndex > 0) pdf.addPage();
             pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', margin, margin, contentW, sliceH / pxPerMm);
             offset += sliceH;
             pageIndex++;
         }
 
-        pdf.save(`طلب-صيانة-${req.request_number || req.requestNumber || req.id}.pdf`);
+        pdf.save(`طلب-صيانة-${num}.pdf`);
         showToast('success', 'تم التصدير', 'تم حفظ ملف PDF بنجاح');
     } catch (e) {
         console.error(e);
-        showToast('error', 'خطأ', 'تعذر إنشاء ملف PDF');
-    } finally {
-        wrap.remove();
+        // خطة بديلة: الطباعة عبر المتصفح (تحفظ PDF بعربية سليمة أيضاً)
+        try {
+            const old = document.getElementById('pdfPrintFrame');
+            if (old) old.remove();
+            const frame = document.createElement('iframe');
+            frame.id = 'pdfPrintFrame';
+            frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+            document.body.appendChild(frame);
+            const d = frame.contentDocument || frame.contentWindow.document;
+            d.open();
+            d.write(buildRequestDocHTML(req).replace('</head>',
+                '<style>@page{size:A4 portrait;margin:10mm}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head>'));
+            d.close();
+            try { d.title = `طلب-صيانة-${num}`; } catch (er) {}
+            await new Promise(r => setTimeout(r, 600));
+            frame.contentWindow.focus();
+            frame.contentWindow.print();
+            setTimeout(() => { const f = document.getElementById('pdfPrintFrame'); if (f) f.remove(); }, 60000);
+        } catch (e2) {
+            showToast('error', 'خطأ', 'تعذر إنشاء ملف PDF');
+        }
     }
 }
 
@@ -6152,7 +6225,7 @@ async function printRequests() {
                         </div>
                         <div class="print-footer-date">
                             <i class="fas fa-print"></i>
-                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')} ${new Date().toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn')}
                         </div>
                     </div>
                 </div>
@@ -6533,7 +6606,7 @@ async function printInventory() {
                         </div>
                         <div class="print-footer-date">
                             <i class="fas fa-print"></i>
-                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')} ${new Date().toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn')}
                         </div>
                     </div>
                 </div>
@@ -6925,7 +6998,7 @@ async function printAlternatives() {
                         </div>
                         <div class="print-footer-date">
                             <i class="fas fa-print"></i>
-                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')} ${new Date().toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn')}
                         </div>
                     </div>
                 </div>
@@ -7724,7 +7797,7 @@ async function printPage() {
                         </div>
                         <div class="print-footer-date">
                             <i class="fas fa-print"></i>
-                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')} ${new Date().toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn')}
                         </div>
                     </div>
                 </div>
@@ -8090,7 +8163,7 @@ async function printTender() {
                     <div class="print-footer-brand"><i class="fas fa-tools"></i><span>نظام إدارة الصيانة</span></div>
                     <div class="print-footer-copy"><i class="fas fa-copyright"></i> جميع الحقوق محفوظة &copy; 2026</div>
                     <div class="print-footer-dev"><i class="fas fa-code"></i> تم تطويره بواسطة <strong>أحمد رحيل</strong><span class="print-footer-sep">|</span><i class="fas fa-phone-alt"></i><span dir="ltr">0797767862</span></div>
-                    <div class="print-footer-date"><i class="fas fa-print"></i> تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}</div>
+                    <div class="print-footer-date"><i class="fas fa-print"></i> تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')} ${new Date().toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn')}</div>
                 </div>
             </div>
         </body>
@@ -8553,7 +8626,7 @@ function printReport() {
                     </div>
                     <div class="print-footer-date">
                         <i class="fas fa-print"></i>
-                        تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}
+                        تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')} ${new Date().toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn')}
                     </div>
                 </div>
             </div>
