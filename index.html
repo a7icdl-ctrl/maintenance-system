@@ -884,23 +884,76 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
         .log-clear { background: transparent; border: 1px solid var(--border-color); color: var(--text-medium); border-radius: 9px; padding: 7px 12px; font-family: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
         .log-badge { display: inline-flex; min-width: 18px; height: 18px; padding: 0 5px; align-items: center; justify-content: center; border-radius: 999px; background: var(--danger); color: #fff; font-size: 11px; font-weight: 900; margin-right: 4px; }
 
-        /* ===== شاشة تسجيل الدخول - تصميم راقٍ مختصر ===== */
-        #loginScreen { padding: 24px; min-height: 100vh; display: flex; align-items: center; justify-content: center;
-            background: radial-gradient(1200px 600px at 15% 10%, rgba(79,70,229,.22), transparent 60%),
-                        radial-gradient(1000px 600px at 85% 90%, rgba(6,182,212,.20), transparent 60%); }
-        .auth-card { position: relative; z-index: 1; width: 100%; max-width: 430px; border-radius: 28px; padding: 44px 36px 26px;
-            background: var(--card-bg); backdrop-filter: blur(26px); border: 1px solid rgba(255,255,255,.6);
-            box-shadow: 0 40px 90px rgba(15,23,42,.20); text-align: center; overflow: hidden; animation: authIn .6s cubic-bezier(.2,.8,.2,1); }
-        @keyframes authIn { from { opacity: 0; transform: translateY(18px) scale(.98); } to { opacity: 1; transform: none; } }
-        html[data-theme="dark"] .auth-card { background: rgba(18,25,42,.92); border-color: rgba(255,255,255,.08); }
-        .auth-card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 4px; background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent)); }
-        .auth-logo { width: 78px; height: 78px; margin: 0 auto 18px; border-radius: 24px; display: grid; place-items: center; font-size: 32px; color: #fff;
-            background: linear-gradient(140deg, #4f46e5, #0891b2); box-shadow: 0 16px 38px rgba(79,70,229,.35); }
-        .auth-card h1 { font-size: 24px; font-weight: 900; color: var(--text-dark); margin: 0 0 6px; }
-        .auth-sub { font-size: 12.5px; letter-spacing: 1.4px; font-weight: 700; color: var(--text-light); direction: ltr; margin: 0 0 22px; text-transform: uppercase; }
+        /* ===== شاشة تسجيل الدخول - تصميم إبداعي (Aurora Split) ===== */
+        #loginScreen { padding: 0 !important; min-height: 100vh; display: flex; align-items: stretch; justify-content: stretch;
+            background: #070b1a; overflow: hidden; }
+        .auth-stage { position: relative; z-index: 1; display: grid; grid-template-columns: 1.05fr .95fr; width: 100%; min-height: 100vh; }
+
+        /* --- اللوحة الجانبية للعلامة --- */
+        .auth-brand { position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; gap: 26px; padding: 60px 64px;
+            background: linear-gradient(150deg, #0b1030 0%, #131a4a 45%, #06263c 100%); color: #fff; }
+        .auth-brand::before { content:''; position:absolute; inset:-30%; background:
+            radial-gradient(closest-side, rgba(99,102,241,.55), transparent 70%) 18% 22%/55% 55% no-repeat,
+            radial-gradient(closest-side, rgba(6,182,212,.45), transparent 70%) 82% 70%/60% 60% no-repeat,
+            radial-gradient(closest-side, rgba(236,72,153,.32), transparent 70%) 55% 95%/50% 50% no-repeat;
+            filter: blur(20px); animation: auroraFloat 16s ease-in-out infinite alternate; }
+        @keyframes auroraFloat { 0% { transform: translate3d(0,0,0) scale(1) rotate(0deg); } 100% { transform: translate3d(-4%,-3%,0) scale(1.12) rotate(8deg); } }
+        .auth-brand::after { content:''; position:absolute; inset:0; opacity:.5;
+            background-image: linear-gradient(rgba(255,255,255,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.055) 1px, transparent 1px);
+            background-size: 46px 46px; mask-image: radial-gradient(120% 80% at 50% 40%, #000 25%, transparent 75%); }
+        .auth-brand > * { position: relative; z-index: 2; }
+        .auth-orb { position: absolute; z-index: 1; border-radius: 50%; filter: blur(2px); opacity: .55;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(129,140,248,.15) 60%, transparent 70%); animation: orbUp linear infinite; }
+        @keyframes orbUp { 0% { transform: translateY(20px) scale(.6); opacity: 0; } 25% { opacity: .7; } 100% { transform: translateY(-320px) scale(1.15); opacity: 0; } }
+
+        .brand-mark { display: flex; align-items: center; gap: 18px; }
+        .brand-ring { position: relative; width: 92px; height: 92px; display: grid; place-items: center; flex: 0 0 auto; }
+        .brand-ring::before { content:''; position: absolute; inset: 0; border-radius: 50%;
+            background: conic-gradient(from 0deg, #6366f1, #22d3ee, #ec4899, #6366f1); animation: ringSpin 6s linear infinite;
+            mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px)); }
+        .brand-ring::after { content:''; position:absolute; inset:10px; border-radius:50%; background: rgba(255,255,255,.06); backdrop-filter: blur(6px); }
+        @keyframes ringSpin { to { transform: rotate(360deg); } }
+        .brand-ring i { position: relative; z-index: 2; font-size: 34px; color: #fff; text-shadow: 0 6px 22px rgba(99,102,241,.9); }
+        .brand-mark h1 { font-size: 34px; font-weight: 900; margin: 0 0 6px; line-height: 1.25;
+            background: linear-gradient(90deg,#fff,#a5b4fc 60%,#67e8f9); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .brand-mark p { margin: 0; font-size: 12px; letter-spacing: 3px; direction: ltr; text-transform: uppercase; color: rgba(226,232,240,.65); font-weight: 700; }
+        .brand-tag { font-size: 17px; font-weight: 700; line-height: 2; color: rgba(226,232,240,.9); max-width: 460px; }
+        .brand-tag span { color: #67e8f9; }
+        .brand-feats { display: grid; gap: 12px; max-width: 460px; }
+        .brand-feat { display: flex; align-items: center; gap: 13px; padding: 13px 16px; border-radius: 16px; font-size: 13.5px; font-weight: 800;
+            background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10); backdrop-filter: blur(10px); color: #e2e8f0;
+            opacity: 0; transform: translateY(14px); animation: featIn .7s cubic-bezier(.2,.8,.2,1) forwards; }
+        .brand-feat:nth-child(1) { animation-delay: .25s; } .brand-feat:nth-child(2) { animation-delay: .4s; } .brand-feat:nth-child(3) { animation-delay: .55s; }
+        .brand-feat i { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; font-size: 14px; color: #fff;
+            background: linear-gradient(140deg, rgba(99,102,241,.9), rgba(34,211,238,.75)); box-shadow: 0 8px 20px rgba(56,189,248,.28); }
+        @keyframes featIn { to { opacity: 1; transform: none; } }
+        .brand-foot { margin-top: 6px; font-size: 12.5px; line-height: 2; color: rgba(226,232,240,.72); }
+        .brand-foot b { color: #fff; font-weight: 900; }
+        .brand-foot .ltr { direction: ltr; display: inline-block; }
+
+        /* --- بطاقة الدخول --- */
+        .auth-panel { position: relative; display: flex; align-items: center; justify-content: center; padding: 40px 34px;
+            background: linear-gradient(180deg, #f7f8ff, #eef2ff); }
+        html[data-theme="dark"] .auth-panel { background: linear-gradient(180deg, #0b1122, #0e152b); }
+        .auth-card { position: relative; z-index: 1; width: 100%; max-width: 430px; border-radius: 30px; padding: 40px 34px 24px;
+            background: var(--card-bg); backdrop-filter: blur(26px); border: 1px solid rgba(255,255,255,.65);
+            box-shadow: 0 34px 80px rgba(15,23,42,.16); text-align: center; overflow: hidden;
+            animation: authIn .75s cubic-bezier(.2,.8,.2,1); }
+        @keyframes authIn { from { opacity: 0; transform: translateY(24px) scale(.97); } to { opacity: 1; transform: none; } }
+        html[data-theme="dark"] .auth-card { background: rgba(18,25,42,.94); border-color: rgba(255,255,255,.08); box-shadow: 0 34px 80px rgba(0,0,0,.5); }
+        .auth-card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 4px;
+            background: linear-gradient(90deg, #6366f1, #22d3ee, #ec4899, #6366f1); background-size: 300% 100%; animation: barSlide 5s linear infinite; }
+        @keyframes barSlide { to { background-position: 300% 0; } }
+        .auth-logo { display: none; }
+        .auth-welcome { font-size: 11.5px; font-weight: 900; letter-spacing: 2px; color: var(--primary); text-transform: uppercase; direction: ltr; margin-bottom: 8px; }
+        .auth-card h1 { font-size: 26px; font-weight: 900; color: var(--text-dark); margin: 0 0 6px; }
+        .auth-sub { font-size: 12.5px; letter-spacing: 1.4px; font-weight: 700; color: var(--text-light); direction: ltr; margin: 0 0 20px; text-transform: uppercase; }
         .auth-form { text-align: right; }
-        .auth-status-row { display: block; margin-bottom: 16px; text-align: center; }
+        .auth-status-row { display: block; margin-bottom: 14px; text-align: center; }
         .auth-status { display: inline-flex !important; width: auto !important; align-items: center; gap: 7px; font-size: 12px; font-weight: 800; }
+        .auth-form .form-group { position: relative; }
+        .auth-form .form-control { border-radius: 15px; transition: box-shadow .25s, border-color .25s, transform .25s; }
+        .auth-form .form-control:focus { box-shadow: 0 0 0 4px rgba(99,102,241,.14); transform: translateY(-1px); }
         .auth-pass-wrap { position: relative; }
         .auth-pass-wrap .form-control { padding-left: 44px; }
         .auth-eye i { position: static !important; transform: none !important; color: inherit !important; font-size: inherit !important; right: auto !important; left: auto !important; }
@@ -908,14 +961,71 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
         .auth-row { display: flex; align-items: center; justify-content: flex-start; margin: -4px 0 18px; }
         .auth-link { color: var(--primary); font-size: 12.5px; font-weight: 800; text-decoration: none; }
         .auth-link:hover { text-decoration: underline; }
-        .auth-credit { margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--border-color); font-size: 12px; line-height: 2; color: var(--text-medium); }
+        .auth-form .btn-primary { width: 100%; border-radius: 16px; padding: 14px; font-size: 15px; font-weight: 900; position: relative; overflow: hidden;
+            background: linear-gradient(120deg, #4f46e5, #0891b2); border: none; box-shadow: 0 16px 34px rgba(79,70,229,.34); transition: transform .25s, box-shadow .25s; }
+        .auth-form .btn-primary::after { content:''; position:absolute; top:0; bottom:0; width: 45%; left: -60%; transform: skewX(-20deg);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent); animation: shine 3.2s ease-in-out infinite; }
+        @keyframes shine { 0%, 60% { left: -60%; } 100% { left: 130%; } }
+        .auth-form .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 22px 44px rgba(79,70,229,.42); }
+
+
+
+        /* ===== Aurora v2: ألوان محسّنة للوضعين + بطاقة حقوق واضحة ===== */
+        html[data-theme="light"] #loginScreen { background: #eef2ff; }
+        html[data-theme="dark"] #loginScreen { background: #05070f; }
+        html[data-theme="light"] .auth-brand { background: linear-gradient(150deg, #1b2260 0%, #2b3aa0 42%, #0e7490 100%); }
+        html[data-theme="dark"] .auth-brand { background: linear-gradient(150deg, #05081c 0%, #0b1136 45%, #032330 100%); }
+        html[data-theme="light"] .auth-brand::before { background:
+            radial-gradient(closest-side, rgba(129,140,248,.75), transparent 70%) 18% 22%/58% 58% no-repeat,
+            radial-gradient(closest-side, rgba(34,211,238,.60), transparent 70%) 82% 70%/62% 62% no-repeat,
+            radial-gradient(closest-side, rgba(244,114,182,.40), transparent 70%) 55% 95%/52% 52% no-repeat; }
+        html[data-theme="dark"] .auth-brand::before { background:
+            radial-gradient(closest-side, rgba(79,70,229,.55), transparent 70%) 18% 22%/58% 58% no-repeat,
+            radial-gradient(closest-side, rgba(8,145,178,.50), transparent 70%) 82% 70%/62% 62% no-repeat,
+            radial-gradient(closest-side, rgba(217,70,239,.28), transparent 70%) 55% 95%/52% 52% no-repeat;
+            filter: blur(26px) saturate(1.1); }
+        html[data-theme="dark"] .auth-brand::after { opacity: .35; }
+        html[data-theme="dark"] .brand-feat { background: rgba(255,255,255,.045); border-color: rgba(255,255,255,.08); }
+        html[data-theme="light"] .auth-panel { background: linear-gradient(180deg, #ffffff, #eef2ff 70%, #e0e7ff); }
+        html[data-theme="dark"] .auth-panel { background: radial-gradient(900px 500px at 50% 0%, rgba(79,70,229,.16), transparent 65%), linear-gradient(180deg, #080d1c, #0b1224); }
+
+        /* بطاقة المطور — تظهر مرة واحدة فقط */
+        .dev-badge { margin-top: 10px; display: flex; align-items: center; gap: 13px; padding: 12px 15px; border-radius: 16px;
+            background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); backdrop-filter: blur(12px);
+            box-shadow: 0 12px 28px rgba(0,0,0,.22); max-width: 420px; }
+        .dev-badge .dev-ava { width: 42px; height: 42px; flex: 0 0 auto; border-radius: 13px; display: grid; place-items: center;
+            font-size: 16px; font-weight: 900; color: #fff; background: linear-gradient(140deg,#6366f1,#22d3ee); box-shadow: 0 10px 22px rgba(56,189,248,.3); }
+        .dev-badge .dev-txt { line-height: 1.6; }
+        .dev-badge .dev-name { font-size: 15.5px; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .dev-badge .dev-role { font-size: 10px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; color: #67e8f9;
+            background: rgba(103,232,249,.12); border: 1px solid rgba(103,232,249,.25); border-radius: 999px; padding: 2px 8px; }
+        .dev-badge .dev-phone { font-size: 13px; font-weight: 800; color: #e2e8f0; direction: ltr; display: inline-block; }
+        .dev-badge .dev-phone i { margin-inline-end: 5px; color: #a5b4fc; }
+        .dev-badge .dev-cr { display: block; font-size: 11px; font-weight: 700; color: rgba(226,232,240,.62); }
+
+        /* نسخة مختصرة داخل البطاقة تظهر فقط عند إخفاء لوحة العلامة (موبايل) */
+        .auth-credit { display: none; margin-top: 20px; padding-top: 14px; border-top: 1px dashed var(--border-color);
+            font-size: 11.5px; font-weight: 700; text-align: center; color: var(--text-light); }
         .auth-credit b { color: var(--text-dark); font-weight: 900; }
-        .auth-credit .ltr { direction: ltr; display: inline-block; }
-        .auth-credit .cr { display: block; margin-top: 4px; font-size: 11px; color: var(--text-light); }
-        @media (max-width: 480px) { .auth-card { padding: 34px 22px 20px; border-radius: 22px; } }
-        .auth-note { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12.5px; font-weight: 700; color: var(--primary);
-            background: rgba(79,70,229,.08); border: 1px solid rgba(79,70,229,.18); border-radius: 14px; padding: 10px 12px; margin: 0 0 18px; }
-        html[data-theme="dark"] .auth-note { background: rgba(99,102,241,.14); border-color: rgba(99,102,241,.28); }
+        .auth-credit .ac-phone { color: var(--primary); font-weight: 900; direction: ltr; display: inline-block; }
+
+
+        /* قفل المحاولات الخاطئة */
+        .auth-lock { display: none; align-items: center; justify-content: center; gap: 9px; font-size: 12.5px; font-weight: 800;
+            color: #b91c1c; background: rgba(239,68,68,.10); border: 1px solid rgba(239,68,68,.28); border-radius: 14px; padding: 10px 12px; margin: 0 0 14px; }
+        html[data-theme="dark"] .auth-lock { color: #fca5a5; background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.32); }
+        .auth-lock.show { display: flex; animation: authIn .35s ease; }
+        .auth-lock.warn { color: #b45309; background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.32); }
+        html[data-theme="dark"] .auth-lock.warn { color: #fcd34d; }
+        .auth-form .btn-primary:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; filter: grayscale(.3); }
+        @media (max-width: 1024px) { .auth-stage { grid-template-columns: 1fr; }
+            .auth-brand { padding: 44px 28px 34px; gap: 18px; }
+            .brand-feats, .brand-tag, .brand-foot { display: none; }
+            .auth-credit { display: block; }
+
+            .brand-mark h1 { font-size: 26px; } .brand-ring { width: 72px; height: 72px; } .brand-ring i { font-size: 27px; }
+            .auth-panel { padding: 26px 18px 40px; } }
+        @media (max-width: 480px) { .auth-card { padding: 32px 20px 20px; border-radius: 24px; } }
         .pw-strength { margin-top: 9px; margin-bottom: 10px; }
         .pw-bars { display: flex; gap: 5px; }
         .pw-bars span { flex: 1; height: 5px; border-radius: 999px; background: var(--border-color); transition: background .25s; }
@@ -1354,13 +1464,47 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
     </div>
 
     <div class="login-container" id="loginScreen" style="display:none;">
+      <div class="auth-stage">
+        <aside class="auth-brand">
+            <span class="auth-orb" style="width:10px;height:10px;left:12%;bottom:8%;animation-duration:11s;"></span>
+            <span class="auth-orb" style="width:16px;height:16px;left:32%;bottom:2%;animation-duration:15s;animation-delay:2s;"></span>
+            <span class="auth-orb" style="width:7px;height:7px;left:58%;bottom:12%;animation-duration:9s;animation-delay:1s;"></span>
+            <span class="auth-orb" style="width:13px;height:13px;left:78%;bottom:4%;animation-duration:13s;animation-delay:3.5s;"></span>
+            <div class="brand-mark">
+                <div class="brand-ring"><i class="fas fa-tools"></i></div>
+                <div>
+                    <h1>نظام إدارة الصيانة</h1>
+                    <p>Maintenance Management System</p>
+                </div>
+            </div>
+            <div class="brand-tag">منصّة متكاملة لإدارة <span>طلبات الصيانة</span> ومتابعة عطاء الصيانة والتقارير لحظة بلحظة.</div>
+            <div class="brand-feats">
+                <div class="brand-feat"><i class="fas fa-bolt"></i> متابعة فورية لحالة كل طلب صيانة</div>
+                <div class="brand-feat"><i class="fas fa-chart-line"></i> تقارير وإحصائيات ذكية قابلة للتصدير</div>
+                <div class="brand-feat"><i class="fas fa-shield-halved"></i> قاعدة بيانات آمنة وصلاحيات محكمة</div>
+            </div>
+            <div class="brand-foot">
+                <div class="dev-badge">
+                    <div class="dev-ava">أر</div>
+                    <div class="dev-txt">
+                        <div class="dev-name">أحمد رحيل <span class="dev-role">تطوير وتصميم</span></div>
+                        <a class="dev-phone" href="tel:0797767862"><i class="fas fa-phone-alt"></i>0797767862</a>
+                        <span class="dev-cr">© 2026 جميع الحقوق محفوظة</span>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+        <section class="auth-panel">
         <div class="auth-card">
-            <div class="auth-logo"><i class="fas fa-tools"></i></div>
-            <h1>نظام إدارة الصيانة</h1>
-            <p class="auth-sub">Maintenance Management System</p>
+            <div class="auth-welcome">Welcome Back</div>
+            <h1>تسجيل الدخول</h1>
+            <p class="auth-sub">Sign in to your account</p>
             <div class="auth-form">
                 <div class="auth-status-row"><span class="sync-status online auth-status" id="connectionStatus"><i class="fas fa-wifi"></i> متصل بالسيرفر</span></div>
-                <div class="auth-note"><i class="fas fa-shield-halved"></i> هذا النظام متصل بقاعدة بيانات آمنة</div>
+
+
+                <div class="auth-lock" id="loginLockMsg"></div>
                 <div class="form-group">
                     <label>اسم المستخدم</label>
                     <div class="input-wrapper">
@@ -1389,12 +1533,12 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 </button>
             </div>
             <div class="auth-credit">
-                <div style="margin-bottom:6px;color:var(--text-light);font-size:11.5px;"><i class="fas fa-lock"></i> نظام آمن — الرجاء إدخال بيانات الاعتماد</div>
-                <div><i class="fas fa-code"></i> تطوير وتصميم: <b>أحمد رحيل</b></div>
-                <div><i class="fas fa-phone-alt"></i> للتواصل: <b class="ltr">0797767862</b></div>
-                <span class="cr"><i class="fas fa-copyright"></i> 2026 جميع الحقوق محفوظة</span>
+                تطوير وتصميم <b>أحمد رحيل</b> · <a class="ac-phone" href="tel:0797767862">0797767862</a> · © 2026 جميع الحقوق محفوظة
             </div>
+
         </div>
+        </section>
+      </div>
     </div>
 
 
@@ -3457,6 +3601,12 @@ function resetUsersAndReload() {
 }
 
 async function handleLogin() {
+    const lockRem = (typeof loginLockRemaining === 'function') ? loginLockRemaining() : 0;
+    if (lockRem > 0) {
+        renderLoginLockUI();
+        showToast('error', 'محظور مؤقتاً', 'الرجاء الانتظار ' + fmtLockTime(lockRem) + ' قبل إعادة المحاولة');
+        return;
+    }
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value;
 
@@ -3491,6 +3641,7 @@ async function handleLogin() {
     }
 
     if (user) {
+        clearLoginGuard();
         currentUser = user;
         localStorage.setItem('currentUser', JSON.stringify(user));
         attachIdleListeners();
@@ -3532,6 +3683,7 @@ async function handleLogin() {
         await loadAlternatives();
     } else {
         showToast('error', 'خطأ', 'اسم المستخدم أو كلمة المرور غير صحيحة');
+        registerFailedLogin();
     }
 }
 
@@ -8880,9 +9032,95 @@ function updateThemeToggleIcon(theme) {
 }
 
 function loadTheme() {
-    const savedTheme = localStorage.getItem('app_theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeToggleIcon(savedTheme);
+    const saved = localStorage.getItem('app_theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved || (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    updateThemeToggleIcon(theme);
+
+    // تتبع تغيّر إعداد النظام تلقائياً ما لم يختر المستخدم وضعاً يدوياً
+    if (window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        const onChange = (e) => {
+            if (localStorage.getItem('app_theme')) return;
+            const t = e.matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', t);
+            updateThemeToggleIcon(t);
+        };
+        if (mq.addEventListener) mq.addEventListener('change', onChange); else if (mq.addListener) mq.addListener(onChange);
+    }
+}
+
+/* ==================== حماية الدخول من المحاولات المتكررة ==================== */
+const LOGIN_MAX_ATTEMPTS = 5;
+const LOGIN_LOCK_STEPS = [30, 60, 180, 300, 900]; // بالثواني، تتصاعد مع كل قفل
+let loginLockTimer = null;
+
+function getLoginGuard() {
+    try { return JSON.parse(localStorage.getItem('login_guard') || '{}'); } catch (e) { return {}; }
+}
+function setLoginGuard(g) { localStorage.setItem('login_guard', JSON.stringify(g)); }
+
+function loginLockRemaining() {
+    const g = getLoginGuard();
+    if (!g.lockUntil) return 0;
+    return Math.max(0, Math.ceil((g.lockUntil - Date.now()) / 1000));
+}
+
+function fmtLockTime(sec) {
+    const m = Math.floor(sec / 60), s = sec % 60;
+    return m > 0 ? (m + ':' + String(s).padStart(2, '0') + ' دقيقة') : (s + ' ثانية');
+}
+
+function renderLoginLockUI() {
+    const box = document.getElementById('loginLockMsg');
+    const btn = document.querySelector('#loginScreen .btn-primary');
+    const inputs = ['loginUsername', 'loginPassword'].map(id => document.getElementById(id));
+    if (!box) return;
+    const rem = loginLockRemaining();
+    const g = getLoginGuard();
+
+    if (rem > 0) {
+        box.className = 'auth-lock show';
+        box.innerHTML = '<i class="fas fa-lock"></i> تم إيقاف تسجيل الدخول مؤقتاً بسبب محاولات خاطئة متكررة — أعد المحاولة بعد <b>' + fmtLockTime(rem) + '</b>';
+        if (btn) btn.disabled = true;
+        inputs.forEach(i => { if (i) i.disabled = true; });
+        if (!loginLockTimer) loginLockTimer = setInterval(renderLoginLockUI, 1000);
+    } else {
+        if (loginLockTimer) { clearInterval(loginLockTimer); loginLockTimer = null; }
+        if (btn) btn.disabled = false;
+        inputs.forEach(i => { if (i) i.disabled = false; });
+        const left = LOGIN_MAX_ATTEMPTS - (g.fails || 0);
+        if (g.fails > 0 && left > 0) {
+            box.className = 'auth-lock warn show';
+            box.innerHTML = '<i class="fas fa-triangle-exclamation"></i> محاولة خاطئة — تبقّى لديك <b>' + left + '</b> محاولات قبل الإيقاف المؤقت';
+        } else {
+            box.className = 'auth-lock';
+            box.innerHTML = '';
+        }
+    }
+}
+
+function registerFailedLogin() {
+    const g = getLoginGuard();
+    g.fails = (g.fails || 0) + 1;
+    if (g.fails >= LOGIN_MAX_ATTEMPTS) {
+        g.locks = (g.locks || 0) + 1;
+        const sec = LOGIN_LOCK_STEPS[Math.min(g.locks - 1, LOGIN_LOCK_STEPS.length - 1)];
+        g.lockUntil = Date.now() + sec * 1000;
+        g.fails = 0;
+        setLoginGuard(g);
+        renderLoginLockUI();
+        showToast('error', 'تم الإيقاف المؤقت', 'محاولات دخول خاطئة متكررة. حاول بعد ' + fmtLockTime(sec));
+        return;
+    }
+    setLoginGuard(g);
+    renderLoginLockUI();
+}
+
+function clearLoginGuard() {
+    localStorage.removeItem('login_guard');
+    renderLoginLockUI();
 }
 
 // ==================== ENHANCED CHARTS FOR DARK MODE ====================
@@ -8967,6 +9205,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
 
         // Enter key support
+        try { renderLoginLockUI(); } catch (e) {}
         const loginPass = document.getElementById('loginPassword');
         if (loginPass) {
             loginPass.addEventListener('keypress', function(e) {
