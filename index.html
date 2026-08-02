@@ -80,26 +80,48 @@
         .btn-sm { padding: 8px 16px; font-size: 13px; }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
         .app-container { display: none; position: relative; z-index: 1; }
-        .sidebar { position: fixed; right: 0; top: 0; width: 280px; height: 100vh; background: linear-gradient(180deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%); padding: 25px 0; z-index: 1000; overflow-y: auto; box-shadow: 5px 0 30px rgba(0,0,0,0.2); }
-        .sidebar-header { text-align: center; padding: 0 20px 25px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .sidebar-logo { width: 70px; height: 70px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; backdrop-filter: blur(10px); }
-        .sidebar-logo i { font-size: 32px; color: white; }
-        .sidebar-header h2 { color: white; font-size: 18px; font-weight: 700; }
-        .sidebar-header p { color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 5px; }
-        .nav-menu { padding: 20px 15px; }
-        .nav-item { display: flex; align-items: center; padding: 14px 18px; margin-bottom: 6px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.3s ease; color: rgba(255,255,255,0.7); text-decoration: none; }
-        .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); color: white; }
-        .nav-item i { font-size: 18px; width: 30px; margin-left: 12px; }
-        .nav-item span { font-size: 15px; font-weight: 600; }
-        .nav-badge { margin-right: auto; background: var(--accent); color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
-        .sidebar-footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
-        .user-info { display: flex; align-items: center; gap: 12px; color: white; }
-        .user-avatar { width: 45px; height: 45px; background: linear-gradient(135deg, var(--accent), #f97316); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; }
-        .user-details h4 { font-size: 14px; font-weight: 700; }
-        .user-details p { font-size: 11px; color: rgba(255,255,255,0.6); }
-        .logout-btn { margin-top: 15px; width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: var(--radius-sm); cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: 600; transition: all 0.3s; }
+        :root { --sb-w: 248px; }
+        .sidebar { position: fixed; right: 0; top: 0; width: var(--sb-w); height: 100vh; background: linear-gradient(180deg, #1e1b4b 0%, #312e81 55%, #4338ca 100%); padding: 14px 0 0; z-index: 1000; display: flex; flex-direction: column; box-shadow: -4px 0 24px rgba(0,0,0,0.18); transition: width .28s cubic-bezier(.4,0,.2,1); }
+        .sidebar-header { display: flex; align-items: center; gap: 10px; padding: 4px 14px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .sidebar-logo { width: 38px; height: 38px; flex: 0 0 38px; background: rgba(255,255,255,0.14); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .sidebar-logo i { font-size: 17px; color: white; }
+        .sidebar-header .sb-titles { min-width: 0; overflow: hidden; }
+        .sidebar-header h2 { color: white; font-size: 15px; font-weight: 700; white-space: nowrap; }
+        .sidebar-header p { color: rgba(255,255,255,0.5); font-size: 10px; margin-top: 1px; white-space: nowrap; }
+        .sb-collapse { margin-right: auto; width: 28px; height: 28px; flex: 0 0 28px; border: none; border-radius: 8px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,.8); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all .2s; }
+        .sb-collapse:hover { background: rgba(255,255,255,0.2); color: #fff; }
+        .nav-menu { padding: 10px 10px 12px; flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.18) transparent; }
+        .nav-menu::-webkit-scrollbar { width: 5px; }
+        .nav-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 4px; }
+        .nav-item { position: relative; display: flex; align-items: center; padding: 9px 12px; margin-bottom: 2px; border-radius: 10px; cursor: pointer; transition: background .2s ease, color .2s ease; color: rgba(255,255,255,0.72); text-decoration: none; white-space: nowrap; }
+        .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .nav-item.active { background: rgba(255,255,255,0.16); color: #fff; }
+        .nav-item.active::before { content: ''; position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 60%; border-radius: 3px; background: var(--accent, #f59e0b); }
+        .nav-item i { font-size: 15px; width: 22px; flex: 0 0 22px; text-align: center; margin-left: 10px; }
+        .nav-item span:not(.nav-badge) { font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+        .nav-badge { margin-right: auto; background: var(--accent); color: white; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+        .sidebar-footer { flex: 0 0 auto; padding: 10px 12px 12px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.12); }
+        .user-info { display: flex; align-items: center; gap: 10px; color: white; min-width: 0; }
+        .user-avatar { width: 34px; height: 34px; flex: 0 0 34px; background: linear-gradient(135deg, var(--accent), #f97316); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+        .user-details { min-width: 0; overflow: hidden; }
+        .user-details h4 { font-size: 12.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-details p { font-size: 10px; color: rgba(255,255,255,0.55); white-space: nowrap; }
+        .logout-btn { margin-top: 9px; width: 100%; padding: 7px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); color: white; border-radius: 9px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-size: 12.5px; font-weight: 600; transition: all 0.25s; }
         .logout-btn:hover { background: rgba(239,68,68,0.3); border-color: var(--danger); }
-        .main-content { margin-right: 280px; padding: 30px; min-height: 100vh; }
+        /* الوضع المصغّر */
+        html.sb-collapsed { --sb-w: 66px; }
+        .sidebar.collapsed .sb-titles, .sidebar.collapsed .nav-item span, .sidebar.collapsed .user-details, .sidebar.collapsed .logout-btn span, .sidebar.collapsed #sidebarSyncStatus { display: none; }
+        .sidebar.collapsed .sidebar-header { flex-direction: column; gap: 8px; padding: 4px 8px 10px; }
+        .sidebar.collapsed .sb-collapse { margin: 0; }
+        .sidebar.collapsed .nav-menu { padding: 10px 8px; }
+        .sidebar.collapsed .nav-item { justify-content: center; padding: 10px 0; }
+        .sidebar.collapsed .nav-item i { margin-left: 0; }
+        .sidebar.collapsed .user-info { justify-content: center; }
+        .sidebar.collapsed .sidebar-footer { padding: 10px 8px; }
+        .sidebar.collapsed .nav-item::after { content: attr(data-title); position: absolute; right: calc(100% + 8px); top: 50%; transform: translateY(-50%) scale(.96); background: #111827; color: #fff; font-size: 12px; font-weight: 600; padding: 5px 9px; border-radius: 7px; opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s; white-space: nowrap; z-index: 1200; }
+        .sidebar.collapsed .nav-item:hover::after { opacity: 1; transform: translateY(-50%) scale(1); }
+        .main-content { margin-right: var(--sb-w); padding: 26px; min-height: 100vh; transition: margin-right .28s cubic-bezier(.4,0,.2,1); }
+
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .page-title { font-size: 28px; font-weight: 800; color: var(--text-dark); position: relative; display: inline-block; }
         .page-title::after { content: ''; position: absolute; bottom: -8px; right: 0; width: 50px; height: 4px; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 2px; }
@@ -341,7 +363,7 @@
         .file-upload-area i { font-size: 48px; color: var(--primary-light); margin-bottom: 15px; }
         .file-upload-area h4 { font-size: 16px; color: var(--text-dark); margin-bottom: 5px; }
         .file-upload-area p { font-size: 13px; color: var(--text-light); }
-        @media (max-width: 1024px) { .sidebar { width: 240px; } .main-content { margin-right: 240px; } }
+        @media (max-width: 1024px) { :root { --sb-w: 220px; } }
         @media (max-width: 768px) { .sidebar { transform: translateX(100%); transition: transform 0.3s; } .sidebar.open { transform: translateX(0); } .main-content { margin-right: 0; } .stats-grid { grid-template-columns: repeat(2, 1fr); } }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
@@ -1095,59 +1117,63 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 <div class="sidebar-logo">
                     <i class="fas fa-tools"></i>
                 </div>
-                <h2>نظام الصيانة</h2>
-                <p>Maintenance System</p>
+                <div class="sb-titles">
+                    <h2>نظام الصيانة</h2>
+                    <p>Maintenance System</p>
+                </div>
+                <button class="sb-collapse" id="sbCollapseBtn" onclick="toggleSidebarCollapse()" title="تصغير/تكبير القائمة">
+                    <i class="fas fa-angles-right"></i>
+                </button>
             </div>
             <nav class="nav-menu">
-                <a class="nav-item active" onclick="showPage('dashboard')">
+                <a class="nav-item active" data-title="لوحة التحكم" onclick="showPage('dashboard')">
                     <i class="fas fa-chart-pie"></i>
                     <span>لوحة التحكم</span>
                 </a>
-                <a class="nav-item" onclick="showPage('requests')">
+                <a class="nav-item" data-title="طلبات الصيانة" onclick="showPage('requests')">
                     <i class="fas fa-clipboard-list"></i>
                     <span>طلبات الصيانة</span>
                     <span class="nav-badge" id="requestsBadge">0</span>
                 </a>
-                <a class="nav-item" onclick="showPage('inventory')">
+                <a class="nav-item" data-title="قطع الغيار" onclick="showPage('inventory')">
                     <i class="fas fa-boxes"></i>
                     <span>قطع الغيار</span>
                 </a>
-                <a class="nav-item" onclick="showPage('alternatives')">
+                <a class="nav-item" data-title="الأجهزة البديلة" onclick="showPage('alternatives')">
                     <i class="fas fa-laptop"></i>
                     <span>الأجهزة البديلة</span>
                 </a>
-                
-                                                <a class="nav-item" onclick="showPage('computer_items')">
+                <a class="nav-item" data-title="المواد الحاسوبية" onclick="showPage('computer_items')">
                     <i class="fas fa-desktop"></i>
                     <span>المواد الحاسوبية</span>
                     <span class="nav-badge" id="computerItemsBadge">0</span>
                 </a>
-<a class="nav-item" onclick="showPage('tender')">
+                <a class="nav-item" data-title="تفاصيل عطاء الصيانة" onclick="showPage('tender')">
                     <i class="fas fa-file-contract"></i>
                     <span>تفاصيل عطاء الصيانة</span>
                 </a>
-                <a class="nav-item" onclick="showPage('smart_forms')">
+                <a class="nav-item" data-title="نماذج ذكية" onclick="showPage('smart_forms')">
                     <i class="fas fa-wand-magic-sparkles"></i>
                     <span>نماذج ذكية</span>
                 </a>
-<a class="nav-item admin-only" onclick="showPage('documents')" style="display:none;">
+                <a class="nav-item admin-only" data-title="الوثائق والملاحظات" onclick="showPage('documents')" style="display:none;">
                     <i class="fas fa-file-alt"></i>
                     <span>الوثائق والملاحظات</span>
                     <span class="nav-badge" id="documentsBadge">0</span>
                 </a>
-                <a class="nav-item admin-only" onclick="showPage('reports')" style="display:none;">
+                <a class="nav-item admin-only" data-title="التقارير والرسوم البيانية" onclick="showPage('reports')" style="display:none;">
                     <i class="fas fa-chart-bar"></i>
-                    <span>التقارير والرسوم البيانية</span>
+                    <span>التقارير والرسوم</span>
                 </a>
-                <a class="nav-item admin-only" onclick="showPage('advanced_search')" style="display:none;">
+                <a class="nav-item admin-only" data-title="بحث متقدم" onclick="showPage('advanced_search')" style="display:none;">
                     <i class="fas fa-search-plus"></i>
                     <span>بحث متقدم</span>
                 </a>
-                <a class="nav-item" onclick="showPage('departments')">
+                <a class="nav-item" data-title="الأقسام" onclick="showPage('departments')">
                     <i class="fas fa-building"></i>
                     <span>الأقسام</span>
                 </a>
-<a class="nav-item admin-only" onclick="showPage('admin')" style="display:none;">
+                <a class="nav-item admin-only" data-title="إدارة النظام" onclick="showPage('admin')" style="display:none;">
                     <i class="fas fa-cog"></i>
                     <span>إدارة النظام</span>
                 </a>
@@ -1160,13 +1186,14 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                         <p id="userRole">مدير النظام</p>
                     </div>
                 </div>
-                <div style="margin-top: 10px; text-align: center;">
+                <div style="margin-top: 8px; text-align: center;">
                     <span class="sync-status online" id="sidebarSyncStatus" style="font-size: 11px;"><i class="fas fa-wifi"></i> متصل</span>
                 </div>
                 <button class="logout-btn" onclick="handleLogout()">
-                    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                    <i class="fas fa-sign-out-alt"></i> <span>تسجيل الخروج</span>
                 </button>
             </div>
+
         </div>
 
         <div class="main-content">
@@ -10401,7 +10428,31 @@ async function generateMonthlyPDFReport() {
         if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-download"></i> إنشاء التقرير PDF'; }
     }
 }
+
+// ===== تصغير/تكبير القائمة الجانبية =====
+function applySidebarCollapse(collapsed) {
+    const sb = document.getElementById('sidebar');
+    const icon = document.querySelector('#sbCollapseBtn i');
+    document.documentElement.classList.toggle('sb-collapsed', collapsed);
+    if (sb) sb.classList.toggle('collapsed', collapsed);
+    if (icon) icon.className = collapsed ? 'fas fa-angles-left' : 'fas fa-angles-right';
+}
+function toggleSidebarCollapse() {
+    const next = !document.documentElement.classList.contains('sb-collapsed');
+    applySidebarCollapse(next);
+    try { localStorage.setItem('sidebarCollapsed', next ? '1' : '0'); } catch (e) {}
+}
+(function () {
+    const init = () => {
+        let saved = '0';
+        try { saved = localStorage.getItem('sidebarCollapsed') || '0'; } catch (e) {}
+        applySidebarCollapse(saved === '1');
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+})();
 </script>
+
 
 </body>
 </html>
