@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1804,6 +1805,12 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                         </button>
                         <button class="btn btn-primary btn-sm" onclick="printRequests()">
                             <i class="fas fa-print"></i> طباعة
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="printDetailedRequestsReport()" title="تقرير تفصيلي لجميع الطلبات مع مدة التأخير والإجراءات">
+                            <i class="fas fa-file-lines"></i> تقرير تفصيلي (طباعة / PDF)
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="printDetailedRequestsReport({ activeOnly: true })" title="تقرير تفصيلي للطلبات النشطة فقط (باستثناء المكتمل والملغي والمكرر)">
+                            <i class="fas fa-bolt"></i> تقرير الطلبات النشطة
                         </button>
                         <button class="btn btn-info btn-sm" onclick="openRequestMap()">
                             <i class="fas fa-map"></i> خريطة الطلبات
@@ -6629,6 +6636,322 @@ async function exportRequestDoc(req) {
             showToast('error', 'خطأ', 'تعذر إنشاء ملف PDF');
         }
     }
+}
+
+
+/* ============================================================
+   تقرير تفصيلي جاهز للطباعة / PDF لجميع طلبات الصيانة
+   يشمل: الحالة، مدة التأخير لكل طلب، وتفاصيل الإجراءات
+   ============================================================ */
+function _drEsc(v) {
+    return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function _drDate(v) {
+    if (!v) return '-';
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return String(v);
+    const p = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+function _drDateTime(v) {
+    if (!v) return '-';
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return String(v);
+    const p = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+// حساب مدة الطلب / التأخير بالأيام
+function _drDelay(req) {
+    const CLOSED = ['completed', 'cancelled', 'duplicate'];
+    const start = new Date(req.created_at || req.createdAt || 0);
+    if (isNaN(start.getTime()) || !(req.created_at || req.createdAt)) {
+        return { days: null, closed: CLOSED.includes(req.status), label: 'غير محدد', level: 'na', endLabel: '-' };
+    }
+    const closed = CLOSED.includes(req.status);
+    const endRaw = closed ? (req.updated_at || req.updatedAt || req.created_at || req.createdAt) : new Date().toISOString();
+    const end = new Date(endRaw);
+    let days = Math.floor((end - start) / 86400000);
+    if (!isFinite(days) || days < 0) days = 0;
+    let level = 'ok';
+    if (closed) level = days > 7 ? 'warn' : 'ok';
+    else if (days > 14) level = 'bad';
+    else if (days > 7) level = 'warn';
+    return {
+        days,
+        closed,
+        level,
+        label: `${days} يوم`,
+        endLabel: closed ? _drDate(endRaw) : 'مفتوح حتى الآن'
+    };
+}
+
+const DR_CLOSED_STATUSES = ['completed', 'cancelled', 'duplicate'];
+
+async function printDetailedRequestsReport(options = {}) {
+    const activeOnly = !!options.activeOnly;
+    let requests = [];
+    try {
+        requests = await SupabaseAPI.request('requests', 'GET') || [];
+    } catch (e) {
+        showToast('error', 'خطأ', 'تعذر تحميل الطلبات');
+        return;
+    }
+
+    // تطبيق فلاتر الشاشة الحالية (البحث + الحالة) إن وُجدت
+    const search = (document.getElementById('requestSearch')?.value || '').trim().toLowerCase();
+    const statusFilter = document.getElementById('requestStatusFilter')?.value || '';
+    let list = requests.slice();
+    if (activeOnly) list = list.filter(r => !DR_CLOSED_STATUSES.includes(r.status));
+    if (statusFilter && !(activeOnly && DR_CLOSED_STATUSES.includes(statusFilter))) list = list.filter(r => r.status === statusFilter);
+    if (search) {
+        list = list.filter(r => [r.request_number, r.requestNumber, r.computer_number, r.computerNumber,
+            r.device_name, r.deviceName, r.employee_name, r.employeeName, r.department,
+            r.issue_description, r.issueDescription]
+            .some(v => String(v || '').toLowerCase().includes(search)));
+    }
+    if (!list.length) {
+        showToast('warning', 'لا توجد بيانات', activeOnly ? 'لا توجد طلبات نشطة حالياً' : 'لا توجد طلبات مطابقة لإنشاء التقرير');
+        return;
+    }
+
+    list.sort((a, b) => new Date(b.created_at || b.createdAt || 0) - new Date(a.created_at || a.createdAt || 0));
+
+    const ALL_STATUSES = activeOnly
+        ? ['new', 'inprogress', 'pending', 'withdrawn', 'active']
+        : ['new', 'inprogress', 'pending', 'withdrawn', 'active', 'completed', 'cancelled', 'duplicate'];
+    const counts = {};
+    ALL_STATUSES.forEach(st => { counts[st] = list.filter(r => r.status === st).length; });
+
+    const delays = list.map(r => _drDelay(r));
+    const openDelays = delays.filter(d => !d.closed && d.days != null);
+    const closedDelays = delays.filter(d => d.closed && d.days != null);
+    const avg = arr => arr.length ? Math.round(arr.reduce((s, d) => s + d.days, 0) / arr.length) : 0;
+    const late7 = delays.filter(d => !d.closed && d.days != null && d.days > 7).length;
+    const late14 = delays.filter(d => !d.closed && d.days != null && d.days > 14).length;
+    const totalProcedures = list.reduce((s, r) => s + ((r.procedures || []).length), 0);
+    const noProcedures = list.filter(r => !(r.procedures || []).length).length;
+
+    const statCard = (label, value, color) => `
+        <div class="stat"><div class="stat-v" style="color:${color}">${_drEsc(value)}</div><div class="stat-l">${_drEsc(label)}</div></div>`;
+
+    const summaryRows = ALL_STATUSES.filter(st => counts[st] > 0).map(st => {
+        const sub = list.filter(r => r.status === st);
+        const subD = sub.map(r => _drDelay(r)).filter(d => d.days != null);
+        return `<tr>
+            <td>${_drEsc(getStatusLabel(st))}</td>
+            <td>${sub.length}</td>
+            <td>${list.length ? Math.round(sub.length / list.length * 100) : 0}%</td>
+            <td>${avg(subD)} يوم</td>
+            <td>${subD.length ? Math.max(...subD.map(d => d.days)) : 0} يوم</td>
+        </tr>`;
+    }).join('');
+
+    const tableRows = list.map((r, i) => {
+        const d = delays[i];
+        return `<tr>
+            <td>${i + 1}</td>
+            <td class="mono">${_drEsc(r.request_number || r.requestNumber || '-')}</td>
+            <td class="mono">${_drEsc(r.computer_number || r.computerNumber || '-')}</td>
+            <td>${_drEsc(r.device_name || r.deviceName || '-')}</td>
+            <td>${_drEsc(r.employee_name || r.employeeName || '-')}</td>
+            <td>${_drEsc(r.department || '-')}</td>
+            <td><span class="pill s-${_drEsc(r.status)}">${_drEsc(getStatusLabel(r.status))}</span></td>
+            <td>${_drDate(r.created_at || r.createdAt)}</td>
+            <td>${_drEsc(d.endLabel)}</td>
+            <td class="delay ${d.level}">${_drEsc(d.label)}</td>
+            <td>${(r.procedures || []).length}</td>
+        </tr>`;
+    }).join('');
+
+    const detailCards = list.map((r, i) => {
+        const d = delays[i];
+        const procs = (r.procedures || []);
+        const procHtml = procs.length
+            ? `<ol class="proc-list">${procs.map(p => `
+                <li>
+                    <div class="proc-date">${_drEsc(p.date || '-')}</div>
+                    <div class="proc-text">${_drEsc(p.text || '-')}</div>
+                    ${p.attachment ? `<div class="proc-att">مرفق: ${_drEsc(p.attachment.description || p.attachment.filename || '')}</div>` : ''}
+                </li>`).join('')}</ol>`
+            : '<div class="empty">لا توجد إجراءات مسجلة على هذا الطلب</div>';
+        const atts = (r.attachments || []);
+        return `
+        <div class="req-card">
+            <div class="req-head">
+                <div class="req-num">طلب رقم: ${_drEsc(r.request_number || r.requestNumber || '-')}</div>
+                <div class="req-head-side">
+                    <span class="pill s-${_drEsc(r.status)}">${_drEsc(getStatusLabel(r.status))}</span>
+                    <span class="delay-chip ${d.level}">مدة التأخير: ${_drEsc(d.label)}</span>
+                </div>
+            </div>
+            <div class="req-grid">
+                <div><b>الرقم الحاسوبي:</b> ${_drEsc(r.computer_number || r.computerNumber || '-')}</div>
+                <div><b>الجهاز:</b> ${_drEsc(r.device_name || r.deviceName || '-')}</div>
+                <div><b>الموظف:</b> ${_drEsc(r.employee_name || r.employeeName || '-')}</div>
+                <div><b>القسم:</b> ${_drEsc(r.department || '-')}</div>
+                <div><b>تاريخ الطلب:</b> ${_drDateTime(r.created_at || r.createdAt)}</div>
+                <div><b>آخر تحديث:</b> ${_drDateTime(r.updated_at || r.updatedAt)}</div>
+                <div><b>حالة الإغلاق:</b> ${d.closed ? 'مغلق' : 'مفتوح'}</div>
+                <div><b>عدد الإجراءات:</b> ${procs.length}</div>
+            </div>
+            <div class="req-sec"><div class="req-sec-t">وصف المشكلة</div>
+                <div class="req-issue">${_drEsc(r.issue_description || r.issueDescription || 'لا يوجد وصف')}</div>
+            </div>
+            <div class="req-sec"><div class="req-sec-t">تفاصيل الإجراءات الفنية</div>${procHtml}</div>
+            ${atts.length ? `<div class="req-sec"><div class="req-sec-t">المرفقات (${atts.length})</div>
+                <ul class="att-list">${atts.map(a => `<li>${_drEsc(a.description || a.filename || '-')}</li>`).join('')}</ul></div>` : ''}
+        </div>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>${activeOnly ? 'تقرير تفصيلي للطلبات النشطة' : 'تقرير تفصيلي لطلبات الصيانة'}</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Tajawal','Segoe UI',Tahoma,sans-serif;background:#f1f5f9;color:#1e293b;padding:18px;line-height:1.9;
+       overflow-wrap:anywhere;word-break:break-word;-webkit-font-smoothing:antialiased}
+  td,th,li,p,div,span{overflow-wrap:anywhere;word-break:break-word}
+  #report{background:#fff;max-width:1180px;margin:0 auto;padding:22px}
+  .bar{max-width:1180px;margin:0 auto 14px;display:flex;gap:10px;justify-content:flex-end}
+  .bar button{font-family:'Tajawal',sans-serif;font-weight:700;font-size:14px;border:0;border-radius:10px;padding:10px 18px;cursor:pointer;color:#fff}
+  .b1{background:#4f46e5}.b2{background:#0ea5e9}.b3{background:#64748b}
+  .head{text-align:center;border-bottom:3px solid #4f46e5;padding-bottom:12px;margin-bottom:16px}
+  .head h1{font-size:24px;color:#3730a3}
+  .head p{font-size:12px;color:#64748b;margin-top:6px}
+  .stats{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px}
+  .stat{border:1px solid #e2e8f0;border-radius:10px;padding:10px;text-align:center;background:#f8fafc}
+  .stat-v{font-size:20px;font-weight:800}
+  .stat-l{font-size:11px;color:#64748b;font-weight:600;margin-top:2px}
+  h2.sec{font-size:16px;color:#3730a3;margin:18px 0 8px;padding-bottom:6px;border-bottom:2px solid #e2e8f0}
+  table{width:100%;border-collapse:collapse;font-size:11.5px}
+  table{table-layout:fixed}
+  th,td{border:1px solid #cbd5e1;padding:6px 5px;text-align:center;vertical-align:middle;line-height:1.7}
+  th{background:#4f46e5;color:#fff;font-size:11.5px}
+  tbody tr:nth-child(even){background:#f8fafc}
+  .mono{direction:ltr;font-variant-numeric:tabular-nums}
+  .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:700;background:#e2e8f0;color:#334155;white-space:nowrap}
+  .s-new{background:#dbeafe;color:#1d4ed8}.s-inprogress{background:#fef3c7;color:#b45309}
+  .s-pending{background:#fee2e2;color:#b91c1c}.s-completed{background:#dcfce7;color:#15803d}
+  .s-cancelled{background:#e2e8f0;color:#475569}.s-duplicate{background:#ede9fe;color:#6d28d9}
+  .s-withdrawn{background:#ffedd5;color:#c2410c}.s-active{background:#cffafe;color:#0e7490}
+  .delay{font-weight:800}.delay.ok{color:#15803d}.delay.warn{color:#b45309}.delay.bad{color:#b91c1c}.delay.na{color:#94a3b8}
+  .delay-chip{font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;background:#f1f5f9}
+  .delay-chip.ok{color:#15803d;background:#dcfce7}.delay-chip.warn{color:#b45309;background:#fef3c7}
+  .delay-chip.bad{color:#b91c1c;background:#fee2e2}.delay-chip.na{color:#64748b}
+  .req-card{border:1px solid #cbd5e1;border-radius:10px;padding:12px;margin-bottom:12px;page-break-inside:avoid;break-inside:avoid}
+  .req-head{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px dashed #cbd5e1;padding-bottom:8px;margin-bottom:8px;flex-wrap:wrap}
+  .req-num{font-weight:800;font-size:15px;color:#3730a3}
+  .req-head-side{display:flex;gap:8px;align-items:center}
+  .req-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 12px;font-size:12px;line-height:1.9;margin-bottom:10px}
+  .req-grid>div{min-width:0}
+  .req-grid b{color:#475569;font-weight:700}
+  .req-sec{margin-top:8px}
+  .req-sec-t{font-size:12.5px;font-weight:800;color:#4f46e5;margin-bottom:6px;line-height:1.8}
+  .req-issue{font-size:12.5px;line-height:2;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;
+              white-space:pre-wrap;text-align:start;unicode-bidi:plaintext}
+  .proc-list{padding-inline-start:22px;font-size:12.5px;margin:0}
+  .proc-list li{margin:0 0 10px;line-height:2;padding-bottom:8px;border-bottom:1px dashed #e2e8f0;page-break-inside:avoid;break-inside:avoid}
+  .proc-list li:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}
+  .proc-date{font-size:11px;color:#64748b;font-weight:700;line-height:1.7;margin-bottom:2px}
+  .proc-text{white-space:pre-wrap;line-height:2;text-align:start;unicode-bidi:plaintext}
+  .proc-att{font-size:11px;color:#0e7490;line-height:1.7;margin-top:2px}
+  .att-list{padding-inline-start:22px;font-size:12px;line-height:1.9}
+  .empty{font-size:12px;color:#94a3b8}
+  .foot{margin-top:18px;padding-top:10px;border-top:1px solid #e2e8f0;text-align:center;font-size:11px;color:#94a3b8}
+  @media print{
+    @page{size:A4 landscape;margin:8mm}
+    body{background:#fff;padding:0}
+    .bar{display:none!important}
+    #report{max-width:none;padding:0}
+    thead{display:table-header-group}
+    tr{page-break-inside:avoid}
+    .req-card,.proc-list li,.req-issue{page-break-inside:avoid;break-inside:avoid}
+    h2.sec{page-break-after:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="bar">
+  <button class="b1" onclick="window.print()">طباعة التقرير</button>
+  <button class="b2" onclick="savePdf(this)">حفظ PDF</button>
+  <button class="b3" onclick="window.close()">إغلاق</button>
+</div>
+<div id="report">
+  <div class="head">
+    <h1>${activeOnly ? 'التقرير التفصيلي للطلبات النشطة' : 'التقرير التفصيلي لطلبات الصيانة'}</h1>
+    ${activeOnly ? '<p style="font-weight:700;color:#b45309">يشمل الطلبات غير المغلقة فقط (مستثنى: مكتمل، ملغي، مكرر)</p>' : ''}
+    <p>تاريخ إصدار التقرير: ${_drDateTime(new Date().toISOString())} &nbsp;•&nbsp; عدد الطلبات في التقرير: ${list.length}${statusFilter ? ' • مُصفّى على حالة: ' + _drEsc(getStatusLabel(statusFilter)) : ''}${search ? ' • بحث: ' + _drEsc(search) : ''}</p>
+  </div>
+
+  <div class="stats">
+    ${statCard('إجمالي الطلبات', list.length, '#4f46e5')}
+    ${statCard('طلبات مفتوحة', openDelays.length, '#b45309')}
+    ${activeOnly ? statCard('مشغل', counts.active || 0, '#0e7490') : statCard('طلبات مغلقة', closedDelays.length, '#15803d')}
+    ${statCard('متوسط مدة المفتوحة', avg(openDelays) + ' يوم', '#0e7490')}
+    ${statCard('متأخرة أكثر من 7 أيام', late7, '#b45309')}
+    ${statCard('متأخرة أكثر من 14 يوم', late14, '#b91c1c')}
+  </div>
+  <div class="stats">
+    ${activeOnly ? statCard('أطول طلب مفتوح', (openDelays.length ? Math.max(...openDelays.map(x => x.days)) : 0) + ' يوم', '#b91c1c') : statCard('متوسط مدة الإنجاز', avg(closedDelays) + ' يوم', '#15803d')}
+    ${statCard('إجمالي الإجراءات', totalProcedures, '#4f46e5')}
+    ${statCard('طلبات بلا إجراءات', noProcedures, '#b91c1c')}
+    ${activeOnly ? statCard('جديد', counts.new || 0, '#1d4ed8') : statCard('مكتمل', counts.completed || 0, '#15803d')}
+    ${statCard('قيد التنفيذ', counts.inprogress || 0, '#b45309')}
+    ${statCard('قيد الانتظار', counts.pending || 0, '#b91c1c')}
+  </div>
+
+  <h2 class="sec">ملخص الحالات ومدد التأخير</h2>
+  <table>
+    <thead><tr><th>الحالة</th><th>عدد الطلبات</th><th>النسبة</th><th>متوسط المدة</th><th>أعلى مدة</th></tr></thead>
+    <tbody>${summaryRows}</tbody>
+  </table>
+
+  <h2 class="sec">جدول جميع الطلبات مع الحالة ومدة التأخير</h2>
+  <table>
+    <thead><tr><th>#</th><th>رقم الطلب</th><th>الرقم الحاسوبي</th><th>الجهاز</th><th>الموظف</th><th>القسم</th><th>الحالة</th><th>تاريخ الطلب</th><th>تاريخ الإغلاق</th><th>مدة التأخير</th><th>عدد الإجراءات</th></tr></thead>
+    <tbody>${tableRows}</tbody>
+  </table>
+
+  <h2 class="sec">تفاصيل الطلبات والإجراءات المتخذة</h2>
+  ${detailCards}
+
+  <div class="foot">نظام إدارة الصيانة — تقرير تفصيلي تم إنشاؤه آلياً</div>
+</div>
+<script>
+function savePdf(btn){
+  var old = btn.textContent; btn.textContent = 'جاري التحضير...'; btn.disabled = true;
+  var ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+  ready.then(function(){ return new Promise(function(r){ setTimeout(r, 250); }); }).then(function(){
+  return html2pdf().set({
+    margin: 6,
+    filename: '${activeOnly ? 'تقرير-الطلبات-النشطة' : 'تقرير-تفصيلي-طلبات-الصيانة'}.pdf',
+    image: { type: 'jpeg', quality: 0.95 },
+    html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowWidth: 1180, letterRendering: true, logging: false },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+    pagebreak: { mode: ['css', 'avoid-all'] }
+  }).from(document.getElementById('report')).save();
+  }).then(function(){
+    btn.textContent = old; btn.disabled = false;
+  }).catch(function(){ btn.textContent = old; btn.disabled = false; window.print(); });
+}
+<\/script>
+</body>
+</html>`;
+
+    const w = window.open('', '_blank');
+    if (!w) { showToast('error', 'خطأ', 'الرجاء السماح بالنوافذ المنبثقة لعرض التقرير'); return; }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    showToast('success', 'تم إنشاء التقرير', activeOnly ? 'تقرير الطلبات النشطة جاهز للطباعة أو الحفظ PDF' : 'التقرير التفصيلي جاهز للطباعة أو الحفظ PDF');
 }
 
 async function printRequests() {
