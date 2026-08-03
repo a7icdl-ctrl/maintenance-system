@@ -12215,20 +12215,27 @@ body.sa-hidden #saFab, body.sa-hidden #saPanel{display:none !important;}
 
 <!-- ============ ABU HAMID PRO: AI ANSWERS + VOICE + QUICK Q&A ============ -->
 <style id="saProStyles">
-.sa-qa{display:flex;flex-wrap:wrap;gap:6px;padding:8px 16px 0;background:#eef2ff}
-.sa-qa .sa-qlab{width:100%;font-size:10.5px;font-weight:800;color:#4338ca;margin-bottom:2px}
-.sa-q{background:#fff;border:1px dashed #c7d2fe;color:#3730a3;border-radius:12px;padding:6px 11px;font-size:11.5px;cursor:pointer;
+.sa-qa{display:flex;align-items:center;gap:5px;padding:5px 12px;background:#eef2ff;overflow-x:auto;scrollbar-width:none}
+.sa-qa::-webkit-scrollbar{display:none}
+.sa-qa .sa-qlab{flex:none;font-size:10px;font-weight:800;color:#4338ca;display:flex;align-items:center;gap:4px}
+.sa-qa.hide .sa-q{display:none}
+.sa-qtog{flex:none;background:transparent;border:0;color:#4338ca;font-size:11px;cursor:pointer;font-family:Tajawal,sans-serif;font-weight:800}
+.sa-q{flex:none;background:#fff;border:1px solid #c7d2fe;color:#3730a3;border-radius:999px;padding:3px 9px;font-size:10.5px;cursor:pointer;white-space:nowrap;
   font-family:Tajawal,sans-serif;font-weight:700;transition:.2s}
 .sa-q:hover{background:#4f46e5;color:#fff;border-color:transparent}
 .sa-hbtn.on{background:#4ade80;color:#064e3b}
 .sa-settings-row.sa-ai{margin-top:8px}
 .sa-settings .sa-hint{font-size:10.5px;color:#64748b;font-weight:500;margin-top:6px;line-height:1.7}
+.sa-vrow{display:flex;align-items:center;gap:8px;margin-top:6px}
+.sa-vrow label{margin:0!important;flex:none;width:58px;font-size:11px;font-weight:800;color:#3730a3}
+.sa-vrow input[type=range]{flex:1;accent-color:#4f46e5}
+.sa-vval{flex:none;width:34px;text-align:center;font-size:10.5px;font-weight:800;color:#4338ca;background:#eef2ff;border-radius:7px;padding:2px 0}
 .sa-src{display:inline-block;margin-top:6px;font-size:10px;font-weight:700;color:#64748b;background:#f1f5f9;border-radius:8px;padding:2px 7px}
 </style>
 <script>
 (function(){
-  var LS={key:'saAiKey',url:'saAiUrl',model:'saAiModel',voice:'saVoiceOn'};
-  var DEF_URL='https://api.openai.com/v1/chat/completions', DEF_MODEL='gpt-4o-mini';
+  var LS={key:'saAiKey',url:'saAiUrl',model:'saAiModel',voice:'saVoiceOn',rate:'saVoiceRate',pitch:'saVoicePitch',vname:'saVoiceName'};
+  var DEF_URL='https://openrouter.ai/api/v1/chat/completions', DEF_MODEL='openai/gpt-4o-mini';
   function ls(k,d){ try{ return localStorage.getItem(k)||d; }catch(e){ return d; } }
   function set(k,v){ try{ v?localStorage.setItem(k,v):localStorage.removeItem(k); }catch(e){} }
   function nameOf(){ return (window.saAssistantName&&saAssistantName())||'أبو حميد'; }
@@ -12240,21 +12247,62 @@ body.sa-hidden #saFab, body.sa-hidden #saPanel{display:none !important;}
     var d=document.createElement('div');
     d.innerHTML=''+
       '<label style="margin-top:12px">الذكاء الاصطناعي (للأسئلة العامة خارج النظام)</label>'+
-      '<div class="sa-settings-row sa-ai"><input id="saAiKey" class="sa-input" type="password" placeholder="مفتاح API">'+
+      '<div class="sa-settings-row sa-ai"><input id="saAiKey" class="sa-input" type="password" placeholder="مفتاح API (sk-or-v1-...)">'+
       '<button class="sa-act" onclick="saSaveAi()"><i class="fas fa-check"></i> حفظ</button></div>'+
       '<div class="sa-settings-row sa-ai"><input id="saAiModel" class="sa-input" type="text" placeholder="'+DEF_MODEL+'">'+
       '<input id="saAiUrl" class="sa-input" type="text" placeholder="'+DEF_URL+'"></div>'+
+      '<div class="sa-settings-row sa-ai"><button class="sa-act" onclick="saTestAi()"><i class="fas fa-plug"></i> اختبار الاتصال</button>'+
+      '<button class="sa-act" onclick="saResetAi()"><i class="fas fa-rotate-left"></i> استرجاع الافتراضي</button></div>'+
+      '<div class="sa-hint" id="saAiState"></div>'+
+      '<label style="margin-top:12px">الرد الصوتي العربي</label>'+
+      '<div class="sa-vrow"><label>السرعة</label><input id="saVRate" type="range" min="0.6" max="1.4" step="0.05" oninput="saVoiceLive()"><span class="sa-vval" id="saVRateV">1</span></div>'+
+      '<div class="sa-vrow"><label>النبرة</label><input id="saVPitch" type="range" min="0.6" max="1.5" step="0.05" oninput="saVoiceLive()"><span class="sa-vval" id="saVPitchV">1</span></div>'+
+      '<div class="sa-settings-row sa-ai"><select id="saVVoice" class="sa-input" onchange="saVoiceLive()"></select>'+
+      '<button class="sa-act" onclick="saVoiceTest()"><i class="fas fa-volume-high"></i> تجربة</button></div>'+
+      '<div class="sa-hint">حرّك السرعة والنبرة حتى يصير الصوت مريح وطبيعي أكثر. الأفضل: سرعة 0.9 ونبرة 1.0 مع صوت عربي من نوع Google أو Microsoft. الإعداد يُحفظ تلقائياً.</div>'+
       '<div class="sa-hint">أسئلة النظام تُجاب محلياً وفوراً (الأولوية). الأسئلة العامة تُحوَّل للذكاء الاصطناعي عند إدخال مفتاح. يعمل مع أي خدمة متوافقة مع OpenAI.</div>';
     box.appendChild(d);
     document.getElementById('saAiKey').value=ls(LS.key,'');
-    document.getElementById('saAiModel').value=ls(LS.model,'');
-    document.getElementById('saAiUrl').value=ls(LS.url,'');
+    document.getElementById('saAiModel').value=ls(LS.model,'')||DEF_MODEL;
+    document.getElementById('saAiUrl').value=ls(LS.url,'')||DEF_URL;
+    aiState();
+    var r=document.getElementById('saVRate'), pt=document.getElementById('saVPitch');
+    r.value=rateVal(); pt.value=pitchVal();
+    document.getElementById('saVRateV').textContent=(+r.value).toFixed(2).replace(/0$/,'');
+    document.getElementById('saVPitchV').textContent=(+pt.value).toFixed(2).replace(/0$/,'');
+    fillVoices();
+  }
+  function aiState(){
+    var el=document.getElementById('saAiState'); if(!el) return;
+    var k=ls(LS.key,'');
+    el.innerHTML=(k?'✅ المفتاح محفوظ ('+k.slice(0,7)+'…'+k.slice(-4)+')':'⚠️ لا يوجد مفتاح محفوظ — الأسئلة العامة معطّلة')+
+      '<br>الرابط: '+(ls(LS.url,'')||DEF_URL)+'<br>الموديل: '+(ls(LS.model,'')||DEF_MODEL)+
+      '<br>الإعدادات محفوظة في هذا المتصفح وتقدر تعدّلها بأي وقت من ⚙️.';
   }
   window.saSaveAi=function(){
     set(LS.key,(document.getElementById('saAiKey').value||'').trim());
-    set(LS.model,(document.getElementById('saAiModel').value||'').trim());
-    set(LS.url,(document.getElementById('saAiUrl').value||'').trim());
-    if(typeof showToast==='function') showToast('success','تم','تم حفظ إعدادات الذكاء الاصطناعي');
+    set(LS.model,(document.getElementById('saAiModel').value||'').trim()||DEF_MODEL);
+    set(LS.url,(document.getElementById('saAiUrl').value||'').trim()||DEF_URL);
+    aiState();
+    if(typeof showToast==='function') showToast('success','تم','تم حفظ إعدادات الرد العام');
+  };
+  window.saResetAi=function(){
+    set(LS.url,DEF_URL); set(LS.model,DEF_MODEL);
+    document.getElementById('saAiUrl').value=DEF_URL;
+    document.getElementById('saAiModel').value=DEF_MODEL;
+    aiState();
+    if(typeof showToast==='function') showToast('success','تم','رجّعنا الرابط والموديل للافتراضي');
+  };
+  window.saTestAi=function(){
+    saSaveAi();
+    var el=document.getElementById('saAiState'); if(el) el.innerHTML='⏳ جاري اختبار الاتصال...';
+    askAI('قل: تم الاتصال بنجاح').then(function(t){
+      if(el) el.innerHTML='✅ الاتصال ناجح: '+String(t||'').slice(0,80);
+      if(typeof showToast==='function') showToast('success','ناجح','الاتصال بخدمة الرد العام يعمل');
+    }).catch(function(e){
+      if(el) el.innerHTML='❌ فشل الاتصال: '+String(e&&e.message||e);
+      if(typeof showToast==='function') showToast('error','فشل',String(e&&e.message||e));
+    });
   };
 
   /* ---------- الرد الصوتي ---------- */
@@ -12264,15 +12312,62 @@ body.sa-hidden #saFab, body.sa-hidden #saPanel{display:none !important;}
     t.querySelectorAll('button,.sa-act,.sa-src').forEach(function(e){ e.remove(); });
     return (t.textContent||'').replace(/\s+/g,' ').trim().slice(0,420);
   }
-  function speak(text){
-    if(!speakOn()||!('speechSynthesis' in window)||!text) return;
+  function rateVal(){ var v=parseFloat(ls(LS.rate,'0.9')); return isNaN(v)?0.9:v; }
+  function pitchVal(){ var v=parseFloat(ls(LS.pitch,'1')); return isNaN(v)?1:v; }
+  function arVoices(){
+    var all=(('speechSynthesis' in window)?(speechSynthesis.getVoices()||[]):[]);
+    var ar=all.filter(function(x){ return /^ar/i.test(x.lang); });
+    ar.sort(function(a,b){ return score(b)-score(a); });
+    return ar.length?ar:all;
+  }
+  function score(v){
+    var n=(v.name||'')+' '+(v.voiceURI||'');
+    var s=0;
+    if(/google/i.test(n)) s+=6;
+    if(/microsoft|natural|online/i.test(n)) s+=5;
+    if(/hala|zariyah|salma|amina|maged|hamed|laila/i.test(n)) s+=3;
+    if(v.localService) s+=1;
+    return s;
+  }
+  function pickVoice(){
+    var want=ls(LS.vname,''), list=arVoices();
+    if(want){ for(var i=0;i<list.length;i++) if(list[i].name===want) return list[i]; }
+    return list[0]||null;
+  }
+  function fillVoices(){
+    var sel=document.getElementById('saVVoice'); if(!sel) return;
+    var list=arVoices(), cur=ls(LS.vname,'');
+    sel.innerHTML='<option value="">الصوت الافتراضي (الأفضل تلقائياً)</option>'+list.map(function(v){
+      return '<option value="'+v.name.replace(/"/g,'')+'"'+(v.name===cur?' selected':'')+'>'+v.name+' — '+v.lang+'</option>';
+    }).join('');
+  }
+  if('speechSynthesis' in window) speechSynthesis.onvoiceschanged=fillVoices;
+  window.saVoiceLive=function(){
+    var r=document.getElementById('saVRate'), pt=document.getElementById('saVPitch'), sel=document.getElementById('saVVoice');
+    if(r){ set(LS.rate,r.value); document.getElementById('saVRateV').textContent=(+r.value).toFixed(2).replace(/0$/,''); }
+    if(pt){ set(LS.pitch,pt.value); document.getElementById('saVPitchV').textContent=(+pt.value).toFixed(2).replace(/0$/,''); }
+    if(sel) set(LS.vname,sel.value);
+  };
+  window.saVoiceTest=function(){
+    if(!('speechSynthesis' in window)){ if(typeof showToast==='function') showToast('error','غير مدعوم','متصفحك لا يدعم الرد الصوتي'); return; }
+    speak('السلام عليكم، أنا '+nameOf()+'. هذه تجربة لسرعة ونبرة الصوت، اضبطها حتى تصير مريحة لك.', true);
+  };
+  /* تقسيم النص لجُمل قصيرة مع وقفات طبيعية */
+  function chunks(text){
+    return String(text).replace(/([.!؟?،:؛])/g,'$1|').split('|')
+      .map(function(x){ return x.trim(); }).filter(Boolean);
+  }
+  function speak(text,force){
+    if((!force&&!speakOn())||!('speechSynthesis' in window)||!text) return;
     try{
       speechSynthesis.cancel();
-      var u=new SpeechSynthesisUtterance(text);
-      u.lang='ar-SA'; u.rate=1; u.pitch=1.05;
-      var v=(speechSynthesis.getVoices()||[]).filter(function(x){ return /^ar/i.test(x.lang); })[0];
-      if(v) u.voice=v;
-      speechSynthesis.speak(u);
+      var v=pickVoice(), r=rateVal(), p=pitchVal();
+      chunks(text).forEach(function(part){
+        var u=new SpeechSynthesisUtterance(part);
+        u.lang=(v&&v.lang)||'ar-SA'; u.rate=r; u.pitch=p; u.volume=1;
+        if(v) u.voice=v;
+        speechSynthesis.speak(u);
+      });
     }catch(e){}
   }
   window.saToggleSpeak=function(){
@@ -12305,6 +12400,12 @@ body.sa-hidden #saFab, body.sa-hidden #saPanel{display:none !important;}
     ['كيف آخذ نسخة احتياطية؟','<h5><i class="fas fa-database"></i> النسخ الاحتياطي</h5><p style="font-size:13px">البيانات محفوظة في قاعدة بيانات النظام. للحصول على نسخة استخدم خيار التصدير من التقارير أو الإعدادات، واحفظ الملف بشكل دوري في مكان آمن.</p>'],
     ['من أنت؟','<h5><i class="fas fa-hand-sparkles"></i> تعريف</h5><p style="font-size:13px">أنا <span class="sa-name">أبو حميد</span> — مساعدك داخل نظام إدارة الصيانة. أجاوبك عن بيانات النظام فوراً بالأرقام والجداول، وأقدر أحاورك بأي موضوع عام، وأرد عليك صوتياً إذا فعّلت الصوت 🔊.</p>']
   ];
+  var SHORT=['طلب جديد','حالة الطلب','صرف قطعة','جهاز بديل','تقرير','قسم/مستخدم','الحالات','نسخة احتياطية','من أنت؟'];
+  window.saToggleQA=function(){
+    var w=document.getElementById('saQA'); if(!w) return;
+    w.classList.toggle('hide');
+    var t=document.getElementById('saQTog'); if(t) t.textContent=w.classList.contains('hide')?'أسئلة جاهزة':'×';
+  };
   function pushMsg(who,html){
     var b=document.getElementById('saBody'); if(!b) return null;
     var el=document.createElement('div'); el.className='sa-msg '+(who==='me'?'me':'bot');
@@ -12314,8 +12415,9 @@ body.sa-hidden #saFab, body.sa-hidden #saPanel{display:none !important;}
   function injectQA(){
     var chips=document.getElementById('saChips'); if(!chips||document.getElementById('saQA')) return;
     var wrap=document.createElement('div'); wrap.className='sa-qa'; wrap.id='saQA';
-    wrap.innerHTML='<div class="sa-qlab"><i class="fas fa-bolt"></i> أسئلة جاهزة — إجابة فورية</div>'+
-      QA.map(function(x,i){ return '<button class="sa-q" onclick="saInstant('+i+')">'+x[0]+'</button>'; }).join('');
+    wrap.innerHTML='<div class="sa-qlab"><i class="fas fa-bolt"></i></div>'+
+      QA.map(function(x,i){ return '<button class="sa-q" onclick="saInstant('+i+')">'+(SHORT[i]||x[0])+'</button>'; }).join('')+
+      '<button class="sa-qtog" id="saQTog" onclick="saToggleQA()" title="إظهار/إخفاء">×</button>';
     chips.parentNode.insertBefore(wrap,chips);
   }
   window.saInstant=function(i){
@@ -12335,9 +12437,11 @@ body.sa-hidden #saFab, body.sa-hidden #saPanel{display:none !important;}
       'الأولوية لأمور النظام (طلبات الصيانة، المخزون وقطع الغيار، الأجهزة البديلة، المواد الحاسوبية، الوثائق، العطاء، الأقسام، المستخدمون، التقارير). '+
       'وإذا سأل المستخدم أي سؤال عام خارج النظام فأجب عليه بشكل طبيعي ومفيد. اجعل الجواب قصيراً وواضحاً (٣ إلى ٦ أسطر) وبدون تنسيق ماركداون معقد.';
     var msgs=[{role:'system',content:sys}].concat(history.slice(-8),[{role:'user',content:q}]);
-    var res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+    var hdr={'Content-Type':'application/json','Authorization':'Bearer '+key};
+    if(/openrouter\.ai/i.test(url)){ hdr['HTTP-Referer']=location.origin||'https://localhost'; hdr['X-Title']='Maintenance System Assistant'; }
+    var res=await fetch(url,{method:'POST',headers:hdr,
       body:JSON.stringify({model:model,messages:msgs,temperature:0.6})});
-    if(!res.ok) throw new Error('خطأ '+res.status+' من خدمة الذكاء الاصطناعي');
+    if(!res.ok){ var et=''; try{ et=(await res.text()).slice(0,160); }catch(_e){} throw new Error('خطأ '+res.status+' من خدمة الذكاء الاصطناعي '+et); }
     var j=await res.json();
     var txt=(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||'';
     if(!txt) throw new Error('لم يصل رد من الخدمة');
