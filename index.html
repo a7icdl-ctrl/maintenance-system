@@ -12314,17 +12314,45 @@ body.sa-hidden #saFab, body.sa-hidden #saPanel{display:none !important;}
   }
   function rateVal(){ var v=parseFloat(ls(LS.rate,'0.9')); return isNaN(v)?0.9:v; }
   function pitchVal(){ var v=parseFloat(ls(LS.pitch,'1')); return isNaN(v)?1:v; }
-  function arVoices(){
+  /* أصوات أشخاص فقط: عربي + إنجليزي، وبأسماء أشخاص واضحة */
+  var BAD=/(novelty|bells|bubbles|cellos|organ|zarvox|trinoids|whisper|wobble|jester|boing|bahh|albert|bad news|good news|deranged|hysterical|superstar|eloquence|robot)/i;
+  var FEMALE=/(hala|zariyah|salma|amina|laila|noura|sana|hoda|female|zira|aria|jenny|michelle|samantha|karen|moira|tessa|susan|catherine|libby|sonia|emily|ava|allison|joanna|amy|female)/i;
+  var MALE=/(maged|hamed|shakir|omar|ali|male|david|guy|brian|ryan|christopher|eric|daniel|alex|fred|tom|george|liam|oliver|steffan|mark)/i;
+  var AR_NAMES={hala:'هالة',zariyah:'زارية',salma:'سلمى',amina:'أمينة',laila:'ليلى',noura:'نورة',hoda:'هدى',sana:'سناء',maged:'ماجد',hamed:'حامد',shakir:'شاكر',omar:'عمر',ali:'علي'};
+  function personName(v){
+    var raw=String(v.name||'');
+    var key=Object.keys(AR_NAMES).filter(function(k){ return new RegExp(k,'i').test(raw); })[0];
+    if(key) return AR_NAMES[key];
+    var m=raw.match(/(?:Microsoft|Google|Apple)?\s*([A-Za-z]+)/);
+    var n=(m&&m[1])||raw;
+    if(/^(microsoft|google|apple|online|natural|arabic|english|united|saudi|egypt)$/i.test(n)) n=raw.replace(/[()]/g,'').split(/\s+/).pop();
+    return n;
+  }
+  function gender(v){
+    var n=(v.name||'')+' '+(v.voiceURI||'');
+    if(FEMALE.test(n)) return 'أنثى';
+    if(MALE.test(n)) return 'ذكر';
+    return 'شخص';
+  }
+  function humanVoices(){
     var all=(('speechSynthesis' in window)?(speechSynthesis.getVoices()||[]):[]);
-    var ar=all.filter(function(x){ return /^ar/i.test(x.lang); });
-    ar.sort(function(a,b){ return score(b)-score(a); });
-    return ar.length?ar:all;
+    var ok=all.filter(function(x){
+      return (/^(ar|en)/i.test(x.lang||'')) && !BAD.test((x.name||'')+' '+(x.voiceURI||''));
+    });
+    ok.sort(function(a,b){ return score(b)-score(a); });
+    return ok;
+  }
+  function arVoices(){
+    var list=humanVoices(), ar=list.filter(function(x){ return /^ar/i.test(x.lang); });
+    return ar.length?ar:list;
   }
   function score(v){
     var n=(v.name||'')+' '+(v.voiceURI||'');
     var s=0;
+    if(/^ar/i.test(v.lang||'')) s+=20;
+    if(/natural|neural/i.test(n)) s+=8;
     if(/google/i.test(n)) s+=6;
-    if(/microsoft|natural|online/i.test(n)) s+=5;
+    if(/microsoft|online/i.test(n)) s+=5;
     if(/hala|zariyah|salma|amina|maged|hamed|laila/i.test(n)) s+=3;
     if(v.localService) s+=1;
     return s;
@@ -12336,10 +12364,17 @@ body.sa-hidden #saFab, body.sa-hidden #saPanel{display:none !important;}
   }
   function fillVoices(){
     var sel=document.getElementById('saVVoice'); if(!sel) return;
-    var list=arVoices(), cur=ls(LS.vname,'');
-    sel.innerHTML='<option value="">الصوت الافتراضي (الأفضل تلقائياً)</option>'+list.map(function(v){
-      return '<option value="'+v.name.replace(/"/g,'')+'"'+(v.name===cur?' selected':'')+'>'+v.name+' — '+v.lang+'</option>';
-    }).join('');
+    var list=humanVoices(), cur=ls(LS.vname,'');
+    function opts(arr){
+      return arr.map(function(v){
+        return '<option value="'+v.name.replace(/"/g,'')+'"'+(v.name===cur?' selected':'')+'>'+personName(v)+' ('+gender(v)+') — '+v.lang+'</option>';
+      }).join('');
+    }
+    var ar=list.filter(function(v){ return /^ar/i.test(v.lang); });
+    var en=list.filter(function(v){ return /^en/i.test(v.lang); });
+    sel.innerHTML='<option value="">أفضل صوت عربي تلقائياً</option>'+
+      (ar.length?'<optgroup label="أصوات عربية">'+opts(ar)+'</optgroup>':'')+
+      (en.length?'<optgroup label="أصوات إنجليزية">'+opts(en)+'</optgroup>':'');
   }
   if('speechSynthesis' in window) speechSynthesis.onvoiceschanged=fillVoices;
   window.saVoiceLive=function(){
