@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -11659,7 +11660,7 @@ function toggleSidebarCollapse() {
 </script>
 
 
-<!-- ============ AI SMART ASSISTANT (المساعد الذكي) ============ -->
+<!-- ============ SMART ASSISTANT (أبو حميد) ============ -->
 <style id="smartAssistantStyles">
 :root{ --sa-grad: linear-gradient(135deg,#6366f1 0%,#8b5cf6 45%,#06b6d4 100%); }
 #saFab{position:fixed;bottom:26px;left:26px;width:64px;height:64px;border-radius:50%;border:none;cursor:pointer;
@@ -11734,22 +11735,31 @@ function toggleSidebarCollapse() {
 @media(max-width:520px){#saPanel{left:8px;right:8px;width:auto;bottom:92px;height:calc(100vh - 120px)}#saFab{bottom:16px;left:16px;width:56px;height:56px}}
 </style>
 
-<button id="saFab" title="المساعد الذكي (Ctrl + K)" onclick="saToggle()">
-  <i class="fas fa-robot"></i><span class="sa-badge">AI</span>
+<button id="saFab" title="أبو حميد (Ctrl + K)" onclick="saToggle()">
+  <i class="fas fa-robot"></i><span class="sa-badge" id="saBadge">أبو حميد</span>
 </button>
 
 <div id="saPanel" aria-live="polite">
   <div class="sa-head">
     <div class="sa-ava"><i class="fas fa-wand-magic-sparkles"></i></div>
     <div>
-      <h4>المساعد الذكي</h4>
+      <h4><span class="sa-name">أبو حميد</span></h4>
       <p><span class="sa-dot"></span> <span id="saStatus">جاهز — يعرف كل شيء عن النظام</span></p>
     </div>
     <div class="sa-head-btns">
+      <button class="sa-hbtn" title="تغيير اسم المساعد" onclick="saToggleSettings()"><i class="fas fa-gear"></i></button>
       <button class="sa-hbtn" title="تحديث البيانات" onclick="saRefresh(true)"><i class="fas fa-rotate"></i></button>
       <button class="sa-hbtn" title="تكبير / تصغير" onclick="document.getElementById('saPanel').classList.toggle('max')"><i class="fas fa-expand"></i></button>
       <button class="sa-hbtn" title="محادثة جديدة" onclick="saClear()"><i class="fas fa-broom"></i></button>
       <button class="sa-hbtn" title="إغلاق" onclick="saToggle(false)"><i class="fas fa-xmark"></i></button>
+    </div>
+  </div>
+  <div class="sa-settings" id="saSettings">
+    <label for="saNameInput">اسم المساعد الظاهر</label>
+    <div class="sa-settings-row">
+      <input id="saNameInput" class="sa-input" type="text" maxlength="24" placeholder="أبو حميد">
+      <button class="sa-act" onclick="saSaveName()"><i class="fas fa-check"></i> حفظ</button>
+      <button class="sa-act" onclick="saResetName()"><i class="fas fa-rotate-left"></i> افتراضي</button>
     </div>
   </div>
   <div class="sa-body" id="saBody"></div>
@@ -11763,7 +11773,7 @@ function toggleSidebarCollapse() {
 
 <script>
 /* ============================================================
-   المساعد الذكي — محرك تحليل عربي محلي فوق بيانات النظام
+   أبو حميد — محرك تحليل عربي محلي فوق بيانات النظام
    ============================================================ */
 (function(){
 const SA = { data:{}, loaded:false, loading:null, ts:0 };
@@ -12120,7 +12130,7 @@ window.saVoice=function(){
 function greet(){
   const name = (window.currentUser && (currentUser.full_name||currentUser.fullName)) || '';
   push('bot',`<h5><i class="fas fa-hand-sparkles"></i> أهلاً ${esc(name)||'بك'} 👋</h5>
-    <p style="font-size:13px;margin:0 0 6px">أنا مساعدك الذكي داخل نظام إدارة الصيانة. أقرأ كل بيانات النظام وأجاوبك فوراً — بالأرقام والجداول.</p>
+    <p style="font-size:13px;margin:0 0 6px">أنا <span class="sa-name">أبو حميد</span>، مساعدك داخل نظام إدارة الصيانة. أقرأ كل بيانات النظام وأجاوبك فوراً — بالأرقام والجداول.</p>
     <div id="saOv">${SA.loaded?overviewHTML():'<div class="sa-typing"><i></i><i></i><i></i></div>'}</div>
     <p style="font-size:12px;color:#64748b;margin:6px 0 0">اسألني بالعربي العادي، أو اضغط اقتراحاً بالأسفل.</p>`);
 }
@@ -12138,7 +12148,70 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 })();
 </script>
-<!-- ============ END AI SMART ASSISTANT ============ -->
+<style id="saHideOnLogin">
+body.sa-hidden #saFab, body.sa-hidden #saPanel{display:none !important;}
+</style>
+<script>
+(function(){
+  function loginVisible(){
+    var el=document.getElementById('loginScreen');
+    if(!el) return false;
+    var st=window.getComputedStyle(el);
+    return st.display!=='none' && st.visibility!=='hidden';
+  }
+  function sync(){
+    var hide=loginVisible();
+    document.body.classList.toggle('sa-hidden',hide);
+    if(hide){ var p=document.getElementById('saPanel'); if(p) p.classList.remove('open'); }
+  }
+  function start(){ sync(); setInterval(sync,400); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
+})();
+</script>
+<style id="saNameStyles">
+#saFab .sa-badge{max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;top:-8px;right:auto;left:50%;transform:translateX(-50%);
+  background:#f43f5e;box-shadow:0 4px 12px rgba(244,63,94,.45)}
+.sa-settings{display:none;padding:12px 14px;background:#fff;border-bottom:1px solid #eef2ff;font-family:Tajawal,sans-serif}
+.sa-settings.open{display:block}
+.sa-settings label{display:block;font-size:11.5px;font-weight:700;color:#4338ca;margin-bottom:6px}
+.sa-settings-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.sa-settings-row .sa-input{flex:1;min-width:130px}
+</style>
+<script>
+(function(){
+  var KEY='saDisplayName', DEF='\u0623\u0628\u0648 \u062d\u0645\u064a\u062f';
+  function get(){ try{ return localStorage.getItem(KEY)||DEF; }catch(e){ return DEF; } }
+  function apply(n){
+    n=(n||'').trim()||DEF;
+    var b=document.getElementById('saBadge'); if(b) b.textContent=n;
+    var f=document.getElementById('saFab'); if(f) f.title=n+' (Ctrl + K)';
+    document.querySelectorAll('.sa-name').forEach(function(el){ el.textContent=n; });
+    var i=document.getElementById('saNameInput'); if(i) i.value=n;
+  }
+  window.saAssistantName=get;
+  window.saApplyAssistantName=apply;
+  window.saToggleSettings=function(){
+    var el=document.getElementById('saSettings'); if(!el) return;
+    el.classList.toggle('open');
+    if(el.classList.contains('open')){ var i=document.getElementById('saNameInput'); if(i){ i.value=get(); i.focus(); } }
+  };
+  window.saSaveName=function(){
+    var i=document.getElementById('saNameInput'); if(!i) return;
+    var n=(i.value||'').trim()||DEF;
+    try{ localStorage.setItem(KEY,n); }catch(e){}
+    apply(n);
+    var el=document.getElementById('saSettings'); if(el) el.classList.remove('open');
+    if(typeof showToast==='function') showToast('success','\u062a\u0645','\u062a\u0645 \u062a\u063a\u064a\u064a\u0631 \u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u0627\u0639\u062f');
+  };
+  window.saResetName=function(){
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    apply(DEF);
+  };
+  function start(){ apply(get()); setTimeout(function(){apply(get());},1200); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
+})();
+</script>
+<!-- ============ END SMART ASSISTANT (أبو حميد) ============ -->
 
 </body>
 </html>
