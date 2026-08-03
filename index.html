@@ -12213,5 +12213,193 @@ body.sa-hidden #saFab, body.sa-hidden #saPanel{display:none !important;}
 </script>
 <!-- ============ END SMART ASSISTANT (أبو حميد) ============ -->
 
+<!-- ============ ABU HAMID PRO: AI ANSWERS + VOICE + QUICK Q&A ============ -->
+<style id="saProStyles">
+.sa-qa{display:flex;flex-wrap:wrap;gap:6px;padding:8px 16px 0;background:#eef2ff}
+.sa-qa .sa-qlab{width:100%;font-size:10.5px;font-weight:800;color:#4338ca;margin-bottom:2px}
+.sa-q{background:#fff;border:1px dashed #c7d2fe;color:#3730a3;border-radius:12px;padding:6px 11px;font-size:11.5px;cursor:pointer;
+  font-family:Tajawal,sans-serif;font-weight:700;transition:.2s}
+.sa-q:hover{background:#4f46e5;color:#fff;border-color:transparent}
+.sa-hbtn.on{background:#4ade80;color:#064e3b}
+.sa-settings-row.sa-ai{margin-top:8px}
+.sa-settings .sa-hint{font-size:10.5px;color:#64748b;font-weight:500;margin-top:6px;line-height:1.7}
+.sa-src{display:inline-block;margin-top:6px;font-size:10px;font-weight:700;color:#64748b;background:#f1f5f9;border-radius:8px;padding:2px 7px}
+</style>
+<script>
+(function(){
+  var LS={key:'saAiKey',url:'saAiUrl',model:'saAiModel',voice:'saVoiceOn'};
+  var DEF_URL='https://api.openai.com/v1/chat/completions', DEF_MODEL='gpt-4o-mini';
+  function ls(k,d){ try{ return localStorage.getItem(k)||d; }catch(e){ return d; } }
+  function set(k,v){ try{ v?localStorage.setItem(k,v):localStorage.removeItem(k); }catch(e){} }
+  function nameOf(){ return (window.saAssistantName&&saAssistantName())||'أبو حميد'; }
+
+  /* ---------- إعدادات الذكاء الاصطناعي ---------- */
+  function injectSettings(){
+    var box=document.getElementById('saSettings'); if(!box||box.dataset.pro) return;
+    box.dataset.pro='1';
+    var d=document.createElement('div');
+    d.innerHTML=''+
+      '<label style="margin-top:12px">الذكاء الاصطناعي (للأسئلة العامة خارج النظام)</label>'+
+      '<div class="sa-settings-row sa-ai"><input id="saAiKey" class="sa-input" type="password" placeholder="مفتاح API">'+
+      '<button class="sa-act" onclick="saSaveAi()"><i class="fas fa-check"></i> حفظ</button></div>'+
+      '<div class="sa-settings-row sa-ai"><input id="saAiModel" class="sa-input" type="text" placeholder="'+DEF_MODEL+'">'+
+      '<input id="saAiUrl" class="sa-input" type="text" placeholder="'+DEF_URL+'"></div>'+
+      '<div class="sa-hint">أسئلة النظام تُجاب محلياً وفوراً (الأولوية). الأسئلة العامة تُحوَّل للذكاء الاصطناعي عند إدخال مفتاح. يعمل مع أي خدمة متوافقة مع OpenAI.</div>';
+    box.appendChild(d);
+    document.getElementById('saAiKey').value=ls(LS.key,'');
+    document.getElementById('saAiModel').value=ls(LS.model,'');
+    document.getElementById('saAiUrl').value=ls(LS.url,'');
+  }
+  window.saSaveAi=function(){
+    set(LS.key,(document.getElementById('saAiKey').value||'').trim());
+    set(LS.model,(document.getElementById('saAiModel').value||'').trim());
+    set(LS.url,(document.getElementById('saAiUrl').value||'').trim());
+    if(typeof showToast==='function') showToast('success','تم','تم حفظ إعدادات الذكاء الاصطناعي');
+  };
+
+  /* ---------- الرد الصوتي ---------- */
+  function speakOn(){ return ls(LS.voice,'1')==='1'; }
+  function plain(html){
+    var t=document.createElement('div'); t.innerHTML=html;
+    t.querySelectorAll('button,.sa-act,.sa-src').forEach(function(e){ e.remove(); });
+    return (t.textContent||'').replace(/\s+/g,' ').trim().slice(0,420);
+  }
+  function speak(text){
+    if(!speakOn()||!('speechSynthesis' in window)||!text) return;
+    try{
+      speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(text);
+      u.lang='ar-SA'; u.rate=1; u.pitch=1.05;
+      var v=(speechSynthesis.getVoices()||[]).filter(function(x){ return /^ar/i.test(x.lang); })[0];
+      if(v) u.voice=v;
+      speechSynthesis.speak(u);
+    }catch(e){}
+  }
+  window.saToggleSpeak=function(){
+    var on=!speakOn(); set(LS.voice,on?'1':'0');
+    if(!on&&'speechSynthesis' in window) speechSynthesis.cancel();
+    syncSpeakBtn();
+  };
+  function syncSpeakBtn(){
+    var b=document.getElementById('saSpeakBtn'); if(!b) return;
+    b.classList.toggle('on',speakOn());
+    b.innerHTML='<i class="fas '+(speakOn()?'fa-volume-high':'fa-volume-xmark')+'"></i>';
+    b.title=speakOn()?'الرد الصوتي مفعل':'الرد الصوتي مغلق';
+  }
+  function injectSpeakBtn(){
+    var bar=document.querySelector('#saPanel .sa-head-btns'); if(!bar||document.getElementById('saSpeakBtn')) return;
+    var b=document.createElement('button'); b.className='sa-hbtn'; b.id='saSpeakBtn';
+    b.setAttribute('onclick','saToggleSpeak()');
+    bar.insertBefore(b,bar.firstChild); syncSpeakBtn();
+  }
+
+  /* ---------- أسئلة جاهزة بإجابة فورية ---------- */
+  var QA=[
+    ['كيف أضيف طلب صيانة؟','<h5><i class="fas fa-plus"></i> إضافة طلب صيانة</h5><div class="sa-row"><span>1</span><b>افتح صفحة «طلبات الصيانة»</b></div><div class="sa-row"><span>2</span><b>اضغط زر «طلب جديد»</b></div><div class="sa-row"><span>3</span><b>أدخل الموظف والقسم والجهاز ورقم الحاسوب</b></div><div class="sa-row"><span>4</span><b>اكتب وصف العطل ثم احفظ</b></div>'],
+    ['كيف أغيّر حالة الطلب؟','<h5><i class="fas fa-arrows-rotate"></i> تغيير حالة الطلب</h5><p style="font-size:13px">افتح الطلب من صفحة الطلبات، ثم اختر الحالة المناسبة: جديد ← قيد التنفيذ ← منجز. ويمكن تعليق الطلب أو إلغاؤه، وكل تغيير يُسجَّل مع الإجراءات.</p>'],
+    ['كيف أصرف قطعة غيار؟','<h5><i class="fas fa-boxes-stacked"></i> صرف قطعة غيار</h5><div class="sa-row"><span>1</span><b>صفحة «المخزون»</b></div><div class="sa-row"><span>2</span><b>اختر الصنف ثم «صرف»</b></div><div class="sa-row"><span>3</span><b>أدخل الكمية واسم الموظف</b></div><p style="font-size:12px;color:#64748b">يُخصم الرصيد تلقائياً وتُسجَّل الحركة في سجل الصرف.</p>'],
+    ['كيف أسلّم جهاز بديل؟','<h5><i class="fas fa-laptop-medical"></i> تسليم جهاز بديل</h5><p style="font-size:13px">من صفحة «الأجهزة البديلة» اختر جهازاً حالته «متوفر»، اضغط «تسليم»، وأدخل الموظف والموقع والتاريخ. تتحول حالة الجهاز إلى مُسلَّم حتى إرجاعه.</p>'],
+    ['كيف أطبع تقرير؟','<h5><i class="fas fa-print"></i> التقارير والطباعة</h5><p style="font-size:13px">افتح صفحة «التقارير»، حدّد الفترة والفلاتر، ثم اضغط طباعة/تصدير. وتقدر تطبع أي طلب مفرد من صفحة تفاصيله.</p>'],
+    ['كيف أضيف قسم أو مستخدم؟','<h5><i class="fas fa-users-gear"></i> الأقسام والمستخدمون</h5><p style="font-size:13px">الأقسام تُدار من صفحة «الأقسام» (إضافة/تعديل/حذف). المستخدمون والصلاحيات من صفحة المستخدمين، وصلاحية «مدير» تمنح تحكماً كاملاً.</p>'],
+    ['ما هي حالات الطلب؟','<h5><i class="fas fa-list-check"></i> حالات الطلب</h5><div class="sa-row"><span>جديد</span><b>لم يبدأ العمل</b></div><div class="sa-row"><span>قيد التنفيذ</span><b>جاري الإصلاح</b></div><div class="sa-row"><span>معلق</span><b>بانتظار قطعة أو موافقة</b></div><div class="sa-row"><span>منجز</span><b>تم الإصلاح</b></div><div class="sa-row"><span>ملغي / مكرر / مسحوب</span><b>إغلاق بدون تنفيذ</b></div>'],
+    ['كيف آخذ نسخة احتياطية؟','<h5><i class="fas fa-database"></i> النسخ الاحتياطي</h5><p style="font-size:13px">البيانات محفوظة في قاعدة بيانات النظام. للحصول على نسخة استخدم خيار التصدير من التقارير أو الإعدادات، واحفظ الملف بشكل دوري في مكان آمن.</p>'],
+    ['من أنت؟','<h5><i class="fas fa-hand-sparkles"></i> تعريف</h5><p style="font-size:13px">أنا <span class="sa-name">أبو حميد</span> — مساعدك داخل نظام إدارة الصيانة. أجاوبك عن بيانات النظام فوراً بالأرقام والجداول، وأقدر أحاورك بأي موضوع عام، وأرد عليك صوتياً إذا فعّلت الصوت 🔊.</p>']
+  ];
+  function pushMsg(who,html){
+    var b=document.getElementById('saBody'); if(!b) return null;
+    var el=document.createElement('div'); el.className='sa-msg '+(who==='me'?'me':'bot');
+    el.innerHTML='<div class="sa-mini"><i class="fas '+(who==='me'?'fa-user':'fa-robot')+'"></i></div><div class="sa-b">'+html+'</div>';
+    b.appendChild(el); b.scrollTop=b.scrollHeight; return el;
+  }
+  function injectQA(){
+    var chips=document.getElementById('saChips'); if(!chips||document.getElementById('saQA')) return;
+    var wrap=document.createElement('div'); wrap.className='sa-qa'; wrap.id='saQA';
+    wrap.innerHTML='<div class="sa-qlab"><i class="fas fa-bolt"></i> أسئلة جاهزة — إجابة فورية</div>'+
+      QA.map(function(x,i){ return '<button class="sa-q" onclick="saInstant('+i+')">'+x[0]+'</button>'; }).join('');
+    chips.parentNode.insertBefore(wrap,chips);
+  }
+  window.saInstant=function(i){
+    var item=QA[i]; if(!item) return;
+    pushMsg('me',item[0]);
+    pushMsg('bot',item[1]+'<span class="sa-src"><i class="fas fa-bolt"></i> إجابة فورية</span>');
+    if(window.saApplyAssistantName) saApplyAssistantName(nameOf());
+    speak(plain(item[1]));
+  };
+
+  /* ---------- الذكاء الاصطناعي: أي سؤال ---------- */
+  var history=[];
+  async function askAI(q){
+    var key=ls(LS.key,''); if(!key) return null;
+    var url=ls(LS.url,'')||DEF_URL, model=ls(LS.model,'')||DEF_MODEL;
+    var sys='أنت "'+nameOf()+'"، مساعد ودود يتكلم عربي بسيط وطبيعي مثل شخص عادي، وتعمل داخل نظام إدارة صيانة الحاسوب. '+
+      'الأولوية لأمور النظام (طلبات الصيانة، المخزون وقطع الغيار، الأجهزة البديلة، المواد الحاسوبية، الوثائق، العطاء، الأقسام، المستخدمون، التقارير). '+
+      'وإذا سأل المستخدم أي سؤال عام خارج النظام فأجب عليه بشكل طبيعي ومفيد. اجعل الجواب قصيراً وواضحاً (٣ إلى ٦ أسطر) وبدون تنسيق ماركداون معقد.';
+    var msgs=[{role:'system',content:sys}].concat(history.slice(-8),[{role:'user',content:q}]);
+    var res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({model:model,messages:msgs,temperature:0.6})});
+    if(!res.ok) throw new Error('خطأ '+res.status+' من خدمة الذكاء الاصطناعي');
+    var j=await res.json();
+    var txt=(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||'';
+    if(!txt) throw new Error('لم يصل رد من الخدمة');
+    history.push({role:'user',content:q},{role:'assistant',content:txt});
+    return txt;
+  }
+  function fmt(t){
+    return String(t).split(/\n{2,}/).map(function(p){
+      return '<p style="font-size:13px;line-height:1.9;margin:0 0 6px">'+p.replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}).replace(/\n/g,'<br>')+'</p>';
+    }).join('');
+  }
+
+  /* ---------- ربط الإرسال: النظام أولاً، ثم ذكاء اصطناعي، ثم صوت ---------- */
+  function wrapSend(){
+    if(!window.saSend||window.saSend.__pro) return false;
+    var orig=window.saSend;
+    var w=async function(){
+      var inp=document.getElementById('saInput');
+      var q=inp?inp.value.trim():'';
+      await orig.apply(this,arguments);
+      if(!q) return;
+      var body=document.getElementById('saBody');
+      var last=body?body.querySelector('.sa-msg.bot:last-child .sa-b'):null;
+      if(!last) return;
+      if(/ما لقيت نتيجة مطابقة/.test(last.textContent||'')){
+        if(!ls(LS.key,'')){
+          last.innerHTML+='<p style="font-size:12px;color:#64748b;margin-top:8px">لأجاوبك على أي سؤال عام خارج النظام، افتح ⚙️ وأضف مفتاح الذكاء الاصطناعي.</p>';
+          speak('ما لقيت نتيجة داخل النظام. فعّل الذكاء الاصطناعي من الإعدادات لأجاوبك على أي سؤال.');
+          return;
+        }
+        last.innerHTML='<div class="sa-typing"><i></i><i></i><i></i></div>';
+        try{
+          var ans=await askAI(q);
+          last.innerHTML=fmt(ans)+'<span class="sa-src"><i class="fas fa-brain"></i> جواب عام</span>';
+          speak(String(ans).replace(/\s+/g,' ').slice(0,420));
+        }catch(e){
+          last.innerHTML='<p style="font-size:13px">تعذّر الوصول للذكاء الاصطناعي: '+String(e.message||e)+'</p>';
+        }
+        if(body) body.scrollTop=body.scrollHeight;
+        return;
+      }
+      speak(plain(last.innerHTML));
+    };
+    w.__pro=true; window.saSend=w;
+    return true;
+  }
+
+  function start(){
+    var tries=0;
+    var t=setInterval(function(){
+      injectSpeakBtn(); injectSettings(); injectQA(); wrapSend();
+      tries++;
+      if(tries>40) clearInterval(t);
+      else if(window.saSend&&window.saSend.__pro&&document.getElementById('saQA')&&document.getElementById('saSpeakBtn')&&document.getElementById('saAiKey')) clearInterval(t);
+    },300);
+    injectSpeakBtn(); injectSettings(); injectQA(); wrapSend();
+    if(window.saApplyAssistantName) saApplyAssistantName(nameOf());
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
+})();
+</script>
+<!-- ============ END ABU HAMID PRO ============ -->
+
 </body>
 </html>
