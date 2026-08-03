@@ -12118,14 +12118,50 @@ window.saSend=async function(){
   let res; try{ res=answer(q); }catch(e){ res={html:'صار خطأ أثناء التحليل: '+esc(e.message)}; }
   t.remove(); push('bot',res.html);
 };
+var SAREC=null, SARECON=false;
 window.saVoice=function(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){ push('bot','المتصفح لا يدعم الإدخال الصوتي.'); return; }
-  const mic=document.getElementById('saMic'); const rec=new SR();
-  rec.lang='ar-SA'; rec.interimResults=false; mic.classList.add('rec');
-  rec.onresult=e=>{ document.getElementById('saInput').value=e.results[0][0].transcript; saSend(); };
-  rec.onend=()=>mic.classList.remove('rec'); rec.onerror=()=>mic.classList.remove('rec');
-  rec.start();
+  var mic=document.getElementById('saMic');
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  function fail(m){ if(mic) mic.classList.remove('rec'); SARECON=false; push('bot','<h5><i class="fas fa-microphone-slash"></i> الإدخال الصوتي</h5><p style="font-size:13px">'+m+'</p>'); }
+  if(!SR){ fail('متصفحك لا يدعم الإدخال الصوتي. استخدم Google Chrome أو Microsoft Edge على الكمبيوتر أو أندرويد.'); return; }
+  if(!window.isSecureContext && location.hostname!=='localhost'){ fail('الميكروفون يعمل فقط على رابط آمن (https) أو localhost. افتح النظام عبر https ثم أعد المحاولة.'); return; }
+  /* إيقاف التسجيل إذا كان شغالاً (زر تشغيل/إيقاف) */
+  if(SARECON && SAREC){ try{ SAREC.stop(); }catch(e){} return; }
+  /* أوقف الرد الصوتي حتى لا يسمع الميكروفون صوت المساعد */
+  try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
+  var rec;
+  try{ rec=new SR(); }catch(e){ fail('تعذّر تشغيل الميكروفون: '+(e&&e.message||e)); return; }
+  SAREC=rec; /* مرجع ثابت حتى لا يُحذف من الذاكرة فيتوقف التسجيل */
+  rec.lang='ar-SA'; rec.interimResults=true; rec.continuous=false; rec.maxAlternatives=1;
+  var input=document.getElementById('saInput'), finalTxt='';
+  rec.onstart=function(){ SARECON=true; if(mic){ mic.classList.add('rec'); mic.title='جاري الاستماع… اضغط للإيقاف'; } };
+  rec.onresult=function(e){
+    var interim='';
+    for(var k=e.resultIndex;k<e.results.length;k++){
+      var r=e.results[k];
+      if(r.isFinal) finalTxt+=r[0].transcript+' '; else interim+=r[0].transcript;
+    }
+    if(input){ input.value=(finalTxt+interim).trim(); input.style.height='auto'; input.style.height=Math.min(90,input.scrollHeight)+'px'; }
+  };
+  rec.onerror=function(e){
+    var c=(e&&e.error)||'';
+    var msg={'not-allowed':'تم رفض إذن الميكروفون. اضغط أيقونة القفل 🔒 بشريط العنوان ثم اسمح باستخدام الميكروفون وأعد المحاولة.',
+             'service-not-allowed':'خدمة التعرّف على الصوت محجوبة في هذا المتصفح أو الشبكة.',
+             'no-speech':'ما سمعت أي كلام. اضغط الميكروفون وتكلّم بصوت واضح.',
+             'audio-capture':'لا يوجد ميكروفون متصل أو أنه مستخدم من تطبيق آخر.',
+             'network':'مشكلة في الشبكة — التعرّف على الصوت يحتاج إنترنت.',
+             'aborted':''}[c];
+    if(msg===undefined) msg='تعذّر الإدخال الصوتي ('+c+').';
+    if(msg) fail(msg); else { SARECON=false; if(mic) mic.classList.remove('rec'); }
+  };
+  rec.onend=function(){
+    SARECON=false;
+    if(mic){ mic.classList.remove('rec'); mic.title='إدخال صوتي'; }
+    var t=(finalTxt||(input&&input.value)||'').trim();
+    if(t){ if(input) input.value=t; saSend(); }
+  };
+  try{ rec.start(); }
+  catch(e){ fail('تعذّر بدء التسجيل: '+(e&&e.message||e)); }
 };
 function greet(){
   const name = (window.currentUser && (currentUser.full_name||currentUser.fullName)) || '';
