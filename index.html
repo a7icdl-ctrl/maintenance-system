@@ -12234,7 +12234,7 @@ body.sa-hidden #saFab, body.sa-hidden #saPanel{display:none !important;}
 </style>
 <script>
 (function(){
-  var LS={key:'saAiKey',url:'saAiUrl',model:'saAiModel',voice:'saVoiceOn',rate:'saVoiceRate',pitch:'saVoicePitch',vname:'saVoiceName'};
+  var LS={key:'saAiKey',url:'saAiUrl',model:'saAiModel',voice:'saVoiceOn',rate:'saVoiceRate',pitch:'saVoicePitch',vname:'saVoiceName',vsex:'saVoiceSex'};
   var DEF_URL='https://openrouter.ai/api/v1/chat/completions', DEF_MODEL='openai/gpt-4o-mini';
   function ls(k,d){ try{ return localStorage.getItem(k)||d; }catch(e){ return d; } }
   function set(k,v){ try{ v?localStorage.setItem(k,v):localStorage.removeItem(k); }catch(e){} }
@@ -12257,6 +12257,8 @@ body.sa-hidden #saFab, body.sa-hidden #saPanel{display:none !important;}
       '<label style="margin-top:12px">الرد الصوتي العربي</label>'+
       '<div class="sa-vrow"><label>السرعة</label><input id="saVRate" type="range" min="0.6" max="1.4" step="0.05" oninput="saVoiceLive()"><span class="sa-vval" id="saVRateV">1</span></div>'+
       '<div class="sa-vrow"><label>النبرة</label><input id="saVPitch" type="range" min="0.6" max="1.5" step="0.05" oninput="saVoiceLive()"><span class="sa-vval" id="saVPitchV">1</span></div>'+
+      '<div class="sa-settings-row sa-ai"><select id="saVSex" class="sa-input" onchange="saVoiceSexChange()">'+
+        '<option value="">الجنس: الكل</option><option value="f">أنثى فقط</option><option value="m">ذكر فقط</option></select></div>'+
       '<div class="sa-settings-row sa-ai"><select id="saVVoice" class="sa-input" onchange="saVoiceLive()"></select>'+
       '<button class="sa-act" onclick="saVoiceTest()"><i class="fas fa-volume-high"></i> تجربة</button></div>'+
       '<div class="sa-hint">حرّك السرعة والنبرة حتى يصير الصوت مريح وطبيعي أكثر. الأفضل: سرعة 0.9 ونبرة 1.0 مع صوت عربي من نوع Google أو Microsoft. الإعداد يُحفظ تلقائياً.</div>'+
@@ -12270,6 +12272,7 @@ body.sa-hidden #saFab, body.sa-hidden #saPanel{display:none !important;}
     r.value=rateVal(); pt.value=pitchVal();
     document.getElementById('saVRateV').textContent=(+r.value).toFixed(2).replace(/0$/,'');
     document.getElementById('saVPitchV').textContent=(+pt.value).toFixed(2).replace(/0$/,'');
+    var sx=document.getElementById('saVSex'); if(sx) sx.value=sexPref();
     fillVoices();
   }
   function aiState(){
@@ -12357,25 +12360,57 @@ body.sa-hidden #saFab, body.sa-hidden #saPanel{display:none !important;}
     if(v.localService) s+=1;
     return s;
   }
+  function sexPref(){ return ls(LS.vsex,''); }
+  function sexOf(v){ var g=gender(v); return g==='أنثى'?'f':(g==='ذكر'?'m':''); }
+  function bySex(arr){
+    var w=sexPref(); if(!w) return arr;
+    var f=arr.filter(function(v){ return sexOf(v)===w; });
+    return f.length?f:arr;
+  }
   function pickVoice(){
     var want=ls(LS.vname,''), list=arVoices();
     if(want){ for(var i=0;i<list.length;i++) if(list[i].name===want) return list[i]; }
-    return list[0]||null;
+    var f=bySex(list);
+    return f[0]||list[0]||null;
   }
   function fillVoices(){
     var sel=document.getElementById('saVVoice'); if(!sel) return;
     var list=humanVoices(), cur=ls(LS.vname,'');
     function opts(arr){
       return arr.map(function(v){
-        return '<option value="'+v.name.replace(/"/g,'')+'"'+(v.name===cur?' selected':'')+'>'+personName(v)+' ('+gender(v)+') — '+v.lang+'</option>';
+        return '<option value="'+v.name.replace(/"/g,'')+'"'+(v.name===cur?' selected':'')+'>'+personName(v)+' — '+v.lang+'</option>';
       }).join('');
+    }
+    function grp(arr,lbl){
+      if(!arr.length) return '';
+      var w=sexPref();
+      var fem=arr.filter(function(v){ return sexOf(v)==='f'; });
+      var mal=arr.filter(function(v){ return sexOf(v)==='m'; });
+      var oth=arr.filter(function(v){ return !sexOf(v); });
+      var out='';
+      if((!w||w==='f')&&fem.length) out+='<optgroup label="'+lbl+' — أنثى 👩">'+opts(fem)+'</optgroup>';
+      if((!w||w==='m')&&mal.length) out+='<optgroup label="'+lbl+' — ذكر 👨">'+opts(mal)+'</optgroup>';
+      if(!w&&oth.length) out+='<optgroup label="'+lbl+' — غير محدد">'+opts(oth)+'</optgroup>';
+      if(!out) out='<optgroup label="'+lbl+'">'+opts(arr)+'</optgroup>';
+      return out;
     }
     var ar=list.filter(function(v){ return /^ar/i.test(v.lang); });
     var en=list.filter(function(v){ return /^en/i.test(v.lang); });
-    sel.innerHTML='<option value="">أفضل صوت عربي تلقائياً</option>'+
-      (ar.length?'<optgroup label="أصوات عربية">'+opts(ar)+'</optgroup>':'')+
-      (en.length?'<optgroup label="أصوات إنجليزية">'+opts(en)+'</optgroup>':'');
+    var auto=sexPref()==='f'?'أفضل صوت عربي (أنثى) تلقائياً':(sexPref()==='m'?'أفضل صوت عربي (ذكر) تلقائياً':'أفضل صوت عربي تلقائياً');
+    sel.innerHTML='<option value="">'+auto+'</option>'+grp(ar,'أصوات عربية')+grp(en,'أصوات إنجليزية');
+    sel.value=cur;
+    if(sel.value!==cur){ sel.value=''; set(LS.vname,''); }
   }
+  window.saVoiceSexChange=function(){
+    var sx=document.getElementById('saVSex'); if(!sx) return;
+    set(LS.vsex,sx.value);
+    var sel=document.getElementById('saVVoice'), cur=ls(LS.vname,'');
+    if(cur&&sx.value){
+      var v=humanVoices().filter(function(x){ return x.name===cur; })[0];
+      if(v&&sexOf(v)!==sx.value) set(LS.vname,'');
+    }
+    fillVoices();
+  };
   if('speechSynthesis' in window) speechSynthesis.onvoiceschanged=fillVoices;
   window.saVoiceLive=function(){
     var r=document.getElementById('saVRate'), pt=document.getElementById('saVPitch'), sel=document.getElementById('saVVoice');
