@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -11657,6 +11658,487 @@ function toggleSidebarCollapse() {
 })();
 </script>
 
+
+<!-- ============ AI SMART ASSISTANT (المساعد الذكي) ============ -->
+<style id="smartAssistantStyles">
+:root{ --sa-grad: linear-gradient(135deg,#6366f1 0%,#8b5cf6 45%,#06b6d4 100%); }
+#saFab{position:fixed;bottom:26px;left:26px;width:64px;height:64px;border-radius:50%;border:none;cursor:pointer;
+  background:var(--sa-grad);color:#fff;font-size:24px;z-index:99990;box-shadow:0 12px 34px rgba(99,102,241,.45);
+  display:flex;align-items:center;justify-content:center;transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s}
+#saFab:hover{transform:scale(1.09) rotate(-6deg);box-shadow:0 18px 44px rgba(99,102,241,.6)}
+#saFab::after{content:'';position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(99,102,241,.5);animation:saPulse 2.2s infinite}
+@keyframes saPulse{0%{transform:scale(.9);opacity:.9}70%{transform:scale(1.35);opacity:0}100%{opacity:0}}
+#saFab .sa-badge{position:absolute;top:-4px;right:-4px;background:#f43f5e;color:#fff;font-size:10px;font-weight:700;
+  padding:2px 6px;border-radius:10px;font-family:Tajawal,sans-serif}
+#saPanel{position:fixed;bottom:104px;left:26px;width:430px;max-width:calc(100vw - 32px);height:640px;max-height:calc(100vh - 140px);
+  background:#fff;border-radius:22px;z-index:99991;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 30px 80px rgba(15,23,42,.28);border:1px solid rgba(99,102,241,.15);
+  transform:translateY(24px) scale(.96);opacity:0;pointer-events:none;transition:all .3s cubic-bezier(.34,1.4,.64,1);font-family:Tajawal,sans-serif}
+#saPanel.open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
+#saPanel.max{width:min(920px,calc(100vw - 40px));height:calc(100vh - 140px)}
+.sa-head{background:var(--sa-grad);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.sa-ava{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:20px;backdrop-filter:blur(4px)}
+.sa-head h4{margin:0;font-size:16px;font-weight:800}
+.sa-head p{margin:2px 0 0;font-size:11px;opacity:.9;display:flex;align-items:center;gap:5px}
+.sa-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 0 rgba(74,222,128,.7);animation:saBlink 1.8s infinite}
+@keyframes saBlink{0%{box-shadow:0 0 0 0 rgba(74,222,128,.7)}70%{box-shadow:0 0 0 8px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+.sa-head-btns{margin-inline-start:auto;display:flex;gap:6px}
+.sa-hbtn{background:rgba(255,255,255,.16);border:none;color:#fff;width:32px;height:32px;border-radius:10px;cursor:pointer;font-size:13px;transition:.2s}
+.sa-hbtn:hover{background:rgba(255,255,255,.32)}
+.sa-body{flex:1;overflow-y:auto;padding:16px;background:linear-gradient(180deg,#f8fafc,#eef2ff)}
+.sa-body::-webkit-scrollbar{width:6px}.sa-body::-webkit-scrollbar-thumb{background:#c7d2fe;border-radius:6px}
+.sa-msg{display:flex;gap:9px;margin-bottom:14px;animation:saIn .35s ease both}
+@keyframes saIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.sa-msg .sa-b{max-width:86%;padding:11px 14px;border-radius:16px;font-size:13.5px;line-height:1.85;box-shadow:0 3px 12px rgba(15,23,42,.06)}
+.sa-msg.bot .sa-b{background:#fff;color:#1e293b;border-top-right-radius:5px}
+.sa-msg.me{flex-direction:row-reverse}
+.sa-msg.me .sa-b{background:var(--sa-grad);color:#fff;border-top-left-radius:5px}
+.sa-mini{width:30px;height:30px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;background:var(--sa-grad)}
+.sa-msg.me .sa-mini{background:#334155}
+.sa-b h5{margin:0 0 8px;font-size:14px;font-weight:800;color:#4f46e5;display:flex;align-items:center;gap:6px}
+.sa-b b{color:#4f46e5}
+.sa-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;margin:8px 0}
+.sa-stat{background:linear-gradient(135deg,#eef2ff,#faf5ff);border:1px solid #e0e7ff;border-radius:12px;padding:9px;text-align:center}
+.sa-stat .v{font-size:19px;font-weight:800;color:#4f46e5;line-height:1.2}
+.sa-stat .l{font-size:10.5px;color:#64748b;margin-top:2px}
+.sa-tbl{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px;background:#fff;border-radius:10px;overflow:hidden}
+.sa-tbl th{background:#eef2ff;color:#4338ca;padding:7px 6px;font-weight:700;text-align:right;font-size:11.5px}
+.sa-tbl td{padding:7px 6px;border-top:1px solid #f1f5f9;text-align:right;color:#334155}
+.sa-tbl tr:hover td{background:#f8fafc}
+.sa-pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:700}
+.sa-bar{height:8px;background:#e2e8f0;border-radius:8px;overflow:hidden;margin-top:4px}
+.sa-bar i{display:block;height:100%;background:var(--sa-grad);border-radius:8px;animation:saGrow .7s ease}
+@keyframes saGrow{from{width:0 !important}}
+.sa-row{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:5px 0;border-bottom:1px dashed #e2e8f0}
+.sa-row:last-child{border:none}
+.sa-row span{color:#64748b}.sa-row b{color:#1e293b;font-weight:700}
+.sa-act{display:inline-flex;align-items:center;gap:5px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;border-radius:9px;
+  padding:5px 10px;font-size:11.5px;cursor:pointer;margin:4px 4px 0 0;font-family:Tajawal,sans-serif;font-weight:700;transition:.2s}
+.sa-act:hover{background:#4f46e5;color:#fff;transform:translateY(-1px)}
+.sa-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 10px;background:#eef2ff}
+.sa-chip{background:#fff;border:1px solid #ddd6fe;color:#5b21b6;border-radius:20px;padding:6px 12px;font-size:11.5px;cursor:pointer;
+  font-family:Tajawal,sans-serif;font-weight:600;transition:.2s;white-space:nowrap}
+.sa-chip:hover{background:var(--sa-grad);color:#fff;border-color:transparent;transform:translateY(-2px)}
+.sa-foot{padding:11px;background:#fff;border-top:1px solid #eef2ff;display:flex;gap:8px;align-items:center}
+.sa-input{flex:1;border:1.5px solid #e2e8f0;border-radius:14px;padding:11px 14px;font-family:Tajawal,sans-serif;font-size:13.5px;
+  outline:none;transition:.2s;background:#f8fafc;resize:none;max-height:90px}
+.sa-input:focus{border-color:#8b5cf6;background:#fff;box-shadow:0 0 0 4px rgba(139,92,246,.12)}
+.sa-send{width:44px;height:44px;border-radius:14px;border:none;background:var(--sa-grad);color:#fff;font-size:15px;cursor:pointer;transition:.2s;flex-shrink:0}
+.sa-send:hover{transform:scale(1.08)}
+.sa-mic{width:40px;height:40px;border-radius:13px;border:1.5px solid #e2e8f0;background:#f8fafc;color:#64748b;cursor:pointer;flex-shrink:0}
+.sa-mic.rec{background:#fee2e2;color:#dc2626;border-color:#fecaca;animation:saBlink 1s infinite}
+.sa-typing{display:flex;gap:4px;padding:12px 14px}
+.sa-typing i{width:7px;height:7px;border-radius:50%;background:#a5b4fc;animation:saBounce 1.2s infinite}
+.sa-typing i:nth-child(2){animation-delay:.15s}.sa-typing i:nth-child(3){animation-delay:.3s}
+@keyframes saBounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-6px);opacity:1}}
+@media(max-width:520px){#saPanel{left:8px;right:8px;width:auto;bottom:92px;height:calc(100vh - 120px)}#saFab{bottom:16px;left:16px;width:56px;height:56px}}
+</style>
+
+<button id="saFab" title="المساعد الذكي (Ctrl + K)" onclick="saToggle()">
+  <i class="fas fa-robot"></i><span class="sa-badge">AI</span>
+</button>
+
+<div id="saPanel" aria-live="polite">
+  <div class="sa-head">
+    <div class="sa-ava"><i class="fas fa-wand-magic-sparkles"></i></div>
+    <div>
+      <h4>المساعد الذكي</h4>
+      <p><span class="sa-dot"></span> <span id="saStatus">جاهز — يعرف كل شيء عن النظام</span></p>
+    </div>
+    <div class="sa-head-btns">
+      <button class="sa-hbtn" title="تحديث البيانات" onclick="saRefresh(true)"><i class="fas fa-rotate"></i></button>
+      <button class="sa-hbtn" title="تكبير / تصغير" onclick="document.getElementById('saPanel').classList.toggle('max')"><i class="fas fa-expand"></i></button>
+      <button class="sa-hbtn" title="محادثة جديدة" onclick="saClear()"><i class="fas fa-broom"></i></button>
+      <button class="sa-hbtn" title="إغلاق" onclick="saToggle(false)"><i class="fas fa-xmark"></i></button>
+    </div>
+  </div>
+  <div class="sa-body" id="saBody"></div>
+  <div class="sa-chips" id="saChips"></div>
+  <div class="sa-foot">
+    <textarea class="sa-input" id="saInput" rows="1" placeholder="اسألني أي شيء عن النظام… مثال: كم طلب منجز هذا الشهر؟"></textarea>
+    <button class="sa-mic" id="saMic" title="إدخال صوتي" onclick="saVoice()"><i class="fas fa-microphone"></i></button>
+    <button class="sa-send" onclick="saSend()"><i class="fas fa-paper-plane"></i></button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   المساعد الذكي — محرك تحليل عربي محلي فوق بيانات النظام
+   ============================================================ */
+(function(){
+const SA = { data:{}, loaded:false, loading:null, ts:0 };
+const T = ['requests','inventory','transactions','inventory_history','alt_devices','alt_models','assignments','computer_items','documents','departments','users','tenders'];
+
+const ST = { new:'جديد', inprogress:'قيد التنفيذ', pending:'معلق', withdrawn:'مسحوب', active:'فعال', completed:'منجز', cancelled:'ملغي', duplicate:'مكرر' };
+const STC = { new:'#3b82f6', inprogress:'#f59e0b', pending:'#8b5cf6', withdrawn:'#64748b', active:'#06b6d4', completed:'#10b981', cancelled:'#ef4444', duplicate:'#a855f7' };
+
+const g=(o,...k)=>{ for(const x of k){ if(o&&o[x]!==undefined&&o[x]!==null&&o[x]!=='') return o[x]; } return ''; };
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm=s=>String(s||'').toLowerCase().replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/[ًٌٍَُِّْـ]/g,'').replace(/[^\u0621-\u064aa-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
+const dt=v=>{ if(!v) return null; const d=new Date(v); return isNaN(d)?null:d; };
+const fdate=v=>{ const d=dt(v); return d? d.toLocaleDateString('ar-EG',{year:'numeric',month:'2-digit',day:'2-digit'}) : '—'; };
+const pill=(s)=>`<span class="sa-pill" style="background:${(STC[s]||'#64748b')}22;color:${STC[s]||'#64748b'}">${ST[s]||s||'—'}</span>`;
+
+/* ---------- تحميل البيانات ---------- */
+async function load(force){
+  if(SA.loaded && !force && Date.now()-SA.ts < 60000) return SA.data;
+  if(SA.loading) return SA.loading;
+  SA.loading = (async()=>{
+    const out={};
+    await Promise.all(T.map(async t=>{
+      try{ const r = await SupabaseAPI.request(t,'GET'); out[t]=Array.isArray(r)?r:[]; }catch(e){ out[t]=[]; }
+    }));
+    SA.data=out; SA.loaded=true; SA.ts=Date.now(); SA.loading=null; return out;
+  })();
+  return SA.loading;
+}
+window.saRefresh = async function(toast){
+  const s=document.getElementById('saStatus'); if(s) s.textContent='يحدّث البيانات…';
+  await load(true);
+  if(s) s.textContent = `جاهز — ${(SA.data.requests||[]).length} طلب · ${(SA.data.inventory||[]).length} قطعة`;
+  if(toast) push('bot', `<h5><i class="fas fa-rotate"></i> تم تحديث البيانات</h5>${overviewHTML()}`);
+};
+
+/* ---------- أدوات الوقت ---------- */
+function range(q){
+  const now=new Date(); const s=new Date(now);
+  if(/اليوم|today/.test(q)){ s.setHours(0,0,0,0); return {from:s,label:'اليوم'}; }
+  if(/امس|أمس|البارحه|البارحة/.test(q)){ const a=new Date(now); a.setDate(a.getDate()-1); a.setHours(0,0,0,0); const b=new Date(a); b.setHours(23,59,59,999); return {from:a,to:b,label:'أمس'}; }
+  if(/هذا الاسبوع|هالاسبوع|الاسبوع الحالي|اسبوع/.test(q)){ s.setDate(s.getDate()-7); return {from:s,label:'آخر 7 أيام'}; }
+  if(/هذا الشهر|هالشهر|الشهر الحالي/.test(q)){ return {from:new Date(now.getFullYear(),now.getMonth(),1),label:'هذا الشهر'}; }
+  if(/الشهر الماضي|الشهر السابق/.test(q)){ return {from:new Date(now.getFullYear(),now.getMonth()-1,1), to:new Date(now.getFullYear(),now.getMonth(),0,23,59,59), label:'الشهر الماضي'}; }
+  if(/هذه السنه|هذا العام|السنه الحاليه|سنه/.test(q)){ return {from:new Date(now.getFullYear(),0,1),label:'هذه السنة'}; }
+  const m=q.match(/اخر\s*(\d+)\s*(يوم|ايام|شهر|اشهر)/);
+  if(m){ const n=+m[1]; const d=new Date(now); if(/شهر/.test(m[2])) d.setMonth(d.getMonth()-n); else d.setDate(d.getDate()-n); return {from:d,label:`آخر ${n} ${/شهر/.test(m[2])?'شهر':'يوم'}`}; }
+  return null;
+}
+const inRange=(v,r)=>{ if(!r) return true; const d=dt(v); if(!d) return false; if(r.from&&d<r.from) return false; if(r.to&&d>r.to) return false; return true; };
+
+function statusOf(q){
+  const n=norm(q);
+  if(/منجز|مكتمل|منتهي|مغلق/.test(n)) return 'completed';
+  if(/قيد التنفيذ|جاري|شغال/.test(n)) return 'inprogress';
+  if(/معلق|متوقف|منتظر/.test(n)) return 'pending';
+  if(/جديد|جديده/.test(n)) return 'new';
+  if(/ملغي|ملغاه|الغاء/.test(n)) return 'cancelled';
+  if(/مسحوب/.test(n)) return 'withdrawn';
+  if(/مكرر/.test(n)) return 'duplicate';
+  if(/فعال|نشط/.test(n)) return 'active';
+  return null;
+}
+
+/* ---------- عناصر عرض ---------- */
+const stats=arr=>`<div class="sa-stats">${arr.map(a=>`<div class="sa-stat"><div class="v">${a[1]}</div><div class="l">${a[0]}</div></div>`).join('')}</div>`;
+function tbl(head,rows){
+  if(!rows.length) return '<p style="color:#94a3b8;font-size:12px">لا توجد نتائج.</p>';
+  return `<div style="overflow:auto"><table class="sa-tbl"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+function barList(pairs,total){
+  const max=Math.max(1,...pairs.map(p=>p[1]));
+  return pairs.map(p=>`<div style="margin:7px 0"><div class="sa-row" style="border:none;padding:0"><span>${esc(p[0])}</span><b>${p[1]}${total?` <span style="color:#94a3b8;font-weight:400">(${Math.round(p[1]/total*100)}%)</span>`:''}</b></div><div class="sa-bar"><i style="width:${p[1]/max*100}%"></i></div></div>`).join('');
+}
+const act=(label,icon,js)=>`<button class="sa-act" onclick="${js}"><i class="fas ${icon}"></i> ${label}</button>`;
+const goto=(p,label)=>act(label,'fa-arrow-left-long',`saGo('${p}')`);
+window.saGo=function(p){ try{ showPage(p); }catch(e){} };
+window.saOpenReq=function(id){ try{ showPage('requests'); setTimeout(()=>viewRequest(isNaN(+id)?id:+id),250); }catch(e){} };
+
+/* ---------- الملخص العام ---------- */
+function overviewHTML(){
+  const d=SA.data, R=d.requests||[];
+  const c=s=>R.filter(r=>g(r,'status')===s).length;
+  const inv=d.inventory||[]; const low=inv.filter(i=>(i.qty||0)>0&&(i.qty||0)<=3).length; const out=inv.filter(i=>(i.qty||0)===0).length;
+  const models=d.alt_models||[]; const avail=models.filter(m=>g(m,'status')==='available').length;
+  return stats([
+    ['إجمالي الطلبات',R.length],['جديدة',c('new')],['قيد التنفيذ',c('inprogress')],['منجزة',c('completed')],
+    ['قطع الغيار',inv.length],['مخزون منخفض',low],['نفد',out],
+    ['أجهزة بديلة',models.length],['متوفرة',avail],
+    ['مواد حاسوبية',(d.computer_items||[]).length],['وثائق',(d.documents||[]).length],['أقسام',(d.departments||[]).length]
+  ]);
+}
+
+/* ---------- بحث عام ---------- */
+function searchAll(term){
+  const n=norm(term); if(n.length<2) return [];
+  const res=[]; const d=SA.data;
+  const scan=(rows,type,fields,titleF,idF)=>{ (rows||[]).forEach(r=>{
+      const hay=norm(fields.map(f=>g(r,...[].concat(f))).join(' '));
+      if(hay.includes(n)) res.push({type,row:r,title:g(r,...[].concat(titleF)),id:r[idF||'id']});
+  });};
+  scan(d.requests,'طلب صيانة',[['request_number','requestNumber'],['computer_number','computerNumber'],['device_name','deviceName'],['employee_name','employeeName'],'department',['issue_description','issueDescription']],['request_number','requestNumber']);
+  scan(d.inventory,'قطعة غيار',['name','notes'],'name');
+  scan(d.computer_items,'مادة حاسوبية',['name',['item_number','itemNumber'],'category','notes'],'name');
+  scan(d.alt_models,'جهاز بديل',['model','serial','type','location',['assigned_to','assignedTo']],'model');
+  scan(d.documents,'وثيقة',['title','description','notes',['document_number','documentNumber']],'title');
+  scan(d.assignments,'تسليم جهاز',['employee','model',['device_type','deviceType'],'location'],'model');
+  scan(d.transactions,'حركة صرف',[['item_name','itemName'],'employee','notes'],['item_name','itemName']);
+  scan(d.departments,'قسم',['name'],'name');
+  return res.slice(0,40);
+}
+
+/* ---------- المحرك ---------- */
+function answer(qRaw){
+  const q=norm(qRaw), d=SA.data, R=d.requests||[];
+  const r=range(q), st=statusOf(q);
+
+  // مساعدة
+  if(/مساعده|ساعدني|شو بتعرف|شو بتقدر|help|قدراتك|وش تسوي/.test(q))
+    return {html:`<h5><i class="fas fa-lightbulb"></i> بقدر أساعدك بكل هذا</h5>
+      <div class="sa-row"><span>الطلبات</span><b>عدّ · بحث · حالات · تأخير · أقسام</b></div>
+      <div class="sa-row"><span>قطع الغيار</span><b>الأرصدة · الناقص · النافد · الصرف</b></div>
+      <div class="sa-row"><span>الأجهزة البديلة</span><b>المتوفر · المُسلَّم · لمن</b></div>
+      <div class="sa-row"><span>المواد الحاسوبية</span><b>الكميات · التصنيفات</b></div>
+      <div class="sa-row"><span>الوثائق والعطاء</span><b>التفاصيل · الشركة · التصنيف</b></div>
+      <div class="sa-row"><span>تحليلات</span><b>الأكثر أعطالاً · أنشط قسم · ملخص شامل</b></div>
+      <p style="margin-top:8px;font-size:12px;color:#64748b">جرّب: «كم طلب منجز هذا الشهر؟» أو «قطع الغيار الناقصة» أو «طلبات قسم المالية» أو ابحث برقم الطلب مباشرة.</p>`};
+
+  // ملخص شامل
+  if(/ملخص|نظره عامه|تقرير عام|احصائيات|الوضع العام|كل شي|الحاله العامه/.test(q)){
+    const dep={}; R.forEach(x=>{ const k=g(x,'department')||'غير محدد'; dep[k]=(dep[k]||0)+1; });
+    const top=Object.entries(dep).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    return {html:`<h5><i class="fas fa-chart-pie"></i> ملخص شامل للنظام</h5>${overviewHTML()}
+      <div style="margin-top:10px;font-weight:800;font-size:12.5px;color:#4338ca">أعلى الأقسام طلباً</div>${barList(top,R.length)}
+      ${goto('reports','فتح التقارير')}${goto('dashboard','لوحة التحكم')}`};
+  }
+
+  // العطاء
+  if(/عطاء|العطاء|الشركه المتعهده|الشركة|المتعهد|كفاله/.test(q)){
+    const t=(d.tenders||[])[0];
+    if(!t) return {html:'لا توجد بيانات عطاء مسجلة حتى الآن.'+goto('tender','صفحة العطاء')};
+    return {html:`<h5><i class="fas fa-file-contract"></i> تفاصيل عطاء الصيانة</h5>
+      <div class="sa-row"><span>اسم العطاء</span><b>${esc(g(t,'tender_name','tenderName'))}</b></div>
+      <div class="sa-row"><span>رقم العطاء</span><b>${esc(g(t,'tender_number','tenderNumber'))}</b></div>
+      <div class="sa-row"><span>رقم القرار</span><b>${esc(g(t,'decision_number','decisionNumber'))}</b></div>
+      <div class="sa-row"><span>الشركة</span><b>${esc(g(t,'company_name','companyName'))}</b></div>
+      <div class="sa-row"><span>المندوب</span><b>${esc(g(t,'company_rep','companyRep'))||'—'}</b></div>
+      <div class="sa-row"><span>الهاتف</span><b>${esc(g(t,'company_phone','companyPhone'))||'—'}</b></div>
+      <div class="sa-row"><span>البريد</span><b>${esc(g(t,'company_email','companyEmail'))||'—'}</b></div>
+      <div class="sa-row"><span>تاريخ أمر المباشرة</span><b>${fdate(g(t,'work_order_date','workOrderDate'))}</b></div>
+      ${goto('tender','فتح صفحة العطاء')}`};
+  }
+
+  // المخزون / قطع الغيار
+  if(/مخزون|قطع الغيار|قطعه|قطع|سبير|رصيد|كميه/.test(q) && !/حاسوبيه|حاسوب/.test(q)){
+    const inv=d.inventory||[];
+    if(/ناقص|منخفض|قليل|نفد|نافد|مفقود|خلص|صفر/.test(q)){
+      const outs=inv.filter(i=>(i.qty||0)===0), lows=inv.filter(i=>(i.qty||0)>0&&(i.qty||0)<=3);
+      return {html:`<h5><i class="fas fa-triangle-exclamation"></i> تنبيهات المخزون</h5>
+        ${stats([['نفد المخزون',outs.length],['مخزون منخفض',lows.length],['إجمالي الأصناف',inv.length]])}
+        ${tbl(['الصنف','الكمية','الحالة'],[...outs,...lows].map(i=>[esc(i.name),i.qty||0,(i.qty||0)===0?'<span class="sa-pill" style="background:#fee2e2;color:#dc2626">نفد</span>':'<span class="sa-pill" style="background:#fef3c7;color:#d97706">منخفض</span>']))}
+        ${goto('inventory','فتح المخزون')}`};
+    }
+    // رصيد صنف محدد
+    const hit=inv.find(i=>norm(i.name)&&q.includes(norm(i.name)));
+    if(hit){
+      const hist=(d.transactions||[]).filter(t=>String(g(t,'item_id','itemId'))===String(hit.id)).slice(0,6);
+      return {html:`<h5><i class="fas fa-microchip"></i> ${esc(hit.name)}</h5>
+        ${stats([['الكمية الحالية',hit.qty||0],['الحد الأقصى',g(hit,'max_qty','maxQty')||'—'],['عمليات الصرف',(d.transactions||[]).filter(t=>String(g(t,'item_id','itemId'))===String(hit.id)).length]])}
+        ${tbl(['التاريخ','الكمية','الموظف'],hist.map(t=>[fdate(g(t,'date','created_at')),g(t,'qty'),esc(g(t,'employee'))]))}
+        ${goto('inventory','فتح المخزون')}`};
+    }
+    const totalQty=inv.reduce((a,b)=>a+(b.qty||0),0);
+    return {html:`<h5><i class="fas fa-boxes-stacked"></i> قطع الغيار</h5>
+      ${stats([['عدد الأصناف',inv.length],['مجموع القطع',totalQty],['منخفض',inv.filter(i=>(i.qty||0)>0&&(i.qty||0)<=3).length],['نفد',inv.filter(i=>(i.qty||0)===0).length]])}
+      ${tbl(['الصنف','الكمية','الحد الأقصى'],inv.slice(0,15).map(i=>[esc(i.name),i.qty||0,g(i,'max_qty','maxQty')||'—']))}
+      ${goto('inventory','فتح المخزون')}`};
+  }
+
+  // صرف / حركات
+  if(/صرف|حركه|حركات|استلام موظف|من صرف|سجل الصرف/.test(q)){
+    let tx=(d.transactions||[]).filter(t=>inRange(g(t,'date','created_at'),r));
+    return {html:`<h5><i class="fas fa-right-left"></i> حركات الصرف${r?` — ${r.label}`:''}</h5>
+      ${stats([['عدد العمليات',tx.length],['مجموع الكميات',tx.reduce((a,b)=>a+(+b.qty||0),0)]])}
+      ${tbl(['الصنف','الكمية','الموظف','التاريخ'],tx.slice(0,15).map(t=>[esc(g(t,'item_name','itemName')),g(t,'qty'),esc(g(t,'employee')),fdate(g(t,'date','created_at'))]))}`};
+  }
+
+  // الأجهزة البديلة
+  if(/بديل|بديله|الاجهزه البديله|لابتوب بديل|تسليم جهاز|مسلم/.test(q)){
+    const models=d.alt_models||[], asg=d.assignments||[];
+    const av=models.filter(m=>g(m,'status')==='available'), un=models.filter(m=>g(m,'status')!=='available');
+    if(/متوفر|فاضي|موجود/.test(q))
+      return {html:`<h5><i class="fas fa-laptop"></i> الأجهزة البديلة المتوفرة</h5>${stats([['متوفرة',av.length],['مُسلَّمة',un.length]])}
+        ${tbl(['النوع','الموديل','الرقم التسلسلي','الموقع'],av.slice(0,20).map(m=>[esc(m.type),esc(m.model),esc(m.serial)||'—',esc(m.location)||'—']))}${goto('alternatives','فتح الصفحة')}`};
+    if(/مسلم|تسليم|مع مين|عند مين|من استلم/.test(q))
+      return {html:`<h5><i class="fas fa-handshake"></i> الأجهزة المُسلَّمة</h5>
+        ${tbl(['الموظف','النوع','الموديل','الموقع','التاريخ'],asg.filter(a=>g(a,'status')==='active').slice(0,20).map(a=>[esc(a.employee),esc(g(a,'device_type','deviceType')),esc(a.model),esc(a.location),fdate(g(a,'assign_date','assignDate'))]))}${goto('alternatives','فتح الصفحة')}`};
+    const byType={}; models.forEach(m=>{ byType[m.type||'غير محدد']=(byType[m.type||'غير محدد']||0)+1; });
+    return {html:`<h5><i class="fas fa-laptop-medical"></i> الأجهزة البديلة</h5>
+      ${stats([['الإجمالي',models.length],['متوفرة',av.length],['مُسلَّمة',un.length],['أنواع',Object.keys(byType).length]])}
+      ${barList(Object.entries(byType).sort((a,b)=>b[1]-a[1]),models.length)}${goto('alternatives','فتح الصفحة')}`};
+  }
+
+  // المواد الحاسوبية
+  if(/حاسوبيه|مواد حاسوبيه|المواد/.test(q)){
+    const it=d.computer_items||[]; const cat={};
+    it.forEach(i=>{ cat[i.category||'غير مصنف']=(cat[i.category||'غير مصنف']||0)+(+i.qty||0); });
+    return {html:`<h5><i class="fas fa-keyboard"></i> المواد الحاسوبية</h5>
+      ${stats([['عدد المواد',it.length],['مجموع الكميات',it.reduce((a,b)=>a+(+b.qty||0),0)],['التصنيفات',Object.keys(cat).length]])}
+      ${barList(Object.entries(cat).sort((a,b)=>b[1]-a[1]))}
+      ${tbl(['الرقم','المادة','التصنيف','الكمية'],it.slice(0,15).map(i=>[esc(g(i,'item_number','itemNumber')),esc(i.name),esc(i.category),i.qty||0]))}
+      ${goto('computer_items','فتح الصفحة')}`};
+  }
+
+  // الوثائق
+  if(/وثيقه|وثائق|ملاحظات|مستند|كتاب رسمي/.test(q)){
+    const docs=(d.documents||[]).filter(x=>inRange(g(x,'document_date','created_at'),r));
+    return {html:`<h5><i class="fas fa-folder-open"></i> الوثائق${r?` — ${r.label}`:''}</h5>${stats([['العدد',docs.length]])}
+      ${tbl(['الرقم','العنوان','التصنيف','التاريخ'],docs.slice(0,15).map(x=>[esc(g(x,'document_number','documentNumber')),esc(x.title),esc(x.category)||'—',fdate(g(x,'document_date','created_at'))]))}
+      ${goto('documents','فتح الوثائق')}`};
+  }
+
+  // الأقسام
+  if(/قسم|اقسام|الدوائر/.test(q) && !/طلب/.test(q)){
+    const deps=d.departments||[]; const cnt={}; R.forEach(x=>{ const k=g(x,'department'); if(k) cnt[k]=(cnt[k]||0)+1; });
+    return {html:`<h5><i class="fas fa-sitemap"></i> الأقسام (${deps.length})</h5>
+      ${tbl(['القسم','عدد الطلبات'],deps.map(x=>[esc(x.name),cnt[x.name]||0]))}${goto('departments','إدارة الأقسام')}`};
+  }
+
+  // المستخدمون
+  if(/مستخدم|مستخدمين|حساب|موظفي النظام|صلاحيات/.test(q)){
+    const us=d.users||[];
+    return {html:`<h5><i class="fas fa-users-gear"></i> مستخدمو النظام</h5>${stats([['الإجمالي',us.length],['مدراء',us.filter(u=>u.role==='admin').length]])}
+      ${tbl(['الاسم','اسم الدخول','الصلاحية'],us.map(u=>[esc(g(u,'full_name','fullName')),esc(u.username),u.role==='admin'?'مدير':'مستخدم']))}`};
+  }
+
+  // تحليلات: الأكثر
+  if(/اكثر|اعلى|الاكثر|توب|top|ترتيب/.test(q)){
+    const key = /موظف/.test(q)?['employee_name','employeeName'] : /جهاز|عطل/.test(q)?['device_name','deviceName'] : ['department'];
+    const lbl = /موظف/.test(q)?'الموظفين' : /جهاز|عطل/.test(q)?'الأجهزة الأكثر أعطالاً' : 'الأقسام';
+    const m={}; R.filter(x=>inRange(g(x,'created_at','createdAt'),r)).forEach(x=>{ const k=g(x,...key)||'غير محدد'; m[k]=(m[k]||0)+1; });
+    const top=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    return {html:`<h5><i class="fas fa-ranking-star"></i> الأكثر — ${lbl}${r?` (${r.label})`:''}</h5>${barList(top,R.length)}`};
+  }
+
+  // الطلبات المتأخرة
+  if(/متاخر|تاخير|قديمه|معلقه من زمان|بطيء/.test(q)){
+    const now=Date.now();
+    const late=R.filter(x=>!['completed','cancelled'].includes(g(x,'status')))
+      .map(x=>({x,days:Math.floor((now-(dt(g(x,'created_at','createdAt'))||now))/86400000)}))
+      .filter(o=>o.days>=3).sort((a,b)=>b.days-a.days);
+    return {html:`<h5><i class="fas fa-hourglass-half"></i> الطلبات المتأخرة (3 أيام فأكثر)</h5>${stats([['العدد',late.length],['الأطول تأخيراً',late[0]?late[0].days+' يوم':'—']])}
+      ${tbl(['رقم الطلب','الجهاز','القسم','الحالة','التأخير'],late.slice(0,15).map(o=>[
+        `<a style="color:#4f46e5;cursor:pointer;font-weight:700" onclick="saOpenReq('${o.x.id}')">${esc(g(o.x,'request_number','requestNumber'))}</a>`,
+        esc(g(o.x,'device_name','deviceName')),esc(g(o.x,'department')),pill(g(o.x,'status')),`<b style="color:#dc2626">${o.days} يوم</b>`]))}`};
+  }
+
+  // طلبات — عدّ/قائمة/فلترة
+  if(/طلب|طلبات|صيانه|بلاغ/.test(q)){
+    let list=R.slice();
+    if(st) list=list.filter(x=>g(x,'status')===st);
+    if(r) list=list.filter(x=>inRange(g(x,'created_at','createdAt'),r));
+    // فلترة بالقسم
+    let depName=null;
+    (d.departments||[]).forEach(dp=>{ const n=norm(dp.name); if(n&&q.includes(n)) depName=dp.name; });
+    if(depName) list=list.filter(x=>g(x,'department')===depName);
+    const counts={}; R.forEach(x=>{ const s=g(x,'status'); counts[s]=(counts[s]||0)+1; });
+    const title=`الطلبات${st?` ${ST[st]}`:''}${depName?` — قسم ${depName}`:''}${r?` — ${r.label}`:''}`;
+    if(/كم|عدد|احصاء|احصائيه/.test(q) && !/اعرض|اظهر|قائمه|وين/.test(q)){
+      return {html:`<h5><i class="fas fa-list-check"></i> ${esc(title)}</h5>
+        <p style="font-size:15px">النتيجة: <b style="font-size:22px">${list.length}</b> طلب</p>
+        ${!st&&!depName?stats(Object.keys(ST).filter(k=>counts[k]).map(k=>[ST[k],counts[k]])):''}
+        ${tbl(['رقم الطلب','الجهاز','القسم','الحالة','التاريخ'],list.slice(0,8).map(x=>[
+          `<a style="color:#4f46e5;cursor:pointer;font-weight:700" onclick="saOpenReq('${x.id}')">${esc(g(x,'request_number','requestNumber'))}</a>`,
+          esc(g(x,'device_name','deviceName')),esc(g(x,'department')),pill(g(x,'status')),fdate(g(x,'created_at','createdAt'))]))}
+        ${goto('requests','فتح الطلبات')}`};
+    }
+    return {html:`<h5><i class="fas fa-list-check"></i> ${esc(title)} (${list.length})</h5>
+      ${tbl(['رقم الطلب','الموظف','الجهاز','القسم','الحالة','التاريخ'],list.slice(0,15).map(x=>[
+        `<a style="color:#4f46e5;cursor:pointer;font-weight:700" onclick="saOpenReq('${x.id}')">${esc(g(x,'request_number','requestNumber'))}</a>`,
+        esc(g(x,'employee_name','employeeName')),esc(g(x,'device_name','deviceName')),esc(g(x,'department')),pill(g(x,'status')),fdate(g(x,'created_at','createdAt'))]))}
+      ${list.length>15?`<p style="font-size:11.5px;color:#94a3b8">عرض 15 من ${list.length}</p>`:''}${goto('requests','فتح الطلبات')}`};
+  }
+
+  // بحث عام كحل أخير
+  const found=searchAll(qRaw);
+  if(found.length){
+    const reqs=found.filter(f=>f.type==='طلب صيانة');
+    if(reqs.length===1 && found.length<=3){
+      const x=reqs[0].row;
+      return {html:`<h5><i class="fas fa-file-lines"></i> الطلب ${esc(g(x,'request_number','requestNumber'))}</h5>
+        <div class="sa-row"><span>الموظف</span><b>${esc(g(x,'employee_name','employeeName'))}</b></div>
+        <div class="sa-row"><span>القسم</span><b>${esc(g(x,'department'))}</b></div>
+        <div class="sa-row"><span>الجهاز</span><b>${esc(g(x,'device_name','deviceName'))}</b></div>
+        <div class="sa-row"><span>رقم الحاسوب</span><b>${esc(g(x,'computer_number','computerNumber'))}</b></div>
+        <div class="sa-row"><span>الحالة</span><b>${pill(g(x,'status'))}</b></div>
+        <div class="sa-row"><span>التاريخ</span><b>${fdate(g(x,'created_at','createdAt'))}</b></div>
+        <div class="sa-row"><span>الإجراءات</span><b>${(x.procedures||[]).length}</b></div>
+        <p style="font-size:12.5px;color:#475569;margin-top:6px">${esc(g(x,'issue_description','issueDescription'))||'لا يوجد وصف'}</p>
+        ${act('عرض الطلب','fa-eye',`saOpenReq('${x.id}')`)}`};
+    }
+    const byType={}; found.forEach(f=>{ (byType[f.type]=byType[f.type]||[]).push(f); });
+    return {html:`<h5><i class="fas fa-magnifying-glass"></i> نتائج البحث عن «${esc(qRaw)}» (${found.length})</h5>
+      ${Object.entries(byType).map(([t,arr])=>`<div style="margin-top:8px"><b style="font-size:12px;color:#4338ca">${t} (${arr.length})</b>
+        ${tbl(['العنصر','تفاصيل'],arr.slice(0,6).map(f=>[
+          t==='طلب صيانة'?`<a style="color:#4f46e5;cursor:pointer;font-weight:700" onclick="saOpenReq('${f.id}')">${esc(f.title)}</a>`:esc(f.title),
+          esc([g(f.row,'department'),g(f.row,'employee_name','employeeName','employee'),g(f.row,'category'),g(f.row,'type'),g(f.row,'qty')].filter(Boolean).join(' · '))||'—']))}</div>`).join('')}`};
+  }
+
+  return {html:`<h5><i class="fas fa-circle-question"></i> ما لقيت نتيجة مطابقة</h5>
+    <p style="font-size:13px">جرّب صياغة أوضح أو استخدم أحد الاقتراحات بالأسفل. أمثلة:</p>
+    <div class="sa-row"><span>«كم طلب قيد التنفيذ؟»</span><b></b></div>
+    <div class="sa-row"><span>«قطع الغيار الناقصة»</span><b></b></div>
+    <div class="sa-row"><span>«الأجهزة البديلة المتوفرة»</span><b></b></div>
+    <div class="sa-row"><span>«الطلبات المتأخرة»</span><b></b></div>`};
+}
+
+/* ---------- واجهة ---------- */
+const CHIPS=['ملخص شامل','كم طلب قيد التنفيذ؟','الطلبات المتأخرة','قطع الغيار الناقصة','الأجهزة البديلة المتوفرة','أكثر قسم طلبات','حركات الصرف هذا الشهر','المواد الحاسوبية','تفاصيل العطاء','مساعدة'];
+function renderChips(){ const c=document.getElementById('saChips'); c.innerHTML=CHIPS.map(t=>`<button class="sa-chip" onclick="saAsk('${t.replace(/'/g,"\\'")}')">${t}</button>`).join(''); }
+function push(who,html){
+  const b=document.getElementById('saBody');
+  const el=document.createElement('div'); el.className='sa-msg '+(who==='me'?'me':'bot');
+  el.innerHTML=`<div class="sa-mini"><i class="fas ${who==='me'?'fa-user':'fa-robot'}"></i></div><div class="sa-b">${html}</div>`;
+  b.appendChild(el); b.scrollTop=b.scrollHeight; return el;
+}
+function typing(){ return push('bot','<div class="sa-typing"><i></i><i></i><i></i></div>'); }
+
+window.saToggle=function(force){
+  const p=document.getElementById('saPanel');
+  const open = force===false?false:(force===true?true:!p.classList.contains('open'));
+  p.classList.toggle('open',open);
+  if(open){ document.getElementById('saInput').focus(); if(!SA.loaded) boot(); }
+};
+window.saClear=function(){ document.getElementById('saBody').innerHTML=''; greet(); };
+window.saAsk=function(t){ document.getElementById('saInput').value=t; saSend(); };
+window.saSend=async function(){
+  const i=document.getElementById('saInput'); const q=i.value.trim(); if(!q) return;
+  i.value=''; i.style.height='auto'; push('me',esc(q));
+  const t=typing();
+  await load(false);
+  await new Promise(r=>setTimeout(r,260));
+  let res; try{ res=answer(q); }catch(e){ res={html:'صار خطأ أثناء التحليل: '+esc(e.message)}; }
+  t.remove(); push('bot',res.html);
+};
+window.saVoice=function(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ push('bot','المتصفح لا يدعم الإدخال الصوتي.'); return; }
+  const mic=document.getElementById('saMic'); const rec=new SR();
+  rec.lang='ar-SA'; rec.interimResults=false; mic.classList.add('rec');
+  rec.onresult=e=>{ document.getElementById('saInput').value=e.results[0][0].transcript; saSend(); };
+  rec.onend=()=>mic.classList.remove('rec'); rec.onerror=()=>mic.classList.remove('rec');
+  rec.start();
+};
+function greet(){
+  const name = (window.currentUser && (currentUser.full_name||currentUser.fullName)) || '';
+  push('bot',`<h5><i class="fas fa-hand-sparkles"></i> أهلاً ${esc(name)||'بك'} 👋</h5>
+    <p style="font-size:13px;margin:0 0 6px">أنا مساعدك الذكي داخل نظام إدارة الصيانة. أقرأ كل بيانات النظام وأجاوبك فوراً — بالأرقام والجداول.</p>
+    <div id="saOv">${SA.loaded?overviewHTML():'<div class="sa-typing"><i></i><i></i><i></i></div>'}</div>
+    <p style="font-size:12px;color:#64748b;margin:6px 0 0">اسألني بالعربي العادي، أو اضغط اقتراحاً بالأسفل.</p>`);
+}
+async function boot(){
+  await load(false);
+  const ov=document.getElementById('saOv'); if(ov) ov.innerHTML=overviewHTML();
+  const s=document.getElementById('saStatus'); if(s) s.textContent=`جاهز — ${(SA.data.requests||[]).length} طلب · ${(SA.data.inventory||[]).length} قطعة`;
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  renderChips(); greet();
+  const i=document.getElementById('saInput');
+  i.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); saSend(); } });
+  i.addEventListener('input',()=>{ i.style.height='auto'; i.style.height=Math.min(90,i.scrollHeight)+'px'; });
+  document.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); saToggle(); } if(e.key==='Escape') saToggle(false); });
+});
+})();
+</script>
+<!-- ============ END AI SMART ASSISTANT ============ -->
 
 </body>
 </html>
