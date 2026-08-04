@@ -2831,6 +2831,8 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     <div>
                         <button class="hbtn" onclick="pmAuto()"><i class="fas fa-wand-magic-sparkles"></i> توزيع تلقائي متوازن</button>
                         <button class="hbtn" onclick="pmPrint()"><i class="fas fa-print"></i> طباعة</button>
+                        <button class="hbtn" onclick="pmExportPDF()"><i class="fas fa-file-pdf"></i> تصدير PDF</button>
+                        <button class="hbtn" onclick="PMRules.openSettings()"><i class="fas fa-sliders"></i> قواعد التوزيع</button>
                     </div>
                 </div>
                 <div class="pm-stats" id="pmStats"></div>
@@ -13418,6 +13420,147 @@ html[data-theme="dark"] #page-periodic .pm-panel>header{background:#111827;borde
 function DC(){ try{ return (typeof DEPT_CACHE!=='undefined'&&DEPT_CACHE)?DEPT_CACHE:[] }catch(e){ return [] } }
 function setDC(v){ try{ DEPT_CACHE=v }catch(e){} return v }
 </script>
+<style>
+.cfx-back{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:99999}
+.cfx-back.open{display:flex}
+.cfx-box{background:#fff;width:min(520px,92vw);border-radius:18px;overflow:hidden;box-shadow:0 30px 70px -20px rgba(0,0,0,.6);animation:cfxIn .22s ease}
+@keyframes cfxIn{from{transform:translateY(14px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+.cfx-box header{background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;font-weight:900;font-size:15px}
+.cfx-box header i{font-size:20px}
+.cfx-box .cfx-body{padding:14px 16px;font-size:13px;color:#334155}
+.cfx-box .cfx-body ul{margin:8px 0 0;padding-inline-start:18px;display:grid;gap:6px}
+.cfx-box .cfx-body li{background:#fef2f2;border:1px solid #fee2e2;border-radius:9px;padding:7px 10px;list-style:none;display:flex;gap:8px;align-items:flex-start}
+.cfx-box .cfx-body li i{color:#ef4444;margin-top:2px}
+.cfx-fix{margin-top:11px;background:#ecfdf5;border:1px dashed #6ee7b7;border-radius:10px;padding:9px 11px;font-size:12.5px;color:#065f46;display:flex;gap:8px;align-items:center}
+.cfx-box footer{padding:12px 16px;display:flex;gap:8px;justify-content:flex-end;background:#f8fafc;border-top:1px solid #e5e7eb;flex-wrap:wrap}
+.cfx-box footer button{border:none;border-radius:10px;padding:9px 14px;font-family:inherit;font-weight:800;font-size:12.5px;cursor:pointer;display:inline-flex;gap:6px;align-items:center;transition:.18s}
+.cfx-box footer button:hover{transform:translateY(-1px)}
+.cfx-b-auto{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+.cfx-b-force{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa!important}
+.cfx-b-cancel{background:#f1f5f9;color:#475569}
+.cfx-rules label{display:grid;gap:5px;font-size:12.5px;font-weight:800;color:#334155;margin-bottom:10px}
+.cfx-rules input[type=number]{padding:8px 10px;border:1px solid #e5e7eb;border-radius:9px;font-family:inherit;font-size:13px}
+.cfx-rules small{font-weight:600;color:#94a3b8;font-size:10.5px}
+.dnd-zone.conflict{outline:2px dashed #ef4444;outline-offset:2px;background:#fef2f2!important}
+html[data-theme="dark"] .cfx-box{background:#0f172a;color:#e2e8f0}
+html[data-theme="dark"] .cfx-box .cfx-body{color:#cbd5e1}
+html[data-theme="dark"] .cfx-box footer{background:#111827;border-color:#1e293b}
+/* PDF report sheet */
+#pmPdfSheet{display:none;position:fixed;left:0;top:0;width:794px;background:#fff;color:#0f172a;font-family:inherit;padding:28px}
+#pmPdfSheet.exporting{display:block;z-index:99990;box-shadow:0 0 0 9999px rgba(15,23,42,.65)}
+#pmPdfSheet .r-head{display:flex;align-items:center;gap:12px;border-bottom:3px solid #0ea5e9;padding-bottom:12px;margin-bottom:14px}
+#pmPdfSheet .r-head h1{margin:0;font-size:20px;font-weight:900;color:#0f172a}
+#pmPdfSheet .r-head p{margin:3px 0 0;font-size:11px;color:#64748b}
+#pmPdfSheet .r-badge{margin-inline-start:auto;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border-radius:12px;padding:8px 14px;font-size:11px;font-weight:800;text-align:center}
+#pmPdfSheet .r-stats{display:flex;gap:8px;margin-bottom:14px}
+#pmPdfSheet .r-stat{flex:1;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;background:#f8fafc}
+#pmPdfSheet .r-stat b{display:block;font-size:18px;font-weight:900;color:#0369a1}
+#pmPdfSheet .r-stat span{font-size:10.5px;color:#64748b}
+#pmPdfSheet .r-group{border:1px solid #e2e8f0;border-radius:12px;margin-bottom:12px;overflow:hidden;page-break-inside:avoid}
+#pmPdfSheet .r-group h3{margin:0;padding:8px 12px;font-size:13.5px;font-weight:900;color:#fff}
+#pmPdfSheet table{width:100%;border-collapse:collapse;font-size:11.5px}
+#pmPdfSheet th{background:#f1f5f9;color:#334155;font-weight:800;padding:6px 8px;border:1px solid #e2e8f0;text-align:right}
+#pmPdfSheet td{padding:6px 8px;border:1px solid #e2e8f0;vertical-align:top}
+#pmPdfSheet .r-foot{margin-top:10px;border-top:1px solid #e2e8f0;padding-top:8px;font-size:10px;color:#94a3b8;display:flex;justify-content:space-between}
+</style>
+<div class="cfx-back" id="cfxModal"><div class="cfx-box">
+  <header id="cfxHead"><i class="fas fa-triangle-exclamation"></i><span id="cfxTitle">تعارض في التوزيع</span></header>
+  <div class="cfx-body" id="cfxBody"></div>
+  <footer id="cfxFoot"></footer>
+</div></div>
+<div id="pmPdfSheet"></div>
+<script>
+/* ============ 0) DISTRIBUTION RULES + CONFLICT ENGINE ============ */
+window.PMRules=(function(){
+  const KEY='pmRulesV1';
+  const DEF={enabled:true,yardMax:0,groupMaxYards:0,groupMaxDepts:0,noEmptyGroup:true};
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  function get(){ try{ return Object.assign({},DEF,JSON.parse(localStorage.getItem(KEY))||{}) }catch(e){ return Object.assign({},DEF) } }
+  function set(r){ try{ localStorage.setItem(KEY,JSON.stringify(r)) }catch(e){} }
+
+  let resolver=null;
+  function ask(o){
+    return new Promise(res=>{
+      resolver=res;
+      document.getElementById('cfxTitle').textContent=o.title||'تعارض في التوزيع';
+      document.getElementById('cfxBody').innerHTML=
+        '<div style="font-weight:800;color:#b91c1c"><i class="fas fa-circle-exclamation"></i> لا يمكن إتمام النقل كما هو:</div>'+
+        '<ul>'+(o.issues||[]).map(t=>'<li><i class="fas fa-ban"></i><span>'+esc(t)+'</span></li>').join('')+'</ul>'+
+        (o.fixText?'<div class="cfx-fix"><i class="fas fa-wand-magic-sparkles"></i><span><b>الإصلاح التلقائي المقترح:</b> '+esc(o.fixText)+'</span></div>':'');
+      document.getElementById('cfxFoot').innerHTML=
+        (o.fixText?'<button class="cfx-b-auto" onclick="PMRules._done(\'auto\')"><i class="fas fa-wand-magic-sparkles"></i> إصلاح تلقائي</button>':'')+
+        (o.allowForce!==false?'<button class="cfx-b-force" onclick="PMRules._done(\'force\')"><i class="fas fa-triangle-exclamation"></i> متابعة رغم التعارض</button>':'')+
+        '<button class="cfx-b-cancel" onclick="PMRules._done(\'cancel\')"><i class="fas fa-xmark"></i> إلغاء</button>';
+      document.getElementById('cfxModal').classList.add('open');
+    });
+  }
+  function _done(a){ document.getElementById('cfxModal').classList.remove('open'); const r=resolver; resolver=null; if(r)r(a); }
+
+  /* dept -> yard */
+  function checkDeptMove(dept,yard,all){
+    const r=get(); if(!r.enabled||!yard||!r.yardMax) return {conflict:false};
+    const counts={}; all.forEach(d=>{const y=(d.notes||'').trim(); if(y)counts[y]=(counts[y]||0)+1;});
+    const cur=counts[yard]||0;
+    if(cur<r.yardMax) return {conflict:false};
+    const yards=Object.keys(counts);
+    let best=null,bestC=Infinity;
+    yards.forEach(y=>{ if(y===yard)return; const c=counts[y]||0; if(c<r.yardMax&&c<bestC){best=y;bestC=c;} });
+    return {conflict:true,
+      title:'تجاوز سعة الساحة',
+      issues:['الساحة «'+yard+'» وصلت للحد الأقصى ('+r.yardMax+' قسم) وبها حالياً '+cur+' قسم.'],
+      fixText: best?('نقل القسم إلى الساحة الأقل ازدحاماً «'+best+'» ('+bestC+' قسم).'):'إبقاء القسم ضمن «غير محددة» لحين توفر سعة.',
+      suggestion: best||''};
+  }
+
+  /* yard -> maintenance group */
+  function checkYardMove(yard,group,groups,deptCounts){
+    const r=get(); if(!r.enabled||!group) return {conflict:false};
+    const issues=[];
+    const yCount=group.yards.filter(x=>x!==yard).length+1;
+    const dCount=group.yards.filter(x=>x!==yard).reduce((s,y)=>s+(deptCounts[y]||0),0)+(deptCounts[yard]||0);
+    if(r.groupMaxYards&&yCount>r.groupMaxYards) issues.push('المجموعة «'+group.name+'» تتجاوز الحد الأقصى للساحات ('+r.groupMaxYards+' ساحة).');
+    if(r.groupMaxDepts&&dCount>r.groupMaxDepts) issues.push('المجموعة «'+group.name+'» تتجاوز الحد الأقصى للأقسام ('+r.groupMaxDepts+' قسم) — ستصبح '+dCount+' قسم.');
+    if(!issues.length) return {conflict:false};
+    let best=null,bestLoad=Infinity;
+    groups.forEach(g=>{
+      if(g.id===group.id)return;
+      const yc=g.yards.filter(x=>x!==yard).length+1;
+      const dc=g.yards.filter(x=>x!==yard).reduce((s,y)=>s+(deptCounts[y]||0),0)+(deptCounts[yard]||0);
+      if(r.groupMaxYards&&yc>r.groupMaxYards)return;
+      if(r.groupMaxDepts&&dc>r.groupMaxDepts)return;
+      if(dc<bestLoad){bestLoad=dc;best=g;}
+    });
+    return {conflict:true,title:'تعارض مع قواعد التوزيع',issues:issues,
+      fixText: best?('إسناد الساحة إلى المجموعة المتاحة «'+best.name+'» ('+bestLoad+' قسم بعد الإضافة).'):'إعادة توزيع كل الساحات تلقائياً بشكل متوازن ضمن الحدود.',
+      suggestion: best?best.id:null};
+  }
+
+  function openSettings(){
+    const r=get();
+    document.getElementById('cfxTitle').textContent='قواعد التوزيع والسعات';
+    document.getElementById('cfxBody').innerHTML='<div class="cfx-rules">'+
+      '<label><span>الحد الأقصى للأقسام داخل الساحة الواحدة</span><input type="number" min="0" id="cfxYardMax" value="'+r.yardMax+'"><small>0 = بلا حد</small></label>'+
+      '<label><span>الحد الأقصى للساحات داخل مجموعة الصيانة</span><input type="number" min="0" id="cfxGY" value="'+r.groupMaxYards+'"><small>0 = بلا حد</small></label>'+
+      '<label><span>الحد الأقصى للأقسام داخل مجموعة الصيانة</span><input type="number" min="0" id="cfxGD" value="'+r.groupMaxDepts+'"><small>0 = بلا حد</small></label>'+
+      '<label style="flex-direction:row;display:flex;gap:8px;align-items:center"><input type="checkbox" id="cfxEn" '+(r.enabled?'checked':'')+' style="width:16px;height:16px"><span>تفعيل تنبيهات التعارض</span></label>'+
+      '</div>';
+    document.getElementById('cfxFoot').innerHTML=
+      '<button class="cfx-b-auto" onclick="PMRules._saveSettings()"><i class="fas fa-floppy-disk"></i> حفظ القواعد</button>'+
+      '<button class="cfx-b-cancel" onclick="PMRules._done(\'cancel\')">إغلاق</button>';
+    document.getElementById('cfxModal').classList.add('open');
+  }
+  function _saveSettings(){
+    set({enabled:document.getElementById('cfxEn').checked,
+      yardMax:+document.getElementById('cfxYardMax').value||0,
+      groupMaxYards:+document.getElementById('cfxGY').value||0,
+      groupMaxDepts:+document.getElementById('cfxGD').value||0});
+    _done('cancel');
+    if(typeof showToast==='function')showToast('success','تم','تم حفظ قواعد التوزيع');
+    if(typeof renderPMPublic==='function')renderPMPublic();
+  }
+  return {get,set,ask,_done,checkDeptMove,checkYardMove,openSettings,_saveSettings};
+})();
+</script>
 <script>
 /* ============ 1) DEPARTMENTS -> YARDS : DRAG & DROP ============ */
 (function(){
@@ -13513,7 +13656,17 @@ function setDC(v){ try{ DEPT_CACHE=v }catch(e){} return v }
       z.addEventListener('drop',async e=>{e.preventDefault();z.classList.remove('over');
         const id=+e.dataTransfer.getData('text/plain');
         const dept=DC().find(d=>d.id===id); if(!dept)return;
-        const yard=z.dataset.yard===UNSET?'':z.dataset.yard;
+        let yard=z.dataset.yard===UNSET?'':z.dataset.yard;
+        if((dept.notes||'').trim()!==yard){
+          const chk=PMRules.checkDeptMove(dept,yard,DC().filter(d=>d.id!==dept.id));
+          if(chk.conflict){
+            z.classList.add('conflict');
+            const act=await PMRules.ask(chk);
+            z.classList.remove('conflict');
+            if(act==='cancel'){ renderGrouping(); return; }
+            if(act==='auto'){ yard=chk.suggestion||''; }
+          }
+        }
         persistOrder();
         if((dept.notes||'').trim()!==yard){
           try{ await SupabaseAPI.request('departments','PATCH',{name:dept.name,notes:yard},dept.id); dept.notes=yard;
@@ -13577,17 +13730,109 @@ function setDC(v){ try{ DEPT_CACHE=v }catch(e){} return v }
     const list=Object.keys(m).sort((a,b)=>m[b]-m[a]);
     GROUPS.forEach(g=>g.yards=[]);
     const loadArr=GROUPS.map(()=>0);
-    list.forEach(y=>{ let i=loadArr.indexOf(Math.min(...loadArr)); GROUPS[i].yards.push(y); loadArr[i]+=m[y]; });
-    store('تم التوزيع التلقائي المتوازن'); renderPM();
+    const r=PMRules.get(); let skipped=0;
+    list.forEach(y=>{
+      let bi=-1,bl=Infinity;
+      GROUPS.forEach((g,i)=>{
+        if(r.enabled&&r.groupMaxYards&&g.yards.length+1>r.groupMaxYards)return;
+        if(r.enabled&&r.groupMaxDepts&&loadArr[i]+m[y]>r.groupMaxDepts)return;
+        if(loadArr[i]<bl){bl=loadArr[i];bi=i;}
+      });
+      if(bi<0){ skipped++; return; }
+      GROUPS[bi].yards.push(y); loadArr[bi]+=m[y];
+    });
+    store('تم التوزيع التلقائي المتوازن'+(skipped?' — '+skipped+' ساحة بقيت دون توزيع لتجاوز الحدود':'')); renderPM();
   };
   window.pmMoveSelected=function(){
     const sel=document.getElementById('pmTargetGroup').value;
     const chosen=Array.from(document.querySelectorAll('#pmPool .dnd-chip.sel')).map(c=>c.dataset.yard);
     if(!sel||!chosen.length){ if(typeof showToast==='function')showToast('error','تنبيه','اختر ساحات ومجموعة هدف'); return; }
-    const g=GROUPS.find(g=>g.id==sel); chosen.forEach(y=>{ if(!g.yards.includes(y))g.yards.push(y); });
-    store('تم نقل '+chosen.length+' ساحة'); renderPM();
+    const g=GROUPS.find(g=>g.id==sel);
+    (async()=>{
+      const m=yardsAll();
+      for(const y of chosen){
+        if(g.yards.includes(y))continue;
+        const chk=PMRules.checkYardMove(y,g,GROUPS,m);
+        if(chk.conflict){
+          const act=await PMRules.ask(chk);
+          if(act==='cancel')continue;
+          if(act==='auto'){
+            if(chk.suggestion!=null){ const t=GROUPS.find(x=>x.id==chk.suggestion); if(t&&!t.yards.includes(y))t.yards.push(y); continue; }
+            g.yards.push(y); window.pmAuto(); return;
+          }
+        }
+        g.yards.push(y);
+      }
+      store('تم نقل الساحات المحددة'); renderPM();
+    })();
   };
   window.pmPrint=function(){ window.print(); };
+
+  window.pmExportPDF=function(){
+    const m=yardsAll(), a=assigned();
+    const total=Object.keys(m).length;
+    const totalDepts=DC().length;
+    const now=new Date();
+    const stamp=now.toLocaleDateString('ar-JO')+' — '+now.toLocaleTimeString('ar-JO');
+    const byYard={}; DC().forEach(d=>{const y=(d.notes||'').trim(); if(y){(byYard[y]=byYard[y]||[]).push(d.name||'');}});
+    const sheet=document.getElementById('pmPdfSheet');
+    sheet.setAttribute('dir','rtl');
+    sheet.innerHTML=
+      '<div class="r-head"><div><h1>تقرير توزيع الصيانة الدورية</h1><p>مجموعات الصيانة — الساحات — الأقسام وترتيبها</p></div>'+
+      '<div class="r-badge">'+stamp+'</div></div>'+
+      '<div class="r-stats">'+
+        '<div class="r-stat"><b>'+GROUPS.length+'</b><span>مجموعات الصيانة</span></div>'+
+        '<div class="r-stat"><b>'+total+'</b><span>إجمالي الساحات</span></div>'+
+        '<div class="r-stat"><b>'+a.size+'</b><span>ساحات موزّعة</span></div>'+
+        '<div class="r-stat"><b>'+(total-a.size)+'</b><span>بانتظار التوزيع</span></div>'+
+        '<div class="r-stat"><b>'+totalDepts+'</b><span>إجمالي الأقسام</span></div>'+
+      '</div>'+
+      GROUPS.map((g,gi)=>{
+        const depts=g.yards.reduce((s,y)=>s+(m[y]||0),0);
+        const rows=g.yards.length?g.yards.map((y,i)=>
+          '<tr><td style="text-align:center;width:34px">'+(i+1)+'</td><td style="font-weight:800">'+esc(y)+'</td>'+
+          '<td style="text-align:center;width:60px">'+(m[y]||0)+'</td>'+
+          '<td>'+((byYard[y]||[]).map((n,j)=>(j+1)+'. '+esc(n)).join(' — ')||'—')+'</td></tr>').join('')
+          :'<tr><td colspan="4" style="text-align:center;color:#94a3b8">لا توجد ساحات في هذه المجموعة</td></tr>';
+        return '<div class="r-group"><h3 style="background:'+g.color+'">'+(gi+1)+'. '+esc(g.name)+
+          ' <span style="float:left;font-weight:700;font-size:11px">'+g.yards.length+' ساحة • '+depts+' قسم</span></h3>'+
+          '<table><thead><tr><th style="width:34px">#</th><th>الساحة</th><th style="width:60px">الأقسام</th><th>الأقسام بالترتيب</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+      }).join('')+
+      (function(){
+        const pend=Object.keys(m).filter(y=>!a.has(y));
+        if(!pend.length)return '';
+        return '<div class="r-group"><h3 style="background:#64748b">ساحات بانتظار التوزيع</h3><table><tbody>'+
+          pend.map((y,i)=>'<tr><td style="text-align:center;width:34px">'+(i+1)+'</td><td style="font-weight:800">'+esc(y)+'</td><td style="text-align:center;width:60px">'+(m[y]||0)+'</td><td>'+((byYard[y]||[]).map((n,j)=>(j+1)+'. '+esc(n)).join(' — ')||'—')+'</td></tr>').join('')+
+          '</tbody></table></div>';
+      })()+
+      '<div class="r-foot"><span>تم إنشاء التقرير آلياً من نظام إدارة الصيانة الدورية</span><span>'+stamp+'</span></div>';
+
+    const fname='توزيع_الصيانة_الدورية_'+now.toISOString().slice(0,10);
+    const css=document.querySelector('style#pmPdfCss')?'':'';
+    const styleTxt=Array.from(document.querySelectorAll('style')).map(s=>s.textContent).join('\n').match(/#pmPdfSheet[\s\S]*?(?=\n\.cfx|$)/)?'':'';
+    const w=window.open('','_blank','width=900,height=1000');
+    if(!w){ if(typeof showToast==='function')showToast('error','تنبيه','فضلاً اسمح بالنوافذ المنبثقة'); return; }
+    w.document.write('<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>'+fname+'</title>'+
+      '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">'+
+      '<style>@page{size:A4;margin:12mm}body{font-family:"Tajawal","Segoe UI",Tahoma,sans-serif;color:#0f172a;margin:0;background:#fff}'+
+      '#pmPdfSheet{display:block;position:static;width:auto;padding:0}'+
+      '.r-head{display:flex;align-items:center;gap:12px;border-bottom:3px solid #0ea5e9;padding-bottom:12px;margin-bottom:14px}'+
+      '.r-head h1{margin:0;font-size:20px;font-weight:900}.r-head p{margin:3px 0 0;font-size:11px;color:#64748b}'+
+      '.r-badge{margin-inline-start:auto;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border-radius:12px;padding:8px 14px;font-size:11px;font-weight:800;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+      '.r-stats{display:flex;gap:8px;margin-bottom:14px}.r-stat{flex:1;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;background:#f8fafc}'+
+      '.r-stat b{display:block;font-size:18px;font-weight:900;color:#0369a1}.r-stat span{font-size:10.5px;color:#64748b}'+
+      '.r-group{border:1px solid #e2e8f0;border-radius:12px;margin-bottom:12px;overflow:hidden;page-break-inside:avoid}'+
+      '.r-group h3{margin:0;padding:8px 12px;font-size:13.5px;font-weight:900;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+      'table{width:100%;border-collapse:collapse;font-size:11.5px}'+
+      'th{background:#f1f5f9;font-weight:800;padding:6px 8px;border:1px solid #e2e8f0;text-align:right}'+
+      'td{padding:6px 8px;border:1px solid #e2e8f0;vertical-align:top}'+
+      '.r-foot{margin-top:10px;border-top:1px solid #e2e8f0;padding-top:8px;font-size:10px;color:#94a3b8;display:flex;justify-content:space-between}'+
+      '*{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body>'+sheet.innerHTML+'</body></html>');
+    w.document.close();
+    w.onload=function(){ w.focus(); w.print(); };
+    setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} },700);
+    if(typeof showToast==='function')showToast('success','تقرير PDF','اختر «حفظ كـ PDF» من نافذة الطباعة');
+  };
 
   function chip(y,count,groupId){
     return `<div class="dnd-chip" draggable="true" data-yard="${esc(y)}" data-g="${groupId||''}">
@@ -13638,13 +13883,33 @@ function setDC(v){ try{ DEPT_CACHE=v }catch(e){} return v }
     zones.forEach(z=>{
       z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('over');});
       z.addEventListener('dragleave',()=>z.classList.remove('over'));
-      z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('over');
+      z.addEventListener('drop',async e=>{e.preventDefault();z.classList.remove('over');
         let d; try{d=JSON.parse(e.dataTransfer.getData('text/plain'))}catch(err){return}
-        const target=z.dataset.g||'';
+        let target=z.dataset.g||'';
+        const idxDrop=indexAt(z,e.clientY);
+        if(target){
+          const tg=GROUPS.find(g=>g.id==target);
+          if(tg&&!tg.yards.includes(d.y)){
+            const chk=PMRules.checkYardMove(d.y,tg,GROUPS,yardsAll());
+            if(chk.conflict){
+              z.classList.add('conflict');
+              const act=await PMRules.ask(chk);
+              z.classList.remove('conflict');
+              if(act==='cancel'){ renderPM(); return; }
+              if(act==='auto'){
+                if(chk.suggestion!=null){ target=String(chk.suggestion); }
+                else {
+                  if(d.from){ const g0=GROUPS.find(g=>g.id==d.from); if(g0)g0.yards=g0.yards.filter(x=>x!==d.y); }
+                  tg.yards.push(d.y); window.pmAuto(); return;
+                }
+              }
+            }
+          }
+        }
         if(d.from) { const g=GROUPS.find(g=>g.id==d.from); if(g)g.yards=g.yards.filter(x=>x!==d.y); }
         if(target){
           const g=GROUPS.find(g=>g.id==target); if(!g)return;
-          const idx=indexAt(z,e.clientY);
+          const idx=(z.dataset.g||'')===target?idxDrop:g.yards.length;
           g.yards=g.yards.filter(x=>x!==d.y); g.yards.splice(idx,0,d.y);
         }
         store(); renderPM();
@@ -13657,6 +13922,7 @@ function setDC(v){ try{ DEPT_CACHE=v }catch(e){} return v }
     return els.length;
   }
   window.pmSearchChanged=renderPM;
+  window.renderPMPublic=renderPM;
 })();
 </script>
 
