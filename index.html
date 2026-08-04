@@ -1007,7 +1007,7 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
         .dev-badge .dev-cr { display: block; font-size: 11px; font-weight: 700; color: rgba(226,232,240,.62); }
 
         /* نسخة مختصرة داخل البطاقة تظهر فقط عند إخفاء لوحة العلامة (موبايل) */
-        .auth-credit { display: none; margin-top: 20px; padding-top: 14px; border-top: 1px dashed var(--border-color);
+        .auth-credit { display: block; margin-top: 20px; padding-top: 14px; border-top: 1px dashed var(--border-color);
             font-size: 11.5px; font-weight: 700; text-align: center; color: var(--text-light); }
         .auth-credit b { color: var(--text-dark); font-weight: 900; }
         .auth-credit .ac-phone { color: var(--primary); font-weight: 900; direction: ltr; display: inline-block; }
@@ -1037,6 +1037,30 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
         .pw-s2 .pw-bars span:nth-child(-n+2) { background: #f59e0b; } .pw-s2 .pw-msg { color: #d97706; }
         .pw-s3 .pw-bars span:nth-child(-n+3) { background: #3b82f6; } .pw-s3 .pw-msg { color: #2563eb; }
         .pw-s4 .pw-bars span { background: #10b981; } .pw-s4 .pw-msg { color: #059669; }
+
+        /* ===== v6: معلومات المطور والحقوق أوضح في شاشة الدخول ===== */
+        .auth-credit { display: block !important; margin-top: 22px !important; padding: 14px 16px !important;
+            border: 1px solid color-mix(in srgb, var(--primary) 22%, transparent) !important; border-top: 1px solid color-mix(in srgb, var(--primary) 22%, transparent) !important;
+            border-radius: 18px !important; background: color-mix(in srgb, var(--primary) 6%, transparent) !important;
+            text-align: center !important; font-size: 12.5px !important; line-height: 1.9 !important; color: var(--text-medium) !important; }
+        .auth-credit .ac-title { display: flex; align-items: center; justify-content: center; gap: 7px;
+            font-size: 10.5px; font-weight: 900; letter-spacing: 1.4px; text-transform: uppercase; color: var(--primary); margin-bottom: 6px; }
+        .auth-credit .ac-dev { font-size: 15px; font-weight: 900; color: var(--text-dark); }
+        .auth-credit .ac-role { display: block; font-size: 11.5px; font-weight: 800; color: var(--text-light); margin-bottom: 8px; }
+        .auth-credit .ac-links { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; }
+        .auth-credit .ac-phone { display: inline-flex; align-items: center; gap: 6px; direction: ltr;
+            background: var(--card-bg); border: 1px solid color-mix(in srgb, var(--primary) 24%, transparent);
+            border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 900; color: var(--primary) !important; text-decoration: none; }
+        .auth-credit .ac-phone:hover { background: var(--primary); color: #fff !important; }
+        .auth-credit .ac-copy { display: block; margin-top: 9px; padding-top: 8px; font-size: 11.5px; font-weight: 800;
+            color: var(--text-light); border-top: 1px dashed color-mix(in srgb, var(--text-light) 30%, transparent); }
+        html[data-theme="dark"] .auth-credit { background: rgba(99,102,241,.10) !important; border-color: rgba(148,163,184,.22) !important; }
+        /* بطاقة المطور في اللوحة الجانبية — تباين أعلى */
+        .auth-brand .dev-badge { background: rgba(255,255,255,.12) !important; border: 1px solid rgba(255,255,255,.24) !important;
+            padding: 14px 16px !important; border-radius: 18px !important; }
+        .auth-brand .dev-badge .dev-cr { color: rgba(255,255,255,.85) !important; font-weight: 800 !important; font-size: 11.5px !important; }
+        .auth-brand .dev-badge .dev-phone { color: #fff !important; font-size: 14px !important; }
+        .auth-brand .dev-badge .dev-name { font-size: 16.5px !important; }
         .user-edit-btn { background: rgba(79,70,229,.12); color: var(--primary); border: none; width: 34px; height: 34px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
         .user-edit-btn:hover { background: var(--primary); color: #fff; }
         .user-list-actions { display: flex; gap: 8px; align-items: center; }
@@ -1492,7 +1516,7 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     <div class="dev-txt">
                         <div class="dev-name">أحمد رحيل <span class="dev-role">تطوير وتصميم</span></div>
                         <a class="dev-phone" href="tel:0797767862"><i class="fas fa-phone-alt"></i>0797767862</a>
-                        <span class="dev-cr">© 2026 جميع الحقوق محفوظة</span>
+                        <span class="dev-cr"><i class="fas fa-copyright"></i> 2026 جميع الحقوق محفوظة — أحمد رحيل</span>
                     </div>
                 </div>
             </div>
@@ -1536,7 +1560,13 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 </button>
             </div>
             <div class="auth-credit">
-                تطوير وتصميم <b>أحمد رحيل</b> · <a class="ac-phone" href="tel:0797767862">0797767862</a> · © 2026 جميع الحقوق محفوظة
+                <div class="ac-title"><i class="fas fa-code"></i> تطوير وتصميم</div>
+                <div class="ac-dev">أحمد رحيل</div>
+                <span class="ac-role">مطوّر ومصمّم نظام إدارة الصيانة</span>
+                <div class="ac-links">
+                    <a class="ac-phone" href="tel:0797767862"><i class="fas fa-phone-alt"></i> 0797767862</a>
+                </div>
+                <span class="ac-copy"><i class="fas fa-copyright"></i> 2026 جميع الحقوق محفوظة — أحمد رحيل</span>
             </div>
 
         </div>
@@ -11733,6 +11763,37 @@ function toggleSidebarCollapse() {
 .sa-typing i:nth-child(2){animation-delay:.15s}.sa-typing i:nth-child(3){animation-delay:.3s}
 @keyframes saBounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-6px);opacity:1}}
 @media(max-width:520px){#saPanel{left:8px;right:8px;width:auto;bottom:92px;height:calc(100vh - 120px)}#saFab{bottom:16px;left:16px;width:56px;height:56px}}
+
+/* ===== v6: محادثة أهدأ وأوسع للنظر ===== */
+.sa-body{padding:18px 16px 8px !important;background:#f8fafc !important;}
+html[data-theme="dark"] .sa-body{background:#0b1122 !important;}
+.sa-msg{margin-bottom:18px !important;gap:10px !important;}
+.sa-msg .sa-b{max-width:88% !important;padding:12px 15px !important;line-height:1.95 !important;font-size:13px !important;border-radius:18px !important;box-shadow:0 1px 3px rgba(15,23,42,.06) !important;}
+.sa-b h5{font-size:13px !important;margin:0 0 6px !important;}
+.sa-b p{margin:0 0 5px;}
+.sa-tbl{font-size:11.5px !important;}
+.sa-tbl th,.sa-tbl td{padding:6px 6px !important;}
+.sa-stats{grid-template-columns:repeat(auto-fit,minmax(80px,1fr)) !important;gap:6px !important;}
+.sa-stat{padding:7px 6px !important;}
+.sa-stat .v{font-size:16px !important;}
+/* ترحيب مختصر */
+.sa-hello{font-size:13px;line-height:1.9}
+.sa-hello b{color:#4f46e5}
+.sa-ovmini{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px}
+.sa-mini-stat{background:#eef2ff;color:#3730a3;border:1px solid #e0e7ff;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:700}
+.sa-mini-stat b{color:#4f46e5;font-weight:900}
+.sa-more{background:transparent;border:1px dashed #c7d2fe;color:#4f46e5;border-radius:999px;padding:4px 11px;font-size:11px;
+  font-family:Tajawal,sans-serif;font-weight:800;cursor:pointer;margin-top:4px}
+.sa-more:hover{background:#eef2ff}
+/* كلمات مفتاحية: شريط واحد مختصر */
+.sa-chips{flex-wrap:nowrap !important;overflow-x:auto;scrollbar-width:none;gap:5px !important;padding:6px 12px 8px !important;background:#f1f5f9 !important;align-items:center}
+.sa-chips::-webkit-scrollbar{display:none}
+html[data-theme="dark"] .sa-chips{background:#0e152b !important;}
+.sa-clab{flex:none;font-size:10px;color:#64748b}
+.sa-chip{flex:none;padding:4px 10px !important;font-size:10.5px !important;border-radius:999px !important;}
+.sa-qa{padding:5px 12px 4px !important;background:#f1f5f9 !important;}
+html[data-theme="dark"] .sa-qa{background:#0e152b !important;}
+.sa-foot{padding:10px 11px !important;}
 </style>
 
 <button id="saFab" title="أبو حميد (Ctrl + K)" onclick="saToggle()">
@@ -12091,8 +12152,9 @@ function answer(qRaw){
 }
 
 /* ---------- واجهة ---------- */
-const CHIPS=['ملخص شامل','كم طلب قيد التنفيذ؟','الطلبات المتأخرة','قطع الغيار الناقصة','الأجهزة البديلة المتوفرة','أكثر قسم طلبات','حركات الصرف هذا الشهر','المواد الحاسوبية','تفاصيل العطاء','مساعدة'];
-function renderChips(){ const c=document.getElementById('saChips'); c.innerHTML=CHIPS.map(t=>`<button class="sa-chip" onclick="saAsk('${t.replace(/'/g,"\\'")}')">${t}</button>`).join(''); }
+const CHIPS=[['ملخص','ملخص شامل'],['قيد التنفيذ','كم طلب قيد التنفيذ؟'],['متأخرة','الطلبات المتأخرة'],['قطع ناقصة','قطع الغيار الناقصة'],['بدائل','الأجهزة البديلة المتوفرة'],['أكثر قسم','أكثر قسم طلبات'],['الصرف','حركات الصرف هذا الشهر'],['العطاء','تفاصيل العطاء'],['مساعدة','مساعدة']];
+function renderChips(){ const c=document.getElementById('saChips'); if(!c) return;
+  c.innerHTML='<span class="sa-clab"><i class="fas fa-magnifying-glass"></i></span>'+CHIPS.map(t=>`<button class="sa-chip" title="${t[1]}" onclick="saAsk('${t[1].replace(/'/g,"\\'")}')">${t[0]}</button>`).join(''); }
 function push(who,html){
   const b=document.getElementById('saBody');
   const el=document.createElement('div'); el.className='sa-msg '+(who==='me'?'me':'bot');
@@ -12165,14 +12227,19 @@ window.saVoice=function(){
 };
 function greet(){
   const name = (window.currentUser && (currentUser.full_name||currentUser.fullName)) || '';
-  push('bot',`<h5><i class="fas fa-hand-sparkles"></i> أهلاً ${esc(name)||'بك'} 👋</h5>
-    <p style="font-size:13px;margin:0 0 6px">أنا <span class="sa-name">أبو حميد</span>، مساعدك داخل نظام إدارة الصيانة. أقرأ كل بيانات النظام وأجاوبك فوراً — بالأرقام والجداول.</p>
-    <div id="saOv">${SA.loaded?overviewHTML():'<div class="sa-typing"><i></i><i></i><i></i></div>'}</div>
-    <p style="font-size:12px;color:#64748b;margin:6px 0 0">اسألني بالعربي العادي، أو اضغط اقتراحاً بالأسفل.</p>`);
+  push('bot',`<div class="sa-hello"><b>أهلاً ${esc(name)||'بك'} 👋</b> أنا <span class="sa-name">أبو حميد</span> — اسألني بالعربي عن أي شيء في النظام.</div>
+    <div id="saOv" class="sa-ovmini">${SA.loaded?overviewMini():''}</div>
+    <button class="sa-more" onclick="saAsk('ملخص شامل')"><i class="fas fa-chart-pie"></i> ملخص كامل</button>`);
+}
+function overviewMini(){
+  const d=SA.data, R=d.requests||[];
+  const c=s=>R.filter(r=>g(r,'status')===s).length;
+  const items=[['الطلبات',R.length],['قيد التنفيذ',c('inprogress')],['منجزة',c('completed')]];
+  return items.map(x=>`<span class="sa-mini-stat"><b>${x[1]}</b> ${x[0]}</span>`).join('');
 }
 async function boot(){
   await load(false);
-  const ov=document.getElementById('saOv'); if(ov) ov.innerHTML=overviewHTML();
+  const ov=document.getElementById('saOv'); if(ov) ov.innerHTML=overviewMini();
   const s=document.getElementById('saStatus'); if(s) s.textContent=`جاهز — ${(SA.data.requests||[]).length} طلب · ${(SA.data.inventory||[]).length} قطعة`;
 }
 document.addEventListener('DOMContentLoaded',()=>{
