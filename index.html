@@ -1332,9 +1332,9 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
     </style>
 
 <style id="pmOverviewCss">
-#pmOverviewOverlay{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(3px);z-index:99999;display:none;padding:20px;overflow:auto}
+#pmOverviewOverlay{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(3px);z-index:99999;display:none;padding:12px;overflow:auto}
 #pmOverviewOverlay.open{display:block}
-#pmOverviewOverlay .ovw-sheet{max-width:1180px;margin:0 auto;background:#fff;border-radius:18px;padding:18px;font-family:"Tajawal","Segoe UI",Tahoma,sans-serif;color:#0f172a;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+#pmOverviewOverlay .ovw-sheet{max-width:min(1700px,97vw);margin:0 auto;background:#fff;border-radius:18px;padding:18px;font-family:"Tajawal","Segoe UI",Tahoma,sans-serif;color:#0f172a;box-shadow:0 20px 60px rgba(0,0,0,.3)}
 #pmOverviewOverlay .ovw-head{display:flex;align-items:flex-start;gap:12px;border-bottom:3px solid #0ea5e9;padding-bottom:12px;margin-bottom:14px}
 #pmOverviewOverlay .ovw-head h2{margin:0;font-size:19px;font-weight:900}
 #pmOverviewOverlay .ovw-head p{margin:4px 0 0;font-size:11.5px;color:#64748b}
@@ -1343,12 +1343,12 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
 #pmOverviewOverlay .ovw-stats>div{flex:1;min-width:110px;border:1px solid #e2e8f0;border-radius:12px;padding:8px 10px;background:#f8fafc}
 #pmOverviewOverlay .ovw-stats b{display:block;font-size:19px;font-weight:900;color:#0369a1}
 #pmOverviewOverlay .ovw-stats span{font-size:10.5px;color:#64748b}
-#pmOverviewOverlay .ovw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+#pmOverviewOverlay .ovw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
 #pmOverviewOverlay .ovw-card{border:1px solid #e2e8f0;border-top:4px solid var(--gc,#6366f1);border-radius:14px;overflow:hidden;background:#fff}
 #pmOverviewOverlay .ovw-card header{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#f8fafc;font-size:13.5px;font-weight:900;border-bottom:1px solid #eef2f7}
 #pmOverviewOverlay .ovw-dot{width:10px;height:10px;border-radius:50%;background:var(--gc,#6366f1)}
 #pmOverviewOverlay .ovw-meta{margin-inline-start:auto;font-size:10.5px;font-weight:800;color:#64748b}
-#pmOverviewOverlay .ovw-body{padding:10px 12px;display:grid;gap:9px;max-height:420px;overflow:auto}
+#pmOverviewOverlay .ovw-body{padding:10px 12px;display:grid;gap:9px;max-height:56vh;overflow:auto}
 #pmOverviewOverlay .ovw-tools{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 #pmOverviewOverlay .ovw-tools button{border:1px solid #e2e8f0;background:#f8fafc;color:#0f172a;font-family:inherit;font-weight:800;font-size:11.5px;border-radius:10px;padding:7px 11px;cursor:pointer}
 #pmOverviewOverlay .ovw-tools button:hover{background:#eef2ff;border-color:#c7d2fe}
@@ -1674,6 +1674,10 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     <i class="fas fa-calendar-check"></i>
                     <span>الصيانة الدورية</span>
                 </a>
+                <a class="nav-item admin-only" data-title="سجل الصيانة الدورية" onclick="showPage('periodic');setTimeout(function(){pmShowTab('log');},60)" style="display:none;">
+                    <i class="fas fa-clock-rotate-left"></i>
+                    <span>سجل الصيانة الدورية</span>
+                </a>
                 <a class="nav-item admin-only" data-title="إدارة النظام" onclick="showPage('admin')" style="display:none;">
                     <i class="fas fa-cog"></i>
                     <span>إدارة النظام</span>
@@ -1751,6 +1755,9 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                         </div>
                     </div>
                 </div>
+
+                <!-- تذكيرات الصيانة الدورية -->
+                <div id="pmDashAlerts" class="pm-dash-alerts" style="display:none"></div>
 
                 <!-- Primary KPIs -->
                 <div class="kpi-grid">
@@ -2797,12 +2804,14 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 #page-departments .dp-bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:8px}
                 #page-departments .dp-search{width:100%;padding:8px 12px;border:1px solid #e5e7eb;border-radius:9px;font-size:13px;font-family:inherit}
                 #page-departments .dp-search:focus{outline:none;border-color:#4f46e5}
-                #page-departments .dp-table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;background:#fff}
-                #page-departments .dp-table thead th{background:#f8fafc;color:#475569;font-size:11.5px;font-weight:800;text-align:right;padding:7px 10px;border-bottom:1px solid #e5e7eb;white-space:nowrap}
-                #page-departments .dp-table tbody td{padding:6px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+                #page-departments .dp-table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;font-size:13px;background:#fff}
+                #page-departments .dp-table thead th{background:#f8fafc;color:#475569;font-size:11.5px;font-weight:800;text-align:right;padding:6px 8px;border-bottom:1px solid #e5e7eb;white-space:nowrap}
+                #page-departments .dp-table tbody td{padding:5px 8px;border-bottom:1px solid #f1f5f9;vertical-align:middle;overflow:hidden;text-overflow:ellipsis}
                 #page-departments .dp-table tbody tr:hover{background:#f9fafb}
-                #page-departments .dp-table td:nth-child(2),#page-departments .dp-table th:nth-child(2){width:42%}
-                #page-departments .dp-table td:nth-child(3),#page-departments .dp-table th:nth-child(3){width:42%}
+                #page-departments .dp-table td:nth-child(1),#page-departments .dp-table th:nth-child(1){width:44px}
+                #page-departments .dp-table td:nth-child(2),#page-departments .dp-table th:nth-child(2){width:46%}
+                #page-departments .dp-table td:nth-child(3),#page-departments .dp-table th:nth-child(3){width:auto}
+                #page-departments .dp-table td:nth-child(4),#page-departments .dp-table th:nth-child(4){width:70px}
                 #page-departments .dp-id{font-size:11px;color:#94a3b8;font-weight:700}
                 #page-departments .dp-name{font-weight:800;font-size:13.5px;color:#1e293b}
                 #page-departments .dp-yard{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#4338ca}
@@ -2811,17 +2820,18 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 #page-departments .dp-acts button{width:26px;height:26px;border:none;border-radius:7px;cursor:pointer;font-size:11px;display:grid;place-items:center}
                 #page-departments .dp-acts .e{background:#eff6ff;color:#2563eb}
                 #page-departments .dp-acts .d{background:#fef2f2;color:#dc2626}
-                #page-departments .dp-card{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:#fff}
+                #page-departments .dp-card{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:#fff;max-width:900px}
+                #page-departments .dp-bar,#page-departments .dp-stats{max-width:900px}
                 /* grouping screen */
-                #dpGroupModal{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:99990;display:none;padding:16px;overflow:auto}
+                #dpGroupModal{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:99990;display:none;padding:10px;overflow:auto}
                 #dpGroupModal.open{display:block}
-                #dpGroupModal .g-wrap{max-width:1100px;margin:0 auto;background:#f8fafc;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+                #dpGroupModal .g-wrap{max-width:min(1650px,97vw);margin:0 auto;background:#f8fafc;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3)}
                 #dpGroupModal .g-top{background:linear-gradient(135deg,#4338ca,#6d28d9);color:#fff;padding:14px 18px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px}
                 #dpGroupModal .g-top h3{margin:0;font-size:17px;font-weight:900}
                 #dpGroupModal .g-top p{margin:2px 0 0;font-size:11.5px;opacity:.85}
                 #dpGroupModal .g-top button{background:rgba(255,255,255,.18);border:none;color:#fff;padding:7px 12px;border-radius:9px;cursor:pointer;font-size:12px;font-weight:800;font-family:inherit;margin-inline-start:6px}
-                #dpGroupModal .g-body{padding:14px;max-height:calc(100vh - 130px);overflow:auto}
-                #dpGroupModal .g-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+                #dpGroupModal .g-body{padding:14px;max-height:calc(100vh - 110px);overflow:auto}
+                #dpGroupModal .g-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
                 #dpGroupModal .g-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;break-inside:avoid}
                 #dpGroupModal .g-card h4{margin:0;padding:8px 12px;font-size:13px;font-weight:900;color:#312e81;background:#eef2ff;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;border-bottom:1px solid #e0e7ff}
                 #dpGroupModal .g-card h4 span{font-size:10.5px;background:#4338ca;color:#fff;border-radius:999px;padding:1px 8px;font-weight:800}
@@ -2850,7 +2860,7 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     <div class="table-container">
                         <table class="dp-table" id="departmentsTable">
                             <thead>
-                                <tr><th style="width:60px">#</th><th>اسم القسم</th><th>الساحة / الملاحظات</th><th class="no-print" style="width:80px">إجراءات</th></tr>
+                                <tr><th style="width:44px">#</th><th>اسم القسم</th><th>الساحة / الملاحظات</th><th class="no-print" style="width:70px">إجراءات</th></tr>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -2889,6 +2899,13 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                         <button class="hbtn" onclick="PMRules.openSettings()"><i class="fas fa-sliders"></i> قواعد التوزيع</button>
                     </div>
                 </div>
+                <div class="pm-tabs no-print" id="pmTabs">
+                    <button class="pm-tab active" data-t="dist" onclick="pmShowTab('dist')"><i class="fas fa-diagram-project"></i> توزيع الساحات</button>
+                    <button class="pm-tab" data-t="alerts" onclick="pmShowTab('alerts')"><i class="fas fa-bell"></i> التنبيهات <span class="pm-tab-dot" id="pmTabDot" style="display:none"></span></button>
+                    <button class="pm-tab" data-t="log" onclick="pmShowTab('log')"><i class="fas fa-clock-rotate-left"></i> سجل الصيانة الدورية</button>
+                    <button class="pm-tab" data-t="settings" onclick="pmShowTab('settings')"><i class="fas fa-sliders"></i> إعدادات التنبيهات</button>
+                </div>
+                <div class="pm-pane active" id="pmPane-dist">
                 <div class="pm-stats" id="pmStats"></div>
                 <div class="pm-toolbar no-print">
                     <button class="primary" onclick="pmAddGroup()"><i class="fas fa-plus"></i> مجموعة جديدة</button>
@@ -2909,6 +2926,10 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     </div>
                     <div class="pm-groups" id="pmGroups"></div>
                 </div>
+                </div>
+                <div class="pm-pane" id="pmPane-alerts"><div id="pmRemindersWrap" class="pm-rem-wrap"></div></div>
+                <div class="pm-pane" id="pmPane-log"><div id="pmLogWrap"></div></div>
+                <div class="pm-pane" id="pmPane-settings"><div id="pmSettingsWrap"></div></div>
             </div>
 
 <div class="page-section" id="page-admin">
@@ -4318,6 +4339,8 @@ async function printSearchResults() {
                 </div>
             </div>
         
+
+
 </body>
         </html>
     `);
@@ -8855,6 +8878,7 @@ function _renderRank(containerId, entries, emptyText) {
 }
 
 async function updateDashboard() {
+    if (typeof renderPMReminders === 'function') { try { renderPMReminders(); } catch (e) {} }
     const requests = await SupabaseAPI.request('requests', 'GET');
     const inventory = await SupabaseAPI.request('inventory', 'GET');
     const altModels = await SupabaseAPI.request('alt_models', 'GET');
@@ -13933,6 +13957,9 @@ window.PMRules=(function(){
         '<span class="ovw-hits" id="ovwHits"></span></div>'+
         '<button type="button" onclick="pmOverviewExpandAll(true)"><i class="fas fa-angles-down"></i> توسيع الكل</button>'+
         '<button type="button" onclick="pmOverviewExpandAll(false)"><i class="fas fa-angles-up"></i> طي الكل</button>'+
+        '<button type="button" onclick="pmOverviewPrint()"><i class="fas fa-print"></i> طباعة</button>'+
+        '<button type="button" onclick="pmOverviewPrint(true)"><i class="fas fa-file-pdf"></i> تصدير PDF</button>'+
+        '<button type="button" onclick="pmOverviewExportCSV()"><i class="fas fa-file-excel"></i> تصدير Excel</button>'+
         '<small><i class="fas fa-circle-info"></i> انقر على أي ساحة لعرض أقسامها</small></div>'+
         '<div class="ovw-grid">'+GROUPS.map((g,i)=>card((i+1)+'. '+g.name,g.color,g.yards,'g'+i)).join('')+
           (pend.length?card('ساحات بانتظار التوزيع','#64748b',pend,'pend'):'')+
@@ -13983,6 +14010,59 @@ window.PMRules=(function(){
     });
   };
   window.pmOverviewClose=function(){ const ov=document.getElementById('pmOverviewOverlay'); if(ov)ov.classList.remove('open'); };
+  function ovwData(){
+    const m=yardsAll(), a=assigned();
+    const byYard={}; DC().forEach(d=>{const y=(d.notes||'').trim(); if(y){(byYard[y]=byYard[y]||[]).push(d.name||'');}});
+    const rows=[]; const groups=[];
+    GROUPS.forEach((g,i)=>{
+      groups.push({name:(i+1)+'. '+g.name,color:g.color,yards:g.yards.map(y=>({yard:y,depts:byYard[y]||[]}))});
+      g.yards.forEach(y=>(byYard[y]||['—']).forEach(d=>rows.push([(i+1)+'. '+g.name,y,d])));
+    });
+    const pend=Object.keys(m).filter(y=>!a.has(y));
+    if(pend.length){
+      groups.push({name:'ساحات بانتظار التوزيع',color:'#64748b',yards:pend.map(y=>({yard:y,depts:byYard[y]||[]}))});
+      pend.forEach(y=>(byYard[y]||['—']).forEach(d=>rows.push(['بانتظار التوزيع',y,d])));
+    }
+    return {groups,rows};
+  }
+  window.pmOverviewPrint=function(asPdf){
+    const d=ovwData(); const stamp=new Date().toLocaleString('ar-JO');
+    let html='<div class="rep-head"><h1>استعراض شامل لمجموعات الصيانة الدورية</h1><p>تاريخ الإصدار: '+stamp+'</p></div>';
+    d.groups.forEach(g=>{
+      const tot=g.yards.reduce((s,y)=>s+y.depts.length,0);
+      html+='<div class="gsec"><h2 style="border-right:6px solid '+g.color+'">'+esc(g.name)+
+        ' <small>('+g.yards.length+' ساحة — '+tot+' قسم)</small></h2>'+
+        '<table><thead><tr><th style="width:34px">#</th><th style="width:26%">الساحة</th><th style="width:60px">عدد</th><th>الأقسام</th></tr></thead><tbody>'+
+        (g.yards.length?g.yards.map((y,i)=>'<tr><td>'+(i+1)+'</td><td><b>'+esc(y.yard)+'</b></td><td>'+y.depts.length+'</td><td>'+(y.depts.map(esc).join(' • ')||'—')+'</td></tr>').join(''):'<tr><td colspan="4">لا توجد ساحات</td></tr>')+
+        '</tbody></table></div>';
+    });
+    const w=window.open('','_blank','width=1100,height=800');
+    if(!w){ if(typeof showToast==='function')showToast('error','تعذّر فتح النافذة','فضلاً اسمح بالنوافذ المنبثقة'); return; }
+    w.document.write('<html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>استعراض شامل للمجموعات</title>'+
+      '<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800;900&display=swap" rel="stylesheet">'+
+      '<style>body{font-family:"Tajawal",sans-serif;padding:18px;color:#0f172a}'+
+      '.rep-head{border-bottom:3px solid #0ea5e9;padding-bottom:8px;margin-bottom:14px}'+
+      '.rep-head h1{margin:0;font-size:20px}.rep-head p{margin:4px 0 0;font-size:11px;color:#64748b}'+
+      '.gsec{margin-bottom:16px;break-inside:avoid}.gsec h2{font-size:14px;margin:0 0 6px;padding:5px 10px;background:#f8fafc;border-radius:8px}'+
+      '.gsec h2 small{font-weight:400;color:#64748b;font-size:11px}'+
+      'table{width:100%;border-collapse:collapse;font-size:11.5px}'+
+      'th{background:#f1f5f9;padding:6px 8px;border:1px solid #e2e8f0;text-align:right}'+
+      'td{padding:5px 8px;border:1px solid #e2e8f0;vertical-align:top}'+
+      '*{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body>'+html+'</body></html>');
+    w.document.close();
+    w.onload=function(){ w.focus(); w.print(); };
+    setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} },700);
+    if(asPdf&&typeof showToast==='function')showToast('success','تصدير PDF','اختر «حفظ كـ PDF» من نافذة الطباعة');
+  };
+  window.pmOverviewExportCSV=function(){
+    const d=ovwData();
+    let csv='المجموعة,الساحة,القسم\n'+d.rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+    const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download='استعراض_المجموعات_'+new Date().toISOString().slice(0,10)+'.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    if(typeof showToast==='function')showToast('success','تم التصدير','تم تنزيل ملف Excel/CSV');
+  };
 
   function chip(y,count,groupId){
     return `<div class="dnd-chip" draggable="true" data-yard="${esc(y)}" data-g="${groupId||''}">
@@ -14073,6 +14153,408 @@ window.PMRules=(function(){
   }
   window.pmSearchChanged=renderPM;
   window.renderPMPublic=renderPM;
+})();
+</script>
+<style id="pmRemCss">
+.pm-rem-wrap{margin:0 0 18px}
+.pm-rem{border:1px solid var(--border,#e5e7eb);border-radius:16px;background:#fff;overflow:hidden;box-shadow:0 6px 20px rgba(15,23,42,.05)}
+.pm-rem-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px 16px;color:#fff;background:linear-gradient(135deg,#0f766e,#0ea5e9)}
+.pm-rem-head h3{margin:0;font-size:15.5px;font-weight:900;display:flex;align-items:center;gap:8px}
+.pm-rem-head p{margin:3px 0 0;font-size:11px;opacity:.9}
+.pm-rem-head .pm-rem-badge{background:rgba(255,255,255,.2);border-radius:999px;padding:5px 12px;font-size:11.5px;font-weight:800;white-space:nowrap}
+.pm-rem-body{padding:14px 16px;display:grid;gap:14px}
+.pm-rem-main{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px}
+@media(max-width:900px){.pm-rem-main{grid-template-columns:1fr}}
+.pm-rem-next{border-radius:14px;padding:14px;border:1px solid #e2e8f0;background:linear-gradient(135deg,#f8fafc,#eef2ff);display:grid;gap:10px}
+.pm-rem-next .lbl{font-size:11px;font-weight:800;color:#64748b;letter-spacing:.3px}
+.pm-rem-next .date{font-size:22px;font-weight:900;color:#0f172a;line-height:1.2}
+.pm-rem-next .cyc{font-size:11.5px;color:#475569;font-weight:700}
+.pm-rem-count{display:flex;align-items:baseline;gap:8px}
+.pm-rem-count b{font-size:34px;font-weight:900;line-height:1}
+.pm-rem-count span{font-size:12px;font-weight:800;color:#64748b}
+.pm-bar{height:9px;border-radius:999px;background:#e2e8f0;overflow:hidden}
+.pm-bar i{display:block;height:100%;border-radius:999px;transition:width .6s ease}
+.pm-rem-state{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:900;border-radius:999px;padding:5px 12px;width:fit-content}
+.st-ok{background:#ecfdf5;color:#047857}.st-soon{background:#eff6ff;color:#1d4ed8}.st-warn{background:#fffbeb;color:#b45309}
+.st-urgent{background:#fff1f2;color:#be123c}.st-due{background:#fef2f2;color:#dc2626}
+.pm-mile{display:grid;gap:8px}
+.pm-mile-t{font-size:12px;font-weight:900;color:#334155;display:flex;align-items:center;gap:7px}
+.pm-mile-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;border:1px solid #e2e8f0;border-radius:11px;padding:8px 11px;background:#fff}
+.pm-mile-row.passed{opacity:.5}
+.pm-mile-row.active{border-color:#fcd34d;background:#fffbeb;box-shadow:0 0 0 2px #fef3c7}
+.pm-mile-dot{width:9px;height:9px;border-radius:50%;background:#cbd5e1}
+.pm-mile-row.active .pm-mile-dot{background:#f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,.2)}
+.pm-mile-row.passed .pm-mile-dot{background:#94a3b8}
+.pm-mile-row b{font-size:12.5px;font-weight:800;color:#0f172a}
+.pm-mile-row small{display:block;font-size:10.5px;color:#64748b;font-weight:700}
+.pm-mile-row .tag{font-size:10.5px;font-weight:900;border-radius:999px;padding:3px 9px;background:#f1f5f9;color:#475569;white-space:nowrap}
+.pm-time{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px}
+.pm-time div{border:1px solid #e2e8f0;border-radius:11px;padding:8px;text-align:center;background:#f8fafc}
+.pm-time b{display:block;font-size:18px;font-weight:900;color:#0f172a}
+.pm-time span{font-size:10.5px;color:#64748b;font-weight:700}
+.pm-rem-empty{padding:16px;text-align:center;font-size:12.5px;color:#64748b}
+.pm-rem-alert{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;border-radius:13px;padding:11px 14px;font-size:12.5px;font-weight:800}
+.pm-rem-alert i.ic{font-size:17px}
+.al-soon{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
+.al-warn{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.al-urgent{background:#fff1f2;color:#9f1239;border:1px solid #fecdd3}
+.al-due{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;animation:pmPulse 1.8s infinite}
+@keyframes pmPulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.25)}50%{box-shadow:0 0 0 8px rgba(220,38,38,0)}}
+.pm-rem-alert small{display:block;font-weight:700;opacity:.85;font-size:11px;margin-top:2px}
+body.dark-mode .pm-rem,body.dark-mode .pm-mile-row,body.dark-mode .pm-time div{background:var(--card-bg,#1e293b);border-color:rgba(255,255,255,.08)}
+body.dark-mode .pm-rem-next{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
+body.dark-mode .pm-rem-next .date,body.dark-mode .pm-mile-row b,body.dark-mode .pm-time b{color:#e2e8f0}
+/* ===== tabs / panes ===== */
+#page-periodic .pm-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 12px;background:#f1f5f9;padding:5px;border-radius:14px}
+#page-periodic .pm-tab{flex:1 1 150px;border:none;background:transparent;color:#475569;font-family:inherit;font-weight:800;font-size:12.5px;padding:9px 10px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.18s;white-space:nowrap}
+#page-periodic .pm-tab:hover{background:#e2e8f0}
+#page-periodic .pm-tab.active{background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;box-shadow:0 8px 18px -10px rgba(99,102,241,.9)}
+#page-periodic .pm-tab-dot{width:8px;height:8px;border-radius:50%;background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.25)}
+#page-periodic .pm-pane{display:none}
+#page-periodic .pm-pane.active{display:block;animation:pmFade .25s ease}
+@keyframes pmFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+html[data-theme="dark"] #page-periodic .pm-tabs,body.dark-mode #page-periodic .pm-tabs{background:rgba(255,255,255,.06)}
+/* ===== dashboard compact alerts ===== */
+.pm-dash-alerts{display:grid;gap:10px;margin:0 0 18px}
+.pm-dash-alert{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;border-radius:14px;padding:12px 16px;border:1px solid;font-size:13px;font-weight:800;box-shadow:0 8px 22px -16px rgba(15,23,42,.6)}
+.pm-dash-alert .ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:16px;background:rgba(255,255,255,.65)}
+.pm-dash-alert small{display:block;font-weight:700;opacity:.85;font-size:11.5px;margin-top:3px}
+.pm-dash-alert .go{border:none;background:rgba(255,255,255,.7);color:inherit;font-family:inherit;font-weight:800;font-size:11.5px;padding:7px 12px;border-radius:9px;cursor:pointer;white-space:nowrap}
+.pm-dash-alert .go:hover{background:#fff}
+@media(max-width:620px){.pm-dash-alert{grid-template-columns:auto minmax(0,1fr);}.pm-dash-alert .go{grid-column:1/-1;width:100%}}
+/* ===== settings ===== */
+.pm-set{background:#fff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;max-width:900px}
+.pm-set>header{padding:13px 16px;background:linear-gradient(135deg,#0f766e,#0ea5e9);color:#fff}
+.pm-set>header h3{margin:0;font-size:15.5px;font-weight:900;display:flex;align-items:center;gap:8px}
+.pm-set>header p{margin:3px 0 0;font-size:11.5px;opacity:.9}
+.pm-set .body{padding:16px;display:grid;gap:14px}
+.pm-switch{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:13px;padding:12px 14px}
+.pm-switch b{font-size:13.5px}
+.pm-switch small{display:block;font-size:11.5px;color:#64748b;font-weight:600;margin-top:2px}
+.pm-toggle{position:relative;width:52px;height:28px;flex:0 0 52px}
+.pm-toggle input{opacity:0;width:100%;height:100%;margin:0;cursor:pointer;position:relative;z-index:2}
+.pm-toggle i{position:absolute;inset:0;border-radius:999px;background:#cbd5e1;transition:.2s}
+.pm-toggle i:after{content:"";position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}
+.pm-toggle input:checked + i{background:linear-gradient(135deg,#10b981,#059669)}
+.pm-toggle input:checked + i:after{transform:translateX(-24px)}
+.pm-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.pm-field{border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;background:#fff}
+.pm-field label{display:block;font-size:11.5px;font-weight:800;color:#475569;margin-bottom:6px}
+.pm-field input,.pm-field select{width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:9px;font-family:inherit;font-size:13px}
+.pm-field input:focus,.pm-field select:focus{outline:none;border-color:#0ea5e9}
+.pm-field small{display:block;font-size:10.5px;color:#94a3b8;margin-top:4px}
+.pm-set .acts{display:flex;flex-wrap:wrap;gap:8px}
+.pm-set .acts button{border:none;border-radius:10px;padding:9px 15px;font-family:inherit;font-weight:800;font-size:12.5px;cursor:pointer}
+.pm-set .acts .save{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+.pm-set .acts .reset{background:#f1f5f9;color:#334155}
+/* ===== log ===== */
+.pm-log{background:#fff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden}
+.pm-log>header{padding:13px 16px;background:linear-gradient(135deg,#4338ca,#6d28d9);color:#fff;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+.pm-log>header h3{margin:0;font-size:15.5px;font-weight:900;display:flex;align-items:center;gap:8px}
+.pm-log>header p{margin:3px 0 0;font-size:11.5px;opacity:.88}
+.pm-log .tools{display:flex;flex-wrap:wrap;gap:6px}
+.pm-log .tools button{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);color:#fff;padding:7px 12px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:11.5px;font-weight:800}
+.pm-log .tools button:hover{background:rgba(255,255,255,.32)}
+.pm-log-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;padding:14px 16px 0}
+.pm-log-sum>div{border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;background:#f8fafc}
+.pm-log-sum b{display:block;font-size:18px;font-weight:900;color:#4338ca;line-height:1.2}
+.pm-log-sum span{font-size:11px;color:#64748b}
+.pm-log-tw{padding:14px 16px 16px;overflow-x:auto}
+.pm-log-table{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px;min-width:640px}
+.pm-log-table th{background:#f8fafc;color:#475569;font-size:11.5px;font-weight:800;text-align:right;padding:9px 10px;border-bottom:1px solid #e5e7eb;white-space:nowrap}
+.pm-log-table td{padding:10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.pm-log-table tr:hover td{background:#fafafa}
+.pm-st{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.pm-st.done{background:#dcfce7;color:#166534}.pm-st.cur{background:#dbeafe;color:#1e40af}
+.pm-st.late{background:#fee2e2;color:#991b1b}.pm-st.next{background:#f1f5f9;color:#475569}
+.pm-log-table .act{border:none;border-radius:8px;padding:6px 10px;font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;background:#eef2ff;color:#4338ca;white-space:nowrap}
+.pm-log-table .act.undo{background:#fef3c7;color:#92400e}
+@media(max-width:640px){.pm-log>header{grid-template-columns:1fr}.pm-log-table{min-width:560px}}
+body.dark-mode .pm-set,body.dark-mode .pm-log,body.dark-mode .pm-log-sum>div,body.dark-mode .pm-switch,body.dark-mode .pm-field{background:var(--card-bg,#1e293b);border-color:rgba(255,255,255,.08);color:#e2e8f0}
+/* ===== responsive: departments table & modals ===== */
+@media(max-width:1100px){#page-departments .dp-card,#page-departments .dp-bar,#page-departments .dp-stats{max-width:100%}}
+@media(max-width:860px){
+  #page-departments .dp-head{grid-template-columns:1fr}
+  #page-departments .dp-actions{width:100%}
+  #page-departments .dp-actions .btn{flex:1 1 auto;justify-content:center}
+  #page-departments .dp-table{font-size:12px}
+  #page-departments .dp-table td:nth-child(2),#page-departments .dp-table th:nth-child(2){width:42%}
+  #page-departments .dp-name{font-size:12.5px}
+}
+@media(max-width:600px){
+  #page-departments .dp-table{table-layout:auto}
+  #page-departments .dp-table thead th,#page-departments .dp-table tbody td{padding:6px 5px}
+  #page-departments .dp-table td:nth-child(1),#page-departments .dp-table th:nth-child(1){width:34px}
+  #page-departments .dp-table td:nth-child(4),#page-departments .dp-table th:nth-child(4){width:60px}
+  #page-departments .dp-id{font-size:10px}
+  #page-departments .dp-yard{font-size:10px;padding:2px 6px}
+  #page-departments .dp-stats{grid-template-columns:repeat(auto-fit,minmax(105px,1fr))}
+  #page-departments .dp-bar{grid-template-columns:1fr}
+}
+@media(max-width:860px){
+  #dpGroupModal{padding:6px}
+  #dpGroupModal .g-wrap{max-width:100%;border-radius:12px}
+  #dpGroupModal .g-top{grid-template-columns:1fr}
+  #dpGroupModal .g-body{padding:10px;max-height:calc(100vh - 150px)}
+  #dpGroupModal .g-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr))}
+  #pmOverviewOverlay{padding:6px}
+  #pmOverviewOverlay .ovw-sheet{max-width:100%;padding:12px;border-radius:12px}
+  #pmOverviewOverlay .ovw-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr))}
+  #pmOverviewOverlay .ovw-search{min-width:100%}
+  #page-periodic .pm-hero{grid-template-columns:1fr}
+  #page-periodic .pm-tab{flex:1 1 46%}
+}
+
+</style>
+<script id="pmRemJs">
+(function(){
+  const DAY=86400000;
+  const SKEY='pmAlertSettings_v1', LKEY='pmCycleStatus_v1';
+  const DEF={enabled:true,offsets:[30,14,7,1],durationMonths:12,dashboard:true};
+  const META=[{cls:'al-soon',ico:'fa-bell',tone:'#2563eb'},{cls:'al-warn',ico:'fa-bell',tone:'#f59e0b'},
+              {cls:'al-urgent',ico:'fa-triangle-exclamation',tone:'#e11d48'},{cls:'al-due',ico:'fa-bullhorn',tone:'#dc2626'}];
+  const LBL=['التنبيه الأول','التنبيه الثاني','التنبيه الثالث','التنبيه الأخير'];
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const fmt=d=>d.toLocaleDateString('ar-JO',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const fmtS=d=>d.toLocaleDateString('ar-JO',{year:'numeric',month:'2-digit',day:'2-digit'});
+  function addMonths(dt,n){const d=new Date(dt.getTime());const day=d.getDate();d.setMonth(d.getMonth()+n);if(d.getDate()<day)d.setDate(0);return d;}
+  function getSettings(){try{return Object.assign({},DEF,JSON.parse(localStorage.getItem(SKEY)||'{}'));}catch(e){return Object.assign({},DEF);}}
+  function saveSettings(o){localStorage.setItem(SKEY,JSON.stringify(o));}
+  function getLog(){try{return JSON.parse(localStorage.getItem(LKEY)||'{}');}catch(e){return {};}}
+  function saveLog(o){localStorage.setItem(LKEY,JSON.stringify(o));}
+  let TENDER=null;
+
+  async function tender(){
+    try{const rows=await SupabaseAPI.request('tenders','GET');TENDER=(rows&&rows[0])||null;}catch(e){}
+    return TENDER;
+  }
+  // Two cycles only: #1 after 6 months, #2 at end of tender duration
+  function buildCycles(){
+    const st=getSettings(), log=getLog();
+    const s=TENDER&&(TENDER.work_order_date||TENDER.workOrderDate);
+    if(!s) return null;
+    const start=new Date(s+'T00:00:00');
+    const today=new Date(); today.setHours(0,0,0,0);
+    const dur=Math.max(7,parseInt(st.durationMonths,10)||12);
+    const list=[
+      {n:1,name:'الدورة الأولى',desc:'بعد 6 أشهر من تاريخ أمر مباشرة العمل',from:start,due:addMonths(start,6)},
+      {n:2,name:'الدورة الثانية',desc:'نهاية مدة العطاء ('+dur+' شهر من المباشرة)',from:addMonths(start,6),due:addMonths(start,dur)}
+    ];
+    list.forEach(c=>{
+      c.days=Math.round((c.due-today)/DAY);
+      const t=Math.max(1,Math.round((c.due-c.from)/DAY));
+      c.pct=Math.min(100,Math.max(0,Math.round((t-c.days)/t*100)));
+      const rec=log[c.n];
+      c.done=!!(rec&&rec.done); c.doneDate=rec&&rec.date||''; c.note=rec&&rec.note||'';
+      c.status=c.done?'done':(c.days<0?'late':'pending');
+    });
+    const cur=list.find(c=>!c.done&&c.days>=0)||list.find(c=>!c.done)||null;
+    if(cur) cur.current=true;
+    return {start,today,list,current:cur,settings:st,duration:dur};
+  }
+  function offsets(st){return (st.offsets||DEF.offsets).map(n=>parseInt(n,10)).filter(n=>!isNaN(n)&&n>0).sort((a,b)=>b-a);}
+  function activeMile(days,st){const o=offsets(st);const hit=o.filter(d=>days<=d).sort((a,b)=>a-b)[0];if(hit==null)return null;const idx=o.indexOf(hit);return {d:hit,idx:idx,meta:META[Math.min(idx,3)]||META[0],label:LBL[Math.min(idx,3)]||'تنبيه'};}
+  function stateOf(c,st){
+    if(c.done) return {t:'منفّذة',cls:'st-ok',color:'#10b981'};
+    if(c.days<0) return {t:'متأخرة '+Math.abs(c.days)+' يوم',cls:'st-due',color:'#dc2626'};
+    if(c.days===0) return {t:'موعد الصيانة اليوم',cls:'st-due',color:'#dc2626'};
+    const o=offsets(st);
+    if(c.days<=(o[o.length-1]||1)) return {t:'خلال '+c.days+' يوم',cls:'st-due',color:'#dc2626'};
+    if(o.some(d=>c.days<=d)) return {t:'اقترب الموعد',cls:'st-warn',color:'#f59e0b'};
+    return {t:'ضمن المدة الآمنة',cls:'st-ok',color:'#10b981'};
+  }
+
+  /* ============ TAB 2: reminders inside periodic page ============ */
+  function renderAlertsPane(D){
+    const wrap=document.getElementById('pmRemindersWrap'); if(!wrap)return;
+    if(!D){wrap.innerHTML='<div class="pm-rem"><div class="pm-rem-head"><div><h3><i class="fas fa-calendar-check"></i> تنبيهات الصيانة الدورية</h3><p>تعتمد على تاريخ أمر مباشرة العمل</p></div></div><div class="pm-rem-empty"><i class="fas fa-circle-info"></i> لم يتم إدخال تاريخ أمر مباشرة العمل — أدخله من تبويب «تفاصيل عطاء الصيانة» لتفعيل التنبيهات.</div></div>';return;}
+    const st=D.settings;
+    if(!st.enabled){
+      wrap.innerHTML='<div class="pm-rem"><div class="pm-rem-head" style="background:linear-gradient(135deg,#64748b,#94a3b8)"><div><h3><i class="fas fa-bell-slash"></i> تنبيهات الصيانة الدورية</h3><p>التنبيهات معطّلة حالياً</p></div></div><div class="pm-rem-empty"><i class="fas fa-toggle-off"></i> تم تعطيل التنبيهات من شاشة «إعدادات التنبيهات». فعّلها لعرض العد التنازلي ورسائل لوحة التحكم.<br><button onclick="pmShowTab(\'settings\')" style="margin-top:10px;border:none;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-family:inherit;font-weight:800;font-size:12px;padding:8px 14px;border-radius:9px;cursor:pointer">فتح الإعدادات</button></div></div>';
+      return;
+    }
+    const cards=D.list.map(c=>{
+      const s=stateOf(c,st), am=(!c.done&&c.days>0)?activeMile(c.days,st):null;
+      let alert='';
+      if(c.done){alert='<div class="pm-rem-alert al-soon" style="background:#ecfdf5;color:#065f46;border-color:#a7f3d0"><i class="fas fa-circle-check ic"></i><div>تم تنفيذ '+c.name+'<small>بتاريخ '+(c.doneDate||'-')+(c.note?' — '+esc(c.note):'')+'</small></div></div>';}
+      else if(c.days<=0){alert='<div class="pm-rem-alert al-due"><i class="fas fa-bullhorn ic"></i><div>'+(c.days<0?'الصيانة متأخرة بـ '+Math.abs(c.days)+' يوم':'حان موعد الصيانة الدورية اليوم')+'<small>'+c.name+' — المستحقة بتاريخ '+fmtS(c.due)+'</small></div></div>';}
+      else if(am){alert='<div class="pm-rem-alert '+am.meta.cls+'"><i class="fas '+am.meta.ico+' ic"></i><div>'+am.label+': متبقٍ '+c.days+' يوم على '+c.name+'<small>الموعد المستحق '+fmtS(c.due)+'</small></div></div>';}
+      const miles=offsets(st).map((d,i)=>{
+        const md=new Date(c.due.getTime()-d*DAY);
+        const passed=c.days<d, act=am&&am.d===d;
+        return '<div class="pm-mile-row '+(act?'active':(passed?'passed':''))+'"><span class="pm-mile-dot"></span><div><b>'+(LBL[Math.min(i,3)]||'تنبيه')+' — قبل '+d+' يوم</b><small>'+fmtS(md)+'</small></div><span class="tag">'+(c.done?'—':(act?'نشط الآن':(passed?'انقضى':'بعد '+(c.days-d)+' يوم')))+'</span></div>';
+      }).join('')||'<div class="pm-rem-empty">لا توجد مواعيد تنبيه مُعرّفة</div>';
+      return '<div class="pm-rem" style="margin-bottom:16px"><div class="pm-rem-head"'+(c.done?' style="background:linear-gradient(135deg,#059669,#10b981)"':'')+'>'+
+        '<div><h3><i class="fas fa-calendar-check"></i> '+c.name+'</h3><p>'+c.desc+'</p></div>'+
+        '<span class="pm-rem-badge"><i class="fas fa-rotate"></i> الدورة '+c.n+' من 2</span></div>'+
+        '<div class="pm-rem-body">'+alert+'<div class="pm-rem-main">'+
+          '<div class="pm-rem-next"><span class="pm-rem-state '+s.cls+'"><i class="fas fa-circle"></i> '+s.t+'</span>'+
+          '<div><div class="lbl">موعد الاستحقاق</div><div class="date">'+fmt(c.due)+'</div></div>'+
+          '<div class="pm-rem-count"><b style="color:'+s.color+'">'+Math.max(0,c.days)+'</b><span>يوم متبقٍ'+(c.days<0?' (متأخرة '+Math.abs(c.days)+' يوم)':'')+'</span></div>'+
+          '<div class="pm-bar"><i style="width:'+(c.done?100:c.pct)+'%;background:'+s.color+'"></i></div>'+
+          '<div class="cyc">اكتمل '+(c.done?100:c.pct)+'% من مدة الدورة ('+fmtS(c.from)+' ← '+fmtS(c.due)+')</div></div>'+
+          '<div class="pm-mile"><div class="pm-mile-t"><i class="fas fa-bell"></i> جدول التنبيهات</div>'+miles+'</div>'+
+        '</div></div></div>';
+    }).join('');
+    wrap.innerHTML=cards;
+    const dot=document.getElementById('pmTabDot');
+    if(dot) dot.style.display=(D.list.some(c=>!c.done&&(c.days<=0||activeMile(c.days,st))))?'inline-block':'none';
+  }
+
+  /* ============ TAB 3: log ============ */
+  function renderLog(D){
+    const w=document.getElementById('pmLogWrap'); if(!w)return;
+    if(!D){w.innerHTML='<div class="pm-log"><header><div><h3><i class="fas fa-clock-rotate-left"></i> سجل الصيانة الدورية</h3></div></header><div style="padding:20px;text-align:center;color:#94a3b8;font-size:12.5px">أدخل تاريخ أمر مباشرة العمل من تبويب «تفاصيل عطاء الصيانة» لعرض السجل.</div></div>';return;}
+    const done=D.list.filter(c=>c.done).length, late=D.list.filter(c=>!c.done&&c.days<0).length;
+    const rows=D.list.map(c=>{
+      const cls=c.done?'done':(c.days<0?'late':(c.current?'cur':'next'));
+      const txt=c.done?'منفّذة':(c.days<0?'متأخرة':(c.current?'الدورة الحالية':'لاحقة'));
+      const ico=c.done?'fa-circle-check':(c.days<0?'fa-triangle-exclamation':(c.current?'fa-hourglass-half':'fa-clock'));
+      return '<tr><td><b>'+c.n+'</b></td><td><b>'+c.name+'</b><br><small style="color:#64748b">'+c.desc+'</small></td>'+
+        '<td>'+fmtS(c.due)+'<br><small style="color:#94a3b8">'+fmt(c.due)+'</small></td>'+
+        '<td><span class="pm-st '+cls+'"><i class="fas '+ico+'"></i> '+txt+'</span></td>'+
+        '<td>'+(c.done?esc(c.doneDate||'-'):(c.days>=0?'متبقٍ '+c.days+' يوم':'متأخرة '+Math.abs(c.days)+' يوم'))+'</td>'+
+        '<td>'+(esc(c.note)||'<span style="color:#cbd5e1">—</span>')+'</td>'+
+        '<td class="no-print">'+(c.done
+            ? '<button class="act undo" onclick="pmUnmarkCycle('+c.n+')"><i class="fas fa-rotate-left"></i> تراجع</button>'
+            : '<button class="act" onclick="pmMarkCycle('+c.n+')"><i class="fas fa-check"></i> تعليم كمنفّذة</button>')+'</td></tr>';
+    }).join('');
+    w.innerHTML='<div class="pm-log"><header><div><h3><i class="fas fa-clock-rotate-left"></i> سجل الصيانة الدورية</h3>'+
+      '<p>دورتان خلال مدة العطاء — الأولى بعد 6 أشهر من المباشرة ('+fmtS(D.start)+') والثانية في نهاية العطاء</p></div>'+
+      '<div class="tools no-print"><button onclick="pmPrintLog()"><i class="fas fa-print"></i> طباعة</button>'+
+      '<button onclick="pmExportLogPDF()"><i class="fas fa-file-pdf"></i> PDF</button>'+
+      '<button onclick="pmExportLogExcel()"><i class="fas fa-file-excel"></i> Excel</button></div></header>'+
+      '<div class="pm-log-sum"><div><b>2</b><span>إجمالي الدورات</span></div><div><b>'+done+'</b><span>دورات منفّذة</span></div>'+
+      '<div><b>'+late+'</b><span>متأخرة</span></div><div><b>'+(2-done)+'</b><span>متبقية</span></div></div>'+
+      '<div class="pm-log-tw"><table class="pm-log-table"><thead><tr><th>#</th><th>الدورة</th><th>تاريخ الاستحقاق</th><th>الحالة</th><th>التنفيذ / المتبقي</th><th>ملاحظة</th><th class="no-print">إجراء</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+  }
+
+  /* ============ TAB 4: settings ============ */
+  function renderSettings(D){
+    const w=document.getElementById('pmSettingsWrap'); if(!w)return;
+    const st=getSettings(), o=(st.offsets||DEF.offsets);
+    const f=(i,lb)=>'<div class="pm-field"><label>'+lb+'</label><input type="number" min="1" max="365" id="pmOff'+i+'" value="'+(o[i]!=null?o[i]:DEF.offsets[i])+'"><small>عدد الأيام قبل موعد الصيانة</small></div>';
+    w.innerHTML='<div class="pm-set"><header><h3><i class="fas fa-sliders"></i> إعدادات تنبيهات الصيانة الدورية</h3>'+
+      '<p>تحكّم بتفعيل التنبيهات وتوقيتها — تنعكس مباشرة على تبويب التنبيهات ورسائل لوحة التحكم</p></header><div class="body">'+
+      '<div class="pm-switch"><div><b>تفعيل تنبيهات الصيانة الدورية</b><small>عند التعطيل لن تظهر أي رسائل تذكير على لوحة التحكم</small></div>'+
+      '<label class="pm-toggle"><input type="checkbox" id="pmSetEnabled" '+(st.enabled?'checked':'')+'><i></i></label></div>'+
+      '<div class="pm-switch"><div><b>إظهار الرسائل على لوحة التحكم</b><small>رسائل مختصرة تظهر فقط عند حلول موعد التنبيه</small></div>'+
+      '<label class="pm-toggle"><input type="checkbox" id="pmSetDash" '+(st.dashboard?'checked':'')+'><i></i></label></div>'+
+      '<div class="pm-fields">'+f(0,'التنبيه الأول (قبل شهر)')+f(1,'التنبيه الثاني (قبل أسبوعين)')+f(2,'التنبيه الثالث (قبل أسبوع)')+f(3,'التنبيه الأخير (قبل يوم)')+
+      '<div class="pm-field"><label>مدة العطاء (بالأشهر)</label><input type="number" min="7" max="120" id="pmSetDur" value="'+(st.durationMonths||12)+'"><small>تُستخدم لتحديد موعد الدورة الثانية (نهاية العطاء)</small></div></div>'+
+      '<div class="acts"><button class="save" onclick="pmSaveSettings()"><i class="fas fa-floppy-disk"></i> حفظ الإعدادات</button>'+
+      '<button class="reset" onclick="pmResetSettings()"><i class="fas fa-rotate-left"></i> استعادة الافتراضي</button></div>'+
+      '<div style="font-size:11.5px;color:#64748b;background:#f8fafc;border:1px dashed #e2e8f0;border-radius:11px;padding:10px 12px">'+
+      '<i class="fas fa-circle-info"></i> خلال مدة العطاء توجد دورتان فقط: الأولى بعد 6 أشهر من تاريخ أمر مباشرة العمل، والثانية في نهاية العطاء.</div>'+
+      '</div></div>';
+  }
+
+  /* ============ dashboard: messages only ============ */
+  function renderDash(D){
+    const w=document.getElementById('pmDashAlerts'); if(!w)return;
+    w.innerHTML=''; w.style.display='none';
+    if(!D||!D.settings.enabled||!D.settings.dashboard) return;
+    const st=D.settings, out=[];
+    D.list.forEach(c=>{
+      if(c.done) return;
+      let tone,bg,bd,ico,title,sub;
+      if(c.days<0){tone='#991b1b';bg='#fef2f2';bd='#fecaca';ico='fa-bullhorn';title='الصيانة الدورية متأخرة بـ '+Math.abs(c.days)+' يوم';sub=c.name+' — كان موعدها '+fmtS(c.due);}
+      else if(c.days===0){tone='#991b1b';bg='#fef2f2';bd='#fecaca';ico='fa-bullhorn';title='اليوم موعد الصيانة الدورية';sub=c.name+' — المستحقة بتاريخ '+fmtS(c.due);}
+      else{
+        const am=activeMile(c.days,st); if(!am) return;
+        if(am.d<=7){tone='#9f1239';bg='#fff1f2';bd='#fecdd3';ico='fa-triangle-exclamation';}
+        else if(am.d<=14){tone='#92400e';bg='#fffbeb';bd='#fde68a';ico='fa-bell';}
+        else {tone='#1e40af';bg='#eff6ff';bd='#bfdbfe';ico='fa-bell';}
+        title='تذكير: متبقٍ '+c.days+' يوم على '+c.name+' للصيانة الدورية';
+        sub='الموعد المستحق '+fmtS(c.due)+' — '+am.label+' (قبل '+am.d+' يوم)';
+      }
+      out.push('<div class="pm-dash-alert" style="background:'+bg+';border-color:'+bd+';color:'+tone+'">'+
+        '<span class="ic"><i class="fas '+ico+'"></i></span><div>'+title+'<small>'+sub+'</small></div>'+
+        '<button class="go" onclick="showPage(\'periodic\');setTimeout(function(){pmShowTab(\'alerts\');},60)"><i class="fas fa-arrow-left-long"></i> تفاصيل التنبيه</button></div>');
+      try{
+        const key='pmToast_'+c.n+'_'+fmtS(c.due)+'_'+(c.days<=0?'due':c.days);
+        if(localStorage.getItem(key)!==new Date().toDateString()&&typeof showToast==='function'){
+          localStorage.setItem(key,new Date().toDateString());
+          showToast(c.days<=7?'error':'warning','تذكير الصيانة الدورية',title);
+        }
+      }catch(e){}
+    });
+    if(out.length){w.style.display='grid';w.innerHTML=out.join('');}
+  }
+
+  /* ============ public API ============ */
+  window.pmShowTab=function(t){
+    document.querySelectorAll('#page-periodic .pm-pane').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('#page-periodic .pm-tab').forEach(b=>b.classList.toggle('active',b.dataset.t===t));
+    const pane=document.getElementById('pmPane-'+t); if(pane)pane.classList.add('active');
+    if(t!=='dist') window.renderPMReminders();
+  };
+  window.renderPMReminders=async function(){
+    if(!TENDER) await tender(); else tender();
+    const D=buildCycles();
+    renderAlertsPane(D); renderLog(D); renderSettings(D); renderDash(D);
+    window.__PM_D=D;
+  };
+  window.pmSaveSettings=function(){
+    const g=id=>parseInt((document.getElementById(id)||{}).value,10);
+    const st=getSettings();
+    st.enabled=!!document.getElementById('pmSetEnabled').checked;
+    st.dashboard=!!document.getElementById('pmSetDash').checked;
+    const offs=[g('pmOff0'),g('pmOff1'),g('pmOff2'),g('pmOff3')].map(n=>(!n||n<1||n>365)?null:n).filter(Boolean);
+    st.offsets=offs.length?Array.from(new Set(offs)).sort((a,b)=>b-a):DEF.offsets.slice();
+    const d=g('pmSetDur'); st.durationMonths=(d&&d>=7&&d<=120)?d:12;
+    saveSettings(st);
+    if(typeof showToast==='function')showToast('success','تم الحفظ','تم تحديث إعدادات تنبيهات الصيانة الدورية');
+    window.renderPMReminders();
+  };
+  window.pmResetSettings=function(){saveSettings(Object.assign({},DEF));if(typeof showToast==='function')showToast('info','تمت الاستعادة','تمت استعادة الإعدادات الافتراضية');window.renderPMReminders();};
+  window.pmMarkCycle=function(n){
+    const today=new Date().toLocaleDateString('ar-JO',{year:'numeric',month:'2-digit',day:'2-digit'});
+    const note=prompt('ملاحظة على تنفيذ الدورة رقم '+n+' (اختياري):','')||'';
+    const log=getLog(); log[n]={done:true,date:today,note:note,by:(window.currentUser&&(currentUser.full_name||currentUser.fullName))||''};
+    saveLog(log);
+    if(typeof showToast==='function')showToast('success','تم التسجيل','تم تعليم الدورة رقم '+n+' كمنفّذة بتاريخ '+today);
+    window.renderPMReminders();
+  };
+  window.pmUnmarkCycle=function(n){
+    const log=getLog(); delete log[n]; saveLog(log);
+    if(typeof showToast==='function')showToast('info','تم التراجع','تمت إعادة الدورة رقم '+n+' إلى حالة غير منفّذة');
+    window.renderPMReminders();
+  };
+  function logHTML(){
+    const D=window.__PM_D; if(!D) return '';
+    const rows=D.list.map(c=>{
+      const txt=c.done?'منفّذة':(c.days<0?'متأخرة':(c.current?'الدورة الحالية':'لاحقة'));
+      return '<tr><td>'+c.n+'</td><td>'+c.name+'<br><small>'+c.desc+'</small></td><td>'+fmtS(c.due)+'</td><td>'+txt+'</td><td>'+(c.done?(c.doneDate||'-'):(c.days>=0?'متبقٍ '+c.days+' يوم':'متأخرة '+Math.abs(c.days)+' يوم'))+'</td><td>'+esc(c.note||'-')+'</td></tr>';
+    }).join('');
+    return '<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>سجل الصيانة الدورية</title>'+
+      '<style>body{font-family:"Tajawal","Segoe UI",Tahoma,sans-serif;padding:24px;color:#0f172a}h1{font-size:20px;margin:0 0 4px}p.sub{color:#64748b;font-size:12px;margin:0 0 16px}'+
+      'table{width:100%;border-collapse:collapse;font-size:13px}th{background:#4338ca;color:#fff;padding:9px;text-align:right}td{border:1px solid #e2e8f0;padding:9px}tr:nth-child(even) td{background:#f8fafc}small{color:#64748b}'+
+      'footer{margin-top:18px;font-size:11px;color:#94a3b8;text-align:center}</style></head><body>'+
+      '<h1>سجل الصيانة الدورية</h1><p class="sub">تاريخ أمر مباشرة العمل: '+fmtS(D.start)+' — مدة العطاء: '+D.duration+' شهر — دورتان خلال مدة العطاء</p>'+
+      '<table><thead><tr><th>#</th><th>الدورة</th><th>تاريخ الاستحقاق</th><th>الحالة</th><th>التنفيذ / المتبقي</th><th>ملاحظة</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+      '<footer>نظام إدارة الصيانة — طُبع بتاريخ '+new Date().toLocaleString('ar-JO')+'</footer></body></html>';
+  }
+  window.pmPrintLog=function(){
+    const h=logHTML(); if(!h)return;
+    const w=window.open('','_blank'); w.document.write(h); w.document.close(); setTimeout(()=>{w.focus();w.print();},400);
+  };
+  window.pmExportLogPDF=function(){
+    const h=logHTML(); if(!h)return;
+    const w=window.open('','_blank'); w.document.write(h.replace('</body>','<script>setTimeout(function(){window.print();},500);<\/script></body>')); w.document.close();
+    if(typeof showToast==='function')showToast('info','تصدير PDF','اختر "حفظ كـ PDF" من نافذة الطباعة');
+  };
+  window.pmExportLogExcel=function(){
+    const D=window.__PM_D; if(!D)return;
+    let t='<table border="1"><tr><th>#</th><th>الدورة</th><th>تاريخ الاستحقاق</th><th>الحالة</th><th>تاريخ التنفيذ</th><th>ملاحظة</th></tr>';
+    D.list.forEach(c=>{t+='<tr><td>'+c.n+'</td><td>'+c.name+'</td><td>'+fmtS(c.due)+'</td><td>'+(c.done?'منفّذة':(c.days<0?'متأخرة':'قيد الانتظار'))+'</td><td>'+(c.doneDate||'-')+'</td><td>'+esc(c.note||'-')+'</td></tr>';});
+    t+='</table>';
+    const blob=new Blob(['\ufeff<html dir="rtl"><head><meta charset="utf-8"></head><body>'+t+'</body></html>'],{type:'application/vnd.ms-excel'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='سجل-الصيانة-الدورية.xls'; a.click();
+    if(typeof showToast==='function')showToast('success','تم التصدير','تم تنزيل ملف Excel');
+  };
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){try{window.renderPMReminders();}catch(e){}},1500);});
+  setInterval(function(){try{window.renderPMReminders();}catch(e){}},3600000);
 })();
 </script>
 
