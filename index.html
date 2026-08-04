@@ -1330,6 +1330,59 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
     .alt-empty i { display:block; font-size:26px; margin-bottom:8px; opacity:.5; }
 
     </style>
+
+<style id="pmOverviewCss">
+#pmOverviewOverlay{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(3px);z-index:99999;display:none;padding:20px;overflow:auto}
+#pmOverviewOverlay.open{display:block}
+#pmOverviewOverlay .ovw-sheet{max-width:1180px;margin:0 auto;background:#fff;border-radius:18px;padding:18px;font-family:"Tajawal","Segoe UI",Tahoma,sans-serif;color:#0f172a;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+#pmOverviewOverlay .ovw-head{display:flex;align-items:flex-start;gap:12px;border-bottom:3px solid #0ea5e9;padding-bottom:12px;margin-bottom:14px}
+#pmOverviewOverlay .ovw-head h2{margin:0;font-size:19px;font-weight:900}
+#pmOverviewOverlay .ovw-head p{margin:4px 0 0;font-size:11.5px;color:#64748b}
+#pmOverviewOverlay .ovw-x{margin-inline-start:auto;border:none;background:#f1f5f9;color:#334155;width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:15px}
+#pmOverviewOverlay .ovw-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+#pmOverviewOverlay .ovw-stats>div{flex:1;min-width:110px;border:1px solid #e2e8f0;border-radius:12px;padding:8px 10px;background:#f8fafc}
+#pmOverviewOverlay .ovw-stats b{display:block;font-size:19px;font-weight:900;color:#0369a1}
+#pmOverviewOverlay .ovw-stats span{font-size:10.5px;color:#64748b}
+#pmOverviewOverlay .ovw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+#pmOverviewOverlay .ovw-card{border:1px solid #e2e8f0;border-top:4px solid var(--gc,#6366f1);border-radius:14px;overflow:hidden;background:#fff}
+#pmOverviewOverlay .ovw-card header{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#f8fafc;font-size:13.5px;font-weight:900;border-bottom:1px solid #eef2f7}
+#pmOverviewOverlay .ovw-dot{width:10px;height:10px;border-radius:50%;background:var(--gc,#6366f1)}
+#pmOverviewOverlay .ovw-meta{margin-inline-start:auto;font-size:10.5px;font-weight:800;color:#64748b}
+#pmOverviewOverlay .ovw-body{padding:10px 12px;display:grid;gap:9px;max-height:420px;overflow:auto}
+#pmOverviewOverlay .ovw-tools{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+#pmOverviewOverlay .ovw-tools button{border:1px solid #e2e8f0;background:#f8fafc;color:#0f172a;font-family:inherit;font-weight:800;font-size:11.5px;border-radius:10px;padding:7px 11px;cursor:pointer}
+#pmOverviewOverlay .ovw-tools button:hover{background:#eef2ff;border-color:#c7d2fe}
+#pmOverviewOverlay .ovw-tools small{margin-inline-start:auto;font-size:10.5px;color:#94a3b8}
+#pmOverviewOverlay .ovw-ghead{border:none;background:#eef2f7;color:#334155;width:24px;height:24px;border-radius:8px;cursor:pointer;font-size:11px;display:grid;place-items:center}
+#pmOverviewOverlay .ovw-card.collapsed .ovw-body{display:none}
+#pmOverviewOverlay .ovw-card.collapsed .ovw-ghead .ovw-caret{transform:rotate(90deg)}
+#pmOverviewOverlay .ovw-caret{transition:transform .18s ease}
+#pmOverviewOverlay .ovw-yard{border:1px dashed #e2e8f0;border-radius:11px;background:#fbfdff;overflow:hidden}
+#pmOverviewOverlay .ovw-yard-h{width:100%;display:flex;align-items:center;gap:6px;font-size:12.5px;color:#0f172a;background:transparent;border:none;font-family:inherit;padding:8px 10px;cursor:pointer;text-align:right}
+#pmOverviewOverlay .ovw-yard-h:hover{background:#f1f5f9}
+#pmOverviewOverlay .ovw-yard-h .ovw-caret{color:#94a3b8;font-size:10px;transform:rotate(90deg)}
+#pmOverviewOverlay .ovw-yard.open>.ovw-yard-h .ovw-caret{transform:rotate(0deg)}
+#pmOverviewOverlay .ovw-yard.open{background:#fff;border-style:solid;border-color:#c7d2fe}
+#pmOverviewOverlay .ovw-count{margin-inline-start:auto;font-size:10.5px;font-weight:800;color:#fff;background:var(--gc,#6366f1);border-radius:999px;padding:2px 8px}
+#pmOverviewOverlay .ovw-yard[data-count="0"] .ovw-count{background:#94a3b8}
+#pmOverviewOverlay .ovw-depts{display:none;flex-wrap:wrap;gap:5px;padding:0 10px 10px}
+#pmOverviewOverlay .ovw-yard.open .ovw-depts{display:flex}
+#pmOverviewOverlay .ovw-dept{background:#eef2ff;color:#3730a3;border-radius:8px;padding:3px 8px;font-size:11px;font-weight:700}
+#pmOverviewOverlay .ovw-none{font-size:11px;color:#94a3b8}
+#pmOverviewOverlay .ovw-search{display:flex;align-items:center;gap:7px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:10px;padding:5px 10px;min-width:250px}
+#pmOverviewOverlay .ovw-search i{color:#94a3b8;font-size:11px}
+#pmOverviewOverlay .ovw-search input{border:none;outline:none;background:transparent;font-family:inherit;font-size:12px;width:100%;color:#0f172a}
+#pmOverviewOverlay .ovw-hits{font-size:10.5px;font-weight:800;white-space:nowrap}
+#pmOverviewOverlay .ovw-hits.ok{color:#059669}
+#pmOverviewOverlay .ovw-hits.none{color:#dc2626}
+#pmOverviewOverlay .ovw-dept mark{background:#fde047;color:#78350f;border-radius:4px;padding:0 2px;font-weight:900}
+#pmOverviewOverlay .ovw-dept.hit{background:#ecfdf5;color:#065f46;box-shadow:0 0 0 1.5px #6ee7b7 inset}
+#pmOverviewOverlay .ovw-dept.dim{opacity:.35}
+#pmOverviewOverlay .ovw-yard.has-hit{border-color:#6ee7b7;background:#f7fefb}
+#pmOverviewOverlay .ovw-yard.no-hit{opacity:.45}
+#pmOverviewOverlay .ovw-card.no-hit{opacity:.5}
+@media print{#pmOverviewOverlay{position:static;background:#fff;padding:0}}
+</style>
 </head>
 <body>
 
@@ -2829,6 +2882,7 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                         <p>وزّع ساحات العمل على مجموعات صيانة دورية بالسحب والإفلات — يتم الحفظ تلقائياً</p>
                     </div>
                     <div>
+                        <button class="hbtn" onclick="pmOverview()"><i class="fas fa-table-cells-large"></i> استعراض شامل للمجموعات</button>
                         <button class="hbtn" onclick="pmAuto()"><i class="fas fa-wand-magic-sparkles"></i> توزيع تلقائي متوازن</button>
                         <button class="hbtn" onclick="pmPrint()"><i class="fas fa-print"></i> طباعة</button>
                         <button class="hbtn" onclick="pmExportPDF()"><i class="fas fa-file-pdf"></i> تصدير PDF</button>
@@ -13833,6 +13887,102 @@ window.PMRules=(function(){
     setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} },700);
     if(typeof showToast==='function')showToast('success','تقرير PDF','اختر «حفظ كـ PDF» من نافذة الطباعة');
   };
+
+  window.pmOverview=function(){
+    const m=yardsAll(), a=assigned();
+    const byYard={}; DC().forEach(d=>{const y=(d.notes||'').trim(); if(y){(byYard[y]=byYard[y]||[]).push(d.name||'');}});
+    const totalYards=Object.keys(m).length, totalDepts=DC().length;
+    const now=new Date(), stamp=now.toLocaleDateString('ar-JO')+' — '+now.toLocaleTimeString('ar-JO');
+    const card=(title,color,yards,key)=>{
+      const depts=yards.reduce((s,y)=>s+(m[y]||0),0);
+      const body=yards.length?yards.map((y,yi)=>{
+        const list=byYard[y]||[]; const uid=key+'-'+yi;
+        return '<div class="ovw-yard" id="oy-'+uid+'" data-count="'+list.length+'">'+
+          '<button class="ovw-yard-h" type="button" aria-expanded="false" onclick="pmToggleYard(\''+uid+'\')">'+
+            '<i class="fas fa-chevron-down ovw-caret"></i>'+
+            '<i class="fas fa-map-pin"></i> <b>'+esc(y)+'</b>'+
+            '<span class="ovw-count">'+list.length+' قسم</span>'+
+          '</button>'+
+          '<div class="ovw-depts">'+(list.map(n=>'<span class="ovw-dept" data-name="'+esc(n)+'">'+esc(n)+'</span>').join('')||'<span class="ovw-none">لا أقسام</span>')+'</div>'+
+        '</div>';
+      }).join(''):'<div class="ovw-none">لا توجد ساحات</div>';
+      return '<div class="ovw-card" style="--gc:'+color+'" data-key="'+key+'"><header>'+
+        '<button class="ovw-ghead" type="button" onclick="pmToggleGroup(this)" title="توسيع / طي المجموعة"><i class="fas fa-chevron-down ovw-caret"></i></button>'+
+        '<span class="ovw-dot"></span><b>'+esc(title)+'</b>'+
+        '<span class="ovw-meta"><i class="fas fa-map-pin"></i> '+yards.length+' ساحة <i class="fas fa-building"></i> '+depts+' قسم</span></header>'+
+        '<div class="ovw-body">'+body+'</div></div>';
+    };
+    const pend=Object.keys(m).filter(y=>!a.has(y));
+    let ov=document.getElementById('pmOverviewOverlay');
+    if(!ov){ ov=document.createElement('div'); ov.id='pmOverviewOverlay'; document.body.appendChild(ov);
+      ov.addEventListener('click',e=>{ if(e.target===ov) ov.classList.remove('open'); }); }
+    ov.innerHTML=
+      '<div class="ovw-sheet" dir="rtl">'+
+        '<div class="ovw-head"><div><h2><i class="fas fa-table-cells-large"></i> استعراض شامل للمجموعات</h2>'+
+          '<p>الأقسام مجمّعة داخل كل مجموعة صيانة حسب ساحة العمل — '+stamp+'</p></div>'+
+          '<button class="ovw-x" onclick="pmOverviewClose()"><i class="fas fa-times"></i></button></div>'+
+        '<div class="ovw-stats">'+
+          '<div><b>'+GROUPS.length+'</b><span>مجموعات</span></div>'+
+          '<div><b>'+totalYards+'</b><span>ساحات</span></div>'+
+          '<div><b>'+a.size+'</b><span>موزّعة</span></div>'+
+          '<div><b>'+(totalYards-a.size)+'</b><span>بانتظار التوزيع</span></div>'+
+          '<div><b>'+totalDepts+'</b><span>أقسام</span></div>'+
+        '</div>'+
+        '<div class="ovw-tools"><div class="ovw-search"><i class="fas fa-magnifying-glass"></i>'+
+        '<input id="ovwSearch" type="search" placeholder="بحث في أسماء الأقسام..." oninput="pmOverviewSearch(this.value)">'+
+        '<span class="ovw-hits" id="ovwHits"></span></div>'+
+        '<button type="button" onclick="pmOverviewExpandAll(true)"><i class="fas fa-angles-down"></i> توسيع الكل</button>'+
+        '<button type="button" onclick="pmOverviewExpandAll(false)"><i class="fas fa-angles-up"></i> طي الكل</button>'+
+        '<small><i class="fas fa-circle-info"></i> انقر على أي ساحة لعرض أقسامها</small></div>'+
+        '<div class="ovw-grid">'+GROUPS.map((g,i)=>card((i+1)+'. '+g.name,g.color,g.yards,'g'+i)).join('')+
+          (pend.length?card('ساحات بانتظار التوزيع','#64748b',pend,'pend'):'')+
+        '</div>'+
+      '</div>';
+    ov.classList.add('open');
+  };
+  window.pmOverviewSearch=function(q){
+    q=String(q||'').trim();
+    const chips=[...document.querySelectorAll('#pmOverviewOverlay .ovw-dept')];
+    let hits=0;
+    chips.forEach(c=>{
+      const n=c.dataset.name||c.textContent;
+      if(!q){ c.innerHTML=esc(n); c.classList.remove('hit','dim'); return; }
+      const i=n.toLowerCase().indexOf(q.toLowerCase());
+      if(i<0){ c.innerHTML=esc(n); c.classList.remove('hit'); c.classList.add('dim'); return; }
+      hits++;
+      c.classList.add('hit'); c.classList.remove('dim');
+      c.innerHTML=esc(n.slice(0,i))+'<mark>'+esc(n.slice(i,i+q.length))+'</mark>'+esc(n.slice(i+q.length));
+    });
+    document.querySelectorAll('#pmOverviewOverlay .ovw-yard').forEach(y=>{
+      const has=!!y.querySelector('.ovw-dept.hit');
+      y.classList.toggle('has-hit',!!q&&has);
+      y.classList.toggle('no-hit',!!q&&!has);
+      if(q&&has){ y.classList.add('open'); const b=y.querySelector('.ovw-yard-h'); if(b)b.setAttribute('aria-expanded','true'); }
+    });
+    document.querySelectorAll('#pmOverviewOverlay .ovw-card').forEach(c=>{
+      if(q) c.classList.remove('collapsed');
+      c.classList.toggle('no-hit',!!q&&!c.querySelector('.ovw-dept.hit'));
+    });
+    const el=document.getElementById('ovwHits');
+    if(el) el.textContent=q?(hits?hits+' نتيجة':'لا نتائج'):'';
+    if(el) el.className='ovw-hits'+(q?(hits?' ok':' none'):'');
+  };
+  window.pmToggleYard=function(uid){
+    const el=document.getElementById('oy-'+uid); if(!el)return;
+    el.classList.toggle('open');
+    const b=el.querySelector('.ovw-yard-h'); if(b)b.setAttribute('aria-expanded',el.classList.contains('open')?'true':'false');
+  };
+  window.pmToggleGroup=function(btn){
+    const c=btn.closest('.ovw-card'); if(!c)return; c.classList.toggle('collapsed');
+  };
+  window.pmOverviewExpandAll=function(open){
+    document.querySelectorAll('#pmOverviewOverlay .ovw-card').forEach(c=>c.classList.remove('collapsed'));
+    document.querySelectorAll('#pmOverviewOverlay .ovw-yard').forEach(y=>{
+      y.classList.toggle('open',!!open);
+      const b=y.querySelector('.ovw-yard-h'); if(b)b.setAttribute('aria-expanded',open?'true':'false');
+    });
+  };
+  window.pmOverviewClose=function(){ const ov=document.getElementById('pmOverviewOverlay'); if(ov)ov.classList.remove('open'); };
 
   function chip(y,count,groupId){
     return `<div class="dnd-chip" draggable="true" data-yard="${esc(y)}" data-g="${groupId||''}">
