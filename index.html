@@ -3,6 +3,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -2237,6 +2238,9 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                         <button class="btn btn-success btn-sm" onclick="exportReportsToPDF()">
                             <i class="fas fa-file-pdf"></i> حفظ PDF
                         </button>
+                        <button class="btn btn-warning btn-sm" onclick="rsOpen()">
+                            <i class="fas fa-file-invoice"></i> مركز التقارير الشامل
+                        </button>
                     </div>
                 </div>
 
@@ -2722,27 +2726,96 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
             </div>
 
             <div class="page-section" id="page-departments">
-                <div class="page-header">
-                    <h1 class="page-title">إدارة الأقسام</h1>
-                    <div class="page-actions no-print">
+                <style>
+                #page-departments .dp-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;margin-bottom:12px}
+                #page-departments .dp-title{margin:0;font-size:20px;font-weight:900;color:var(--text-dark,#1e293b);display:flex;align-items:center;gap:8px}
+                #page-departments .dp-title i{color:#4f46e5}
+                #page-departments .dp-actions{display:flex;flex-wrap:wrap;gap:8px}
+                #page-departments .dp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:10px}
+                #page-departments .dp-stat{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:8px 10px;display:flex;align-items:center;gap:8px}
+                #page-departments .dp-stat i{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:8px;background:#eef2ff;color:#4f46e5;font-size:12px}
+                #page-departments .dp-stat b{font-size:16px;font-weight:900;line-height:1}
+                #page-departments .dp-stat span{font-size:11px;color:#64748b;display:block}
+                #page-departments .dp-bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:8px}
+                #page-departments .dp-search{width:100%;padding:8px 12px;border:1px solid #e5e7eb;border-radius:9px;font-size:13px;font-family:inherit}
+                #page-departments .dp-search:focus{outline:none;border-color:#4f46e5}
+                #page-departments .dp-table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;background:#fff}
+                #page-departments .dp-table thead th{background:#f8fafc;color:#475569;font-size:11.5px;font-weight:800;text-align:right;padding:7px 10px;border-bottom:1px solid #e5e7eb;white-space:nowrap}
+                #page-departments .dp-table tbody td{padding:6px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+                #page-departments .dp-table tbody tr:hover{background:#f9fafb}
+                #page-departments .dp-table td:nth-child(2),#page-departments .dp-table th:nth-child(2){width:42%}
+                #page-departments .dp-table td:nth-child(3),#page-departments .dp-table th:nth-child(3){width:42%}
+                #page-departments .dp-id{font-size:11px;color:#94a3b8;font-weight:700}
+                #page-departments .dp-name{font-weight:800;font-size:13.5px;color:#1e293b}
+                #page-departments .dp-yard{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#4338ca}
+                #page-departments .dp-yard.none{background:#f1f5f9;color:#94a3b8}
+                #page-departments .dp-acts{display:flex;gap:4px;justify-content:flex-end}
+                #page-departments .dp-acts button{width:26px;height:26px;border:none;border-radius:7px;cursor:pointer;font-size:11px;display:grid;place-items:center}
+                #page-departments .dp-acts .e{background:#eff6ff;color:#2563eb}
+                #page-departments .dp-acts .d{background:#fef2f2;color:#dc2626}
+                #page-departments .dp-card{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:#fff}
+                /* grouping screen */
+                #dpGroupModal{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:99990;display:none;padding:16px;overflow:auto}
+                #dpGroupModal.open{display:block}
+                #dpGroupModal .g-wrap{max-width:1100px;margin:0 auto;background:#f8fafc;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+                #dpGroupModal .g-top{background:linear-gradient(135deg,#4338ca,#6d28d9);color:#fff;padding:14px 18px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px}
+                #dpGroupModal .g-top h3{margin:0;font-size:17px;font-weight:900}
+                #dpGroupModal .g-top p{margin:2px 0 0;font-size:11.5px;opacity:.85}
+                #dpGroupModal .g-top button{background:rgba(255,255,255,.18);border:none;color:#fff;padding:7px 12px;border-radius:9px;cursor:pointer;font-size:12px;font-weight:800;font-family:inherit;margin-inline-start:6px}
+                #dpGroupModal .g-body{padding:14px;max-height:calc(100vh - 130px);overflow:auto}
+                #dpGroupModal .g-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+                #dpGroupModal .g-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;break-inside:avoid}
+                #dpGroupModal .g-card h4{margin:0;padding:8px 12px;font-size:13px;font-weight:900;color:#312e81;background:#eef2ff;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;border-bottom:1px solid #e0e7ff}
+                #dpGroupModal .g-card h4 span{font-size:10.5px;background:#4338ca;color:#fff;border-radius:999px;padding:1px 8px;font-weight:800}
+                #dpGroupModal .g-card ol{margin:0;padding:6px 26px 8px;font-size:12.5px;color:#334155}
+                #dpGroupModal .g-card li{padding:2.5px 0;border-bottom:1px dashed #f1f5f9}
+                #dpGroupModal .g-card li:last-child{border-bottom:none}
+                @media print{#dpGroupModal .g-top button,#page-departments .no-print{display:none!important}#dpGroupModal{position:static;background:#fff;padding:0}#dpGroupModal .g-body{max-height:none;overflow:visible}}
+                </style>
+                <div class="dp-head no-print">
+                    <h1 class="dp-title"><i class="fas fa-sitemap"></i> إدارة الأقسام</h1>
+                    <div class="dp-actions">
+                        <button class="btn btn-sm" style="background:#4f46e5;color:#fff" onclick="openDeptGrouping()">
+                            <i class="fas fa-object-group"></i> توزيع الأقسام على الساحات
+                        </button>
                         <button class="btn btn-success btn-sm no-readonly" onclick="if(checkReadOnly())return;openDepartmentModal()">
                             <i class="fas fa-plus"></i> إضافة قسم
                         </button>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-container">
-                            <table class="data-table" id="departmentsTable">
-                                <thead>
-                                    <tr><th>الرقم</th><th>اسم القسم</th><th>ملاحظات</th><th class="no-print">إجراءات</th></tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
+                <div class="dp-stats" id="dpStats"></div>
+                <div class="dp-bar no-print">
+                    <input class="dp-search" id="dpSearch" type="search" placeholder="بحث باسم القسم أو الساحة..." oninput="renderDeptTable()">
+                    <span style="font-size:11.5px;color:#64748b" id="dpCount"></span>
+                </div>
+                <div class="dp-card">
+                    <div class="table-container">
+                        <table class="dp-table" id="departmentsTable">
+                            <thead>
+                                <tr><th style="width:60px">#</th><th>اسم القسم</th><th>الساحة / الملاحظات</th><th class="no-print" style="width:80px">إجراءات</th></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+
+            <div id="dpGroupModal" onclick="if(event.target===this)closeDeptGrouping()">
+                <div class="g-wrap">
+                    <div class="g-top">
+                        <div>
+                            <h3><i class="fas fa-object-group"></i> توزيع الأقسام على الساحات</h3>
+                            <p id="dpGroupSub"></p>
+                        </div>
+                        <div style="display:flex;flex-wrap:wrap">
+                            <button onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
+                            <button onclick="closeDeptGrouping()"><i class="fas fa-times"></i> إغلاق</button>
+                        </div>
+                    </div>
+                    <div class="g-body"><div class="g-grid" id="dpGroupGrid"></div></div>
+                </div>
+            </div>
+
 
 <div class="page-section" id="page-admin">
                 <div class="page-header">
@@ -4208,27 +4281,80 @@ async function showPage(page) {
 // ==================== DEPARTMENTS ====================
 let editingDepartmentId = null;
 
+let DEPT_CACHE = [];
+
+function dpEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
 async function loadDepartments() {
-    const departments = await SupabaseAPI.request('departments', 'GET');
+    DEPT_CACHE = await SupabaseAPI.request('departments', 'GET') || [];
+    renderDeptTable();
+}
+
+function renderDeptTable() {
     const tbody = document.querySelector('#departmentsTable tbody');
-    if (departments.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color: var(--text-light);"><i class="fas fa-building" style="font-size: 32px; display: block; margin-bottom: 10px;"></i>لا توجد أقسام مسجلة</td></tr>`;
+    if (!tbody) return;
+    const q = (document.getElementById('dpSearch')?.value || '').trim().toLowerCase();
+    const all = DEPT_CACHE.slice();
+    const yards = new Set(all.map(d => (d.notes || '').trim()).filter(Boolean));
+    const stats = document.getElementById('dpStats');
+    if (stats) stats.innerHTML =
+        `<div class="dp-stat"><i class="fas fa-building"></i><div><b>${all.length}</b><span>إجمالي الأقسام</span></div></div>`+
+        `<div class="dp-stat"><i class="fas fa-map-location-dot"></i><div><b>${yards.size}</b><span>عدد الساحات</span></div></div>`+
+        `<div class="dp-stat"><i class="fas fa-circle-question"></i><div><b>${all.filter(d=>!(d.notes||'').trim()).length}</b><span>بدون ساحة</span></div></div>`;
+
+    const rows = all
+        .filter(d => !q || (d.name || '').toLowerCase().includes(q) || (d.notes || '').toLowerCase().includes(q))
+        .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar'));
+
+    const cnt = document.getElementById('dpCount');
+    if (cnt) cnt.textContent = `${rows.length} من ${all.length}`;
+
+    if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:26px;color:#94a3b8;font-size:12.5px"><i class="fas fa-building" style="font-size:22px;display:block;margin-bottom:6px"></i>${all.length ? 'لا نتائج مطابقة للبحث' : 'لا توجد أقسام مسجلة'}</td></tr>`;
         return;
     }
-    tbody.innerHTML = departments.sort((a, b) => (b.id || 0) - (a.id || 0)).map(d => `
+    tbody.innerHTML = rows.map(d => `
         <tr>
-            <td><strong>#${d.id}</strong></td>
-            <td style="font-weight: 700; font-size: 15px;">${d.name}</td>
-            <td>${d.notes || '-'}</td>
+            <td class="dp-id">#${d.id}</td>
+            <td class="dp-name">${dpEsc(d.name)}</td>
+            <td>${(d.notes||'').trim() ? `<span class="dp-yard">${dpEsc(d.notes.trim())}</span>` : '<span class="dp-yard none">غير محددة</span>'}</td>
             <td class="no-print">
-                <div class="action-btns">
-                    <button class="action-btn edit no-readonly" onclick="openDepartmentModal(${d.id})" title="تعديل"><i class="fas fa-edit"></i></button>
-                    <button class="action-btn delete no-readonly" onclick="deleteDepartment(${d.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                <div class="dp-acts">
+                    <button class="e no-readonly" onclick="openDepartmentModal(${d.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button class="d no-readonly" onclick="deleteDepartment(${d.id})" title="حذف"><i class="fas fa-trash"></i></button>
                 </div>
             </td>
         </tr>
     `).join('');
 }
+
+async function openDeptGrouping() {
+    if (!DEPT_CACHE.length) DEPT_CACHE = await SupabaseAPI.request('departments', 'GET') || [];
+    const groups = {};
+    DEPT_CACHE.forEach(d => {
+        const yard = (d.notes || '').trim() || 'غير محددة';
+        (groups[yard] = groups[yard] || []).push(d.name || '-');
+    });
+    const keys = Object.keys(groups).sort((a, b) => {
+        if (a === 'غير محددة') return 1;
+        if (b === 'غير محددة') return -1;
+        return groups[b].length - groups[a].length || a.localeCompare(b, 'ar');
+    });
+    document.getElementById('dpGroupSub').textContent =
+        `${DEPT_CACHE.length} قسم موزّعة على ${keys.filter(k=>k!=='غير محددة').length} ساحة — بحسب الملاحظات المسجلة لكل قسم`;
+    document.getElementById('dpGroupGrid').innerHTML = keys.map(k => `
+        <div class="g-card">
+            <h4><em style="font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${dpEsc(k)}</em><span>${groups[k].length}</span></h4>
+            <ol>${groups[k].sort((a,b)=>a.localeCompare(b,'ar')).map(n => `<li>${dpEsc(n)}</li>`).join('')}</ol>
+        </div>
+    `).join('') || '<p style="text-align:center;color:#94a3b8">لا توجد أقسام</p>';
+    document.getElementById('dpGroupModal').classList.add('open');
+}
+
+function closeDeptGrouping() {
+    document.getElementById('dpGroupModal').classList.remove('open');
+}
+
 
 async function updateDepartmentSelect() {
     const departments = await SupabaseAPI.request('departments', 'GET');
@@ -11786,7 +11912,7 @@ html[data-theme="dark"] .sa-qa{background:#0e152b !important;}
       <p><span class="sa-dot"></span> <span id="saStatus">جاهز — يعرف كل شيء عن النظام</span></p>
     </div>
     <div class="sa-head-btns">
-      <button class="sa-hbtn" title="تغيير اسم المساعد" onclick="saToggleSettings()"><i class="fas fa-gear"></i></button>
+      <button class="sa-hbtn admin-only-chat" id="saGearBtn" style="display:none" title="إعدادات المساعد (للمدراء فقط)" onclick="saToggleSettings()"><i class="fas fa-gear"></i></button>
       <button class="sa-hbtn" title="تحديث البيانات" onclick="saRefresh(true)"><i class="fas fa-rotate"></i></button>
       <button class="sa-hbtn" title="تكبير / تصغير" onclick="document.getElementById('saPanel').classList.toggle('max')"><i class="fas fa-expand"></i></button>
       <button class="sa-hbtn" title="محادثة جديدة" onclick="saClear()"><i class="fas fa-broom"></i></button>
@@ -12655,6 +12781,537 @@ body.sa-hidden #saFab, body.sa-hidden #saPanel{display:none !important;}
 })();
 </script>
 <!-- ============ END ABU HAMID PRO ============ -->
+
+<!-- ============ REPORT STUDIO — مركز التقارير الشامل ============ -->
+<style id="rsStyles">
+#rsOverlay{position:fixed;inset:0;z-index:99999;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 12px;font-family:Tajawal,sans-serif}
+#rsOverlay.open{display:flex}
+.rs-win{width:100%;max-width:1180px;background:#fff;border-radius:18px;box-shadow:0 30px 80px rgba(2,6,23,.35);overflow:hidden;animation:rsUp .25s ease}
+@keyframes rsUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.rs-top{display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(135deg,#312e81,#4f46e5 55%,#0ea5e9);color:#fff}
+.rs-top h3{font-size:18px;font-weight:900;margin:0;color:#fff}
+.rs-top p{margin:2px 0 0;font-size:12px;opacity:.85}
+.rs-top .rs-x{margin-inline-start:auto;background:rgba(255,255,255,.16);border:0;color:#fff;width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:15px}
+.rs-top .rs-x:hover{background:rgba(255,255,255,.3)}
+.rs-body{padding:18px 20px;max-height:70vh;overflow:auto;background:#f8fafc}
+.rs-sec-title{font-size:13px;font-weight:800;color:#4338ca;margin:14px 0 8px;display:flex;align-items:center;gap:8px}
+.rs-sec-title:first-child{margin-top:0}
+.rs-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px}
+.rs-pick{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:11px 12px;cursor:pointer;transition:.15s;font-size:13px;font-weight:700;color:#1e293b}
+.rs-pick:hover{border-color:#a5b4fc;transform:translateY(-1px)}
+.rs-pick.on{border-color:#4f46e5;background:#eef2ff;box-shadow:0 4px 14px rgba(79,70,229,.14)}
+.rs-pick i{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#eef2ff;color:#4f46e5;font-size:13px}
+.rs-pick.on i{background:#4f46e5;color:#fff}
+.rs-pick small{display:block;font-weight:500;font-size:10.5px;color:#64748b}
+.rs-fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.rs-f label{display:block;font-size:11px;font-weight:800;color:#475569;margin-bottom:5px}
+.rs-f input,.rs-f select{width:100%;padding:9px 10px;border:1.5px solid #e2e8f0;border-radius:10px;font-family:Tajawal,sans-serif;font-size:13px;background:#fff;color:#0f172a}
+.rs-f input:focus,.rs-f select:focus{outline:none;border-color:#4f46e5}
+.rs-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.rs-chip{border:1.5px solid #e2e8f0;background:#fff;border-radius:999px;padding:6px 13px;font-size:12px;font-weight:700;cursor:pointer;color:#475569;font-family:Tajawal,sans-serif}
+.rs-chip.on{background:#4f46e5;border-color:#4f46e5;color:#fff}
+.rs-foot{display:flex;flex-wrap:wrap;gap:9px;align-items:center;padding:14px 20px;background:#fff;border-top:1px solid #eef2f7}
+.rs-btn{border:0;border-radius:11px;padding:10px 16px;font-family:Tajawal,sans-serif;font-weight:800;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:.15s}
+.rs-btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.rs-btn.p{background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff}
+.rs-btn.g{background:linear-gradient(135deg,#059669,#10b981);color:#fff}
+.rs-btn.b{background:linear-gradient(135deg,#0284c7,#0ea5e9);color:#fff}
+.rs-btn.o{background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff}
+.rs-btn.s{background:#eef2f7;color:#334155}
+.rs-note{font-size:11.5px;color:#64748b;margin-inline-start:auto}
+
+/* ===== وثيقة التقرير ===== */
+#rsPaper{background:#e2e8f0;padding:18px}
+.rs-page{background:#fff;width:100%;max-width:900px;margin:0 auto 16px;padding:28px 30px 34px;border-radius:10px;box-shadow:0 10px 30px rgba(2,6,23,.12);font-family:Tajawal,sans-serif;color:#0f172a;direction:rtl}
+.rs-hd{display:flex;align-items:center;gap:16px;border-bottom:3px solid #4f46e5;padding-bottom:14px;margin-bottom:6px}
+.rs-logo{width:58px;height:58px;border-radius:16px;background:linear-gradient(135deg,#312e81,#4f46e5 60%,#0ea5e9);color:#fff;display:grid;place-items:center;font-size:24px;flex:none}
+.rs-hd h1{font-size:22px;margin:0;font-weight:900;color:#1e1b4b;letter-spacing:-.3px}
+.rs-hd .sub{font-size:12.5px;color:#64748b;margin-top:3px;font-weight:600}
+.rs-hd .meta{margin-inline-start:auto;text-align:left;font-size:11px;color:#475569;line-height:1.9;font-weight:600}
+.rs-band{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 18px}
+.rs-tag{background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe;border-radius:999px;padding:4px 12px;font-size:11px;font-weight:700}
+.rs-h2{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:900;color:#1e1b4b;margin:26px 0 12px;padding-bottom:8px;border-bottom:2px solid #eef2ff;page-break-after:avoid}
+.rs-h2 span.n{width:26px;height:26px;border-radius:8px;background:#4f46e5;color:#fff;display:grid;place-items:center;font-size:12px}
+.rs-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:8px}
+.rs-kpi{border:1px solid #e2e8f0;border-top:4px solid #4f46e5;border-radius:12px;padding:12px;background:#fff;text-align:center}
+.rs-kpi .v{font-size:21px;font-weight:900;color:#1e1b4b;line-height:1.2}
+.rs-kpi .l{font-size:11px;color:#64748b;font-weight:700;margin-top:3px}
+.rs-kpi.g{border-top-color:#10b981}.rs-kpi.o{border-top-color:#f59e0b}.rs-kpi.r{border-top-color:#ef4444}
+.rs-kpi.c{border-top-color:#06b6d4}.rs-kpi.v{border-top-color:#8b5cf6}.rs-kpi.p{border-top-color:#ec4899}
+table.rs-t{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:4px}
+table.rs-t thead th{background:#1e1b4b;color:#fff;padding:8px 7px;font-weight:800;font-size:11px;text-align:right;border:1px solid #312e81}
+table.rs-t tbody td{border:1px solid #e2e8f0;padding:6.5px 7px;color:#1f2937;vertical-align:top}
+table.rs-t tbody tr:nth-child(even){background:#f8fafc}
+table.rs-t tbody tr{page-break-inside:avoid}
+.rs-badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:10.5px;font-weight:800;border:1px solid currentColor}
+.rs-bars{margin-top:6px}
+.rs-barrow{margin:7px 0}
+.rs-barrow .t{display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;color:#334155;margin-bottom:3px}
+.rs-barout{height:9px;background:#eef2f7;border-radius:99px;overflow:hidden}
+.rs-barin{height:100%;background:linear-gradient(90deg,#4f46e5,#0ea5e9);border-radius:99px}
+.rs-empty{font-size:12px;color:#94a3b8;padding:10px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px}
+.rs-ft{margin-top:26px;padding-top:12px;border-top:2px solid #eef2ff;display:flex;flex-wrap:wrap;gap:10px;font-size:10.5px;color:#64748b;font-weight:600}
+.rs-ft .sign{margin-inline-start:auto;text-align:center}
+.rs-ft .sign b{display:block;color:#1e1b4b;font-size:11px}
+.rs-ft .sign .line{margin-top:22px;border-top:1px dashed #94a3b8;width:150px}
+.rs-sumtxt{font-size:12.5px;line-height:2.1;color:#334155;background:#f8fafc;border-inline-start:4px solid #4f46e5;border-radius:10px;padding:12px 14px}
+@media (max-width:640px){.rs-kpis{grid-template-columns:repeat(2,1fr)}.rs-page{padding:18px}}
+
+@media print{
+  body.rs-print-mode > *:not(#rsOverlay){display:none!important}
+  body.rs-print-mode{background:#fff!important}
+  body.rs-print-mode #rsOverlay{position:static!important;display:block!important;padding:0!important;background:#fff!important;overflow:visible!important;backdrop-filter:none!important}
+  body.rs-print-mode .rs-win{max-width:none!important;box-shadow:none!important;border-radius:0!important}
+  body.rs-print-mode .rs-top,body.rs-print-mode .rs-foot,body.rs-print-mode .rs-noprint{display:none!important}
+  body.rs-print-mode .rs-body{max-height:none!important;overflow:visible!important;padding:0!important;background:#fff!important}
+  body.rs-print-mode #rsPaper{background:#fff!important;padding:0!important}
+  body.rs-print-mode .rs-page{box-shadow:none!important;border-radius:0!important;max-width:none!important;margin:0!important;padding:0!important}
+  @page{size:A4;margin:12mm}
+}
+</style>
+
+<div id="rsOverlay" role="dialog" aria-modal="true"></div>
+
+<script>
+/* ============================================================
+   مركز التقارير الشامل — Report Studio
+   يبني تقريراً أنيقاً جاهزاً للطباعة والتصدير من كل بيانات النظام
+   ============================================================ */
+(function(){
+  var ST={new:'جديد',inprogress:'قيد التنفيذ',pending:'معلق',withdrawn:'مسحوب',active:'فعال',completed:'منجز',cancelled:'ملغي',duplicate:'مكرر',available:'متاح',assigned:'مُسلّم',maintenance:'صيانة',damaged:'تالف',returned:'مُرجع'};
+  var STC={new:'#3b82f6',inprogress:'#f59e0b',pending:'#8b5cf6',withdrawn:'#64748b',active:'#06b6d4',completed:'#10b981',cancelled:'#ef4444',duplicate:'#a855f7',available:'#10b981',assigned:'#f59e0b',maintenance:'#0ea5e9',damaged:'#ef4444',returned:'#64748b'};
+  var TABLES=['requests','inventory','transactions','inventory_history','alt_devices','alt_models','assignments','computer_items','documents','departments','users','tenders'];
+  var DATA={},LOADED=false;
+
+  var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+  var g=function(o){for(var i=1;i<arguments.length;i++){var k=arguments[i];if(o&&o[k]!==undefined&&o[k]!==null&&o[k]!=='')return o[k];}return '';};
+  var dt=function(v){if(!v)return null;var d=new Date(v);return isNaN(d)?null:d;};
+  var fd=function(v){var d=dt(v);return d?d.toLocaleDateString('ar-EG',{year:'numeric',month:'2-digit',day:'2-digit'}):'—';};
+  var num=function(n){return (Number(n)||0).toLocaleString('ar-EG');};
+  var dash=function(v){v=String(v==null?'':v).trim();return v===''?'—':esc(v);};
+  var badge=function(s){var c=STC[s]||'#64748b';return '<span class="rs-badge" style="color:'+c+';background:'+c+'14">'+esc(ST[s]||s||'—')+'</span>';};
+
+  var SECTIONS=[
+    {id:'summary',  t:'الملخص التنفيذي',        d:'مؤشرات عامة + قراءة تحليلية', ic:'fa-star',          tbl:null},
+    {id:'requests', t:'طلبات الصيانة',           d:'كل الطلبات وتفاصيلها',        ic:'fa-screwdriver-wrench', tbl:'requests'},
+    {id:'byDept',   t:'التحليل حسب الأقسام',     d:'توزيع الطلبات والإنجاز',      ic:'fa-building',      tbl:'requests'},
+    {id:'byStatus', t:'التحليل حسب الحالات',     d:'نِسب الحالات ومعدل الإنجاز',  ic:'fa-chart-pie',     tbl:'requests'},
+    {id:'timeline', t:'الاتجاه الزمني الشهري',   d:'حركة الطلبات شهرياً',         ic:'fa-chart-line',    tbl:'requests'},
+    {id:'inventory',t:'المخزون وقطع الغيار',     d:'الكميات والنواقص',            ic:'fa-boxes-stacked', tbl:'inventory'},
+    {id:'transactions',t:'حركات الصرف',          d:'سجل صرف القطع للموظفين',      ic:'fa-right-left',    tbl:'transactions'},
+    {id:'inventory_history',t:'سجل حركة المخزون',d:'إضافة/سحب وتعديل الكميات',    ic:'fa-clock-rotate-left',tbl:'inventory_history'},
+    {id:'alt_devices',t:'الأجهزة البديلة',       d:'الأنواع والكميات',            ic:'fa-desktop',       tbl:'alt_devices'},
+    {id:'alt_models',t:'موديلات الأجهزة البديلة',d:'الحالة والموقع والسيريال',    ic:'fa-laptop',        tbl:'alt_models'},
+    {id:'assignments',t:'تسليم واسترجاع الأجهزة',d:'من استلم وماذا ومتى',         ic:'fa-handshake',     tbl:'assignments'},
+    {id:'computer_items',t:'المواد الحاسوبية',   d:'جرد المواد والأجهزة',         ic:'fa-microchip',     tbl:'computer_items'},
+    {id:'documents',t:'الوثائق والملاحظات',      d:'الوثائق المسجلة بالنظام',     ic:'fa-file-lines',    tbl:'documents'},
+    {id:'tenders',  t:'عطاء الصيانة',            d:'بنود ومتابعة العطاء',         ic:'fa-file-contract', tbl:'tenders'},
+    {id:'departments',t:'الأقسام',               d:'قائمة أقسام المؤسسة',         ic:'fa-sitemap',       tbl:'departments'},
+    {id:'users',    t:'مستخدمو النظام',          d:'الحسابات والصلاحيات',         ic:'fa-users-gear',    tbl:'users'}
+  ];
+  var DEFAULT_ON=['summary','requests','byDept','byStatus','timeline','inventory','transactions'];
+
+  var COLS={
+    requests:[['الرقم',function(r){return dash(g(r,'request_number','requestNumber','id'));}],
+              ['الموظف',function(r){return dash(g(r,'employee_name','employeeName'));}],
+              ['القسم',function(r){return dash(g(r,'department'));}],
+              ['الجهاز',function(r){return dash(g(r,'device_name','deviceName'));}],
+              ['رقم الحاسوب',function(r){return dash(g(r,'computer_number','computerNumber'));}],
+              ['العطل',function(r){return dash(g(r,'issue_description','issueDescription','issue'));}],
+              ['الحالة',function(r){return badge(g(r,'status'));}],
+              ['التاريخ',function(r){return fd(g(r,'created_at','createdAt','date'));}]],
+    inventory:[['القطعة',function(r){return dash(g(r,'name','item_name'));}],
+              ['الكمية الحالية',function(r){return num(r.qty);}],
+              ['الحد الأعلى',function(r){return num(g(r,'max_qty','maxQty'));}],
+              ['الحالة',function(r){var q=Number(r.qty)||0;return q===0?badge('damaged').replace('تالف','نفدت'):(q<=3?'<span class="rs-badge" style="color:#f59e0b;background:#f59e0b14">منخفضة</span>':'<span class="rs-badge" style="color:#10b981;background:#10b98114">متوفرة</span>');}]],
+    transactions:[['القطعة',function(r){return dash(g(r,'item_name','itemName'));}],
+              ['الكمية',function(r){return num(r.qty);}],
+              ['الموظف',function(r){return dash(g(r,'employee'));}],
+              ['تالف',function(r){return dash(g(r,'damaged'));}],
+              ['ملاحظات',function(r){return dash(g(r,'notes'));}],
+              ['بواسطة',function(r){return dash(g(r,'user','created_by'));}],
+              ['التاريخ',function(r){return fd(g(r,'date','created_at'));}]],
+    inventory_history:[['القطعة',function(r){return dash(g(r,'item_name','itemName'));}],
+              ['نوع الحركة',function(r){return dash(g(r,'type'));}],
+              ['الكمية',function(r){return num(r.qty);}],
+              ['قبل',function(r){return num(g(r,'old_qty','oldQty'));}],
+              ['بعد',function(r){return num(g(r,'new_qty','newQty'));}],
+              ['بواسطة',function(r){return dash(g(r,'user'));}],
+              ['التاريخ',function(r){return fd(g(r,'date','created_at'));}]],
+    alt_devices:[['النوع',function(r){return dash(g(r,'type'));}],['الكمية الكلية',function(r){return num(g(r,'total_qty','totalQty'));}]],
+    alt_models:[['النوع',function(r){return dash(g(r,'type'));}],['الموديل',function(r){return dash(g(r,'model'));}],
+              ['السيريال',function(r){return dash(g(r,'serial'));}],['الحالة',function(r){return badge(g(r,'status'));}],
+              ['الموقع',function(r){return dash(g(r,'location'));}],['مُسلّم إلى',function(r){return dash(g(r,'assigned_to','assignedTo'));}],
+              ['تاريخ التسليم',function(r){return fd(g(r,'assigned_date','assignedDate'));}]],
+    assignments:[['نوع الجهاز',function(r){return dash(g(r,'device_type','deviceType'));}],['الموديل',function(r){return dash(g(r,'model'));}],
+              ['الموظف',function(r){return dash(g(r,'employee'));}],['الموقع',function(r){return dash(g(r,'location'));}],
+              ['تاريخ التسليم',function(r){return fd(g(r,'assign_date','assignDate'));}],
+              ['تاريخ الإرجاع',function(r){return fd(g(r,'return_date','returnDate'));}],
+              ['الحالة',function(r){return badge(g(r,'status'));}]],
+    users:[['الاسم',function(r){return dash(g(r,'full_name','fullName'));}],['اسم الدخول',function(r){return dash(g(r,'username'));}],
+              ['الصلاحية',function(r){return g(r,'role')==='admin'?'<span class="rs-badge" style="color:#4f46e5;background:#4f46e514">مدير</span>':'<span class="rs-badge" style="color:#64748b;background:#64748b14">مستخدم</span>';}],
+              ['تاريخ الإنشاء',function(r){return fd(g(r,'created_at'));}]]
+  };
+  var SKIP=['id','password','created_by_id','user_id','procedures','attachments','image','images','data','raw'];
+  function autoCols(rows){
+    var keys=[],seen={};
+    rows.slice(0,25).forEach(function(r){
+      Object.keys(r||{}).forEach(function(k){
+        if(seen[k]||SKIP.indexOf(k)>-1)return;
+        var v=r[k]; if(v&&typeof v==='object')return;
+        seen[k]=1;keys.push(k);
+      });
+    });
+    keys=keys.slice(0,9);
+    var LBL={name:'الاسم',title:'العنوان',type:'النوع',status:'الحالة',qty:'الكمية',quantity:'الكمية',notes:'ملاحظات',description:'الوصف',department:'القسم',location:'الموقع',serial:'السيريال',model:'الموديل',employee:'الموظف',date:'التاريخ',created_at:'تاريخ الإنشاء',updated_at:'آخر تحديث',content:'المحتوى',category:'التصنيف',value:'القيمة',price:'السعر',amount:'المبلغ',code:'الرمز',number:'الرقم'};
+    return keys.map(function(k){
+      return [LBL[k]||k,function(r){
+        var v=r[k];
+        if(k==='status')return badge(v);
+        if(/(_at|date)$/.test(k)&&dt(v))return fd(v);
+        return dash(v);
+      }];
+    });
+  }
+
+  /* ---------- تحميل البيانات ---------- */
+  async function loadAll(force){
+    if(LOADED&&!force)return DATA;
+    var out={};
+    await Promise.all(TABLES.map(async function(t){
+      try{ var r=await SupabaseAPI.request(t,'GET'); out[t]=Array.isArray(r)?r:[]; }catch(e){ out[t]=[]; }
+    }));
+    DATA=out;LOADED=true;return DATA;
+  }
+
+  /* ---------- الفلترة ---------- */
+  function dateOf(r){ return dt(g(r,'created_at','createdAt','date','assign_date','added_at','updated_at')); }
+  function filterRows(rows,f){
+    return (rows||[]).filter(function(r){
+      if(f.from||f.to){ var d=dateOf(r); if(!d)return !(f.from||f.to)?true:false;
+        if(f.from&&d<f.from)return false; if(f.to&&d>f.to)return false; }
+      if(f.dept){ var dp=String(g(r,'department','dept')||''); if(dp&&dp!==f.dept)return false; if(!dp&&('department' in (r||{})))return false; }
+      if(f.status&&('status' in (r||{}))){ if(String(r.status||'')!==f.status)return false; }
+      if(f.q){ var hay=JSON.stringify(r||{}).toLowerCase(); if(hay.indexOf(f.q.toLowerCase())===-1)return false; }
+      return true;
+    });
+  }
+
+  /* ---------- عناصر بناء ---------- */
+  function h2(n,icon,title,extra){ return '<div class="rs-h2"><span class="n">'+n+'</span><i class="fas '+icon+'" style="color:#4f46e5"></i> '+esc(title)+(extra?' <span style="font-size:11px;font-weight:600;color:#64748b;margin-inline-start:auto">'+esc(extra)+'</span>':'')+'</div>'; }
+  function kpis(list){ return '<div class="rs-kpis">'+list.map(function(k){return '<div class="rs-kpi '+(k[2]||'')+'"><div class="v">'+k[1]+'</div><div class="l">'+esc(k[0])+'</div></div>';}).join('')+'</div>'; }
+  function table(cols,rows,limit){
+    if(!rows.length)return '<div class="rs-empty">لا توجد بيانات ضمن الفلاتر المحددة.</div>';
+    var shown=limit?rows.slice(0,limit):rows;
+    var html='<table class="rs-t"><thead><tr><th style="width:34px">#</th>'+cols.map(function(c){return '<th>'+esc(c[0])+'</th>';}).join('')+'</tr></thead><tbody>';
+    shown.forEach(function(r,i){ html+='<tr><td>'+(i+1)+'</td>'+cols.map(function(c){var v;try{v=c[1](r);}catch(e){v='—';}return '<td>'+v+'</td>';}).join('')+'</tr>'; });
+    html+='</tbody></table>';
+    if(limit&&rows.length>limit) html+='<div style="font-size:11px;color:#64748b;margin-top:6px">عرض '+limit+' من أصل '+rows.length+' سجل (زد الحد الأقصى للصفوف لعرض الكل).</div>';
+    return html;
+  }
+  function bars(pairs,total){
+    if(!pairs.length)return '<div class="rs-empty">لا توجد بيانات.</div>';
+    var max=Math.max.apply(null,pairs.map(function(p){return p[1];}).concat([1]));
+    return '<div class="rs-bars">'+pairs.map(function(p){
+      return '<div class="rs-barrow"><div class="t"><span>'+esc(p[0])+'</span><b>'+num(p[1])+(total?' <span style="color:#94a3b8;font-weight:500">('+Math.round(p[1]/total*100)+'%)</span>':'')+'</b></div><div class="rs-barout"><i class="rs-barin" style="display:block;width:'+(p[1]/max*100)+'%"></i></div></div>';
+    }).join('')+'</div>';
+  }
+  function countBy(rows,fn){
+    var m={};rows.forEach(function(r){var k=fn(r)||'غير محدد';m[k]=(m[k]||0)+1;});
+    return Object.keys(m).map(function(k){return [k,m[k]];}).sort(function(a,b){return b[1]-a[1];});
+  }
+
+  /* ---------- بناء التقرير ---------- */
+  function buildReport(f){
+    var d=DATA,n=0,out='';
+    var reqAll=filterRows(d.requests,f);
+    var inv=d.inventory||[];
+    var title=f.title||'التقرير الشامل لنظام إدارة الصيانة';
+    var period=(f.from||f.to)?((f.from?fd(f.from):'البداية')+' — '+(f.to?fd(f.to):'اليوم')):'كل الفترات';
+    var cu=null; try{ cu=(typeof currentUser!=='undefined'&&currentUser)||window.currentUser||null; }catch(e){ cu=window.currentUser||null; }
+    var who=(cu&&(cu.full_name||cu.fullName||cu.username))||'—';
+
+    out+='<div class="rs-hd"><div class="rs-logo"><i class="fas fa-screwdriver-wrench"></i></div>'+
+      '<div><h1>'+esc(title)+'</h1><div class="sub">نظام إدارة طلبات الصيانة · تقرير رسمي مُولَّد آلياً</div></div>'+
+      '<div class="meta">تاريخ الإصدار: '+fd(new Date())+'<br>الفترة: '+esc(period)+'<br>أُعدّ بواسطة: '+esc(who)+'</div></div>';
+    out+='<div class="rs-band"><span class="rs-tag"><i class="fas fa-calendar"></i> '+esc(period)+'</span>'+
+      (f.dept?'<span class="rs-tag">القسم: '+esc(f.dept)+'</span>':'<span class="rs-tag">كل الأقسام</span>')+
+      (f.status?'<span class="rs-tag">الحالة: '+esc(ST[f.status]||f.status)+'</span>':'')+
+      (f.q?'<span class="rs-tag">بحث: '+esc(f.q)+'</span>':'')+
+      '<span class="rs-tag">عدد الأقسام في التقرير: '+f.sections.length+'</span></div>';
+
+    function has(id){ return f.sections.indexOf(id)>-1; }
+    var lim=f.limit;
+
+    if(has('summary')){
+      n++;
+      var done=reqAll.filter(function(r){return r.status==='completed';}).length;
+      var prog=reqAll.filter(function(r){return r.status==='inprogress';}).length;
+      var pend=reqAll.filter(function(r){return r.status==='pending';}).length;
+      var nw=reqAll.filter(function(r){return r.status==='new';}).length;
+      var rate=reqAll.length?Math.round(done/reqAll.length*100):0;
+      var outSt=inv.filter(function(i){return (Number(i.qty)||0)===0;}).length;
+      var low=inv.filter(function(i){var q=Number(i.qty)||0;return q>0&&q<=3;}).length;
+      var days=[],doneRows=reqAll.filter(function(r){return r.status==='completed';});
+      doneRows.forEach(function(r){var a=dt(g(r,'created_at','createdAt')),b=dt(g(r,'updated_at','updatedAt'));if(a&&b&&b>=a)days.push((b-a)/86400000);});
+      var avg=days.length?(days.reduce(function(x,y){return x+y;},0)/days.length).toFixed(1):'—';
+      var byDept=countBy(reqAll,function(r){return g(r,'department');});
+      var top=byDept[0]?byDept[0][0]:'—';
+      out+=h2(n,'fa-star','الملخص التنفيذي');
+      out+=kpis([['إجمالي الطلبات',num(reqAll.length)],['منجزة',num(done),'g'],['قيد التنفيذ',num(prog),'o'],['معلقة',num(pend),'v'],
+                 ['نسبة الإنجاز',rate+'%','p'],['متوسط أيام الإنجاز',avg,'c'],['مواد المخزون',num(inv.length)],['نفدت الكمية',num(outSt),'r']]);
+      out+='<div class="rs-sumtxt">خلال الفترة <b>'+esc(period)+'</b> سجّل النظام <b>'+num(reqAll.length)+'</b> طلب صيانة، '+
+        'أُنجز منها <b>'+num(done)+'</b> طلباً بنسبة إنجاز <b>'+rate+'%</b>، فيما لا يزال <b>'+num(prog+pend+nw)+'</b> طلباً قيد المعالجة '+
+        '(<b>'+num(prog)+'</b> قيد التنفيذ، <b>'+num(pend)+'</b> معلق، <b>'+num(nw)+'</b> جديد). '+
+        'أكثر الأقسام طلباً للصيانة هو <b>'+esc(top)+'</b>'+(byDept[0]?' بواقع <b>'+num(byDept[0][1])+'</b> طلب':'')+'، '+
+        'ومتوسط زمن الإنجاز <b>'+avg+'</b> يوم. أما المخزون فيضم <b>'+num(inv.length)+'</b> صنفاً، منها <b>'+num(outSt)+'</b> صنف نفدت كميته و<b>'+num(low)+'</b> صنف بكمية منخفضة تستدعي إعادة التزويد.</div>';
+    }
+    if(has('requests')){ n++; out+=h2(n,'fa-screwdriver-wrench','طلبات الصيانة','إجمالي '+num(reqAll.length)+' طلب'); out+=table(COLS.requests,reqAll,lim); }
+    if(has('byDept')){
+      n++; var bd=countBy(reqAll,function(r){return g(r,'department');});
+      out+=h2(n,'fa-building','التحليل حسب الأقسام',bd.length+' قسم');
+      out+=bars(bd.slice(0,15),reqAll.length);
+      out+=table([['القسم',function(r){return esc(r[0]);}],['عدد الطلبات',function(r){return num(r[1]);}],
+        ['منجزة',function(r){return num(reqAll.filter(function(x){return g(x,'department')===r[0]&&x.status==='completed';}).length);}],
+        ['نسبة الإنجاز',function(r){var t=r[1],c=reqAll.filter(function(x){return g(x,'department')===r[0]&&x.status==='completed';}).length;return t?Math.round(c/t*100)+'%':'—';}]],bd,null);
+    }
+    if(has('byStatus')){
+      n++; var bs=countBy(reqAll,function(r){return ST[r.status]||r.status||'غير محدد';});
+      out+=h2(n,'fa-chart-pie','التحليل حسب الحالات');
+      out+=bars(bs,reqAll.length);
+      out+=table([['الحالة',function(r){return esc(r[0]);}],['العدد',function(r){return num(r[1]);}],['النسبة',function(r){return reqAll.length?Math.round(r[1]/reqAll.length*100)+'%':'—';}]],bs,null);
+    }
+    if(has('timeline')){
+      n++; var m={};
+      reqAll.forEach(function(r){var d0=dateOf(r);if(!d0)return;var k=d0.getFullYear()+'-'+String(d0.getMonth()+1).padStart(2,'0');m[k]=(m[k]||0)+1;});
+      var mk=Object.keys(m).sort().map(function(k){return [k,m[k]];});
+      out+=h2(n,'fa-chart-line','الاتجاه الزمني الشهري',mk.length+' شهر');
+      out+=bars(mk,reqAll.length);
+    }
+    SECTIONS.forEach(function(s){
+      if(['summary','requests','byDept','byStatus','timeline'].indexOf(s.id)>-1)return;
+      if(!has(s.id))return;
+      var rows=filterRows(d[s.tbl]||[],s.id==='users'||s.id==='departments'?{q:f.q}:f);
+      n++;
+      out+=h2(n,s.ic,s.t,'إجمالي '+num(rows.length)+' سجل');
+      if(s.id==='inventory'){
+        var o0=rows.filter(function(i){return (Number(i.qty)||0)===0;}).length;
+        var l0=rows.filter(function(i){var q=Number(i.qty)||0;return q>0&&q<=3;}).length;
+        var tq=rows.reduce(function(a,i){return a+(Number(i.qty)||0);},0);
+        out+=kpis([['عدد الأصناف',num(rows.length)],['إجمالي القطع',num(tq),'c'],['كمية منخفضة',num(l0),'o'],['نفدت الكمية',num(o0),'r']]);
+      }
+      out+=table(COLS[s.tbl]||autoCols(rows),rows,lim);
+    });
+
+    out+='<div class="rs-ft"><div>تقرير مُولَّد آلياً من نظام إدارة الصيانة · '+new Date().toLocaleString('ar-EG')+'</div>'+
+      '<div>© 2026 تطوير وتصميم: أحمد رحيل</div>'+
+      '<div class="sign"><b>التوقيع والاعتماد</b><div class="line"></div></div></div>';
+    return '<div class="rs-page" id="rsDoc">'+out+'</div>';
+  }
+
+  /* ---------- الواجهة ---------- */
+  function fillOptions(){
+    var deps={},sts={};
+    (DATA.requests||[]).forEach(function(r){var d0=g(r,'department');if(d0)deps[d0]=1;var s=g(r,'status');if(s)sts[s]=1;});
+    (DATA.departments||[]).forEach(function(r){var d0=g(r,'name','department');if(d0)deps[d0]=1;});
+    var ds=document.getElementById('rsDept'),ss=document.getElementById('rsStatus');
+    if(ds)ds.innerHTML='<option value="">كل الأقسام</option>'+Object.keys(deps).sort().map(function(k){return '<option>'+esc(k)+'</option>';}).join('');
+    if(ss)ss.innerHTML='<option value="">كل الحالات</option>'+Object.keys(sts).map(function(k){return '<option value="'+esc(k)+'">'+esc(ST[k]||k)+'</option>';}).join('');
+  }
+
+  function setupHTML(){
+    return '<div class="rs-win">'+
+      '<div class="rs-top"><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:18px"><i class="fas fa-file-invoice"></i></div>'+
+      '<div><h3>مركز التقارير الشامل</h3><p>اختر ما تريد، واحصل على تقرير أنيق جاهز للطباعة والتصدير</p></div>'+
+      '<button class="rs-x" onclick="rsClose()"><i class="fas fa-xmark"></i></button></div>'+
+      '<div class="rs-body">'+
+        '<div class="rs-sec-title"><i class="fas fa-layer-group"></i> محتويات التقرير</div>'+
+        '<div class="rs-chips"><button class="rs-chip" onclick="rsPickAll(1)">تحديد الكل</button>'+
+        '<button class="rs-chip" onclick="rsPickAll(0)">إلغاء الكل</button>'+
+        '<button class="rs-chip" onclick="rsPreset(\'default\')">التقرير الموصى به</button>'+
+        '<button class="rs-chip" onclick="rsPreset(\'requests\')">تقرير الطلبات فقط</button>'+
+        '<button class="rs-chip" onclick="rsPreset(\'stock\')">تقرير المخزون والأجهزة</button></div>'+
+        '<div class="rs-cards" id="rsCards">'+SECTIONS.map(function(s){
+            return '<div class="rs-pick'+(DEFAULT_ON.indexOf(s.id)>-1?' on':'')+'" data-id="'+s.id+'" onclick="this.classList.toggle(\'on\')">'+
+              '<i class="fas '+s.ic+'"></i><div>'+esc(s.t)+'<small>'+esc(s.d)+'</small></div></div>';
+          }).join('')+'</div>'+
+        '<div class="rs-sec-title"><i class="fas fa-filter"></i> الفلاتر والنطاق</div>'+
+        '<div class="rs-chips">'+[['كل الفترات',0],['آخر 7 أيام',7],['آخر 30 يوم',30],['آخر 3 أشهر',90],['هذه السنة',-1]].map(function(p){
+            return '<button class="rs-chip" onclick="rsQuick('+p[1]+',this)">'+p[0]+'</button>';}).join('')+'</div>'+
+        '<div class="rs-fields">'+
+          '<div class="rs-f"><label>عنوان التقرير</label><input type="text" id="rsTitle" placeholder="التقرير الشامل لنظام إدارة الصيانة"></div>'+
+          '<div class="rs-f"><label>من تاريخ</label><input type="date" id="rsFrom"></div>'+
+          '<div class="rs-f"><label>إلى تاريخ</label><input type="date" id="rsTo"></div>'+
+          '<div class="rs-f"><label>القسم</label><select id="rsDept"><option value="">كل الأقسام</option></select></div>'+
+          '<div class="rs-f"><label>الحالة</label><select id="rsStatus"><option value="">كل الحالات</option></select></div>'+
+          '<div class="rs-f"><label>بحث داخل السجلات</label><input type="text" id="rsQ" placeholder="اسم موظف / جهاز / رقم"></div>'+
+          '<div class="rs-f"><label>حد الصفوف لكل جدول</label><select id="rsLimit"><option value="0">بدون حد (الكل)</option><option value="50">50</option><option value="100">100</option><option value="250">250</option><option value="500">500</option></select></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="rs-foot">'+
+        '<button class="rs-btn p" onclick="rsGenerate()"><i class="fas fa-wand-magic-sparkles"></i> إنشاء التقرير</button>'+
+        '<button class="rs-btn s" onclick="rsRefresh()"><i class="fas fa-rotate"></i> تحديث البيانات</button>'+
+        '<button class="rs-btn s" onclick="rsClose()">إغلاق</button>'+
+        '<span class="rs-note" id="rsNote"></span>'+
+      '</div></div>';
+  }
+
+  function viewHTML(doc){
+    return '<div class="rs-win">'+
+      '<div class="rs-top"><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:18px"><i class="fas fa-file-invoice"></i></div>'+
+      '<div><h3>معاينة التقرير</h3><p>جاهز للطباعة أو التصدير</p></div>'+
+      '<button class="rs-x" onclick="rsClose()"><i class="fas fa-xmark"></i></button></div>'+
+      '<div class="rs-body" style="padding:0"><div id="rsPaper">'+doc+'</div></div>'+
+      '<div class="rs-foot rs-noprint">'+
+        '<button class="rs-btn p" onclick="rsPrint()"><i class="fas fa-print"></i> طباعة</button>'+
+        '<button class="rs-btn g" onclick="rsPDF()"><i class="fas fa-file-pdf"></i> حفظ PDF</button>'+
+        '<button class="rs-btn b" onclick="rsWord()"><i class="fas fa-file-word"></i> تصدير Word</button>'+
+        '<button class="rs-btn o" onclick="rsExcel()"><i class="fas fa-file-excel"></i> تصدير Excel</button>'+
+        '<button class="rs-btn s" onclick="rsOpen()"><i class="fas fa-sliders"></i> تعديل الخيارات</button>'+
+        '<button class="rs-btn s" onclick="rsClose()">إغلاق</button>'+
+      '</div></div>';
+  }
+
+  var OV=function(){return document.getElementById('rsOverlay');};
+
+  window.rsOpen=async function(){
+    var ov=OV();ov.innerHTML=setupHTML();ov.classList.add('open');
+    document.getElementById('rsNote').textContent='جاري تحميل بيانات النظام…';
+    try{ await loadAll(false); }catch(e){}
+    fillOptions();
+    var c=0;TABLES.forEach(function(t){c+=(DATA[t]||[]).length;});
+    var note=document.getElementById('rsNote'); if(note) note.textContent='تم تحميل '+c.toLocaleString('ar-EG')+' سجل من '+TABLES.length+' جدول';
+  };
+  window.rsRefresh=async function(){
+    var note=document.getElementById('rsNote'); if(note)note.textContent='جاري التحديث…';
+    await loadAll(true); fillOptions();
+    var c=0;TABLES.forEach(function(t){c+=(DATA[t]||[]).length;});
+    if(note)note.textContent='تم التحديث · '+c.toLocaleString('ar-EG')+' سجل';
+    if(typeof showToast==='function')showToast('success','تم','تم تحديث بيانات التقارير');
+  };
+  window.rsClose=function(){ OV().classList.remove('open'); OV().innerHTML=''; document.body.classList.remove('rs-print-mode'); };
+  window.rsPickAll=function(on){ document.querySelectorAll('#rsCards .rs-pick').forEach(function(el){ el.classList.toggle('on',!!on); }); };
+  window.rsPreset=function(p){
+    var sets={default:DEFAULT_ON,requests:['summary','requests','byDept','byStatus','timeline'],stock:['summary','inventory','transactions','inventory_history','alt_devices','alt_models','assignments','computer_items']};
+    var s=sets[p]||DEFAULT_ON;
+    document.querySelectorAll('#rsCards .rs-pick').forEach(function(el){ el.classList.toggle('on',s.indexOf(el.dataset.id)>-1); });
+  };
+  window.rsQuick=function(days,btn){
+    document.querySelectorAll('.rs-chips .rs-chip').forEach(function(b){ if(b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf('rsQuick')===0)b.classList.remove('on'); });
+    if(btn)btn.classList.add('on');
+    var from='',to=new Date().toISOString().split('T')[0];
+    if(days===0){ to=''; }
+    else if(days===-1){ var d=new Date();from=new Date(d.getFullYear(),0,1).toISOString().split('T')[0]; }
+    else { var d2=new Date();d2.setDate(d2.getDate()-days);from=d2.toISOString().split('T')[0]; }
+    document.getElementById('rsFrom').value=from; document.getElementById('rsTo').value=to;
+  };
+
+  var LAST={html:'',f:null};
+  window.rsGenerate=function(){
+    var sec=[];document.querySelectorAll('#rsCards .rs-pick.on').forEach(function(el){sec.push(el.dataset.id);});
+    if(!sec.length){ if(typeof showToast==='function')showToast('warning','تنبيه','اختر قسماً واحداً على الأقل'); return; }
+    var fv=document.getElementById('rsFrom').value,tv=document.getElementById('rsTo').value;
+    var f={ sections:SECTIONS.map(function(s){return s.id;}).filter(function(i){return sec.indexOf(i)>-1;}),
+      from:fv?new Date(fv+'T00:00:00'):null, to:tv?new Date(tv+'T23:59:59'):null,
+      dept:document.getElementById('rsDept').value, status:document.getElementById('rsStatus').value,
+      q:(document.getElementById('rsQ').value||'').trim(), limit:Number(document.getElementById('rsLimit').value)||0,
+      title:(document.getElementById('rsTitle').value||'').trim() };
+    var doc=buildReport(f);
+    LAST={html:doc,f:f};
+    OV().innerHTML=viewHTML(doc);
+    OV().scrollTop=0;
+    if(typeof showToast==='function')showToast('success','جاهز','تم إنشاء التقرير بنجاح');
+  };
+
+  window.rsPrint=function(){
+    document.body.classList.add('rs-print-mode');
+    setTimeout(function(){ window.print(); setTimeout(function(){document.body.classList.remove('rs-print-mode');},600); },120);
+  };
+  window.rsPDF=function(){
+    var el=document.getElementById('rsDoc'); if(!el)return;
+    if(typeof html2pdf!=='function'){ rsPrint(); return; }
+    if(typeof showToast==='function')showToast('info','جاري التصدير','يتم إنشاء ملف PDF…');
+    html2pdf().set({ margin:[8,8,10,8], filename:'تقرير_نظام_الصيانة_'+new Date().toISOString().split('T')[0]+'.pdf',
+      image:{type:'jpeg',quality:.98}, html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
+      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy'],avoid:['tr','.rs-kpi','.rs-h2']} })
+      .from(el).save().then(function(){ if(typeof showToast==='function')showToast('success','تم','تم حفظ ملف PDF'); });
+  };
+  window.rsWord=function(){
+    var el=document.getElementById('rsDoc'); if(!el)return;
+    var css=document.getElementById('rsStyles').innerHTML.split('@media print')[0];
+    var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:Tajawal,Arial,sans-serif;direction:rtl}'+css+'</style></head><body dir="rtl">'+el.outerHTML+'</body></html>';
+    var blob=new Blob(['\ufeff',html],{type:'application/msword'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download='تقرير_نظام_الصيانة_'+new Date().toISOString().split('T')[0]+'.doc';a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);},4000);
+    if(typeof showToast==='function')showToast('success','تم','تم تصدير ملف Word');
+  };
+  window.rsExcel=function(){
+    var el=document.getElementById('rsDoc'); if(!el)return;
+    var parts=[];
+    el.querySelectorAll('.rs-h2').forEach(function(h){
+      var t=h.textContent.trim(), tb=h.parentNode.querySelector('table.rs-t');
+      var nx=h.nextElementSibling; while(nx&&nx.tagName!=='TABLE'&&!nx.classList.contains('rs-h2')){nx=nx.nextElementSibling;}
+      if(nx&&nx.tagName==='TABLE') parts.push('<h3 style="font-family:Tajawal">'+t+'</h3>'+nx.outerHTML);
+    });
+    var html='<html><head><meta charset="utf-8"></head><body dir="rtl" style="font-family:Tajawal,Arial">'+
+      '<h2>'+(el.querySelector('h1')?el.querySelector('h1').textContent:'تقرير')+'</h2>'+(parts.join('<br>')||el.innerHTML)+'</body></html>';
+    var blob=new Blob(['\ufeff',html],{type:'application/vnd.ms-excel'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download='تقرير_نظام_الصيانة_'+new Date().toISOString().split('T')[0]+'.xls';a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);},4000);
+    if(typeof showToast==='function')showToast('success','تم','تم تصدير ملف Excel');
+  };
+
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&OV()&&OV().classList.contains('open'))rsClose(); });
+})();
+
+/* ============ قصر إعدادات الدردشة على المدراء فقط ============ */
+(function(){
+  function isAdmin(){
+    var u=null; try{ u=(typeof currentUser!=='undefined'&&currentUser)||window.currentUser||null; }catch(e){ u=window.currentUser||null; }
+    return !!(u&&u.role==='admin');
+  }
+  window.rsIsAdmin=isAdmin;
+  function apply(){
+    var gear=document.getElementById('saGearBtn');
+    if(gear) gear.style.display=isAdmin()?'':'none';
+    if(!isAdmin()){
+      var box=document.getElementById('saSettings');
+      if(box) box.classList.remove('open');
+    }
+  }
+  var origToggle=null;
+  function guard(){
+    if(window.saToggleSettings&&!window.saToggleSettings.__adminGuard){
+      origToggle=window.saToggleSettings;
+      var fn=function(){
+        if(!isAdmin()){
+          if(typeof showToast==='function') showToast('error','غير مصرح','إعدادات المساعد متاحة لمدراء النظام فقط');
+          return;
+        }
+        return origToggle.apply(this,arguments);
+      };
+      fn.__adminGuard=1;
+      window.saToggleSettings=fn;
+    }
+    ['saSaveAi','saResetAi','saTestAi','saSaveName','saResetName'].forEach(function(k){
+      var f=window[k];
+      if(typeof f==='function'&&!f.__adminGuard){
+        var w=function(){
+          if(!isAdmin()){ if(typeof showToast==='function')showToast('error','غير مصرح','هذه الإعدادات للمدراء فقط'); return; }
+          return f.apply(this,arguments);
+        };
+        w.__adminGuard=1; window[k]=w;
+      }
+    });
+    apply();
+  }
+  setInterval(guard,700);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',guard); else guard();
+})();
+</script>
+<!-- ============ END REPORT STUDIO ============ -->
 
 </body>
 </html>
