@@ -4,6 +4,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1616,6 +1617,10 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     <i class="fas fa-building"></i>
                     <span>الأقسام</span>
                 </a>
+                <a class="nav-item admin-only" data-title="الصيانة الدورية" onclick="showPage('periodic')" style="display:none;">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>الصيانة الدورية</span>
+                </a>
                 <a class="nav-item admin-only" data-title="إدارة النظام" onclick="showPage('admin')" style="display:none;">
                     <i class="fas fa-cog"></i>
                     <span>إدارة النظام</span>
@@ -2816,6 +2821,39 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 </div>
             </div>
 
+
+            <div class="page-section" id="page-periodic">
+                <div class="pm-hero no-print">
+                    <div>
+                        <h1><i class="fas fa-calendar-check"></i> الصيانة الدورية</h1>
+                        <p>وزّع ساحات العمل على مجموعات صيانة دورية بالسحب والإفلات — يتم الحفظ تلقائياً</p>
+                    </div>
+                    <div>
+                        <button class="hbtn" onclick="pmAuto()"><i class="fas fa-wand-magic-sparkles"></i> توزيع تلقائي متوازن</button>
+                        <button class="hbtn" onclick="pmPrint()"><i class="fas fa-print"></i> طباعة</button>
+                    </div>
+                </div>
+                <div class="pm-stats" id="pmStats"></div>
+                <div class="pm-toolbar no-print">
+                    <button class="primary" onclick="pmAddGroup()"><i class="fas fa-plus"></i> مجموعة جديدة</button>
+                    <button onclick="pmClear()"><i class="fas fa-eraser"></i> إفراغ التوزيع</button>
+                    <button onclick="loadPeriodic()"><i class="fas fa-rotate"></i> تحديث الساحات</button>
+                    <span class="pm-saved" id="pmSaved"><i class="fas fa-cloud"></i> جاهز</span>
+                </div>
+                <div class="pm-layout">
+                    <div class="pm-panel no-print">
+                        <header><i class="fas fa-map-location-dot"></i> ساحات غير موزّعة <span class="cnt" id="pmPoolCount">0</span></header>
+                        <input class="pm-search" id="pmSearch" type="search" placeholder="بحث عن ساحة..." oninput="pmSearchChanged()">
+                        <div class="dnd-zone" id="pmPool" data-g=""></div>
+                        <div style="padding:8px;border-top:1px solid #e5e7eb;display:grid;gap:6px">
+                            <select id="pmTargetGroup" style="padding:8px;border:1px solid #e5e7eb;border-radius:9px;font-family:inherit;font-size:12.5px"></select>
+                            <button onclick="pmMoveSelected()" style="border:none;border-radius:9px;padding:8px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-family:inherit;font-weight:800;font-size:12.5px;cursor:pointer"><i class="fas fa-arrow-left-long"></i> نقل المحدد للمجموعة</button>
+                            <small style="font-size:10.5px;color:#94a3b8;text-align:center">انقر الساحات لتحديدها أو اسحبها مباشرة</small>
+                        </div>
+                    </div>
+                    <div class="pm-groups" id="pmGroups"></div>
+                </div>
+            </div>
 
 <div class="page-section" id="page-admin">
                 <div class="page-header">
@@ -4243,7 +4281,7 @@ function checkReadOnly() {
 // ==================== NAVIGATION ====================
 async function showPage(page) {
     // Admin-only pages check
-    const adminPages = ['documents', 'reports', 'advanced_search', 'admin'];
+    const adminPages = ['documents', 'reports', 'advanced_search', 'admin', 'periodic'];
     if (adminPages.includes(page) && (!currentUser || currentUser.role !== 'admin')) {
         showToast('error', 'غير مصرح', 'هذه الصفحة متاحة للمدراء فقط');
         return;
@@ -4271,6 +4309,7 @@ async function showPage(page) {
     if (page === 'documents') await loadDocuments();
     if (page === 'computer_items') await loadComputerItems();
     if (page === 'departments') await loadDepartments();
+    if (page === 'periodic') await loadPeriodic();
     if (page === 'reports') { setTimeout(() => loadReportsCharts(), 100); }
     if (page === 'advanced_search') { await loadSearchDropdowns(); document.getElementById('searchResultsCard').style.display = 'none'; }
     if (page === 'tender') { await loadTender(); }
@@ -13312,6 +13351,314 @@ table.rs-t tbody tr{page-break-inside:avoid}
 })();
 </script>
 <!-- ============ END REPORT STUDIO ============ -->
+
+<!-- ============ DRAG & DROP DISTRIBUTION + PERIODIC MAINTENANCE ============ -->
+<style>
+/* ===== shared dnd look ===== */
+.dnd-chip{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:7px 10px;font-size:12.5px;font-weight:700;color:#1e293b;cursor:grab;box-shadow:0 1px 2px rgba(15,23,42,.05);transition:transform .16s,box-shadow .16s,border-color .16s}
+.dnd-chip:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(79,70,229,.14);border-color:#c7d2fe}
+.dnd-chip.dragging{opacity:.45;transform:scale(.97) rotate(-1deg);cursor:grabbing}
+.dnd-chip .grip{color:#c7d2fe;font-size:11px}
+.dnd-chip .rm{margin-inline-start:auto;border:none;background:#fef2f2;color:#dc2626;width:22px;height:22px;border-radius:6px;cursor:pointer;font-size:10px;display:grid;place-items:center}
+.dnd-zone{min-height:64px;display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:10px;transition:background .18s,box-shadow .18s}
+.dnd-zone.over{background:linear-gradient(180deg,rgba(99,102,241,.12),rgba(99,102,241,.04));box-shadow:inset 0 0 0 2px #6366f1}
+.dnd-empty{font-size:11.5px;color:#94a3b8;text-align:center;padding:14px 6px;border:1.5px dashed #e2e8f0;border-radius:10px}
+html[data-theme="dark"] .dnd-chip{background:#1e293b;border-color:#334155;color:#e2e8f0}
+html[data-theme="dark"] .dnd-empty{border-color:#334155;color:#64748b}
+
+/* ===== departments distribution modal (upgraded) ===== */
+#dpGroupModal .g-wrap{max-width:1280px}
+#dpGroupModal .g-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+#dpGroupModal .g-tools input{flex:1;min-width:180px;padding:8px 12px;border:1px solid #e5e7eb;border-radius:9px;font-family:inherit;font-size:12.5px}
+#dpGroupModal .g-tools .tbtn{border:none;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:800;font-family:inherit;cursor:pointer;background:#eef2ff;color:#4338ca}
+#dpGroupModal .g-tools .tbtn.solid{background:linear-gradient(135deg,#4338ca,#6d28d9);color:#fff}
+#dpGroupModal .g-card h4{position:relative}
+#dpGroupModal .g-card .del-yard{border:none;background:transparent;color:#a5b4fc;cursor:pointer;font-size:11px}
+#dpGroupModal .g-card.pool h4{background:#fff7ed;color:#9a3412;border-bottom-color:#fed7aa}
+#dpGroupModal .g-card.pool h4 span{background:#ea580c}
+#dpGroupModal .g-hint{font-size:11.5px;color:#64748b;margin:0 0 10px;display:flex;align-items:center;gap:6px}
+
+/* ===== periodic maintenance page ===== */
+#page-periodic .pm-hero{background:linear-gradient(135deg,#0f766e,#0ea5e9 60%,#6366f1);border-radius:18px;padding:18px 20px;color:#fff;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;box-shadow:0 18px 40px -18px rgba(14,165,233,.7)}
+#page-periodic .pm-hero h1{margin:0;font-size:21px;font-weight:900;display:flex;align-items:center;gap:9px}
+#page-periodic .pm-hero p{margin:4px 0 0;font-size:12px;opacity:.9}
+#page-periodic .pm-hero .hbtn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);color:#fff;padding:8px 13px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:800;margin-inline-start:6px;backdrop-filter:blur(6px);transition:.2s}
+#page-periodic .pm-hero .hbtn:hover{background:rgba(255,255,255,.32)}
+#page-periodic .pm-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:14px 0}
+#page-periodic .pm-stat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+#page-periodic .pm-stat i{width:32px;height:32px;flex:0 0 32px;display:grid;place-items:center;border-radius:9px;background:#ecfeff;color:#0891b2}
+#page-periodic .pm-stat b{font-size:18px;font-weight:900;line-height:1;display:block}
+#page-periodic .pm-stat span{font-size:11px;color:#64748b}
+#page-periodic .pm-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:14px;align-items:start}
+@media(max-width:980px){#page-periodic .pm-layout{grid-template-columns:1fr}}
+#page-periodic .pm-panel{background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden}
+#page-periodic .pm-panel>header{padding:10px 13px;background:#f8fafc;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:900;color:#334155;display:flex;align-items:center;gap:7px}
+#page-periodic .pm-panel>header .cnt{margin-inline-start:auto;background:#0ea5e9;color:#fff;border-radius:999px;font-size:10.5px;padding:1px 8px}
+#page-periodic .pm-search{width:100%;padding:8px 11px;border:1px solid #e5e7eb;border-radius:9px;font-family:inherit;font-size:12.5px;margin:8px 8px 0;width:calc(100% - 16px)}
+#page-periodic .pm-groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+#page-periodic .pm-group{background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;border-top:4px solid var(--gc,#6366f1);transition:box-shadow .2s,transform .2s}
+#page-periodic .pm-group:hover{box-shadow:0 14px 30px -18px rgba(15,23,42,.45)}
+#page-periodic .pm-group header{display:flex;align-items:center;gap:7px;padding:9px 11px;background:color-mix(in srgb,var(--gc,#6366f1) 10%,#fff);border-bottom:1px solid #eef2ff}
+#page-periodic .pm-group header .nm{font-size:13.5px;font-weight:900;color:#0f172a;background:transparent;border:none;font-family:inherit;flex:1;min-width:0;padding:2px 4px;border-radius:6px}
+#page-periodic .pm-group header .nm:focus{outline:none;background:#fff;box-shadow:0 0 0 2px var(--gc,#6366f1)}
+#page-periodic .pm-group header .badge{font-size:10.5px;font-weight:800;color:#fff;background:var(--gc,#6366f1);border-radius:999px;padding:1px 8px}
+#page-periodic .pm-group header button{border:none;background:transparent;cursor:pointer;color:#94a3b8;font-size:12px}
+#page-periodic .pm-group footer{padding:6px 11px 9px;font-size:11px;color:#64748b;display:flex;gap:10px}
+#page-periodic .pm-toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+#page-periodic .pm-toolbar button{border:none;border-radius:10px;padding:9px 13px;font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;background:#f1f5f9;color:#334155;display:inline-flex;align-items:center;gap:6px;transition:.18s}
+#page-periodic .pm-toolbar button:hover{transform:translateY(-1px)}
+#page-periodic .pm-toolbar .primary{background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff}
+#page-periodic .pm-toolbar .ok{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+#page-periodic .pm-saved{font-size:11.5px;color:#64748b;display:flex;align-items:center;gap:6px;margin-inline-start:auto;align-self:center}
+html[data-theme="dark"] #page-periodic .pm-panel,html[data-theme="dark"] #page-periodic .pm-group,html[data-theme="dark"] #page-periodic .pm-stat{background:#0f172a;border-color:#1e293b;color:#e2e8f0}
+html[data-theme="dark"] #page-periodic .pm-panel>header{background:#111827;border-color:#1e293b;color:#e2e8f0}
+@media print{#page-periodic .pm-toolbar,#page-periodic .pm-hero .hbtn,#page-periodic .pm-panel{display:none!important}#page-periodic .pm-layout{grid-template-columns:1fr}}
+</style>
+<script>
+function DC(){ try{ return (typeof DEPT_CACHE!=='undefined'&&DEPT_CACHE)?DEPT_CACHE:[] }catch(e){ return [] } }
+function setDC(v){ try{ DEPT_CACHE=v }catch(e){} return v }
+</script>
+<script>
+/* ============ 1) DEPARTMENTS -> YARDS : DRAG & DROP ============ */
+(function(){
+  const ORDER_KEY='dpYardOrderV1', EXTRA_KEY='dpExtraYardsV1', UNSET='غير محددة';
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
+  const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+
+  function yards(){
+    const set=new Set();
+    DC().forEach(d=>{const y=(d.notes||'').trim(); if(y)set.add(y);});
+    load(EXTRA_KEY,[]).forEach(y=>set.add(y));
+    return Array.from(set);
+  }
+  function ordered(list,yard){
+    const ord=load(ORDER_KEY,{})[yard]||[];
+    return list.slice().sort((a,b)=>{
+      const ia=ord.indexOf(a.id), ib=ord.indexOf(b.id);
+      if(ia<0&&ib<0) return (a.name||'').localeCompare(b.name||'','ar');
+      if(ia<0) return 1; if(ib<0) return -1; return ia-ib;
+    });
+  }
+  function persistOrder(){
+    const map={};
+    document.querySelectorAll('#dpGroupGrid .dnd-zone').forEach(z=>{
+      map[z.dataset.yard]=Array.from(z.querySelectorAll('.dnd-chip')).map(c=>+c.dataset.id);
+    });
+    save(ORDER_KEY,map);
+  }
+
+  window.openDeptGrouping=async function(){
+    if(!DC().length) setDC(await SupabaseAPI.request('departments','GET')||[]);
+    renderGrouping();
+    document.getElementById('dpGroupModal').classList.add('open');
+  };
+  window.closeDeptGrouping=function(){ document.getElementById('dpGroupModal').classList.remove('open'); };
+
+  window.dpAddYard=function(){
+    const n=prompt('اسم الساحة الجديدة:'); if(!n||!n.trim())return;
+    const ex=load(EXTRA_KEY,[]); if(!ex.includes(n.trim())){ex.push(n.trim());save(EXTRA_KEY,ex);} renderGrouping();
+  };
+  window.dpRemoveYard=async function(y){
+    const inside=DC().filter(d=>(d.notes||'').trim()===y);
+    if(inside.length && !confirm('سيتم إرجاع '+inside.length+' قسم إلى «غير محددة». متابعة؟')) return;
+    for(const d of inside){ await SupabaseAPI.request('departments','PATCH',{name:d.name,notes:''},d.id); d.notes=''; }
+    save(EXTRA_KEY,load(EXTRA_KEY,[]).filter(x=>x!==y));
+    renderGrouping(); if(typeof renderDeptTable==='function') renderDeptTable();
+    if(typeof showToast==='function') showToast('success','تم','تم حذف الساحة');
+  };
+
+  function renderGrouping(){
+    const all=DC();
+    const ys=yards().sort((a,b)=>a.localeCompare(b,'ar'));
+    const pool=all.filter(d=>!(d.notes||'').trim());
+    document.getElementById('dpGroupSub').textContent =
+      all.length+' قسم — '+ys.length+' ساحة — '+pool.length+' بدون ساحة (اسحب أي قسم لنقله)';
+    const card=(title,list,isPool)=>`
+      <div class="g-card${isPool?' pool':''}">
+        <h4><em style="font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(title)}</em>
+          <span>${list.length}</span>
+          ${isPool?'':`<button class="del-yard" title="حذف الساحة" onclick="dpRemoveYard('${esc(title).replace(/'/g,"\\'")}')"><i class="fas fa-trash"></i></button>`}
+        </h4>
+        <div class="dnd-zone" data-yard="${esc(title)}">
+          ${list.length?list.map(d=>`<div class="dnd-chip" draggable="true" data-id="${d.id}"><i class="fas fa-grip-vertical grip"></i><span>${esc(d.name)}</span></div>`).join(''):'<div class="dnd-empty">أفلت الأقسام هنا</div>'}
+        </div>
+      </div>`;
+    const html=[card(UNSET,ordered(pool,UNSET),true)]
+      .concat(ys.map(y=>card(y,ordered(all.filter(d=>(d.notes||'').trim()===y),y),false))).join('');
+    const body=document.querySelector('#dpGroupModal .g-body');
+    body.innerHTML=`
+      <div class="g-tools no-print">
+        <button class="tbtn solid" onclick="dpAddYard()"><i class="fas fa-plus"></i> ساحة جديدة</button>
+        <span class="g-hint" style="margin:0"><i class="fas fa-hand-pointer"></i> اسحب القسم وأفلته داخل بطاقة الساحة — يُحفظ التغيير والترتيب تلقائياً</span>
+      </div>
+      <div class="g-grid" id="dpGroupGrid">${html}</div>`;
+    bind();
+  }
+
+  let dragged=null;
+  function bind(){
+    const grid=document.getElementById('dpGroupGrid'); if(!grid)return;
+    grid.querySelectorAll('.dnd-chip').forEach(ch=>{
+      ch.addEventListener('dragstart',e=>{dragged=ch;ch.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',ch.dataset.id);});
+      ch.addEventListener('dragend',()=>{ch.classList.remove('dragging');dragged=null;});
+    });
+    grid.querySelectorAll('.dnd-zone').forEach(z=>{
+      z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('over');
+        const after=afterEl(z,e.clientY);
+        if(dragged){ after==null? z.appendChild(dragged) : z.insertBefore(dragged,after); }
+        const emp=z.querySelector('.dnd-empty'); if(emp)emp.remove();
+      });
+      z.addEventListener('dragleave',()=>z.classList.remove('over'));
+      z.addEventListener('drop',async e=>{e.preventDefault();z.classList.remove('over');
+        const id=+e.dataTransfer.getData('text/plain');
+        const dept=DC().find(d=>d.id===id); if(!dept)return;
+        const yard=z.dataset.yard===UNSET?'':z.dataset.yard;
+        persistOrder();
+        if((dept.notes||'').trim()!==yard){
+          try{ await SupabaseAPI.request('departments','PATCH',{name:dept.name,notes:yard},dept.id); dept.notes=yard;
+            if(typeof showToast==='function')showToast('success','تم النقل','«'+dept.name+'» ← '+(yard||UNSET));
+          }catch(err){ if(typeof showToast==='function')showToast('error','خطأ','تعذّر حفظ النقل'); }
+          renderGrouping(); if(typeof renderDeptTable==='function')renderDeptTable();
+        }else if(typeof showToast==='function'){ showToast('success','تم','تم حفظ الترتيب'); }
+      });
+    });
+  }
+  function afterEl(zone,y){
+    const els=[...zone.querySelectorAll('.dnd-chip:not(.dragging)')];
+    return els.reduce((closest,child)=>{
+      const box=child.getBoundingClientRect(), off=y-box.top-box.height/2;
+      return (off<0&&off>closest.offset)?{offset:off,element:child}:closest;
+    },{offset:-Infinity,element:null}).element||null;
+  }
+})();
+
+/* ============ 2) PERIODIC MAINTENANCE PAGE ============ */
+(function(){
+  const KEY='pmGroupsV1';
+  const COLORS=['#6366f1','#0ea5e9','#10b981','#f59e0b','#ec4899','#8b5cf6','#ef4444','#14b8a6','#f97316','#0891b2'];
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  let GROUPS=[]; let dragged=null;
+
+  const read=()=>{try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return []}};
+  function store(msg){
+    try{localStorage.setItem(KEY,JSON.stringify(GROUPS))}catch(e){}
+    const s=document.getElementById('pmSaved');
+    if(s)s.innerHTML='<i class="fas fa-circle-check" style="color:#10b981"></i> حُفظ '+new Date().toLocaleTimeString('ar-JO');
+    if(msg&&typeof showToast==='function')showToast('success','تم الحفظ',msg);
+  }
+  function yardsAll(){
+    const m={};
+    DC().forEach(d=>{const y=(d.notes||'').trim(); if(y)m[y]=(m[y]||0)+1;});
+    return m;
+  }
+  const assigned=()=>new Set(GROUPS.flatMap(g=>g.yards));
+
+  window.loadPeriodic=async function(){
+    if(!DC().length) setDC(await SupabaseAPI.request('departments','GET')||[]);
+    GROUPS=read();
+    if(!GROUPS.length) GROUPS=[{id:Date.now(),name:'المجموعة الأولى',color:COLORS[0],yards:[]}];
+    renderPM();
+  };
+  window.pmAddGroup=function(){
+    GROUPS.push({id:Date.now()+Math.random(),name:'مجموعة '+(GROUPS.length+1),color:COLORS[GROUPS.length%COLORS.length],yards:[]});
+    store(); renderPM();
+  };
+  window.pmDeleteGroup=function(id){
+    if(!confirm('حذف هذه المجموعة؟ ستعود ساحاتها إلى القائمة غير الموزعة.'))return;
+    GROUPS=GROUPS.filter(g=>g.id!=id); store('تم حذف المجموعة'); renderPM();
+  };
+  window.pmRename=function(id,val){ const g=GROUPS.find(g=>g.id==id); if(g){g.name=val.trim()||g.name; store();} };
+  window.pmRemoveYard=function(id,y){ const g=GROUPS.find(g=>g.id==id); if(g){g.yards=g.yards.filter(x=>x!==y); store(); renderPM();} };
+  window.pmClear=function(){ if(!confirm('إفراغ كل المجموعات من الساحات؟'))return; GROUPS.forEach(g=>g.yards=[]); store('تم إفراغ التوزيع'); renderPM(); };
+  window.pmAuto=function(){
+    if(!GROUPS.length){ pmAddGroup(); }
+    const m=yardsAll();
+    const list=Object.keys(m).sort((a,b)=>m[b]-m[a]);
+    GROUPS.forEach(g=>g.yards=[]);
+    const loadArr=GROUPS.map(()=>0);
+    list.forEach(y=>{ let i=loadArr.indexOf(Math.min(...loadArr)); GROUPS[i].yards.push(y); loadArr[i]+=m[y]; });
+    store('تم التوزيع التلقائي المتوازن'); renderPM();
+  };
+  window.pmMoveSelected=function(){
+    const sel=document.getElementById('pmTargetGroup').value;
+    const chosen=Array.from(document.querySelectorAll('#pmPool .dnd-chip.sel')).map(c=>c.dataset.yard);
+    if(!sel||!chosen.length){ if(typeof showToast==='function')showToast('error','تنبيه','اختر ساحات ومجموعة هدف'); return; }
+    const g=GROUPS.find(g=>g.id==sel); chosen.forEach(y=>{ if(!g.yards.includes(y))g.yards.push(y); });
+    store('تم نقل '+chosen.length+' ساحة'); renderPM();
+  };
+  window.pmPrint=function(){ window.print(); };
+
+  function chip(y,count,groupId){
+    return `<div class="dnd-chip" draggable="true" data-yard="${esc(y)}" data-g="${groupId||''}">
+      <i class="fas fa-grip-vertical grip"></i><span>${esc(y)}</span>
+      <small style="color:#64748b;font-weight:700">${count} قسم</small>
+      ${groupId?`<button class="rm" title="إزالة" onclick="event.stopPropagation();pmRemoveYard('${groupId}','${esc(y).replace(/'/g,"\\'")}')"><i class="fas fa-times"></i></button>`:''}
+    </div>`;
+  }
+  function renderPM(){
+    const m=yardsAll(), a=assigned();
+    const q=(document.getElementById('pmSearch')?.value||'').trim();
+    const pool=Object.keys(m).filter(y=>!a.has(y)).filter(y=>!q||y.includes(q)).sort((x,y)=>x.localeCompare(y,'ar'));
+    const totalYards=Object.keys(m).length;
+    document.getElementById('pmStats').innerHTML=
+      `<div class="pm-stat"><i class="fas fa-layer-group"></i><div><b>${GROUPS.length}</b><span>مجموعات الصيانة</span></div></div>`+
+      `<div class="pm-stat"><i class="fas fa-map-location-dot"></i><div><b>${totalYards}</b><span>إجمالي الساحات</span></div></div>`+
+      `<div class="pm-stat"><i class="fas fa-check-double"></i><div><b>${a.size}</b><span>ساحات موزّعة</span></div></div>`+
+      `<div class="pm-stat"><i class="fas fa-circle-exclamation"></i><div><b>${totalYards-a.size}</b><span>بانتظار التوزيع</span></div></div>`;
+    document.getElementById('pmPoolCount').textContent=pool.length;
+    document.getElementById('pmPool').innerHTML=pool.length?pool.map(y=>chip(y,m[y],'')).join(''):'<div class="dnd-empty">كل الساحات موزّعة 🎉</div>';
+    document.getElementById('pmTargetGroup').innerHTML='<option value="">— المجموعة الهدف —</option>'+GROUPS.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('');
+    document.getElementById('pmGroups').innerHTML=GROUPS.map(g=>{
+      const depts=g.yards.reduce((s,y)=>s+(m[y]||0),0);
+      return `<div class="pm-group" style="--gc:${g.color}">
+        <header>
+          <i class="fas fa-clipboard-check" style="color:${g.color}"></i>
+          <input class="nm" value="${esc(g.name)}" onchange="pmRename('${g.id}',this.value)">
+          <span class="badge">${g.yards.length}</span>
+          <button onclick="pmDeleteGroup('${g.id}')" title="حذف"><i class="fas fa-trash"></i></button>
+        </header>
+        <div class="dnd-zone" data-g="${g.id}">
+          ${g.yards.length?g.yards.map(y=>chip(y,m[y]||0,g.id)).join(''):'<div class="dnd-empty">أفلت الساحات هنا</div>'}
+        </div>
+        <footer><span><i class="fas fa-building"></i> ${depts} قسم</span><span><i class="fas fa-map-pin"></i> ${g.yards.length} ساحة</span></footer>
+      </div>`;
+    }).join('')||'<div class="dnd-empty">لا توجد مجموعات — أضف مجموعة للبدء</div>';
+    bindPM();
+  }
+  function bindPM(){
+    const root=document.getElementById('page-periodic');
+    root.querySelectorAll('.dnd-chip').forEach(ch=>{
+      ch.addEventListener('click',()=>{ if(!ch.dataset.g) ch.classList.toggle('sel'), ch.style.borderColor=ch.classList.contains('sel')?'#0ea5e9':'', ch.style.background=ch.classList.contains('sel')?'#e0f2fe':''; });
+      ch.addEventListener('dragstart',e=>{dragged=ch;ch.classList.add('dragging');e.dataTransfer.effectAllowed='move';
+        e.dataTransfer.setData('text/plain',JSON.stringify({y:ch.dataset.yard,from:ch.dataset.g||''}));});
+      ch.addEventListener('dragend',()=>{ch.classList.remove('dragging');dragged=null;});
+    });
+    const zones=[...root.querySelectorAll('.dnd-zone')];
+    zones.forEach(z=>{
+      z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('over');});
+      z.addEventListener('dragleave',()=>z.classList.remove('over'));
+      z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('over');
+        let d; try{d=JSON.parse(e.dataTransfer.getData('text/plain'))}catch(err){return}
+        const target=z.dataset.g||'';
+        if(d.from) { const g=GROUPS.find(g=>g.id==d.from); if(g)g.yards=g.yards.filter(x=>x!==d.y); }
+        if(target){
+          const g=GROUPS.find(g=>g.id==target); if(!g)return;
+          const idx=indexAt(z,e.clientY);
+          g.yards=g.yards.filter(x=>x!==d.y); g.yards.splice(idx,0,d.y);
+        }
+        store(); renderPM();
+      });
+    });
+  }
+  function indexAt(zone,y){
+    const els=[...zone.querySelectorAll('.dnd-chip')];
+    for(let i=0;i<els.length;i++){ const b=els[i].getBoundingClientRect(); if(y<b.top+b.height/2) return i; }
+    return els.length;
+  }
+  window.pmSearchChanged=renderPM;
+})();
+</script>
 
 </body>
 </html>
