@@ -856,6 +856,37 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
 .rep-fs-body { position:relative; height:min(66vh,560px); }
 @media (max-width:640px){ .rep-canvas{height:260px;} .rep-grid{grid-template-columns:1fr;} }
 @media print { .rep-filters,.rep-tools,.rep-fs{display:none !important;} .rep-grid{grid-template-columns:1fr 1fr;} }
+
+/* ===== Compact KPI cards (reports page only) ===== */
+#page-reports .stats-grid { grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:16px !important; }
+#page-reports .stat-card { padding:13px 14px; border-radius:14px; }
+#page-reports .stat-card:hover { transform:translateY(-3px); }
+#page-reports .stat-card::before { height:3px; }
+#page-reports .stat-icon { width:34px; height:34px; border-radius:10px; font-size:15px; margin-bottom:8px; }
+#page-reports .stat-value { font-size:21px; margin-bottom:2px; letter-spacing:-.5px; }
+#page-reports .stat-label { font-size:11.5px; font-weight:700; }
+#page-reports .rep-delta { font-size:10.5px; margin-top:4px; }
+#page-reports .rep-bar { margin-top:6px; height:4px; }
+#page-reports .rep-card .card-header h3 { font-size:14px; }
+#page-reports .rep-canvas { height:250px; }
+#page-reports .rep-canvas.tall { height:290px; }
+@media (max-width:640px){ #page-reports .stats-grid{ grid-template-columns:repeat(2,1fr); } #page-reports .stat-value{font-size:19px;} }
+
+/* ===== Reports section headings ===== */
+.rep-section-head { display:flex; align-items:center; gap:10px; margin:26px 0 12px; }
+.rep-section-head .line { flex:1; height:1px; background:linear-gradient(90deg,rgba(99,102,241,.35),transparent); }
+.rep-section-head h2 { margin:0; font-size:15.5px; font-weight:800; display:flex; align-items:center; gap:8px; }
+.rep-section-head .pill { font-size:11px; font-weight:800; padding:3px 10px; border-radius:99px; background:rgba(99,102,241,.13); color:#6366f1; }
+
+/* ===== PM timeline inside reports ===== */
+.rep-pm-list { display:grid; gap:9px; }
+.rep-pm-item { display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:12px; padding:10px 12px; border:1px solid rgba(148,163,184,.25); border-radius:12px; background:rgba(148,163,184,.05); }
+.rep-pm-item .dot { width:9px; height:9px; border-radius:99px; flex-shrink:0; }
+.rep-pm-item .t { font-size:13px; font-weight:800; }
+.rep-pm-item .s { font-size:11.5px; color:var(--text-muted,#94a3b8); font-weight:600; }
+.rep-pm-item .badge2 { font-size:11px; font-weight:800; padding:4px 10px; border-radius:99px; white-space:nowrap; }
+.rep-empty { text-align:center; padding:22px; font-size:12.5px; color:#94a3b8; font-weight:600; }
+
         @media print { .dash-hero { box-shadow:none; } .chart-wrap { height:220px; } }
 
     </style>
@@ -2340,7 +2371,13 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     <div class="rep-active-note" id="repActiveNote"></div>
                 </div>
 
-                <div class="stats-grid" style="margin-bottom: 22px;">
+                <div class="rep-section-head">
+                    <h2><i class="fas fa-gauge-high" style="color:#4f46e5"></i> مؤشرات الطلبات والمخزون</h2>
+                    <span class="line"></span>
+                </div>
+
+                <div class="stats-grid" style="margin-bottom: 16px;">
+
                     <div class="stat-card primary rep-kpi" onclick="repDrill('all')">
                         <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
                         <div class="stat-value" id="reportTotalRequests">0</div>
@@ -2474,6 +2511,93 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                         <div class="card-body rep-body"><div class="rep-canvas"><canvas id="altDevicesChart"></canvas></div></div>
                     </div>
                 </div>
+
+                <!-- ===== PERIODIC MAINTENANCE ANALYTICS ===== -->
+                <div class="rep-section-head">
+                    <h2><i class="fas fa-calendar-check" style="color:#0ea5e9"></i> تحليلات الصيانة الدورية</h2>
+                    <span class="pill" id="repPmScope">—</span>
+                    <span class="line"></span>
+                </div>
+
+                <div class="stats-grid" style="margin-bottom:16px;">
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #6366f1;">
+                        <div class="stat-icon" style="background:rgba(99,102,241,.1);color:#6366f1"><i class="fas fa-layer-group"></i></div>
+                        <div class="stat-value" id="pmRepGroups">0</div>
+                        <div class="stat-label">مجموعات الصيانة</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #0ea5e9;">
+                        <div class="stat-icon" style="background:rgba(14,165,233,.1);color:#0ea5e9"><i class="fas fa-map-location-dot"></i></div>
+                        <div class="stat-value" id="pmRepYards">0</div>
+                        <div class="stat-label">ساحات موزّعة</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #f59e0b;">
+                        <div class="stat-icon" style="background:rgba(245,158,11,.1);color:#f59e0b"><i class="fas fa-circle-question"></i></div>
+                        <div class="stat-value" id="pmRepUnassigned">0</div>
+                        <div class="stat-label">ساحات غير موزّعة</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #10b981;">
+                        <div class="stat-icon" style="background:rgba(16,185,129,.1);color:#10b981"><i class="fas fa-percentage"></i></div>
+                        <div class="stat-value" id="pmRepCoverage">0%</div>
+                        <div class="stat-label">نسبة تغطية التوزيع</div>
+                        <div class="rep-bar"><span id="pmRepCovBar" style="width:0%"></span></div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #8b5cf6;">
+                        <div class="stat-icon" style="background:rgba(139,92,246,.1);color:#8b5cf6"><i class="fas fa-sitemap"></i></div>
+                        <div class="stat-value" id="pmRepDepts">0</div>
+                        <div class="stat-label">أقسام مشمولة بالتوزيع</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #ec4899;">
+                        <div class="stat-icon" style="background:rgba(236,72,153,.1);color:#ec4899"><i class="fas fa-scale-balanced"></i></div>
+                        <div class="stat-value" id="pmRepAvgLoad">0</div>
+                        <div class="stat-label">متوسط الأقسام لكل مجموعة</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #dc2626;">
+                        <div class="stat-icon" style="background:rgba(220,38,38,.1);color:#dc2626"><i class="fas fa-hourglass-half"></i></div>
+                        <div class="stat-value" id="pmRepNextDays">—</div>
+                        <div class="stat-label">أيام حتى الدورة القادمة</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #14b8a6;">
+                        <div class="stat-icon" style="background:rgba(20,184,166,.1);color:#14b8a6"><i class="fas fa-clipboard-check"></i></div>
+                        <div class="stat-value" id="pmRepCycles">0/2</div>
+                        <div class="stat-label">الدورات المنفّذة</div>
+                    </div>
+                </div>
+
+                <div class="rep-grid">
+                    <div class="card rep-card" data-chart="pmGroups">
+                        <div class="card-header rep-head">
+                            <h3><i class="fas fa-diagram-project" style="color:#6366f1"></i> حِمل المجموعات (ساحات / أقسام)</h3>
+                            <div class="rep-tools no-print">
+                                <button class="rep-icon-btn" title="تكبير" onclick="repFullscreen('pmGroups')"><i class="fas fa-expand"></i></button>
+                                <button class="rep-icon-btn" title="تحميل صورة" onclick="downloadChart('pmGroups','حمل_المجموعات')"><i class="fas fa-download"></i></button>
+                            </div>
+                        </div>
+                        <div class="card-body rep-body"><div class="rep-canvas"><canvas id="pmGroupsChart"></canvas></div></div>
+                    </div>
+
+                    <div class="card rep-card" data-chart="pmCoverage">
+                        <div class="card-header rep-head">
+                            <h3><i class="fas fa-chart-pie" style="color:#0ea5e9"></i> تغطية الساحات</h3>
+                            <div class="rep-tools no-print">
+                                <button class="rep-icon-btn" title="تكبير" onclick="repFullscreen('pmCoverage')"><i class="fas fa-expand"></i></button>
+                                <button class="rep-icon-btn" title="تحميل صورة" onclick="downloadChart('pmCoverage','تغطية_الساحات')"><i class="fas fa-download"></i></button>
+                            </div>
+                        </div>
+                        <div class="card-body rep-body"><div class="rep-canvas"><canvas id="pmCoverageChart"></canvas></div></div>
+                    </div>
+
+                    <div class="card rep-card rep-wide">
+                        <div class="card-header rep-head">
+                            <h3><i class="fas fa-timeline" style="color:#10b981"></i> المواعيد القادمة ودورات الصيانة</h3>
+                            <div class="rep-tools no-print">
+                                <button class="rep-icon-btn" title="تحديث" onclick="loadReportsCharts(true)"><i class="fas fa-rotate"></i></button>
+                            </div>
+                        </div>
+                        <div class="card-body rep-body"><div class="rep-pm-list" id="pmRepTimeline"></div></div>
+                    </div>
+                </div>
+
+
 
                 <!-- ===== Drill-down table ===== -->
                 <div class="card" id="repDrillCard" style="display:none; margin-top:22px;">
@@ -10276,9 +10400,11 @@ async function loadReportsCharts(force) {
         repRaw.inventory = (await SupabaseAPI.request('inventory', 'GET')) || [];
         repRaw.altDevices = (await SupabaseAPI.request('alt_devices', 'GET')) || [];
         repRaw.altModels = (await SupabaseAPI.request('alt_models', 'GET')) || [];
+        await loadPmReportData();
         repLoaded = true;
         buildRepFilterOptions();
     }
+
     applyRepFilters();
 }
 
@@ -10435,7 +10561,145 @@ function renderAllRepCharts() {
     renderInventoryChart(repRaw.inventory);
     renderEmployeesChart(repFiltered);
     renderAltDevicesChart(repRaw.altDevices, repRaw.altModels);
+    renderPmReports();
 }
+
+/* ==================== PERIODIC MAINTENANCE ANALYTICS ==================== */
+const PM_REP = { groups: [], depts: [], tender: null };
+
+async function loadPmReportData() {
+    // Departments (yard stored in notes)
+    try { PM_REP.depts = (await SupabaseAPI.request('departments', 'GET')) || []; } catch (e) { PM_REP.depts = []; }
+    // Tender (work order date)
+    try { const t = await SupabaseAPI.request('tenders', 'GET'); PM_REP.tender = (t && t[0]) || null; } catch (e) { PM_REP.tender = null; }
+    // Groups: cloud first, then local
+    let g = null;
+    try {
+        if (window.SUPABASE_URL_REF && window.SUPABASE_KEY_REF) {
+            const r = await fetch(window.SUPABASE_URL_REF + '/rest/v1/pm_settings?key=eq.pm_groups_v1&select=value', {
+                headers: { 'apikey': window.SUPABASE_KEY_REF, 'Authorization': 'Bearer ' + window.SUPABASE_KEY_REF }
+            });
+            if (r.ok) { const j = await r.json(); if (j && j[0] && Array.isArray(j[0].value)) g = j[0].value; }
+        }
+    } catch (e) { }
+    if (!g) { try { g = JSON.parse(localStorage.getItem('pmGroupsV1')) || []; } catch (e) { g = []; } }
+    PM_REP.groups = Array.isArray(g) ? g : [];
+}
+
+function pmRepYardMap() {
+    const m = {};
+    (PM_REP.depts || []).forEach(d => { const y = (d.notes || '').trim(); if (y) m[y] = (m[y] || 0) + 1; });
+    return m;
+}
+
+function pmRepCycles() {
+    const s = PM_REP.tender && (PM_REP.tender.work_order_date || PM_REP.tender.workOrderDate);
+    if (!s) return null;
+    let st = { durationMonths: 12 };
+    try { st = Object.assign(st, JSON.parse(localStorage.getItem('pmAlertSettings_v1') || '{}')); } catch (e) { }
+    let log = {}; try { log = JSON.parse(localStorage.getItem('pmCycleStatus_v1') || '{}'); } catch (e) { }
+    const addM = (dt, n) => { const d = new Date(dt.getTime()); const day = d.getDate(); d.setMonth(d.getMonth() + n); if (d.getDate() < day) d.setDate(0); return d; };
+    const start = new Date(s + 'T00:00:00');
+    const dur = Math.max(7, parseInt(st.durationMonths, 10) || 12);
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const list = [
+        { n: 1, name: 'الدورة الأولى', desc: 'بعد 6 أشهر من أمر مباشرة العمل', due: addM(start, 6) },
+        { n: 2, name: 'الدورة الثانية', desc: 'نهاية مدة العطاء (' + dur + ' شهر)', due: addM(start, dur) }
+    ];
+    list.forEach(c => {
+        c.days = Math.round((c.due - today) / 86400000);
+        const rec = log[c.n];
+        c.done = !!(rec && rec.done);
+        c.doneDate = (rec && rec.date) || '';
+    });
+    return { start, list, duration: dur };
+}
+
+function renderPmReports() {
+    const yards = pmRepYardMap();
+    const totalYards = Object.keys(yards).length;
+    const groups = PM_REP.groups || [];
+    const assigned = new Set(groups.flatMap(g => g.yards || []));
+    const assignedCount = [...assigned].filter(y => yards[y] != null).length;
+    const unassigned = Math.max(0, totalYards - assignedCount);
+    const deptsCovered = [...assigned].reduce((s, y) => s + (yards[y] || 0), 0);
+    const coverage = totalYards ? Math.round((assignedCount / totalYards) * 100) : 0;
+
+    const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+    set('pmRepGroups', groups.length);
+    set('pmRepYards', assignedCount);
+    set('pmRepUnassigned', unassigned);
+    set('pmRepCoverage', coverage + '%');
+    const cb = document.getElementById('pmRepCovBar'); if (cb) cb.style.width = coverage + '%';
+    set('pmRepDepts', deptsCovered);
+    set('pmRepAvgLoad', groups.length ? (deptsCovered / groups.length).toFixed(1) : '0');
+
+    const cyc = pmRepCycles();
+    const doneN = cyc ? cyc.list.filter(c => c.done).length : 0;
+    set('pmRepCycles', doneN + '/2');
+    const next = cyc ? (cyc.list.find(c => !c.done && c.days >= 0) || cyc.list.find(c => !c.done)) : null;
+    set('pmRepNextDays', next ? (next.days >= 0 ? next.days : 'متأخرة ' + Math.abs(next.days)) : '—');
+    const scope = document.getElementById('repPmScope');
+    if (scope) scope.textContent = cyc ? ('مدة العطاء: ' + cyc.duration + ' شهر') : 'لم يُدخل تاريخ المباشرة';
+
+    // ---- Chart: group load ----
+    destroyChart('pmGroups');
+    const gc = document.getElementById('pmGroupsChart');
+    if (gc) {
+        charts.pmGroups = new Chart(gc.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: groups.length ? groups.map(g => g.name) : ['لا توجد مجموعات'],
+                datasets: [
+                    { label: 'عدد الساحات', data: groups.map(g => (g.yards || []).length), backgroundColor: '#6366f1', borderRadius: 7 },
+                    { label: 'عدد الأقسام', data: groups.map(g => (g.yards || []).reduce((s, y) => s + (yards[y] || 0), 0)), backgroundColor: '#0ea5e9', borderRadius: 7 }
+                ]
+            },
+            options: repBaseOptions({
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: repFont(11), color: repTick() } },
+                    y: { beginAtZero: true, grid: { color: repGrid() }, ticks: { precision: 0, font: repFont(11), color: repTick() } }
+                }
+            })
+        });
+    }
+
+    // ---- Chart: coverage ----
+    destroyChart('pmCoverage');
+    const cc = document.getElementById('pmCoverageChart');
+    if (cc) {
+        charts.pmCoverage = new Chart(cc.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['ساحات موزّعة', 'ساحات غير موزّعة'],
+                datasets: [{ data: [assignedCount, unassigned], backgroundColor: ['#10b981', '#f59e0b'], borderWidth: 0, hoverOffset: 10 }]
+            },
+            options: repBaseOptions({ cutout: '62%' })
+        });
+    }
+
+    // ---- Timeline ----
+    const tl = document.getElementById('pmRepTimeline');
+    if (tl) {
+        if (!cyc) {
+            tl.innerHTML = '<div class="rep-empty"><i class="fas fa-circle-info"></i> أدخل تاريخ أمر مباشرة العمل من «تفاصيل عطاء الصيانة» لعرض المواعيد.</div>';
+        } else {
+            const fmt = d => d.toLocaleDateString('ar-JO', { year: 'numeric', month: 'long', day: 'numeric' });
+            tl.innerHTML = cyc.list.map(c => {
+                let color = '#10b981', txt = 'ضمن المدة الآمنة';
+                if (c.done) { color = '#10b981'; txt = 'منفّذة' + (c.doneDate ? ' — ' + c.doneDate : ''); }
+                else if (c.days < 0) { color = '#dc2626'; txt = 'متأخرة ' + Math.abs(c.days) + ' يوم'; }
+                else if (c.days === 0) { color = '#dc2626'; txt = 'الموعد اليوم'; }
+                else if (c.days <= 30) { color = '#f59e0b'; txt = 'خلال ' + c.days + ' يوم'; }
+                else { txt = 'بعد ' + c.days + ' يوم'; }
+                return '<div class="rep-pm-item"><span class="dot" style="background:' + color + '"></span>' +
+                    '<div><div class="t">' + c.name + ' — ' + fmt(c.due) + '</div><div class="s">' + c.desc + '</div></div>' +
+                    '<span class="badge2" style="background:' + color + '1f;color:' + color + '">' + txt + '</span></div>';
+            }).join('');
+        }
+    }
+}
+
 
 function renderStatusChart(requests) {
     const el = document.getElementById('statusChart'); if (!el) return;
