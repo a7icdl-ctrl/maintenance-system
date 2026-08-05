@@ -5,6 +5,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -14955,6 +14956,525 @@ body.dark-mode .pm-set,body.dark-mode .pm-log,body.dark-mode .pm-log-sum>div,bod
   };
   document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){try{window.renderPMReminders();}catch(e){}},1500);});
   setInterval(function(){try{window.renderPMReminders();}catch(e){}},3600000);
+})();
+</script>
+
+<!-- ===== ENHANCEMENTS: Drill-down modal + time range + responsive KPI grid (v Re) ===== -->
+<style id="repEnhCSS">
+/* --- Responsive KPI grid (max 4 columns, tight gaps) --- */
+#page-reports .stats-grid{
+  display:grid !important;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr)) !important;
+  gap:10px !important;
+  margin-bottom:14px !important;
+}
+@media (min-width:1100px){ #page-reports .stats-grid{ grid-template-columns:repeat(4,minmax(0,1fr)) !important; } }
+@media (min-width:1500px){ #page-reports .stats-grid{ grid-template-columns:repeat(4,minmax(0,1fr)) !important; gap:12px !important; } }
+@media (max-width:1099px) and (min-width:700px){ #page-reports .stats-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) !important; } }
+@media (max-width:699px){
+  #page-reports .stats-grid{ grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px !important; }
+  #page-reports .stat-card{ padding:11px 11px !important; border-radius:13px !important; }
+  #page-reports .stat-icon{ width:30px !important; height:30px !important; font-size:13px !important; margin-bottom:6px !important; }
+  #page-reports .stat-value{ font-size:18px !important; }
+  #page-reports .stat-label{ font-size:10.5px !important; line-height:1.35; }
+  #page-reports .rep-delta{ font-size:9.5px !important; }
+}
+@media (max-width:360px){ #page-reports .stats-grid{ grid-template-columns:1fr !important; } }
+#page-reports .stat-card{ min-width:0; }
+#page-reports .stat-label,#page-reports .stat-value{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#page-reports .stat-card.rep-clickable{ cursor:pointer; }
+#page-reports .stat-card.rep-clickable::after{
+  content:'\f002'; font-family:'Font Awesome 6 Free'; font-weight:900;
+  position:absolute; top:10px; left:12px; font-size:11px; opacity:0; color:var(--primary);
+  transition:opacity .25s ease, transform .25s ease; transform:translateY(-3px);
+}
+#page-reports .stat-card.rep-clickable:hover::after{ opacity:.85; transform:translateY(0); }
+#page-reports .stat-card.rep-clickable:active{ transform:scale(.985); }
+
+/* --- Pretty time-range segmented bar --- */
+.rep-range-bar{
+  display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+  padding:10px 14px; margin-bottom:14px; border-radius:16px;
+  background:var(--card-bg,#fff); box-shadow:var(--shadow,0 6px 18px rgba(0,0,0,.06));
+  border:1px solid rgba(148,163,184,.22);
+}
+.rep-range-bar .rrb-title{ font-weight:800; font-size:13px; display:flex; align-items:center; gap:7px; color:var(--primary,#4f46e5); }
+.rep-range-seg{ display:flex; flex-wrap:wrap; gap:6px; background:rgba(148,163,184,.12); padding:4px; border-radius:12px; }
+.rep-range-seg button{
+  border:0; background:transparent; cursor:pointer; font-family:inherit; font-weight:700;
+  font-size:12.5px; padding:7px 14px; border-radius:9px; color:var(--text-secondary,#64748b);
+  transition:all .22s ease; white-space:nowrap;
+}
+.rep-range-seg button:hover{ color:var(--primary,#4f46e5); }
+.rep-range-seg button.active{
+  background:linear-gradient(135deg,#4f46e5,#818cf8); color:#fff;
+  box-shadow:0 4px 12px rgba(79,70,229,.32);
+}
+.rep-range-bar .rrb-note{ margin-inline-start:auto; font-size:11.5px; font-weight:700; opacity:.7; }
+@media (max-width:600px){
+  .rep-range-bar{ padding:9px 10px; gap:8px; }
+  .rep-range-seg{ width:100%; }
+  .rep-range-seg button{ flex:1 1 auto; padding:7px 8px; font-size:11.5px; }
+  .rep-range-bar .rrb-note{ margin-inline-start:0; width:100%; }
+}
+
+/* --- Drill-down modal --- */
+.rdrill-overlay{
+  position:fixed; inset:0; z-index:12000; display:none;
+  background:rgba(15,23,42,.55); backdrop-filter:blur(6px);
+  padding:22px; overflow:auto;
+}
+.rdrill-overlay.open{ display:flex; align-items:flex-start; justify-content:center; animation:rdFade .22s ease; }
+@keyframes rdFade{ from{opacity:0} to{opacity:1} }
+@keyframes rdUp{ from{opacity:0; transform:translateY(18px) scale(.985)} to{opacity:1; transform:none} }
+.rdrill-box{
+  width:min(1080px,100%); max-height:calc(100vh - 44px); display:flex; flex-direction:column;
+  background:var(--card-bg,#fff); border-radius:20px; overflow:hidden;
+  box-shadow:0 30px 70px rgba(2,6,23,.35); animation:rdUp .28s cubic-bezier(.16,1,.3,1);
+  border:1px solid rgba(148,163,184,.2);
+}
+.rdrill-head{
+  display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:12px;
+  padding:16px 18px; color:#fff; background:linear-gradient(135deg,#4f46e5,#6366f1 55%,#818cf8);
+}
+.rdrill-head .rd-t{ display:flex; align-items:center; gap:10px; min-width:0; }
+.rdrill-head .rd-t i{ font-size:17px; flex:0 0 auto; }
+.rdrill-head h3{ margin:0; font-size:16px; font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rdrill-head .rd-count{ background:rgba(255,255,255,.22); padding:3px 11px; border-radius:99px; font-size:12px; font-weight:800; flex:0 0 auto; }
+.rdrill-head .rd-x{ border:0; background:rgba(255,255,255,.18); color:#fff; width:34px; height:34px; border-radius:11px; cursor:pointer; font-size:15px; transition:.2s; }
+.rdrill-head .rd-x:hover{ background:rgba(255,255,255,.34); transform:rotate(90deg); }
+.rdrill-tools{
+  display:flex; flex-wrap:wrap; gap:9px; padding:12px 16px;
+  border-bottom:1px solid rgba(148,163,184,.2); background:rgba(148,163,184,.07);
+}
+.rdrill-tools .rd-search{ position:relative; flex:1 1 220px; min-width:0; }
+.rdrill-tools .rd-search i{ position:absolute; inset-inline-start:12px; top:50%; transform:translateY(-50%); font-size:12px; opacity:.5; }
+.rdrill-tools input,.rdrill-tools select{
+  width:100%; font-family:inherit; font-size:13px; font-weight:600; padding:9px 12px;
+  border-radius:11px; border:1px solid rgba(148,163,184,.35); background:var(--input-bg,#fff); color:inherit; outline:none;
+}
+.rdrill-tools .rd-search input{ padding-inline-start:32px; }
+.rdrill-tools select{ flex:0 1 170px; width:auto; cursor:pointer; }
+.rdrill-tools .rd-btn{
+  border:0; cursor:pointer; font-family:inherit; font-weight:700; font-size:12.5px;
+  padding:9px 14px; border-radius:11px; background:linear-gradient(135deg,#10b981,#34d399); color:#fff;
+  display:inline-flex; align-items:center; gap:6px; transition:.2s; white-space:nowrap;
+}
+.rdrill-tools .rd-btn:hover{ filter:brightness(1.06); transform:translateY(-1px); }
+.rdrill-body{ overflow:auto; padding:0 4px 4px; flex:1; }
+.rdrill-body table{ width:100%; border-collapse:collapse; font-size:13px; }
+.rdrill-body thead th{
+  position:sticky; top:0; z-index:2; background:var(--card-bg,#fff); text-align:start;
+  padding:11px 14px; font-size:12px; font-weight:800; color:var(--text-secondary,#64748b);
+  border-bottom:2px solid rgba(148,163,184,.25); cursor:pointer; white-space:nowrap;
+}
+.rdrill-body thead th:hover{ color:var(--primary,#4f46e5); }
+.rdrill-body tbody td{ padding:10px 14px; border-bottom:1px solid rgba(148,163,184,.14); }
+.rdrill-body tbody tr{ transition:background .15s ease; }
+.rdrill-body tbody tr:hover{ background:rgba(79,70,229,.06); }
+.rd-pill{ display:inline-block; padding:3px 11px; border-radius:99px; font-size:11.5px; font-weight:800; color:#fff; }
+.rdrill-empty{ text-align:center; padding:38px 16px; opacity:.6; font-weight:700; }
+.rdrill-foot{ padding:9px 16px; font-size:11.5px; font-weight:700; opacity:.65; border-top:1px solid rgba(148,163,184,.2); }
+html[data-theme="dark"] .rdrill-box,body.dark-mode .rdrill-box{ background:#0f172a; color:#e2e8f0; }
+html[data-theme="dark"] .rdrill-body thead th,body.dark-mode .rdrill-body thead th{ background:#0f172a; }
+html[data-theme="dark"] .rdrill-tools input,html[data-theme="dark"] .rdrill-tools select,
+body.dark-mode .rdrill-tools input,body.dark-mode .rdrill-tools select{ background:#1e293b; color:#e2e8f0; border-color:rgba(148,163,184,.3); }
+@media (max-width:600px){
+  .rdrill-overlay{ padding:0; }
+  .rdrill-box{ max-height:100vh; height:100vh; border-radius:0; width:100%; }
+  .rdrill-body table{ font-size:12px; }
+  .rdrill-body tbody td,.rdrill-body thead th{ padding:9px 10px; }
+}
+</style>
+
+<div class="rdrill-overlay no-print" id="rdrillOverlay" onclick="if(event.target===this)rdrillClose()">
+  <div class="rdrill-box">
+    <div class="rdrill-head">
+      <div class="rd-t">
+        <i class="fas fa-layer-group" id="rdrillIcon"></i>
+        <h3 id="rdrillTitle">التفاصيل</h3>
+        <span class="rd-count" id="rdrillCount">0</span>
+      </div>
+      <button class="rd-x" onclick="rdrillClose()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="rdrill-tools">
+      <div class="rd-search"><i class="fas fa-search"></i>
+        <input type="text" id="rdrillSearch" placeholder="ابحث في السجلات..." oninput="rdrillRender()">
+      </div>
+      <select id="rdrillFilter" onchange="rdrillRender()" style="display:none"></select>
+      <select id="rdrillSort" onchange="rdrillRender()"></select>
+      <button class="rd-btn" onclick="rdrillExport()"><i class="fas fa-file-csv"></i> تصدير</button>
+    </div>
+    <div class="rdrill-body"><table id="rdrillTable"><thead></thead><tbody></tbody></table>
+      <div class="rdrill-empty" id="rdrillEmpty" style="display:none">لا توجد سجلات مطابقة</div>
+    </div>
+    <div class="rdrill-foot" id="rdrillFoot"></div>
+  </div>
+</div>
+
+<script>
+/* ===== Reports enhancements (drill-down + range + layout) ===== */
+(function () {
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const fmtD = d => { const x = new Date(d); return isNaN(x) ? '—' : x.toLocaleDateString('ar-EG'); };
+  let STATE = { title: '', columns: [], rows: [], filter: null };
+
+  /* ---------- generic drill-down modal ---------- */
+  window.rdrillOpen = function (cfg) {
+    STATE = { title: cfg.title || 'التفاصيل', columns: cfg.columns || [], rows: cfg.rows || [], filter: cfg.filter || null };
+    document.getElementById('rdrillTitle').textContent = STATE.title;
+    document.getElementById('rdrillIcon').className = 'fas ' + (cfg.icon || 'fa-layer-group');
+    const s = document.getElementById('rdrillSearch'); s.value = '';
+    const f = document.getElementById('rdrillFilter');
+    if (STATE.filter) {
+      const vals = [...new Set(STATE.rows.map(r => r[STATE.filter.key]).filter(v => v !== '' && v != null))].sort();
+      f.innerHTML = '<option value="">' + esc(STATE.filter.label) + '</option>' +
+        vals.map(v => '<option value="' + esc(v) + '">' + esc(STATE.filter.render ? STATE.filter.render(v) : v) + '</option>').join('');
+      f.style.display = '';
+    } else { f.innerHTML = ''; f.style.display = 'none'; }
+    const so = document.getElementById('rdrillSort');
+    so.innerHTML = '<option value="">ترتيب افتراضي</option>' +
+      STATE.columns.map((c, i) => '<option value="' + i + ':a">' + esc(c.label) + ' ↑</option><option value="' + i + ':d">' + esc(c.label) + ' ↓</option>').join('');
+    document.getElementById('rdrillTable').querySelector('thead').innerHTML =
+      '<tr>' + STATE.columns.map((c, i) => '<th onclick="rdrillSortBy(' + i + ')">' + esc(c.label) + '</th>').join('') + '</tr>';
+    document.getElementById('rdrillOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    rdrillRender();
+  };
+
+  window.rdrillClose = function () {
+    document.getElementById('rdrillOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') rdrillClose(); });
+
+  window.rdrillSortBy = function (i) {
+    const so = document.getElementById('rdrillSort');
+    so.value = so.value === i + ':a' ? i + ':d' : i + ':a';
+    rdrillRender();
+  };
+
+  function currentRows() {
+    const q = (document.getElementById('rdrillSearch').value || '').trim().toLowerCase();
+    const fv = document.getElementById('rdrillFilter').value;
+    let rows = STATE.rows.filter(r => {
+      if (STATE.filter && fv && String(r[STATE.filter.key]) !== fv) return false;
+      if (!q) return true;
+      return STATE.columns.some(c => String(r[c.k] == null ? '' : r[c.k]).toLowerCase().includes(q))
+        || Object.values(r).some(v => typeof v !== 'object' && String(v == null ? '' : v).toLowerCase().includes(q));
+    });
+    const sv = document.getElementById('rdrillSort').value;
+    if (sv) {
+      const [idx, dir] = sv.split(':');
+      const k = STATE.columns[+idx].k, m = dir === 'd' ? -1 : 1;
+      rows = rows.slice().sort((a, b) => {
+        const x = a[k], y = b[k];
+        const nx = parseFloat(x), ny = parseFloat(y);
+        if (!isNaN(nx) && !isNaN(ny)) return (nx - ny) * m;
+        return String(x == null ? '' : x).localeCompare(String(y == null ? '' : y), 'ar') * m;
+      });
+    }
+    return rows;
+  }
+
+  window.rdrillRender = function () {
+    const rows = currentRows();
+    document.getElementById('rdrillCount').textContent = rows.length;
+    const tb = document.getElementById('rdrillTable').querySelector('tbody');
+    tb.innerHTML = rows.slice(0, 500).map(r =>
+      '<tr>' + STATE.columns.map(c => '<td>' + (c.html ? c.html(r) : esc(r[c.k] == null || r[c.k] === '' ? '—' : r[c.k])) + '</td>').join('') + '</tr>'
+    ).join('');
+    document.getElementById('rdrillEmpty').style.display = rows.length ? 'none' : 'block';
+    document.getElementById('rdrillFoot').textContent =
+      rows.length > 500 ? 'عرض أول 500 من ' + rows.length + ' سجل' : 'إجمالي المعروض: ' + rows.length + ' سجل';
+  };
+
+  window.rdrillExport = function () {
+    const rows = currentRows();
+    if (!rows.length) { if (window.showToast) showToast('warning', 'تنبيه', 'لا توجد سجلات للتصدير'); return; }
+    const head = STATE.columns.map(c => '"' + c.label + '"').join(',');
+    const body = rows.map(r => STATE.columns.map(c => '"' + String(r[c.k] == null ? '' : r[c.k]).replace(/"/g, '""') + '"').join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + head + '\n' + body], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (STATE.title.replace(/[\\/:*?"<>|]/g, '_')) + '.csv';
+    a.click();
+    if (window.showToast) showToast('success', 'تم التصدير', 'تم تنزيل ملف CSV');
+  };
+
+  /* ---------- request rows ---------- */
+  const SL = () => (window.REP_STATUS_LABELS || {});
+  const SC = () => (window.REP_STATUS_COLORS || {});
+  function reqRows(list) {
+    return (list || []).map(r => {
+      const d = (typeof repDate === 'function' ? repDate(r) : new Date(r.created_at));
+      return {
+        num: r.request_number || r.id || '—',
+        emp: r.employee_name || r.employeeName || '—',
+        dept: r.department || 'غير محدد',
+        device: r.device || r.device_type || r.deviceType || '—',
+        status: r.status || '',
+        statusL: SL()[r.status] || r.status || '—',
+        date: d && !isNaN(d) ? fmtD(d) : '—',
+        _ts: d && !isNaN(d) ? d.getTime() : 0
+      };
+    });
+  }
+  const REQ_COLS = [
+    { k: 'num', label: 'الرقم' },
+    { k: 'emp', label: 'الموظف' },
+    { k: 'dept', label: 'القسم' },
+    { k: 'device', label: 'الجهاز' },
+    {
+      k: 'statusL', label: 'الحالة',
+      html: r => '<span class="rd-pill" style="background:' + (SC()[r.status] || '#94a3b8') + '">' + esc(r.statusL) + '</span>'
+    },
+    { k: 'date', label: 'التاريخ' }
+  ];
+
+  function openRequests(title, list, icon) {
+    rdrillOpen({
+      title: title, icon: icon || 'fa-clipboard-list', columns: REQ_COLS, rows: reqRows(list),
+      filter: { key: 'statusL', label: 'كل الحالات' }
+    });
+  }
+  window.repOpenRequests = openRequests;
+
+  /* ---------- override chart/KPI drill to use the modal ---------- */
+  window.repDrill = function (key) {
+    const base = (window.repFiltered || []);
+    const parts = String(key).split(/:(.+)/);
+    const kind = parts[0], val = parts[1];
+    let rows = base, title = 'كل الطلبات المطابقة';
+    if (kind === 'status') { rows = base.filter(r => r.status === val); title = 'الطلبات بحالة: ' + (SL()[val] || val); }
+    else if (kind === 'dept') { rows = base.filter(r => (r.department || 'غير محدد') === val); title = 'طلبات قسم: ' + val; }
+    else if (kind === 'emp') { rows = base.filter(r => (r.employee_name || r.employeeName || 'غير محدد') === val); title = 'طلبات الموظف: ' + val; }
+    else if (kind === 'month') {
+      rows = base.filter(r => { const d = repDate(r); return d && (d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')) === val; });
+      title = 'طلبات شهر: ' + val;
+    }
+    openRequests(title, rows);
+  };
+  window.closeRepDrill = function () {
+    const c = document.getElementById('repDrillCard'); if (c) c.style.display = 'none';
+  };
+
+  /* ---------- per-card drill definitions ---------- */
+  const DRILLS = {
+    reportTotalRequests: () => openRequests('كل الطلبات المطابقة', repFiltered),
+    reportCompleted: () => openRequests('الطلبات المكتملة', repFiltered.filter(r => r.status === 'completed'), 'fa-check-circle'),
+    reportPending: () => openRequests('الطلبات قيد الانتظار', repFiltered.filter(r => r.status === 'pending'), 'fa-clock'),
+    reportCompletionRate: () => openRequests('الطلبات المكتملة (نسبة الإنجاز)', repFiltered.filter(r => r.status === 'completed'), 'fa-percentage'),
+    reportBusiestDept: () => {
+      const dc = {}; repFiltered.forEach(r => { const d = r.department || 'غير محدد'; dc[d] = (dc[d] || 0) + 1; });
+      const top = Object.entries(dc).sort((a, b) => b[1] - a[1])[0];
+      if (!top) return openRequests('لا توجد بيانات', []);
+      openRequests('طلبات القسم الأعلى: ' + top[0], repFiltered.filter(r => (r.department || 'غير محدد') === top[0]), 'fa-bolt');
+    },
+    reportAvgDays: () => {
+      const rows = repFiltered.filter(r => r.status === 'completed').map(r => {
+        const s = repDate(r), e = new Date(r.completed_at || r.completedAt || r.updated_at || 0);
+        const days = (s && !isNaN(e) && e > s) ? ((e - s) / 86400000).toFixed(1) : '—';
+        return {
+          num: r.request_number || r.id || '—',
+          emp: r.employee_name || r.employeeName || '—',
+          dept: r.department || 'غير محدد',
+          start: s ? fmtD(s) : '—',
+          end: isNaN(e) || !e.getTime() ? '—' : fmtD(e),
+          days: days
+        };
+      });
+      rdrillOpen({
+        title: 'مدة إنجاز الطلبات المكتملة', icon: 'fa-stopwatch', rows: rows,
+        columns: [{ k: 'num', label: 'الرقم' }, { k: 'emp', label: 'الموظف' }, { k: 'dept', label: 'القسم' },
+        { k: 'start', label: 'تاريخ الطلب' }, { k: 'end', label: 'تاريخ الإنجاز' }, { k: 'days', label: 'عدد الأيام' }],
+        filter: { key: 'dept', label: 'كل الأقسام' }
+      });
+    },
+    reportInventoryItems: () => invDrill(false),
+    reportOutOfStock: () => invDrill(true),
+    /* --- periodic maintenance --- */
+    pmRepGroups: () => groupsDrill(),
+    pmRepAvgLoad: () => groupsDrill(),
+    pmRepCoverage: () => yardsDrill('all'),
+    pmRepYards: () => yardsDrill('assigned'),
+    pmRepUnassigned: () => yardsDrill('unassigned'),
+    pmRepDepts: () => deptsDrill(),
+    pmRepCycles: () => cyclesDrill(),
+    pmRepNextDays: () => cyclesDrill()
+  };
+
+  function invDrill(onlyOut) {
+    const list = ((window.repRaw && repRaw.inventory) || []).filter(i => !onlyOut || (i.qty || 0) === 0);
+    rdrillOpen({
+      title: onlyOut ? 'المواد التي نفدت كميتها' : 'مواد المخزون',
+      icon: onlyOut ? 'fa-exclamation-triangle' : 'fa-boxes',
+      rows: list.map(i => ({
+        name: i.name || i.item_name || '—',
+        num: i.item_number || i.code || '—',
+        cat: i.category || 'غير مصنّف',
+        qty: i.qty != null ? i.qty : 0,
+        state: (i.qty || 0) === 0 ? 'نفدت' : ((i.qty || 0) <= (i.min_qty || 3) ? 'منخفضة' : 'متوفرة'),
+        notes: i.notes || '—'
+      })),
+      columns: [{ k: 'name', label: 'المادة' }, { k: 'num', label: 'الرقم' }, { k: 'cat', label: 'التصنيف' },
+      { k: 'qty', label: 'الكمية' },
+      {
+        k: 'state', label: 'الحالة',
+        html: r => '<span class="rd-pill" style="background:' + (r.state === 'نفدت' ? '#ef4444' : r.state === 'منخفضة' ? '#f59e0b' : '#10b981') + '">' + esc(r.state) + '</span>'
+      },
+      { k: 'notes', label: 'ملاحظات' }],
+      filter: { key: 'cat', label: 'كل التصنيفات' }
+    });
+  }
+
+  function groupsDrill() {
+    const groups = (window.PM_REP && PM_REP.groups) || [];
+    const ymap = (typeof pmRepYardMap === 'function') ? pmRepYardMap() : {};
+    rdrillOpen({
+      title: 'مجموعات الصيانة الدورية', icon: 'fa-layer-group',
+      rows: groups.map((g, i) => ({
+        n: i + 1,
+        name: g.name || ('مجموعة ' + (i + 1)),
+        yards: (g.yards || []).join('، ') || '—',
+        ycount: (g.yards || []).length,
+        dcount: (g.yards || []).reduce((s, y) => s + (ymap[y] || 0), 0)
+      })),
+      columns: [{ k: 'n', label: '#' }, { k: 'name', label: 'المجموعة' }, { k: 'yards', label: 'الساحات' },
+      { k: 'ycount', label: 'عدد الساحات' }, { k: 'dcount', label: 'عدد الأقسام' }]
+    });
+  }
+
+  function yardsDrill(mode) {
+    const ymap = (typeof pmRepYardMap === 'function') ? pmRepYardMap() : {};
+    const groups = (window.PM_REP && PM_REP.groups) || [];
+    const owner = {};
+    groups.forEach(g => (g.yards || []).forEach(y => { owner[y] = g.name || 'مجموعة'; }));
+    let rows = Object.keys(ymap).map(y => ({
+      yard: y, depts: ymap[y], group: owner[y] || '—', state: owner[y] ? 'موزّعة' : 'غير موزّعة'
+    }));
+    if (mode === 'assigned') rows = rows.filter(r => r.state === 'موزّعة');
+    if (mode === 'unassigned') rows = rows.filter(r => r.state === 'غير موزّعة');
+    rdrillOpen({
+      title: mode === 'assigned' ? 'الساحات الموزّعة' : mode === 'unassigned' ? 'الساحات غير الموزّعة' : 'تغطية الساحات',
+      icon: 'fa-map-location-dot', rows: rows,
+      columns: [{ k: 'yard', label: 'الساحة' }, { k: 'depts', label: 'عدد الأقسام' }, { k: 'group', label: 'المجموعة' },
+      {
+        k: 'state', label: 'الحالة',
+        html: r => '<span class="rd-pill" style="background:' + (r.state === 'موزّعة' ? '#10b981' : '#f59e0b') + '">' + esc(r.state) + '</span>'
+      }],
+      filter: { key: 'group', label: 'كل المجموعات' }
+    });
+  }
+
+  function deptsDrill() {
+    const depts = (window.PM_REP && PM_REP.depts) || [];
+    const groups = (window.PM_REP && PM_REP.groups) || [];
+    const owner = {};
+    groups.forEach(g => (g.yards || []).forEach(y => { owner[y] = g.name || 'مجموعة'; }));
+    rdrillOpen({
+      title: 'الأقسام المشمولة بالتوزيع', icon: 'fa-sitemap',
+      rows: depts.map(d => {
+        const y = (d.notes || '').trim();
+        return { name: d.name || d.department || '—', yard: y || '—', group: owner[y] || '—', state: owner[y] ? 'مشمول' : 'غير مشمول' };
+      }),
+      columns: [{ k: 'name', label: 'القسم' }, { k: 'yard', label: 'الساحة' }, { k: 'group', label: 'المجموعة' },
+      {
+        k: 'state', label: 'الحالة',
+        html: r => '<span class="rd-pill" style="background:' + (r.state === 'مشمول' ? '#10b981' : '#94a3b8') + '">' + esc(r.state) + '</span>'
+      }],
+      filter: { key: 'group', label: 'كل المجموعات' }
+    });
+  }
+
+  function cyclesDrill() {
+    const cyc = (typeof pmRepCycles === 'function') ? pmRepCycles() : null;
+    const list = cyc ? cyc.list : [];
+    rdrillOpen({
+      title: 'دورات الصيانة الدورية ومواعيدها', icon: 'fa-calendar-check',
+      rows: list.map(c => ({
+        n: c.n, name: c.name, desc: c.desc || '—', due: fmtD(c.due),
+        days: c.days, state: c.done ? 'منفّذة' : (c.days < 0 ? 'متأخرة' : 'قيد الانتظار'),
+        doneDate: c.doneDate || '—'
+      })),
+      columns: [{ k: 'n', label: '#' }, { k: 'name', label: 'الدورة' }, { k: 'desc', label: 'الوصف' },
+      { k: 'due', label: 'تاريخ الاستحقاق' }, { k: 'days', label: 'الأيام المتبقية' },
+      {
+        k: 'state', label: 'الحالة',
+        html: r => '<span class="rd-pill" style="background:' + (r.state === 'منفّذة' ? '#10b981' : r.state === 'متأخرة' ? '#ef4444' : '#f59e0b') + '">' + esc(r.state) + '</span>'
+      },
+      { k: 'doneDate', label: 'تاريخ التنفيذ' }]
+    });
+  }
+
+  /* ---------- wire up cards + range bar ---------- */
+  function wireCards() {
+    const page = document.getElementById('page-reports'); if (!page) return;
+    Object.keys(DRILLS).forEach(id => {
+      const v = document.getElementById(id); if (!v) return;
+      const card = v.closest('.stat-card'); if (!card || card.dataset.rdWired) return;
+      card.dataset.rdWired = '1';
+      card.classList.add('rep-clickable');
+      card.setAttribute('title', 'اضغط لعرض التفاصيل');
+      card.onclick = function (e) { e.preventDefault(); try { DRILLS[id](); } catch (err) { console.error(err); } };
+    });
+  }
+
+  const RANGES = [
+    { v: 'all', t: 'كل الفترات', i: 'fa-infinity' },
+    { v: '7', t: 'أسبوع', i: 'fa-calendar-day' },
+    { v: '30', t: 'شهر', i: 'fa-calendar-week' },
+    { v: '90', t: '3 أشهر', i: 'fa-calendar-alt' },
+    { v: '365', t: 'سنة', i: 'fa-calendar' }
+  ];
+
+  window.repSetRange = function (val, btn) {
+    document.querySelectorAll('.rep-range-seg button').forEach(b => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('.rep-chip').forEach(b => b.classList.toggle('active', b.dataset.range === val));
+    const from = document.getElementById('repFrom'), to = document.getElementById('repTo');
+    if (from && to) {
+      if (val === 'all') { from.value = ''; to.value = ''; }
+      else {
+        const now = new Date(), start = new Date(now.getTime() - parseInt(val, 10) * 86400000);
+        from.value = start.toISOString().split('T')[0];
+        to.value = now.toISOString().split('T')[0];
+      }
+    }
+    const note = document.getElementById('rrbNote');
+    if (note) note.textContent = val === 'all' ? 'تعرض جميع السجلات' : 'الأرقام والرسوم محدّثة لآخر ' + (RANGES.find(r => r.v === val) || {}).t;
+    if (typeof applyRepFilters === 'function') applyRepFilters();
+  };
+
+  function buildRangeBar() {
+    const page = document.getElementById('page-reports'); if (!page) return;
+    if (document.getElementById('repRangeBar')) return;
+    const filters = page.querySelector('.rep-filters');
+    const bar = document.createElement('div');
+    bar.className = 'rep-range-bar no-print';
+    bar.id = 'repRangeBar';
+    bar.innerHTML = '<span class="rrb-title"><i class="fas fa-clock-rotate-left"></i> النطاق الزمني</span>' +
+      '<div class="rep-range-seg">' + RANGES.map(r =>
+        '<button data-r="' + r.v + '"' + (r.v === 'all' ? ' class="active"' : '') + '><i class="fas ' + r.i + '"></i> ' + r.t + '</button>').join('') +
+      '</div><span class="rrb-note" id="rrbNote">تعرض جميع السجلات</span>';
+    bar.querySelectorAll('button').forEach(b => b.onclick = () => repSetRange(b.dataset.r, b));
+    if (filters) filters.parentNode.insertBefore(bar, filters);
+    else page.querySelector('.page-header')?.after(bar);
+    // hide the older duplicate quick chips
+    const quick = page.querySelector('.rep-quick'); if (quick) quick.style.display = 'none';
+  }
+
+  function init() {
+    buildRangeBar();
+    wireCards();
+  }
+  document.addEventListener('DOMContentLoaded', () => setTimeout(init, 600));
+  setTimeout(init, 1200);
+  // keep cards wired after re-renders
+  const _orig = window.showPage;
+  if (typeof _orig === 'function') {
+    window.showPage = function (p) { const r = _orig.apply(this, arguments); if (p === 'reports') setTimeout(init, 250); return r; };
+  }
+  setInterval(() => { const p = document.getElementById('page-reports'); if (p && p.classList.contains('active')) init(); }, 3000);
 })();
 </script>
 
