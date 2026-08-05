@@ -1674,10 +1674,6 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     <i class="fas fa-calendar-check"></i>
                     <span>الصيانة الدورية</span>
                 </a>
-                <a class="nav-item admin-only" data-title="سجل الصيانة الدورية" onclick="showPage('periodic');setTimeout(function(){pmShowTab('log');},60)" style="display:none;">
-                    <i class="fas fa-clock-rotate-left"></i>
-                    <span>سجل الصيانة الدورية</span>
-                </a>
                 <a class="nav-item admin-only" data-title="إدارة النظام" onclick="showPage('admin')" style="display:none;">
                     <i class="fas fa-cog"></i>
                     <span>إدارة النظام</span>
@@ -2901,6 +2897,7 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 </div>
                 <div class="pm-tabs no-print" id="pmTabs">
                     <button class="pm-tab active" data-t="dist" onclick="pmShowTab('dist')"><i class="fas fa-diagram-project"></i> توزيع الساحات</button>
+                    <button class="pm-tab" data-t="timeline" onclick="pmShowTab('timeline')"><i class="fas fa-timeline"></i> التقويم والمواعيد</button>
                     <button class="pm-tab" data-t="alerts" onclick="pmShowTab('alerts')"><i class="fas fa-bell"></i> التنبيهات <span class="pm-tab-dot" id="pmTabDot" style="display:none"></span></button>
                     <button class="pm-tab" data-t="log" onclick="pmShowTab('log')"><i class="fas fa-clock-rotate-left"></i> سجل الصيانة الدورية</button>
                     <button class="pm-tab" data-t="settings" onclick="pmShowTab('settings')"><i class="fas fa-sliders"></i> إعدادات التنبيهات</button>
@@ -2927,6 +2924,7 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     <div class="pm-groups" id="pmGroups"></div>
                 </div>
                 </div>
+                <div class="pm-pane" id="pmPane-timeline"><div id="pmTimelineWrap"></div></div>
                 <div class="pm-pane" id="pmPane-alerts"><div id="pmRemindersWrap" class="pm-rem-wrap"></div></div>
                 <div class="pm-pane" id="pmPane-log"><div id="pmLogWrap"></div></div>
                 <div class="pm-pane" id="pmPane-settings"><div id="pmSettingsWrap"></div></div>
@@ -3590,6 +3588,8 @@ const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 let SUPABASE_URL = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
 let SUPABASE_KEY = localStorage.getItem('supabase_key') || DEFAULT_SUPABASE_KEY;
 let USE_LOCAL = localStorage.getItem('use_local') === 'true' || (!SUPABASE_URL && !SUPABASE_KEY);
+window.SUPABASE_URL_REF = SUPABASE_URL;
+window.SUPABASE_KEY_REF = SUPABASE_KEY;
 
 // ==================== SUPABASE API HELPER ====================
 const SupabaseAPI = {
@@ -3753,6 +3753,7 @@ function saveSupabaseConfig() {
     localStorage.setItem('supabase_url', url);
     localStorage.setItem('supabase_key', key);
     localStorage.setItem('use_local', 'false');
+    window.SUPABASE_URL_REF = url; window.SUPABASE_KEY_REF = key;
 
     // Hide config, show login
     document.getElementById('configScreen').style.display = 'none';
@@ -13772,10 +13773,41 @@ window.PMRules=(function(){
   let GROUPS=[]; let dragged=null;
 
   const read=()=>{try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return []}};
+
+  /* ---- حفظ سحابي دائم (يبقى بعد تسجيل الخروج ومن أي جهاز) ---- */
+  const CT='pm_settings', CK='pm_groups_v1';
+  const cloudOn=()=>(typeof USE_LOCAL==='undefined'||!USE_LOCAL)&&!!window.SUPABASE_URL_REF&&!!window.SUPABASE_KEY_REF;
+  const H=()=>({'apikey':window.SUPABASE_KEY_REF,'Authorization':'Bearer '+window.SUPABASE_KEY_REF,'Content-Type':'application/json'});
+  async function cloudRead(){
+    if(!cloudOn())return null;
+    try{
+      const r=await fetch(window.SUPABASE_URL_REF+'/rest/v1/'+CT+'?key=eq.'+CK+'&select=value',{headers:H()});
+      if(!r.ok)return null;
+      const j=await r.json(); const v=j&&j[0]&&j[0].value;
+      return Array.isArray(v)?v:null;
+    }catch(e){return null;}
+  }
+  async function cloudWrite(v){
+    if(!cloudOn())return false;
+    try{
+      const r=await fetch(window.SUPABASE_URL_REF+'/rest/v1/'+CT+'?on_conflict=key',{
+        method:'POST',
+        headers:Object.assign(H(),{'Prefer':'resolution=merge-duplicates,return=minimal'}),
+        body:JSON.stringify({key:CK,value:v,updated_at:new Date().toISOString()})
+      });
+      return r.ok;
+    }catch(e){return false;}
+  }
+  function setSaved(html){const s=document.getElementById('pmSaved'); if(s)s.innerHTML=html;}
   function store(msg){
-    try{localStorage.setItem(KEY,JSON.stringify(GROUPS))}catch(e){}
-    const s=document.getElementById('pmSaved');
-    if(s)s.innerHTML='<i class="fas fa-circle-check" style="color:#10b981"></i> حُفظ '+new Date().toLocaleTimeString('ar-JO');
+    const snapshot=JSON.parse(JSON.stringify(GROUPS));
+    try{localStorage.setItem(KEY,JSON.stringify(snapshot))}catch(e){}
+    setSaved('<i class="fas fa-cloud-arrow-up" style="color:#0ea5e9"></i> جارٍ الحفظ...');
+    cloudWrite(snapshot).then(ok=>{
+      setSaved(ok
+        ? '<i class="fas fa-circle-check" style="color:#10b981"></i> محفوظ سحابياً '+new Date().toLocaleTimeString('ar-JO')
+        : '<i class="fas fa-circle-check" style="color:#f59e0b"></i> محفوظ على الجهاز '+new Date().toLocaleTimeString('ar-JO'));
+    });
     if(msg&&typeof showToast==='function')showToast('success','تم الحفظ',msg);
   }
   function yardsAll(){
@@ -13787,7 +13819,15 @@ window.PMRules=(function(){
 
   window.loadPeriodic=async function(){
     if(!DC().length) setDC(await SupabaseAPI.request('departments','GET')||[]);
-    GROUPS=read();
+    const cloud=await cloudRead();
+    if(cloud&&cloud.length){
+      GROUPS=cloud;
+      try{localStorage.setItem(KEY,JSON.stringify(GROUPS))}catch(e){}
+      setSaved('<i class="fas fa-cloud" style="color:#10b981"></i> تمت المزامنة من السحابة');
+    }else{
+      GROUPS=read();
+      if(GROUPS.length) cloudWrite(GROUPS);
+    }
     if(!GROUPS.length) GROUPS=[{id:Date.now(),name:'المجموعة الأولى',color:COLORS[0],yards:[]}];
     renderPM();
   };
@@ -14210,6 +14250,35 @@ body.dark-mode .pm-rem-next .date,body.dark-mode .pm-mile-row b,body.dark-mode .
 #page-periodic .pm-tab:hover{background:#e2e8f0}
 #page-periodic .pm-tab.active{background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;box-shadow:0 8px 18px -10px rgba(99,102,241,.9)}
 #page-periodic .pm-tab-dot{width:8px;height:8px;border-radius:50%;background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.25)}
+#page-periodic .pm-cal-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-bottom:14px}
+#page-periodic .pm-cal{border:1px solid #e5e7eb;border-radius:13px;overflow:hidden;background:#fff}
+#page-periodic .pm-cal>header{background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-weight:900;font-size:12.5px;padding:8px 10px;text-align:center}
+#page-periodic .pm-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:6px}
+#page-periodic .pm-cal-grid.head span{font-size:10px;color:#64748b;text-align:center;font-weight:800;padding:2px 0}
+#page-periodic .pm-cal-cell{position:relative;aspect-ratio:1;display:grid;place-items:center;border-radius:8px;font-size:11px;color:#334155;background:#f8fafc}
+#page-periodic .pm-cal-cell.empty{background:transparent}
+#page-periodic .pm-cal-cell.today{outline:2px solid #6366f1;font-weight:900}
+#page-periodic .pm-cal-cell.due{background:#fee2e2;color:#991b1b;font-weight:900}
+#page-periodic .pm-cal-cell.alert{background:#fef3c7;color:#92400e;font-weight:800}
+#page-periodic .pm-cal-cell .dot{position:absolute;bottom:3px;width:5px;height:5px;border-radius:50%;background:currentColor}
+#page-periodic .pm-cal-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:#64748b;margin-bottom:14px}
+#page-periodic .pm-cal-legend .lg{display:inline-block;width:11px;height:11px;border-radius:4px;margin-inline-end:4px;vertical-align:-1px}
+#page-periodic .pm-cal-legend .lg.due{background:#fecaca}
+#page-periodic .pm-cal-legend .lg.alert{background:#fde68a}
+#page-periodic .pm-cal-legend .lg.today{background:#c7d2fe}
+#page-periodic .pm-tl{position:relative;padding-inline-start:18px;border-inline-start:2px dashed #e2e8f0;display:grid;gap:10px}
+#page-periodic .pm-tl-item{position:relative}
+#page-periodic .pm-tl-dot{position:absolute;inset-inline-start:-25px;top:14px;width:11px;height:11px;border-radius:50%;background:#94a3b8;box-shadow:0 0 0 3px rgba(148,163,184,.25)}
+#page-periodic .pm-tl-item.due .pm-tl-dot{background:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.2)}
+#page-periodic .pm-tl-item.late .pm-tl-dot{background:#7c2d12}
+#page-periodic .pm-tl-item.alert .pm-tl-dot{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.2)}
+#page-periodic .pm-tl-item.ok .pm-tl-dot{background:#10b981}
+#page-periodic .pm-tl-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:9px 12px}
+#page-periodic .pm-tl-top{display:flex;align-items:center;gap:8px;font-size:13px;color:#0f172a}
+#page-periodic .pm-tl-badge{margin-inline-start:auto;font-size:10.5px;font-weight:800;background:#eef2ff;color:#4338ca;border-radius:999px;padding:2px 9px}
+#page-periodic .pm-tl-card small{display:block;color:#64748b;font-size:11px;margin-top:2px}
+#page-periodic .pm-tl-date{font-size:11.5px;color:#0f766e;margin-top:5px;font-weight:700}
+html[data-theme="dark"] #page-periodic .pm-cal,html[data-theme="dark"] #page-periodic .pm-tl-card{background:#0f172a;border-color:#1e293b;color:#e2e8f0}
 #page-periodic .pm-pane{display:none}
 #page-periodic .pm-pane.active{display:block;animation:pmFade .25s ease}
 @keyframes pmFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -14429,6 +14498,73 @@ body.dark-mode .pm-set,body.dark-mode .pm-log,body.dark-mode .pm-log-sum>div,bod
       '<div class="pm-log-tw"><table class="pm-log-table"><thead><tr><th>#</th><th>الدورة</th><th>تاريخ الاستحقاق</th><th>الحالة</th><th>التنفيذ / المتبقي</th><th>ملاحظة</th><th class="no-print">إجراء</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   }
 
+  /* ============ TAB: timeline / calendar ============ */
+  function buildEvents(D){
+    const st=D.settings, ev=[];
+    D.list.forEach(c=>{
+      ev.push({date:new Date(c.due),kind:'due',cycle:c,title:'موعد '+c.name,desc:c.desc});
+      if(!c.done) offsets(st).forEach((d,i)=>{
+        const md=new Date(c.due.getTime()-d*DAY);
+        ev.push({date:md,kind:'alert',cycle:c,title:(LBL[Math.min(i,3)]||'تنبيه')+' — '+c.name,desc:'قبل '+d+' يوم من موعد الاستحقاق'});
+      });
+    });
+    ev.sort((a,b)=>a.date-b.date);
+    return ev;
+  }
+  function calendarHTML(events,D){
+    const today=new Date(); today.setHours(0,0,0,0);
+    const map={};
+    events.forEach(e=>{const k=e.date.toDateString(); (map[k]=map[k]||[]).push(e);});
+    const months=[];
+    const first=new Date(today.getFullYear(),today.getMonth(),1);
+    for(let m=0;m<3;m++){
+      const cur=new Date(first.getFullYear(),first.getMonth()+m,1);
+      const days=new Date(cur.getFullYear(),cur.getMonth()+1,0).getDate();
+      const lead=cur.getDay();
+      let cells='';
+      for(let i=0;i<lead;i++) cells+='<div class="pm-cal-cell empty"></div>';
+      for(let d=1;d<=days;d++){
+        const dt=new Date(cur.getFullYear(),cur.getMonth(),d);
+        const list=map[dt.toDateString()]||[];
+        const isToday=dt.getTime()===today.getTime();
+        const due=list.some(e=>e.kind==='due');
+        const al=list.length&&!due;
+        const tip=list.map(e=>e.title).join(' | ');
+        cells+='<div class="pm-cal-cell'+(isToday?' today':'')+(due?' due':(al?' alert':''))+'" title="'+esc(tip)+'"><b>'+d+'</b>'+
+          (list.length?'<span class="dot"></span>':'')+'</div>';
+      }
+      months.push('<div class="pm-cal"><header>'+cur.toLocaleDateString('ar-JO',{month:'long',year:'numeric'})+'</header>'+
+        '<div class="pm-cal-grid head"><span>أحد</span><span>اثنين</span><span>ثلاثاء</span><span>أربعاء</span><span>خميس</span><span>جمعة</span><span>سبت</span></div>'+
+        '<div class="pm-cal-grid">'+cells+'</div></div>');
+    }
+    return months.join('');
+  }
+  function renderTimeline(D){
+    const w=document.getElementById('pmTimelineWrap'); if(!w)return;
+    if(!D){w.innerHTML='<div class="pm-rem"><div class="pm-rem-head"><div><h3><i class="fas fa-timeline"></i> تقويم المواعيد القادمة</h3><p>يعتمد على تاريخ أمر مباشرة العمل</p></div></div><div class="pm-rem-empty"><i class="fas fa-circle-info"></i> أدخل تاريخ أمر مباشرة العمل من تبويب «تفاصيل عطاء الصيانة» لعرض التقويم.</div></div>';return;}
+    const today=new Date(); today.setHours(0,0,0,0);
+    const ev=buildEvents(D);
+    const upcoming=ev.filter(e=>e.date>=today);
+    const items=(upcoming.length?upcoming:ev).map(e=>{
+      const days=Math.round((e.date-today)/DAY);
+      const past=days<0;
+      const cls=e.cycle.done?'ok':(e.kind==='due'?(past?'late':'due'):'alert');
+      const badge=e.cycle.done?'منفّذة':(past?'انقضى':(days===0?'اليوم':'بعد '+days+' يوم'));
+      return '<div class="pm-tl-item '+cls+'"><span class="pm-tl-dot"></span>'+
+        '<div class="pm-tl-card"><div class="pm-tl-top"><b>'+esc(e.title)+'</b><span class="pm-tl-badge">'+badge+'</span></div>'+
+        '<small>'+esc(e.desc)+'</small><div class="pm-tl-date"><i class="fas fa-calendar-day"></i> '+fmt(e.date)+'</div></div></div>';
+    }).join('');
+    const next=upcoming.find(e=>e.kind==='due'&&!e.cycle.done);
+    const head='<div class="pm-rem-head"><div><h3><i class="fas fa-timeline"></i> تقويم ومواعيد الصيانة القادمة</h3>'+
+      '<p>'+(next?('الموعد القادم: '+next.cycle.name+' — '+fmt(next.date)+' (بعد '+Math.max(0,Math.round((next.date-today)/DAY))+' يوم)'):'لا توجد مواعيد قادمة غير منفّذة')+'</p></div>'+
+      '<span class="pm-rem-badge"><i class="fas fa-flag-checkered"></i> مدة العطاء '+D.duration+' شهر</span></div>';
+    w.innerHTML='<div class="pm-rem">'+head+'<div class="pm-rem-body">'+
+      '<div class="pm-cal-wrap">'+calendarHTML(ev,D)+'</div>'+
+      '<div class="pm-cal-legend"><span><i class="lg due"></i> موعد صيانة</span><span><i class="lg alert"></i> تنبيه</span><span><i class="lg today"></i> اليوم</span></div>'+
+      '<div class="pm-tl">'+(items||'<div class="pm-rem-empty">لا توجد مواعيد</div>')+'</div>'+
+      '</div></div>';
+  }
+
   /* ============ TAB 4: settings ============ */
   function renderSettings(D){
     const w=document.getElementById('pmSettingsWrap'); if(!w)return;
@@ -14492,7 +14628,7 @@ body.dark-mode .pm-set,body.dark-mode .pm-log,body.dark-mode .pm-log-sum>div,bod
   window.renderPMReminders=async function(){
     if(!TENDER) await tender(); else tender();
     const D=buildCycles();
-    renderAlertsPane(D); renderLog(D); renderSettings(D); renderDash(D);
+    renderAlertsPane(D); renderTimeline(D); renderLog(D); renderSettings(D); renderDash(D);
     window.__PM_D=D;
   };
   window.pmSaveSettings=function(){
