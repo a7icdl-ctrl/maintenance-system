@@ -1,11 +1,4 @@
 
-
-
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -3056,79 +3049,157 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
             </div>
 
 <div class="page-section" id="page-admin">
-                <div class="page-header">
-                    <h1 class="page-title">إدارة النظام</h1>
-                </div>
-                <div class="admin-grid">
-                    <div class="admin-card">
-                        <h4><i class="fas fa-users"></i> إدارة المستخدمين</h4>
-                        <div id="usersList"></div>
-                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color);">
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label>اسم المستخدم</label>
-                                    <input type="text" class="form-control" id="newUsername" placeholder="اسم المستخدم">
+                <style>
+                #page-admin .sysw{max-width:1180px;margin:0 auto}
+                #page-admin .sys-hero{position:relative;overflow:hidden;border-radius:20px;padding:24px 26px;background:linear-gradient(135deg,var(--primary-dark,#3730a3),var(--primary,#4f46e5) 55%,var(--primary-light,#818cf8));color:#fff;box-shadow:0 18px 40px -22px rgba(55,48,163,.75);margin-bottom:18px}
+                #page-admin .sys-hero::after{content:'';position:absolute;inset-inline-start:-40px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.12)}
+                #page-admin .sys-hero .sh-row{position:relative;z-index:2;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+                #page-admin .sys-hero .sh-ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);font-size:22px}
+                #page-admin .sys-hero h1{font-size:22px;font-weight:900;margin:0}
+                #page-admin .sys-hero p{margin:4px 0 0;font-size:12.5px;opacity:.85}
+                #page-admin .sys-tabs{display:flex;gap:8px;flex-wrap:wrap;background:var(--card-bg,#fff);border:1px solid var(--border-color,#e5e7eb);padding:8px;border-radius:16px;margin-bottom:18px;box-shadow:0 6px 18px -14px rgba(15,23,42,.35)}
+                #page-admin .sys-tabs button{flex:1 1 150px;border:none;background:transparent;font-family:inherit;font-size:13px;font-weight:800;color:var(--text-medium,#64748b);padding:11px 14px;border-radius:11px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+                #page-admin .sys-tabs button:hover{background:rgba(79,70,229,.08);color:var(--primary,#4f46e5)}
+                #page-admin .sys-tabs button.active{background:linear-gradient(135deg,var(--primary,#4f46e5),var(--primary-light,#818cf8));color:#fff;box-shadow:0 8px 18px -10px rgba(79,70,229,.8)}
+                #page-admin .sys-pane{display:none;animation:sysFade .25s ease}
+                #page-admin .sys-pane.active{display:block}
+                @keyframes sysFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+                #page-admin .sys-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;align-items:start}
+                #page-admin .sys-card{background:var(--card-bg,#fff);border:1px solid var(--border-color,#e5e7eb);border-radius:18px;padding:20px;box-shadow:0 10px 26px -22px rgba(15,23,42,.55)}
+                #page-admin .sys-card h4{display:flex;align-items:center;gap:9px;font-size:14.5px;font-weight:900;color:var(--text-dark,#0f172a);margin:0 0 4px}
+                #page-admin .sys-card h4 i{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:13px;background:rgba(79,70,229,.12);color:var(--primary,#4f46e5)}
+                #page-admin .sys-card .hint{font-size:12px;color:var(--text-medium,#64748b);margin:0 0 14px}
+                #page-admin .sys-sub{font-size:11.5px;font-weight:800;letter-spacing:.4px;color:var(--text-medium,#94a3b8);text-transform:uppercase;margin:2px 0 10px;display:flex;align-items:center;gap:8px}
+                #page-admin .sys-sub::after{content:'';height:1px;flex:1;background:var(--border-color,#e5e7eb)}
+                #page-admin .sys-ro{display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.45);border-radius:12px}
+                #page-admin .sys-ro input{width:19px;height:19px;cursor:pointer;margin-top:2px;flex:0 0 19px}
+                #page-admin .sys-ro b{display:block;font-size:12.5px;color:#92400e}
+                #page-admin .sys-ro small{display:block;font-size:11px;color:#78350f;margin-top:3px;line-height:1.6}
+                #page-admin .sys-card.danger{border-color:rgba(239,68,68,.45);background:linear-gradient(180deg,rgba(239,68,68,.06),transparent)}
+                #page-admin .sys-card.danger h4 i{background:rgba(239,68,68,.14);color:#dc2626}
+                #page-admin .sys-actions{display:grid;gap:10px}
+                #page-admin .sys-actions .btn{width:100%;justify-content:center}
+                #page-admin #usersList{max-height:340px;overflow:auto}
+                </style>
+                <div class="sysw">
+                    <div class="sys-hero">
+                        <div class="sh-row">
+                            <div class="sh-ic"><i class="fas fa-sliders-h"></i></div>
+                            <div>
+                                <h1>إدارة النظام</h1>
+                                <p>المستخدمون والصلاحيات، النسخ الاحتياطي، وإجراءات الصيانة الحساسة — كلها في مكان واحد منظم.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sys-tabs">
+                        <button class="active" onclick="showAdminTab('users',this)"><i class="fas fa-users"></i> المستخدمون والصلاحيات</button>
+                        <button onclick="showAdminTab('backup',this)"><i class="fas fa-database"></i> النسخ الاحتياطي</button>
+                        <button onclick="showAdminTab('danger',this)"><i class="fas fa-triangle-exclamation"></i> منطقة الخطر</button>
+                    </div>
+
+                    <div class="sys-pane active" id="admtab-users">
+                        <div class="sys-grid">
+                            <div class="sys-card">
+                                <h4><i class="fas fa-user-group"></i> المستخدمون الحاليون</h4>
+                                <p class="hint">قائمة الحسابات المسجلة في النظام وصلاحياتها.</p>
+                                <div id="usersList"></div>
+                            </div>
+                            <div class="sys-card">
+                                <h4><i class="fas fa-user-plus"></i> إضافة مستخدم جديد</h4>
+                                <p class="hint">أدخل بيانات الحساب ثم اختر الصلاحية المناسبة.</p>
+                                <div class="sys-sub">بيانات الحساب</div>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>اسم المستخدم</label>
+                                        <input type="text" class="form-control" id="newUsername" placeholder="اسم المستخدم">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>كلمة المرور</label>
+                                        <input type="password" class="form-control" id="newPassword" placeholder="كلمة المرور">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>الاسم الكامل</label>
+                                        <input type="text" class="form-control" id="newFullName" placeholder="الاسم الكامل">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>الصلاحية</label>
+                                        <select class="form-control" id="newRole">
+                                            <option value="user">مستخدم</option>
+                                            <option value="admin">مدير</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>كلمة المرور</label>
-                                    <input type="password" class="form-control" id="newPassword" placeholder="كلمة المرور">
-                                </div>
-                                <div class="form-group">
-                                    <label>الاسم الكامل</label>
-                                    <input type="text" class="form-control" id="newFullName" placeholder="الاسم الكامل">
-                                </div>
-                                <div class="form-group">
-                                    <label>الصلاحية</label>
-                                    <select class="form-control" id="newRole">
-                                        <option value="user">مستخدم</option>
-                                        <option value="admin">مدير</option>
-                                    </select>
-                                </div>
-                                <div class="form-group full-width">
-                                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 12px; background: #fef3c7; border-radius: 10px; border: 1px solid #f59e0b;">
-                                        <input type="checkbox" id="newReadOnly" style="width: 20px; height: 20px; cursor: pointer;">
-                                        <span style="font-weight: 700; color: #92400e;">
-                                            <i class="fas fa-eye" style="margin-left: 6px;"></i>
-                                            وضع القراءة فقط (Read-Only)
-                                        </span>
-                                    </label>
-                                    <p style="font-size: 12px; color: #78350f; margin-top: 6px; margin-right: 32px;">
-                                        عند تفعيل هذا الخيار، سيتمكن المستخدم من مشاهدة جميع البيانات والتنقل بين التبويبات فقط دون إمكانية إجراء أي تعديل أو إضافة أو حذف.
-                                    </p>
+                                <div class="sys-sub">خيارات الوصول</div>
+                                <label class="sys-ro">
+                                    <input type="checkbox" id="newReadOnly">
+                                    <span>
+                                        <b><i class="fas fa-eye" style="margin-left:6px;"></i> وضع القراءة فقط (Read-Only)</b>
+                                        <small>سيتمكن المستخدم من مشاهدة جميع البيانات والتنقل بين التبويبات فقط، دون إمكانية التعديل أو الإضافة أو الحذف.</small>
+                                    </span>
+                                </label>
+                                <div class="sys-actions" style="margin-top:14px;">
+                                    <button class="btn btn-success no-readonly" onclick="if(checkReadOnly())return;addUser()">
+                                        <i class="fas fa-plus"></i> إضافة مستخدم
+                                    </button>
                                 </div>
                             </div>
-                            <button class="btn btn-success btn-sm no-readonly" style="margin-top: 15px;" onclick="if(checkReadOnly())return;addUser()">
-                                <i class="fas fa-plus"></i> إضافة مستخدم
-                            </button>
                         </div>
                     </div>
-                    <div class="admin-card danger-zone">
-                        <h4><i class="fas fa-exclamation-triangle"></i> منطقة الخطر</h4>
-                        <p>تنبيه: هذه الإجراءات لا يمكن التراجع عنها!</p>
-                        <button class="btn btn-danger no-readonly" onclick="if(checkReadOnly())return;resetAllData()">
-                            <i class="fas fa-trash-alt"></i> مسح جميع البيانات
-                        </button>
-                        <button class="btn btn-warning no-readonly" style="margin-top: 10px;" onclick="if(checkReadOnly())return;resetUsers()">
-                            <i class="fas fa-user-times"></i> إعادة تعيين المستخدمين
-                        </button>
-                        <button class="btn btn-success no-readonly" style="margin-top: 10px;" onclick="if(checkReadOnly())return;resetInventoryDefaults()">
-                            <i class="fas fa-boxes"></i> إعادة تعيين المخزون الافتراضي
-                        </button>
+
+                    <div class="sys-pane" id="admtab-backup">
+                        <div class="sys-grid">
+                            <div class="sys-card">
+                                <h4><i class="fas fa-download"></i> تصدير البيانات</h4>
+                                <p class="hint">تنزيل نسخة كاملة من بيانات النظام بصيغة JSON للاحتفاظ بها.</p>
+                                <div class="sys-actions">
+                                    <button class="btn btn-primary" onclick="exportAllData()">
+                                        <i class="fas fa-download"></i> تصدير البيانات
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="sys-card">
+                                <h4><i class="fas fa-upload"></i> استيراد نسخة احتياطية</h4>
+                                <p class="hint">اختر ملف نسخة احتياطية سابقة لاستعادة البيانات.</p>
+                                <div class="file-upload-area" onclick="document.getElementById('backupImportFile').click()" style="padding:22px;">
+                                    <i class="fas fa-file-arrow-up" style="font-size:28px;margin-bottom:8px;"></i>
+                                    <h4 style="font-size:14px;">اسحب الملف أو اضغط للاختيار</h4>
+                                    <p style="font-size:11px;">ملفات JSON فقط</p>
+                                    <input type="file" id="backupImportFile" style="display:none;" accept=".json" onchange="importBackup(this)">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="admin-card">
-                        <h4><i class="fas fa-database"></i> النسخ الاحتياطي</h4>
-                        <p style="font-size: 13px; color: var(--text-medium); margin-bottom: 15px;">قم بتصدير أو استيراد جميع بيانات النظام</p>
-                        <button class="btn btn-primary" onclick="exportAllData()" style="margin-bottom: 10px; width: 100%;">
-                            <i class="fas fa-download"></i> تصدير البيانات
-                        </button>
-                        <div class="file-upload-area" onclick="document.getElementById('backupImportFile').click()" style="padding: 20px;">
-                            <i class="fas fa-upload" style="font-size: 28px; margin-bottom: 8px;"></i>
-                            <h4 style="font-size: 14px;">استيراد نسخة احتياطية</h4>
-                            <p style="font-size: 11px;">JSON فقط</p>
-                            <input type="file" id="backupImportFile" style="display:none;" accept=".json" onchange="importBackup(this)">
+
+                    <div class="sys-pane" id="admtab-danger">
+                        <div class="sys-grid">
+                            <div class="sys-card danger">
+                                <h4><i class="fas fa-triangle-exclamation"></i> منطقة الخطر</h4>
+                                <p class="hint">تنبيه: هذه الإجراءات لا يمكن التراجع عنها — تأكد من وجود نسخة احتياطية قبل المتابعة.</p>
+                                <div class="sys-actions">
+                                    <button class="btn btn-danger no-readonly" onclick="if(checkReadOnly())return;resetAllData()">
+                                        <i class="fas fa-trash-alt"></i> مسح جميع البيانات
+                                    </button>
+                                    <button class="btn btn-warning no-readonly" onclick="if(checkReadOnly())return;resetUsers()">
+                                        <i class="fas fa-user-times"></i> إعادة تعيين المستخدمين
+                                    </button>
+                                    <button class="btn btn-success no-readonly" onclick="if(checkReadOnly())return;resetInventoryDefaults()">
+                                        <i class="fas fa-boxes"></i> إعادة تعيين المخزون الافتراضي
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <script>
+                function showAdminTab(name, el){
+                    document.querySelectorAll('#page-admin .sys-pane').forEach(p=>p.classList.remove('active'));
+                    document.querySelectorAll('#page-admin .sys-tabs button').forEach(b=>b.classList.remove('active'));
+                    var pane=document.getElementById('admtab-'+name);
+                    if(pane) pane.classList.add('active');
+                    if(el) el.classList.add('active');
+                }
+                </script>
             </div>
 
             <div class="page-section" id="page-tender">
