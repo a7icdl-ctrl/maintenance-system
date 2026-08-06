@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1747,132 +1748,105 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     </div>
                 </div>
 
-                <!-- Executive hero -->
-                <div class="dash-hero">
-                    <div class="dash-hero-inner">
-                        <div class="dash-hello">
-                            <h2 id="dashGreeting">مرحباً بك</h2>
-                            <p id="dashDateLine">لوحة الأداء التنفيذية لإدارة الصيانة</p>
-                            <div class="dash-chips">
-                                <span class="dash-chip"><i class="fas fa-bolt"></i> <span id="chipOpen">0</span> طلب مفتوح</span>
-                                <span class="dash-chip good"><i class="fas fa-circle-check"></i> <span id="chipToday">0</span> طلب اليوم</span>
-                                <span class="dash-chip bad"><i class="fas fa-triangle-exclamation"></i> <span id="chipCritical">0</span> حالة حرجة</span>
-                            </div>
+                <!-- ===== Executive command strip ===== -->
+                <section class="dsh">
+                  <div class="dsh-hero dash-hero">
+                    <div class="dash-hero-inner dsh-hero-in">
+                      <div class="dash-hello dsh-hello">
+                        <h2 id="dashGreeting">مرحباً بك</h2>
+                        <p id="dashDateLine">لوحة الأداء التنفيذية لإدارة الصيانة</p>
+                        <div class="dash-chips">
+                          <span class="dash-chip"><i class="fas fa-bolt"></i> <span id="chipOpen">0</span> مفتوح</span>
+                          <span class="dash-chip good"><i class="fas fa-circle-check"></i> <span id="chipToday">0</span> اليوم</span>
+                          <span class="dash-chip bad"><i class="fas fa-triangle-exclamation"></i> <span id="chipCritical">0</span> حرج</span>
                         </div>
-                        <div class="health-ring">
-                            <div class="ring" id="healthRing" style="--p:0">
-                                <div class="ring-inner">
-                                    <div>
-                                        <b id="healthScore">0%</b>
-                                        <span>مؤشر صحة النظام</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style="max-width:190px">
-                                <div style="font-size:13px;font-weight:800;margin-bottom:6px" id="healthLabel">جارٍ الحساب...</div>
-                                <div style="font-size:11.5px;color:rgba(255,255,255,.72);line-height:1.7" id="healthHint">
-                                    يُحتسب من نسبة الإنجاز، تراكم الطلبات المتأخرة، وتوفر قطع الغيار.
-                                </div>
-                            </div>
+                      </div>
+                      <div class="health-ring dsh-ring">
+                        <div class="ring" id="healthRing" style="--p:0">
+                          <div class="ring-inner"><div><b id="healthScore">0%</b><span>صحة النظام</span></div></div>
                         </div>
+                        <div class="dsh-ring-txt">
+                          <div class="dsh-ring-t" id="healthLabel">جارٍ الحساب...</div>
+                          <div class="dsh-ring-h" id="healthHint">يُحتسب من نسبة الإنجاز، تراكم الطلبات المتأخرة، وتوفر قطع الغيار.</div>
+                        </div>
+                      </div>
                     </div>
-                </div>
+                  </div>
 
-                <!-- تذكيرات الصيانة الدورية -->
-                <div id="pmDashAlerts" class="pm-dash-alerts" style="display:none"></div>
+                  <div id="pmDashAlerts" class="pm-dash-alerts" style="display:none"></div>
 
-                <!-- Primary KPIs -->
-                <div class="kpi-grid">
+                  <!-- KPI strip -->
+                  <div class="kpi-grid dsh-kpis">
                     <div class="kpi-card" style="--kc:#4f46e5">
-                        <div class="kpi-top">
-                            <div class="kpi-ico"><i class="fas fa-clipboard-list"></i></div>
-                            <span class="kpi-delta" id="kpiTotalDelta">—</span>
-                        </div>
-                        <div class="kpi-val" id="statTotalRequests">0</div>
-                        <div class="kpi-lbl">إجمالي الطلبات</div>
-                        <div class="kpi-sub" id="kpiTotalSub">مقارنة بالشهر الماضي</div>
+                      <div class="kpi-top"><div class="kpi-ico"><i class="fas fa-clipboard-list"></i></div><span class="kpi-delta" id="kpiTotalDelta">—</span></div>
+                      <div class="kpi-val" id="statTotalRequests">0</div>
+                      <div class="kpi-lbl">إجمالي الطلبات</div>
+                      <div class="kpi-sub" id="kpiTotalSub">مقارنة بالشهر الماضي</div>
                     </div>
                     <div class="kpi-card" style="--kc:#f59e0b">
-                        <div class="kpi-top">
-                            <div class="kpi-ico"><i class="fas fa-hourglass-half"></i></div>
-                            <span class="kpi-delta" id="kpiOpenDelta">قيد العمل</span>
-                        </div>
-                        <div class="kpi-val" id="kpiOpen">0</div>
-                        <div class="kpi-lbl">طلبات مفتوحة</div>
-                        <div class="kpi-sub" id="kpiOpenSub">تشمل: جديد، قيد التنفيذ، انتظار، مشغل</div>
+                      <div class="kpi-top"><div class="kpi-ico"><i class="fas fa-hourglass-half"></i></div><span class="kpi-delta" id="kpiOpenDelta">قيد العمل</span></div>
+                      <div class="kpi-val" id="kpiOpen">0</div>
+                      <div class="kpi-lbl">طلبات مفتوحة</div>
+                      <div class="kpi-sub" id="kpiOpenSub">جديد، قيد التنفيذ، انتظار، مشغل</div>
                     </div>
                     <div class="kpi-card" style="--kc:#10b981">
-                        <div class="kpi-top">
-                            <div class="kpi-ico"><i class="fas fa-gauge-high"></i></div>
-                            <span class="kpi-delta up" id="kpiRateDelta">—</span>
-                        </div>
-                        <div class="kpi-val" id="kpiCompletionRate">0%</div>
-                        <div class="kpi-lbl">نسبة الإنجاز</div>
-                        <div class="kpi-sub" id="kpiRateSub">من إجمالي الطلبات المسجلة</div>
+                      <div class="kpi-top"><div class="kpi-ico"><i class="fas fa-gauge-high"></i></div><span class="kpi-delta up" id="kpiRateDelta">—</span></div>
+                      <div class="kpi-val" id="kpiCompletionRate">0%</div>
+                      <div class="kpi-lbl">نسبة الإنجاز</div>
+                      <div class="kpi-sub" id="kpiRateSub">من إجمالي الطلبات المسجلة</div>
                     </div>
                     <div class="kpi-card" style="--kc:#06b6d4">
-                        <div class="kpi-top">
-                            <div class="kpi-ico"><i class="fas fa-stopwatch"></i></div>
-                            <span class="kpi-delta" id="kpiAgeDelta">متوسط</span>
-                        </div>
-                        <div class="kpi-val" id="kpiAvgAge">0</div>
-                        <div class="kpi-lbl">متوسط عمر الطلب المفتوح (يوم)</div>
-                        <div class="kpi-sub" id="kpiAgeSub">أقدم طلب: —</div>
+                      <div class="kpi-top"><div class="kpi-ico"><i class="fas fa-stopwatch"></i></div><span class="kpi-delta" id="kpiAgeDelta">متوسط</span></div>
+                      <div class="kpi-val" id="kpiAvgAge">0</div>
+                      <div class="kpi-lbl">متوسط عمر الطلب (يوم)</div>
+                      <div class="kpi-sub" id="kpiAgeSub">أقدم طلب: —</div>
                     </div>
-                </div>
+                  </div>
 
-                <!-- Charts -->
-                <div class="dash-cols">
-                    <div class="panel">
-                        <div class="panel-head">
-                            <h3><i class="fas fa-chart-line"></i> حركة الطلبات خلال 6 أشهر</h3>
-                            <small>واردة مقابل منجزة</small>
-                        </div>
-                        <div class="panel-body"><div class="chart-wrap"><canvas id="chartTrend"></canvas></div></div>
+                  <!-- Analytics grid -->
+                  <div class="dsh-grid">
+                    <div class="panel dsh-panel dsh-a">
+                      <div class="panel-head"><h3><i class="fas fa-chart-line"></i> حركة الطلبات — 6 أشهر</h3><small>واردة مقابل منجزة</small></div>
+                      <div class="panel-body"><div class="chart-wrap"><canvas id="chartTrend"></canvas></div></div>
                     </div>
-                    <div class="panel">
-                        <div class="panel-head">
-                            <h3><i class="fas fa-chart-pie"></i> توزيع الحالات</h3>
-                        </div>
-                        <div class="panel-body"><div class="chart-wrap"><canvas id="chartStatus"></canvas></div></div>
+                    <div class="panel dsh-panel dsh-b">
+                      <div class="panel-head"><h3><i class="fas fa-chart-pie"></i> توزيع الحالات</h3></div>
+                      <div class="panel-body"><div class="chart-wrap"><canvas id="chartStatus"></canvas></div></div>
                     </div>
-                </div>
+                    <div class="panel dsh-panel dsh-c">
+                      <div class="panel-head"><h3><i class="fas fa-building"></i> أكثر الأقسام طلباً</h3><small>أعلى 6</small></div>
+                      <div class="panel-body"><div class="rank-list" id="deptRank"></div></div>
+                    </div>
+                    <div class="panel dsh-panel dsh-d">
+                      <div class="panel-head"><h3><i class="fas fa-screwdriver-wrench"></i> أكثر الأعطال تكراراً</h3><small>تحليل الوصف</small></div>
+                      <div class="panel-body"><div class="rank-list" id="issueRank"></div></div>
+                    </div>
+                    <div class="panel dsh-panel dsh-e">
+                      <div class="panel-head"><h3><i class="fas fa-bell"></i> تنبيهات تحتاج إجراء</h3><small id="alertsCount">0</small></div>
+                      <div class="panel-body"><div class="alert-list" id="dashAlerts"></div></div>
+                    </div>
+                  </div>
 
-                <div class="dash-cols-3">
-                    <div class="panel">
-                        <div class="panel-head"><h3><i class="fas fa-building"></i> أكثر الأقسام طلباً</h3><small>أعلى 6 أقسام</small></div>
-                        <div class="panel-body"><div class="rank-list" id="deptRank"></div></div>
+                  <!-- Collapsible detail metrics -->
+                  <details class="dsh-more" open>
+                    <summary><span><i class="fas fa-layer-group"></i> تفاصيل المؤشرات</span><small>كل الحالات والمخزون</small><i class="fas fa-chevron-down dsh-caret"></i></summary>
+                    <div class="mini-stats dsh-mini">
+                      <div class="mini-stat" style="--mc:#6366f1"><i class="fas fa-star"></i><div><div class="ms-v" id="statNew">0</div><div class="ms-l">جديد</div></div></div>
+                      <div class="mini-stat" style="--mc:#3b82f6"><i class="fas fa-spinner"></i><div><div class="ms-v" id="statInProgress">0</div><div class="ms-l">قيد التنفيذ</div></div></div>
+                      <div class="mini-stat" style="--mc:#f59e0b"><i class="fas fa-clock"></i><div><div class="ms-v" id="statPending">0</div><div class="ms-l">قيد الانتظار</div></div></div>
+                      <div class="mini-stat" style="--mc:#8b5cf6"><i class="fas fa-hand-paper"></i><div><div class="ms-v" id="statWithdrawn">0</div><div class="ms-l">مسحوب</div></div></div>
+                      <div class="mini-stat" style="--mc:#06b6d4"><i class="fas fa-play-circle"></i><div><div class="ms-v" id="statActive">0</div><div class="ms-l">مشغل</div></div></div>
+                      <div class="mini-stat" style="--mc:#10b981"><i class="fas fa-check-circle"></i><div><div class="ms-v" id="statCompleted">0</div><div class="ms-l">مكتمل</div></div></div>
+                      <div class="mini-stat" style="--mc:#ef4444"><i class="fas fa-times-circle"></i><div><div class="ms-v" id="statCancelled">0</div><div class="ms-l">ملغي</div></div></div>
+                      <div class="mini-stat" style="--mc:#ec4899"><i class="fas fa-clone"></i><div><div class="ms-v" id="statDuplicate">0</div><div class="ms-l">مكرر</div></div></div>
+                      <div class="mini-stat" style="--mc:#f97316"><i class="fas fa-box"></i><div><div class="ms-v" id="statOutOfStock">0</div><div class="ms-l">قطع نفدت</div></div></div>
+                      <div class="mini-stat" style="--mc:#8b5cf6"><i class="fas fa-laptop"></i><div><div class="ms-v" id="statAltAvailable">0</div><div class="ms-l">أجهزة بديلة</div></div></div>
+                      <div class="mini-stat" style="--mc:#6366f1"><i class="fas fa-file-alt"></i><div><div class="ms-v" id="statDocuments">0</div><div class="ms-l">وثائق وملاحظات</div></div></div>
+                      <div class="mini-stat" style="--mc:#0ea5e9"><i class="fas fa-desktop"></i><div><div class="ms-v" id="statComputerItems">0</div><div class="ms-l">مواد حاسوبية</div></div></div>
                     </div>
-                    <div class="panel">
-                        <div class="panel-head"><h3><i class="fas fa-screwdriver-wrench"></i> أكثر الأعطال تكراراً</h3><small>تحليل نصي للوصف</small></div>
-                        <div class="panel-body"><div class="rank-list" id="issueRank"></div></div>
-                    </div>
-                    <div class="panel">
-                        <div class="panel-head"><h3><i class="fas fa-bell"></i> تنبيهات تحتاج إجراء</h3><small id="alertsCount">0</small></div>
-                        <div class="panel-body"><div class="alert-list" id="dashAlerts"></div></div>
-                    </div>
-                </div>
+                  </details>
+                </section>
 
-                <!-- Secondary metrics (all original counters preserved) -->
-                <div class="panel" style="margin-bottom:24px">
-                    <div class="panel-head"><h3><i class="fas fa-layer-group"></i> تفاصيل المؤشرات</h3><small>لمحة سريعة على كل الحالات والمخزون</small></div>
-                    <div class="panel-body">
-                        <div class="mini-stats" style="margin-bottom:0">
-                            <div class="mini-stat" style="--mc:#6366f1"><i class="fas fa-star"></i><div><div class="ms-v" id="statNew">0</div><div class="ms-l">جديد</div></div></div>
-                            <div class="mini-stat" style="--mc:#3b82f6"><i class="fas fa-spinner"></i><div><div class="ms-v" id="statInProgress">0</div><div class="ms-l">قيد التنفيذ</div></div></div>
-                            <div class="mini-stat" style="--mc:#f59e0b"><i class="fas fa-clock"></i><div><div class="ms-v" id="statPending">0</div><div class="ms-l">قيد الانتظار</div></div></div>
-                            <div class="mini-stat" style="--mc:#8b5cf6"><i class="fas fa-hand-paper"></i><div><div class="ms-v" id="statWithdrawn">0</div><div class="ms-l">مسحوب</div></div></div>
-                            <div class="mini-stat" style="--mc:#06b6d4"><i class="fas fa-play-circle"></i><div><div class="ms-v" id="statActive">0</div><div class="ms-l">مشغل</div></div></div>
-                            <div class="mini-stat" style="--mc:#10b981"><i class="fas fa-check-circle"></i><div><div class="ms-v" id="statCompleted">0</div><div class="ms-l">مكتمل</div></div></div>
-                            <div class="mini-stat" style="--mc:#ef4444"><i class="fas fa-times-circle"></i><div><div class="ms-v" id="statCancelled">0</div><div class="ms-l">ملغي</div></div></div>
-                            <div class="mini-stat" style="--mc:#ec4899"><i class="fas fa-clone"></i><div><div class="ms-v" id="statDuplicate">0</div><div class="ms-l">مكرر</div></div></div>
-                            <div class="mini-stat" style="--mc:#f97316"><i class="fas fa-box"></i><div><div class="ms-v" id="statOutOfStock">0</div><div class="ms-l">قطع نفدت</div></div></div>
-                            <div class="mini-stat" style="--mc:#8b5cf6"><i class="fas fa-laptop"></i><div><div class="ms-v" id="statAltAvailable">0</div><div class="ms-l">أجهزة بديلة متاحة</div></div></div>
-                            <div class="mini-stat" style="--mc:#6366f1"><i class="fas fa-file-alt"></i><div><div class="ms-v" id="statDocuments">0</div><div class="ms-l">الوثائق والملاحظات</div></div></div>
-                            <div class="mini-stat" style="--mc:#0ea5e9"><i class="fas fa-desktop"></i><div><div class="ms-v" id="statComputerItems">0</div><div class="ms-l">المواد الحاسوبية</div></div></div>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="card">
                     <div class="card-header">
@@ -15777,6 +15751,478 @@ body.dark-mode .rdrill-tools input,body.dark-mode .rdrill-tools select{ backgrou
     window.showPage = function (p) { const r = _orig.apply(this, arguments); if (p === 'reports') setTimeout(init, 250); return r; };
   }
   setInterval(() => { const p = document.getElementById('page-reports'); if (p && p.classList.contains('active')) init(); }, 3000);
+})();
+</script>
+
+
+<style id="new-dashboard-skin">
+/* ================= NEW DASHBOARD SKIN — elegant & compact ================= */
+#page-dashboard { --dsh-gap: 14px; --dsh-r: 18px; }
+#page-dashboard .page-header { position: sticky; top: 0; z-index: 40; margin: -6px -4px 14px; padding: 10px 14px;
+  background: color-mix(in srgb, var(--card-bg, #fff) 82%, transparent); backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid var(--border-color); border-radius: 16px; box-shadow: 0 8px 26px rgba(15,23,42,.06); }
+#page-dashboard .page-title { font-size: 21px; letter-spacing: -.4px; }
+#page-dashboard .page-actions .btn { padding: 8px 13px; font-size: 12.5px; border-radius: 11px; }
+
+/* ---- hero ---- */
+#page-dashboard .dsh-hero { border-radius: 22px; padding: 18px 24px; margin-bottom: var(--dsh-gap);
+  box-shadow: 0 14px 34px rgba(49,46,129,.24); }
+#page-dashboard .dsh-hero-in { gap: 18px; }
+#page-dashboard .dsh-hello h2 { font-size: 23px; font-weight: 900; letter-spacing: -.5px; }
+#page-dashboard .dsh-hello p { font-size: 12.5px; opacity: .78; margin-top: 2px; }
+#page-dashboard .dash-chips { margin-top: 11px; gap: 8px; }
+#page-dashboard .dash-chip { padding: 5px 12px; font-size: 12px; border-radius: 999px; }
+#page-dashboard .dsh-ring { gap: 14px; }
+#page-dashboard .ring { width: 104px; height: 104px; }
+#page-dashboard .ring-inner { width: 82px; height: 82px; }
+#page-dashboard .ring-inner b { font-size: 22px; }
+#page-dashboard .ring-inner span { font-size: 9.5px; }
+#page-dashboard .dsh-ring-txt { max-width: 200px; }
+#page-dashboard .dsh-ring-t { font-size: 12.5px; font-weight: 800; margin-bottom: 4px; }
+#page-dashboard .dsh-ring-h { font-size: 11px; line-height: 1.65; color: rgba(255,255,255,.7); }
+
+/* ---- KPI strip ---- */
+#page-dashboard .dsh-kpis { grid-template-columns: repeat(4, minmax(0,1fr)); gap: var(--dsh-gap); margin-bottom: var(--dsh-gap); }
+#page-dashboard .kpi-card { padding: 15px 16px; border-radius: var(--dsh-r); box-shadow: 0 6px 20px rgba(15,23,42,.05); }
+#page-dashboard .kpi-card::before { height: 3px; }
+#page-dashboard .kpi-card:hover { transform: translateY(-3px); }
+#page-dashboard .kpi-ico { width: 38px; height: 38px; border-radius: 12px; font-size: 16px; }
+#page-dashboard .kpi-delta { font-size: 11px; padding: 3px 9px; }
+#page-dashboard .kpi-val { font-size: 27px; margin-top: 10px; }
+#page-dashboard .kpi-lbl { font-size: 12.5px; }
+#page-dashboard .kpi-sub { font-size: 10.5px; margin-top: 5px; opacity: .85; }
+
+/* ---- analytics mosaic ---- */
+#page-dashboard .dsh-grid { display: grid; gap: var(--dsh-gap); margin-bottom: var(--dsh-gap);
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-areas: "a a a a b b" "c c d d e e"; }
+#page-dashboard .dsh-a { grid-area: a; } #page-dashboard .dsh-b { grid-area: b; }
+#page-dashboard .dsh-c { grid-area: c; } #page-dashboard .dsh-d { grid-area: d; }
+#page-dashboard .dsh-e { grid-area: e; }
+#page-dashboard .dsh-panel { border-radius: var(--dsh-r); box-shadow: 0 6px 20px rgba(15,23,42,.05);
+  transition: box-shadow .25s ease, transform .25s ease; }
+#page-dashboard .dsh-panel:hover { box-shadow: 0 14px 30px rgba(15,23,42,.09); }
+#page-dashboard .panel-head { padding: 12px 16px; }
+#page-dashboard .panel-head h3 { font-size: 13.5px; gap: 7px; }
+#page-dashboard .panel-head h3 i { font-size: 12.5px; }
+#page-dashboard .panel-head small { font-size: 10.5px; }
+#page-dashboard .panel-body { padding: 14px 16px; }
+#page-dashboard .dsh-a .chart-wrap { height: 220px; }
+#page-dashboard .dsh-b .chart-wrap { height: 220px; }
+#page-dashboard .rank-list { gap: 11px; }
+#page-dashboard .rank-row .rr-top { font-size: 12px; }
+#page-dashboard .rank-bar { height: 7px; }
+#page-dashboard .alert-list { max-height: 232px; gap: 8px; padding-left: 4px; }
+#page-dashboard .alert-list::-webkit-scrollbar { width: 6px; }
+#page-dashboard .alert-list::-webkit-scrollbar-thumb { background: rgba(148,163,184,.4); border-radius: 99px; }
+#page-dashboard .alert-item { padding: 9px 11px; border-radius: 12px; }
+#page-dashboard .alert-item h5 { font-size: 12.5px; }
+#page-dashboard .alert-item p { font-size: 11px; }
+
+/* ---- collapsible details ---- */
+#page-dashboard .dsh-more { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--dsh-r);
+  margin-bottom: var(--dsh-gap); overflow: hidden; box-shadow: 0 6px 20px rgba(15,23,42,.05); }
+#page-dashboard .dsh-more > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; font-size: 13.5px; font-weight: 800; color: var(--text-dark); }
+#page-dashboard .dsh-more > summary::-webkit-details-marker { display: none; }
+#page-dashboard .dsh-more > summary i.fa-layer-group { color: var(--primary); margin-left: 6px; }
+#page-dashboard .dsh-more > summary small { font-size: 10.5px; font-weight: 600; color: var(--text-light); }
+#page-dashboard .dsh-caret { margin-right: auto; font-size: 11px; color: var(--text-light); transition: transform .25s ease; }
+#page-dashboard .dsh-more[open] .dsh-caret { transform: rotate(180deg); }
+#page-dashboard .dsh-mini { grid-template-columns: repeat(auto-fit, minmax(132px,1fr)); gap: 9px;
+  padding: 0 16px 16px; margin: 0; }
+#page-dashboard .dsh-mini .mini-stat { padding: 9px 11px; border-radius: 13px; gap: 9px; box-shadow: none;
+  background: color-mix(in srgb, var(--mc) 7%, transparent); border: 1px solid color-mix(in srgb, var(--mc) 18%, transparent); }
+#page-dashboard .dsh-mini .mini-stat i { width: 29px; height: 29px; border-radius: 9px; font-size: 12.5px; }
+#page-dashboard .dsh-mini .ms-v { font-size: 16px; }
+#page-dashboard .dsh-mini .ms-l { font-size: 10.5px; }
+
+/* ---- active requests table card ---- */
+#page-dashboard > .card { border-radius: var(--dsh-r); box-shadow: 0 6px 20px rgba(15,23,42,.05); margin-bottom: 18px; }
+#page-dashboard > .card .card-header { padding: 12px 16px; }
+#page-dashboard > .card .card-header h3 { font-size: 13.5px; }
+#page-dashboard #dashboardRequestsTable th { font-size: 11.5px; padding: 9px 10px; position: sticky; top: 0; }
+#page-dashboard #dashboardRequestsTable td { font-size: 12.5px; padding: 9px 10px; }
+#page-dashboard .table-container { max-height: 430px; overflow: auto; }
+
+/* ---- entrance motion ---- */
+@keyframes dshIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+#page-dashboard.active .dsh-hero, #page-dashboard.active .kpi-card,
+#page-dashboard.active .dsh-panel, #page-dashboard.active .dsh-more { animation: dshIn .45s cubic-bezier(.22,.9,.3,1) both; }
+#page-dashboard.active .kpi-card:nth-child(1){animation-delay:.04s}
+#page-dashboard.active .kpi-card:nth-child(2){animation-delay:.08s}
+#page-dashboard.active .kpi-card:nth-child(3){animation-delay:.12s}
+#page-dashboard.active .kpi-card:nth-child(4){animation-delay:.16s}
+#page-dashboard.active .dsh-panel:nth-child(1){animation-delay:.18s}
+#page-dashboard.active .dsh-panel:nth-child(2){animation-delay:.22s}
+#page-dashboard.active .dsh-panel:nth-child(3){animation-delay:.26s}
+#page-dashboard.active .dsh-panel:nth-child(4){animation-delay:.3s}
+#page-dashboard.active .dsh-panel:nth-child(5){animation-delay:.34s}
+@media (prefers-reduced-motion: reduce) { #page-dashboard * { animation: none !important; } }
+
+/* ---- dark theme polish ---- */
+html[data-theme="dark"] #page-dashboard .page-header,
+html[data-theme="dark"] #page-dashboard .dsh-more,
+html[data-theme="dark"] #page-dashboard .dsh-panel,
+html[data-theme="dark"] #page-dashboard .kpi-card { box-shadow: 0 8px 26px rgba(0,0,0,.35); }
+
+/* ---- responsive ---- */
+@media (max-width: 1280px) {
+  #page-dashboard .dsh-grid { grid-template-columns: repeat(4,1fr); grid-template-areas: "a a a b" "c c d d" "e e e e"; }
+}
+@media (max-width: 980px) {
+  #page-dashboard .dsh-kpis { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  #page-dashboard .dsh-grid { grid-template-columns: 1fr; grid-template-areas: "a" "b" "c" "d" "e"; }
+}
+@media (max-width: 620px) {
+  #page-dashboard .dsh-kpis { grid-template-columns: 1fr; }
+  #page-dashboard .page-header { position: static; }
+  #page-dashboard .dsh-hero { padding: 16px; }
+}
+@media print {
+  #page-dashboard .page-header { position: static; box-shadow: none; }
+  #page-dashboard .dsh-grid { grid-template-columns: 1fr 1fr; grid-template-areas: "a a" "b c" "d e"; }
+  #page-dashboard .table-container { max-height: none; }
+  #page-dashboard .dsh-more { break-inside: avoid; }
+}
+</style>
+<!-- ===== System Health Details Modal + A11y + Print (v2) ===== -->
+<style id="hd-styles">
+/* --- Focus visibility (a11y) --- */
+:focus-visible { outline: 3px solid #6366f1; outline-offset: 2px; border-radius: 6px; }
+.skip-link { position: absolute; right: -9999px; top: 0; z-index: 5000; background: #4f46e5; color: #fff;
+  padding: 10px 18px; border-radius: 0 0 10px 10px; font-weight: 700; }
+.skip-link:focus { right: 12px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+#healthRing[role="button"] { cursor: pointer; transition: transform .2s ease, filter .2s ease; }
+#healthRing[role="button"]:hover { transform: scale(1.04); filter: brightness(1.08); }
+#healthRing[role="button"]:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+
+/* --- Health details modal --- */
+#healthDetailsModal .modal { max-width: 1000px; width: 96%; }
+.hd-top { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;
+  padding: 16px 18px; border-radius: 16px; margin-bottom: 18px;
+  background: linear-gradient(135deg, rgba(79,70,229,.10), rgba(6,182,212,.10));
+  border: 1px solid var(--border-color); }
+.hd-score { width: 92px; height: 92px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+  font-size: 24px; font-weight: 900; background: conic-gradient(#22c55e calc(var(--p,0)*1%), rgba(148,163,184,.28) 0); position: relative; }
+.hd-score::after { content: ''; position: absolute; inset: 9px; border-radius: 50%; background: var(--bg-card, #fff); }
+.hd-score b { position: relative; z-index: 1; color: var(--text-dark); }
+.hd-top-txt h4 { font-size: 17px; font-weight: 800; color: var(--text-dark); margin-bottom: 4px; }
+.hd-top-txt p { font-size: 12.5px; color: var(--text-medium); line-height: 1.7; }
+.hd-factors { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.hd-factor { font-size: 11.5px; font-weight: 700; padding: 5px 11px; border-radius: 999px;
+  background: rgba(99,102,241,.12); color: #4338ca; }
+html[data-theme="dark"] .hd-factor { background: rgba(99,102,241,.22); color: #c7d2fe; }
+
+.hd-sec-title { font-size: 14px; font-weight: 800; color: var(--text-dark); margin: 18px 0 10px;
+  display: flex; align-items: center; gap: 8px; }
+.hd-services { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 10px; }
+.hd-svc { display: flex; align-items: center; gap: 10px; padding: 11px 13px; border-radius: 12px;
+  border: 1px solid var(--border-color); background: var(--bg-card, #fff); }
+.hd-dot { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; box-shadow: 0 0 0 4px rgba(0,0,0,.04); }
+.hd-dot.ok { background: #10b981; } .hd-dot.warn { background: #f59e0b; } .hd-dot.bad { background: #ef4444; }
+.hd-svc-n { font-size: 13px; font-weight: 700; color: var(--text-dark); }
+.hd-svc-s { font-size: 11px; color: var(--text-medium); }
+
+.hd-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+.hd-filters input, .hd-filters select { padding: 8px 11px; border: 1px solid var(--border-color); border-radius: 10px;
+  font-family: inherit; font-size: 12.5px; background: var(--bg-card, #fff); color: var(--text-dark); }
+.hd-filters input { flex: 1 1 190px; min-width: 150px; }
+.hd-log { max-height: 320px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 14px; }
+.hd-row { display: grid; grid-template-columns: 34px 1fr auto; gap: 11px; align-items: start;
+  padding: 11px 13px; border-bottom: 1px solid var(--border-color); }
+.hd-row:last-child { border-bottom: 0; }
+.hd-ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-size: 13px; color: #fff; }
+.hd-t { font-size: 13px; font-weight: 700; color: var(--text-dark); }
+.hd-d { font-size: 11.5px; color: var(--text-medium); margin-top: 2px; line-height: 1.6; }
+.hd-time { font-size: 11px; color: var(--text-light, #94a3b8); white-space: nowrap; }
+.hd-empty { padding: 26px; text-align: center; color: var(--text-light, #94a3b8); font-size: 13px; }
+html[data-theme="dark"] .hd-svc, html[data-theme="dark"] .hd-log { background: rgba(30,41,59,.55); }
+
+/* --- Organized print output --- */
+@page { size: A4; margin: 18mm 14mm 20mm; }
+.print-only { display: none; }
+@media print {
+  html, body { background: #fff !important; }
+  .skip-link, .sidebar, .no-print, .hd-filters, .modal-close, .modal-footer { display: none !important; }
+  .print-only { display: block !important; }
+  .print-header { border-bottom: 2.5px solid #4f46e5; padding-bottom: 8px; margin-bottom: 14px; }
+  .print-header h1 { font-size: 18pt; color: #4f46e5; margin: 0 0 3px; }
+  .print-header .ph-meta { font-size: 9pt; color: #475569; display: flex; justify-content: space-between; }
+  .print-footer { position: fixed; bottom: 0; left: 0; right: 0; font-size: 8.5pt; color: #64748b;
+    border-top: 1px solid #cbd5e1; padding-top: 4px; display: flex; justify-content: space-between; }
+  .card, .kpi-card, .panel, .hd-row, .hd-svc, table { break-inside: avoid; page-break-inside: avoid; }
+  h2, h3, .hd-sec-title { break-after: avoid; page-break-after: avoid; }
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+  a[href]::after { content: ""; }
+  .hd-log { max-height: none !important; overflow: visible !important; border: 0 !important; }
+  #healthDetailsModal.modal-overlay.active { position: static; display: block !important; background: #fff; padding: 0; backdrop-filter: none; }
+  #healthDetailsModal .modal { max-width: 100%; box-shadow: none; animation: none; max-height: none; overflow: visible; }
+  body.printing-health > .main-content, body.printing-health .sidebar, body.printing-health .page-header { display: none !important; }
+}
+</style>
+
+<div class="modal-overlay" id="healthDetailsModal" role="dialog" aria-modal="true"
+     aria-labelledby="hdTitle" aria-describedby="hdSummaryText">
+  <div class="modal" role="document">
+    <div class="modal-header">
+      <h3 id="hdTitle"><i class="fas fa-heart-pulse" aria-hidden="true"></i> تفاصيل صحة النظام</h3>
+      <button class="modal-close" type="button" aria-label="إغلاق نافذة تفاصيل صحة النظام"
+              onclick="closeHealthDetails()"><i class="fas fa-times" aria-hidden="true"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="print-only print-header">
+        <h1>تقرير صحة النظام</h1>
+        <div class="ph-meta"><span>نظام إدارة الصيانة</span><span id="hdPrintDate"></span></div>
+      </div>
+
+      <div class="hd-top">
+        <div class="hd-score" id="hdScoreRing" style="--p:0"><b id="hdScoreVal">0%</b></div>
+        <div class="hd-top-txt">
+          <h4 id="hdScoreLabel">جارٍ الحساب...</h4>
+          <p id="hdSummaryText">يُحتسب المؤشر من نسبة الإنجاز، تراكم الطلبات المتأخرة، وتوفر قطع الغيار.</p>
+          <div class="hd-factors" id="hdFactors"></div>
+        </div>
+      </div>
+
+      <h4 class="hd-sec-title" id="hdSvcTitle"><i class="fas fa-server" aria-hidden="true"></i> حالة الخدمات</h4>
+      <div class="hd-services" id="hdServices" role="list" aria-labelledby="hdSvcTitle"></div>
+
+      <h4 class="hd-sec-title" id="hdLogTitle"><i class="fas fa-clock-rotate-left" aria-hidden="true"></i> آخر الأحداث والسجل</h4>
+      <div class="hd-filters no-print" role="search" aria-labelledby="hdLogTitle">
+        <label class="sr-only" for="hdSearch">بحث في السجل</label>
+        <input type="search" id="hdSearch" placeholder="ابحث في الأحداث..." oninput="renderHealthLog()">
+        <label class="sr-only" for="hdType">نوع الحدث</label>
+        <select id="hdType" onchange="renderHealthLog()" aria-label="تصفية حسب نوع الحدث">
+          <option value="all">كل الأنواع</option>
+          <option value="request">طلبات الصيانة</option>
+          <option value="inventory">حركات المخزون</option>
+          <option value="device">الأجهزة البديلة</option>
+        </select>
+        <label class="sr-only" for="hdRange">الفترة الزمنية</label>
+        <select id="hdRange" onchange="renderHealthLog()" aria-label="تصفية حسب الفترة الزمنية">
+          <option value="7">آخر 7 أيام</option>
+          <option value="30" selected>آخر 30 يوم</option>
+          <option value="90">آخر 90 يوم</option>
+          <option value="all">كل الفترات</option>
+        </select>
+        <button class="btn btn-secondary btn-sm" type="button" onclick="printHealthReport()">
+          <i class="fas fa-print" aria-hidden="true"></i> طباعة التقرير
+        </button>
+      </div>
+      <div class="hd-log" id="hdLog" role="log" aria-live="polite" aria-labelledby="hdLogTitle" tabindex="0"></div>
+      <p class="sr-only" id="hdLogCount" aria-live="polite"></p>
+
+      <div class="print-only print-footer">
+        <span>تقرير صحة النظام — نظام إدارة الصيانة</span><span id="hdPrintFoot"></span>
+      </div>
+    </div>
+    <div class="modal-footer no-print">
+      <button class="btn btn-secondary" type="button" onclick="closeHealthDetails()">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var lastFocused = null, events = [];
+
+  function daysSince(d) { if (!d) return 9999; var t = new Date(d); if (isNaN(t)) return 9999;
+    return Math.floor((Date.now() - t.getTime()) / 86400000); }
+  function fmt(d) { if (!d) return '-'; var t = new Date(d); if (isNaN(t)) return String(d);
+    return t.toLocaleDateString('ar-EG', { day: '2-digit', month: 'short' }) + ' • ' +
+           t.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); }
+  function get(id) { return document.getElementById(id); }
+
+  var STATUS_AR = { new: 'جديد', inprogress: 'قيد التنفيذ', pending: 'قيد الانتظار', withdrawn: 'مسحوب',
+    active: 'مشغل', completed: 'مكتمل', cancelled: 'ملغي', duplicate: 'مكرر' };
+
+  async function safe(table) { try { return (await SupabaseAPI.request(table, 'GET')) || []; } catch (e) { return null; } }
+
+  function svcCard(name, state, detail) {
+    var cls = state === 'ok' ? 'ok' : state === 'warn' ? 'warn' : 'bad';
+    var word = state === 'ok' ? 'تعمل بشكل طبيعي' : state === 'warn' ? 'تحتاج انتباه' : 'غير متاحة';
+    return '<div class="hd-svc" role="listitem">' +
+      '<span class="hd-dot ' + cls + '" aria-hidden="true"></span>' +
+      '<div><div class="hd-svc-n">' + esc(name) + '</div>' +
+      '<div class="hd-svc-s">' + esc(detail || word) + '</div></div>' +
+      '<span class="sr-only">الحالة: ' + word + '</span></div>';
+  }
+
+  window.renderHealthLog = function () {
+    var box = get('hdLog'); if (!box) return;
+    var q = (get('hdSearch') && get('hdSearch').value || '').trim().toLowerCase();
+    var type = get('hdType') ? get('hdType').value : 'all';
+    var range = get('hdRange') ? get('hdRange').value : '30';
+    var list = events.filter(function (e) {
+      if (type !== 'all' && e.type !== type) return false;
+      if (range !== 'all' && daysSince(e.date) > parseInt(range, 10)) return false;
+      if (q && (e.title + ' ' + e.desc).toLowerCase().indexOf(q) === -1) return false;
+      return true;
+    }).slice(0, 120);
+
+    box.innerHTML = list.length ? list.map(function (e) {
+      return '<div class="hd-row">' +
+        '<div class="hd-ic" style="background:' + e.color + '"><i class="fas ' + e.icon + '" aria-hidden="true"></i></div>' +
+        '<div><div class="hd-t">' + esc(e.title) + '</div><div class="hd-d">' + esc(e.desc) + '</div></div>' +
+        '<div class="hd-time">' + esc(fmt(e.date)) + '</div></div>';
+    }).join('') : '<div class="hd-empty">لا توجد أحداث مطابقة للتصفية الحالية</div>';
+    var c = get('hdLogCount'); if (c) c.textContent = 'عدد الأحداث المعروضة: ' + list.length;
+  };
+
+  window.openHealthDetails = async function () {
+    var overlay = get('healthDetailsModal'); if (!overlay) return;
+    lastFocused = document.activeElement;
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    var score = parseInt((get('healthScore') && get('healthScore').textContent || '0'), 10) || 0;
+    get('hdScoreVal').textContent = score + '%';
+    get('hdScoreRing').style.setProperty('--p', score);
+    get('hdScoreLabel').textContent = get('healthLabel') ? get('healthLabel').textContent : '';
+    var d = new Date();
+    get('hdPrintDate').textContent = 'تاريخ الإصدار: ' + d.toLocaleDateString('ar-EG');
+    get('hdPrintFoot').textContent = d.toLocaleString('ar-EG');
+
+    get('hdServices').innerHTML = '<div class="hd-svc" role="listitem"><span class="hd-dot warn"></span><div><div class="hd-svc-n">جارٍ الفحص...</div></div></div>';
+    get('hdLog').innerHTML = '<div class="hd-empty">جارٍ تحميل الأحداث...</div>';
+
+    var close = overlay.querySelector('.modal-close'); if (close) close.focus();
+
+    var reqs = await safe('requests'), inv = await safe('inventory'),
+        hist = await safe('inventory_history'), trans = await safe('transactions'),
+        models = await safe('alt_models'), docs = await safe('documents');
+
+    // ---- Services ----
+    var out = [];
+    out.push(svcCard('الاتصال بقاعدة البيانات', reqs === null ? 'bad' : 'ok',
+      reqs === null ? 'تعذر الوصول إلى الخادم' : 'متصل • استجابة سليمة'));
+    if (reqs) {
+      var open = reqs.filter(function (r) { return ['completed', 'cancelled', 'duplicate'].indexOf(r.status) === -1; });
+      var late = open.filter(function (r) { return daysSince(r.created_at || r.createdAt) > 7; }).length;
+      out.push(svcCard('خدمة طلبات الصيانة', late > 5 ? 'warn' : 'ok',
+        open.length + ' طلب مفتوح • ' + late + ' متأخر'));
+    } else out.push(svcCard('خدمة طلبات الصيانة', 'bad', 'غير متاحة'));
+    if (inv) {
+      var zero = inv.filter(function (i) { return (i.qty || 0) === 0; }).length;
+      out.push(svcCard('مخزون قطع الغيار', zero === 0 ? 'ok' : (zero / Math.max(1, inv.length) > 0.25 ? 'bad' : 'warn'),
+        inv.length + ' صنف • ' + zero + ' نفد من المخزون'));
+    } else out.push(svcCard('مخزون قطع الغيار', 'bad', 'غير متاحة'));
+    if (models) {
+      var avail = models.filter(function (m) { return m.status === 'available'; }).length;
+      out.push(svcCard('الأجهزة البديلة', avail > 0 ? 'ok' : 'warn', avail + ' جهاز متاح من ' + models.length));
+    } else out.push(svcCard('الأجهزة البديلة', 'bad', 'غير متاحة'));
+    out.push(svcCard('أرشيف الوثائق', docs === null ? 'bad' : 'ok', docs ? docs.length + ' وثيقة مسجلة' : 'غير متاحة'));
+    out.push(svcCard('سجل حركات المخزون', hist === null ? 'bad' : 'ok', hist ? hist.length + ' حركة مسجلة' : 'غير متاحة'));
+    get('hdServices').innerHTML = out.join('');
+
+    // ---- Factors ----
+    var fac = [];
+    if (reqs) {
+      var comp = reqs.filter(function (r) { return r.status === 'completed'; }).length;
+      fac.push('نسبة الإنجاز: ' + (reqs.length ? Math.round(comp / reqs.length * 100) : 0) + '%');
+      fac.push('إجمالي الطلبات: ' + reqs.length);
+    }
+    if (inv) fac.push('نفاد المخزون: ' + inv.filter(function (i) { return (i.qty || 0) === 0; }).length + ' صنف');
+    get('hdFactors').innerHTML = fac.map(function (f) { return '<span class="hd-factor">' + esc(f) + '</span>'; }).join('');
+
+    // ---- Events ----
+    events = [];
+    (reqs || []).forEach(function (r) {
+      events.push({ type: 'request', date: r.updated_at || r.created_at || r.createdAt,
+        title: 'طلب #' + (r.request_number || r.id) + ' — ' + (STATUS_AR[r.status] || r.status || ''),
+        desc: [r.device_name, r.employee_name, r.department].filter(Boolean).join(' • ') || 'بدون تفاصيل',
+        icon: 'fa-clipboard-list',
+        color: r.status === 'completed' ? '#10b981' : (r.status === 'cancelled' ? '#ef4444' : '#4f46e5') });
+    });
+    (hist || []).forEach(function (h) {
+      events.push({ type: 'inventory', date: h.date,
+        title: (h.type === 'out' ? 'صرف' : h.type === 'in' ? 'إضافة' : 'تعديل') + ' مخزون — ' + (h.item_name || ''),
+        desc: 'الكمية: ' + (h.qty || 0) + ' • من ' + (h.old_qty != null ? h.old_qty : '-') + ' إلى ' + (h.new_qty != null ? h.new_qty : '-') + ' • بواسطة ' + (h.user || 'النظام'),
+        icon: 'fa-boxes-stacked', color: h.type === 'out' ? '#f59e0b' : '#06b6d4' });
+    });
+    (trans || []).forEach(function (t) {
+      events.push({ type: 'inventory', date: t.date, title: 'حركة صرف — ' + (t.item_name || ''),
+        desc: 'للموظف: ' + (t.employee || '-') + ' • الكمية: ' + (t.qty || 0) + (t.notes ? ' • ' + t.notes : ''),
+        icon: 'fa-right-from-bracket', color: '#8b5cf6' });
+    });
+    (models || []).forEach(function (m) {
+      events.push({ type: 'device', date: m.updated_at || m.added_at,
+        title: 'جهاز بديل — ' + (m.model || m.type || ''),
+        desc: 'الحالة: ' + (m.status === 'available' ? 'متاح' : m.status === 'assigned' ? 'مُسند' : (m.status || '-')) +
+              (m.assigned_to ? ' • لدى ' + m.assigned_to : '') + (m.location ? ' • ' + m.location : ''),
+        icon: 'fa-desktop', color: m.status === 'available' ? '#10b981' : '#0ea5e9' });
+    });
+    events.sort(function (a, b) { return new Date(b.date || 0) - new Date(a.date || 0); });
+    renderHealthLog();
+  };
+
+  window.closeHealthDetails = function () {
+    var overlay = get('healthDetailsModal'); if (!overlay) return;
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    if (lastFocused && lastFocused.focus) lastFocused.focus();
+  };
+
+  window.printHealthReport = function () {
+    document.body.classList.add('printing-health');
+    window.print();
+    setTimeout(function () { document.body.classList.remove('printing-health'); }, 600);
+  };
+
+  // Keyboard: Esc to close + focus trap inside the dialog
+  document.addEventListener('keydown', function (e) {
+    var overlay = get('healthDetailsModal');
+    if (!overlay || !overlay.classList.contains('active')) return;
+    if (e.key === 'Escape') { e.preventDefault(); closeHealthDetails(); return; }
+    if (e.key !== 'Tab') return;
+    var f = overlay.querySelectorAll('a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+
+  // Make the health ring an accessible button + global a11y touch-ups
+  function enhance() {
+    var ring = get('healthRing');
+    if (ring && !ring.dataset.a11y) {
+      ring.dataset.a11y = '1';
+      ring.setAttribute('role', 'button');
+      ring.setAttribute('tabindex', '0');
+      ring.setAttribute('aria-haspopup', 'dialog');
+      ring.setAttribute('aria-label', 'مؤشر صحة النظام — اضغط لعرض التفاصيل وسجل الأحداث');
+      ring.addEventListener('click', function () { openHealthDetails(); });
+      ring.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openHealthDetails(); }
+      });
+    }
+    var score = get('healthScore');
+    if (score) { score.setAttribute('aria-live', 'polite'); score.setAttribute('aria-atomic', 'true'); }
+
+    if (!document.querySelector('.skip-link')) {
+      var a = document.createElement('a');
+      a.className = 'skip-link'; a.href = '#page-dashboard'; a.textContent = 'تخطَّ إلى المحتوى الرئيسي';
+      document.body.insertBefore(a, document.body.firstChild);
+    }
+    // Icon-only buttons get an accessible name from their title/tooltip when missing
+    document.querySelectorAll('button:not([aria-label])').forEach(function (b) {
+      if (b.textContent.trim() === '' && (b.title || b.dataset.tooltip)) {
+        b.setAttribute('aria-label', b.title || b.dataset.tooltip);
+      }
+    });
+    document.querySelectorAll('.modal-overlay:not([role])').forEach(function (m) {
+      m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true');
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enhance);
+  else enhance();
+  setTimeout(enhance, 1200);
 })();
 </script>
 
