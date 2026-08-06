@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -2177,10 +2178,53 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 </div>
             </div>
 
-                                    <div class="page-section" id="page-computer_items">
-                <div class="page-header">
-                    <h1 class="page-title">المواد الحاسوبية</h1>
-                    <div class="page-actions no-print">
+            <div class="page-section" id="page-computer_items">
+                <style>
+                #page-computer_items .ci-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;margin-bottom:12px}
+                #page-computer_items .ci-title{margin:0;font-size:20px;font-weight:900;color:var(--text-dark,#1e293b);display:flex;align-items:center;gap:8px}
+                #page-computer_items .ci-title i{color:#4f46e5}
+                #page-computer_items .ci-actions{display:flex;flex-wrap:wrap;gap:6px}
+                #page-computer_items .ci-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:10px}
+                #page-computer_items .ci-stat{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:8px 10px;display:flex;align-items:center;gap:8px}
+                #page-computer_items .ci-stat i{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:8px;background:#eef2ff;color:#4f46e5;font-size:12px}
+                #page-computer_items .ci-stat b{font-size:16px;font-weight:900;line-height:1}
+                #page-computer_items .ci-stat span{font-size:11px;color:#64748b;display:block}
+                #page-computer_items .ci-bar{display:grid;grid-template-columns:minmax(0,1fr) 190px auto;gap:8px;align-items:center;margin-bottom:8px}
+                #page-computer_items .ci-search,#page-computer_items .ci-select{width:100%;padding:8px 12px;border:1px solid #e5e7eb;border-radius:9px;font-size:13px;font-family:inherit;background:#fff;color:#334155}
+                #page-computer_items .ci-search:focus,#page-computer_items .ci-select:focus{outline:none;border-color:#4f46e5}
+                #page-computer_items .ci-count{font-size:11.5px;color:#64748b;white-space:nowrap}
+                #page-computer_items .ci-card{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:#fff}
+                #page-computer_items .ci-table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;font-size:13px;background:#fff}
+                #page-computer_items .ci-table thead th{background:#f8fafc;color:#475569;font-size:11.5px;font-weight:800;text-align:right;padding:6px 8px;border-bottom:1px solid #e5e7eb;white-space:nowrap;position:sticky;top:0;z-index:1}
+                #page-computer_items .ci-table tbody td{padding:5px 8px;border-bottom:1px solid #f1f5f9;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+                #page-computer_items .ci-table tbody tr:hover{background:#f9fafb}
+                #page-computer_items .ci-table tbody tr:last-child td{border-bottom:none}
+                #page-computer_items .ci-table td:nth-child(1),#page-computer_items .ci-table th:nth-child(1){width:52px;color:#94a3b8;font-weight:800}
+                #page-computer_items .ci-table td:nth-child(2),#page-computer_items .ci-table th:nth-child(2){width:96px}
+                #page-computer_items .ci-table td:nth-child(3),#page-computer_items .ci-table th:nth-child(3){width:110px}
+                #page-computer_items .ci-table td:nth-child(4),#page-computer_items .ci-table th:nth-child(4){width:auto}
+                #page-computer_items .ci-table td:nth-child(5),#page-computer_items .ci-table th:nth-child(5){width:62px;text-align:center}
+                #page-computer_items .ci-table td:nth-child(6),#page-computer_items .ci-table th:nth-child(6){width:16%}
+                #page-computer_items .ci-table td:nth-child(7),#page-computer_items .ci-table th:nth-child(7){width:96px;color:#64748b}
+                #page-computer_items .ci-table td:nth-child(8),#page-computer_items .ci-table th:nth-child(8){width:100px;color:#64748b}
+                #page-computer_items .ci-table td:nth-child(9),#page-computer_items .ci-table th:nth-child(9){width:112px}
+                #page-computer_items .ci-table .badge{font-size:10.5px;padding:1px 8px;border-radius:999px;font-weight:800}
+                #page-computer_items .ci-table .action-btns{display:flex;gap:3px;justify-content:flex-start}
+                #page-computer_items .ci-table .action-btn{width:24px;height:24px;font-size:11px;display:grid;place-items:center;border-radius:6px}
+                #page-computer_items .ci-qty{display:inline-grid;place-items:center;min-width:26px;height:20px;padding:0 6px;border-radius:6px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:12px}
+                #page-computer_items .ci-num{color:#4f46e5;font-weight:800;font-size:12.5px}
+                #page-computer_items .ci-empty{padding:26px;text-align:center;color:#94a3b8;font-size:13px}
+                @media(max-width:900px){
+                  #page-computer_items .ci-head{grid-template-columns:1fr}
+                  #page-computer_items .ci-bar{grid-template-columns:1fr}
+                  #page-computer_items .ci-table{table-layout:auto;font-size:12px}
+                  #page-computer_items .ci-table thead th,#page-computer_items .ci-table tbody td{padding:6px 5px}
+                  #page-computer_items .ci-stats{grid-template-columns:repeat(auto-fit,minmax(105px,1fr))}
+                }
+                </style>
+                <div class="ci-head no-print">
+                    <h1 class="ci-title"><i class="fas fa-desktop"></i> المواد الحاسوبية</h1>
+                    <div class="ci-actions">
                         <button class="btn btn-success btn-sm no-readonly" onclick="if(checkReadOnly())return;openComputerItemModal()">
                             <i class="fas fa-plus"></i> إضافة مادة
                         </button>
@@ -2195,39 +2239,36 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                         </button>
                     </div>
                 </div>
-                <div class="search-filter no-print">
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="computerItemSearch" placeholder="بحث في المواد..." onkeyup="filterComputerItems()">
-                    </div>
-                    <select class="form-control" id="computerItemCategoryFilter" onchange="filterComputerItems()" style="width: 200px;">
+                <div class="ci-stats" id="ciStats"></div>
+                <div class="ci-bar no-print">
+                    <input class="ci-search" type="search" id="computerItemSearch" placeholder="بحث برقم المادة أو الاسم أو الملاحظات..." oninput="filterComputerItems()">
+                    <select class="ci-select" id="computerItemCategoryFilter" onchange="filterComputerItems()">
                         <option value="">جميع التصنيفات</option>
                         <option value="Desktop">Desktop</option>
                         <option value="Notebook">Notebook</option>
                         <option value="Printer">Printer</option>
                         <option value="Other">Other</option>
                     </select>
+                    <span class="ci-count" id="ciCount"></span>
                 </div>
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-container">
-                            <table class="data-table" id="computerItemsTable">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>التصنيف</th>
-                                        <th>رقم المادة</th>
-                                        <th>اسم المادة ومواصفاتها</th>
-                                        <th>الكمية</th>
-                                        <th>الملاحظات</th>
-                                        <th>تاريخ الإضافة</th>
-                                        <th>المستخدم</th>
-                                        <th class="no-print">إجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
+                <div class="ci-card">
+                    <div class="table-container">
+                        <table class="ci-table data-table" id="computerItemsTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>التصنيف</th>
+                                    <th>رقم المادة</th>
+                                    <th>اسم المادة ومواصفاتها</th>
+                                    <th>الكمية</th>
+                                    <th>الملاحظات</th>
+                                    <th>تاريخ الإضافة</th>
+                                    <th>المستخدم</th>
+                                    <th class="no-print">إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -5685,14 +5726,16 @@ async function loadComputerItems() {
         Desktop: 'info', Notebook: 'secondary', Printer: 'warning', Other: 'new'
     };
 
-    tbody.innerHTML = filtered.sort((a, b) => (b.id || 0) - (a.id || 0)).map(i => `
+    const sorted = filtered.sort((a, b) => (b.id || 0) - (a.id || 0));
+
+    tbody.innerHTML = sorted.length ? sorted.map((i, idx) => `
         <tr>
-            <td><strong>#${i.id}</strong></td>
-            <td><span class="badge badge-${categoryColors[i.category] || 'new'}">${i.category}</span></td>
-            <td><strong style="color: var(--primary);">${i.item_number || i.itemNumber || '-'}</strong></td>
-            <td style="max-width: 300px; white-space: normal;">${i.name}</td>
-            <td><strong style="font-size: 16px;">${i.qty}</strong></td>
-            <td>${i.notes ? i.notes.substring(0, 40) + (i.notes.length > 40 ? '...' : '') : '-'}</td>
+            <td>${idx + 1}</td>
+            <td><span class="badge badge-${categoryColors[i.category] || 'new'}">${i.category || '-'}</span></td>
+            <td><span class="ci-num">${i.item_number || i.itemNumber || '-'}</span></td>
+            <td title="${(i.name || '').replace(/"/g, '&quot;')}">${i.name || '-'}</td>
+            <td><span class="ci-qty">${i.qty}</span></td>
+            <td title="${(i.notes || '').replace(/"/g, '&quot;')}">${i.notes || '-'}</td>
             <td>${formatDate(i.created_at)}</td>
             <td>${i.created_by || i.createdBy || '-'}</td>
             <td class="no-print">
@@ -5704,9 +5747,26 @@ async function loadComputerItems() {
                 </div>
             </td>
         </tr>
-    `).join('');
+    `).join('') : '<tr><td colspan="9" class="ci-empty"><i class="fas fa-inbox"></i> لا توجد مواد مطابقة</td></tr>';
 
-    document.getElementById('computerItemsBadge').textContent = items.length;
+    const statsEl = document.getElementById('ciStats');
+    if (statsEl) {
+        const totalQty = items.reduce((s, i) => s + (Number(i.qty) || 0), 0);
+        const cats = new Set(items.map(i => i.category).filter(Boolean)).size;
+        const byCat = {};
+        items.forEach(i => { byCat[i.category] = (byCat[i.category] || 0) + 1; });
+        const topCat = Object.keys(byCat).sort((a, b) => byCat[b] - byCat[a])[0] || '-';
+        statsEl.innerHTML =
+            `<div class="ci-stat"><i class="fas fa-microchip"></i><div><b>${items.length}</b><span>إجمالي المواد</span></div></div>` +
+            `<div class="ci-stat"><i class="fas fa-layer-group"></i><div><b>${totalQty}</b><span>مجموع الكميات</span></div></div>` +
+            `<div class="ci-stat"><i class="fas fa-tags"></i><div><b>${cats}</b><span>عدد التصنيفات</span></div></div>` +
+            `<div class="ci-stat"><i class="fas fa-star"></i><div><b style="font-size:13px">${topCat}</b><span>الأكثر تكراراً</span></div></div>`;
+    }
+    const countEl = document.getElementById('ciCount');
+    if (countEl) countEl.textContent = `عرض ${sorted.length} من ${items.length}`;
+
+    const badgeEl = document.getElementById('computerItemsBadge');
+    if (badgeEl) badgeEl.textContent = items.length;
 }
 
 function filterComputerItems() { loadComputerItems(); }
