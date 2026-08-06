@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -3080,6 +3081,50 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 #page-admin .sys-actions{display:grid;gap:10px}
                 #page-admin .sys-actions .btn{width:100%;justify-content:center}
                 #page-admin #usersList{max-height:340px;overflow:auto}
+
+                #page-admin .sys-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:18px}
+                #page-admin .sys-stat{position:relative;overflow:hidden;background:var(--card-bg,#fff);border:1px solid var(--border-color,#e5e7eb);border-radius:16px;padding:15px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 10px 24px -22px rgba(15,23,42,.55)}
+                #page-admin .sys-stat i{width:40px;height:40px;flex:0 0 40px;border-radius:12px;display:grid;place-items:center;font-size:16px}
+                #page-admin .sys-stat b{display:block;font-size:20px;font-weight:900;color:var(--text-dark,#0f172a);line-height:1}
+                #page-admin .sys-stat span{display:block;font-size:11.5px;font-weight:700;color:var(--text-medium,#64748b);margin-top:4px}
+                #page-admin .sys-stat.s1 i{background:rgba(79,70,229,.12);color:#4f46e5}
+                #page-admin .sys-stat.s2 i{background:rgba(16,185,129,.14);color:#059669}
+                #page-admin .sys-stat.s3 i{background:rgba(59,130,246,.14);color:#2563eb}
+                #page-admin .sys-stat.s4 i{background:rgba(245,158,11,.16);color:#b45309}
+                #page-admin .sys-stat::after{content:'';position:absolute;inset-inline-end:-18px;bottom:-24px;width:70px;height:70px;border-radius:50%;background:rgba(79,70,229,.05)}
+                #page-admin .pmx-wrap{display:grid;grid-template-columns:280px 1fr;gap:16px;align-items:start}
+                @media(max-width:900px){#page-admin .pmx-wrap{grid-template-columns:1fr}}
+                #page-admin .pmx-users{background:var(--card-bg,#fff);border:1px solid var(--border-color,#e5e7eb);border-radius:18px;padding:14px;max-height:520px;overflow:auto;box-shadow:0 10px 26px -22px rgba(15,23,42,.55)}
+                #page-admin .pmx-u{display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;transition:.18s;border:1px solid transparent}
+                #page-admin .pmx-u:hover{background:rgba(79,70,229,.06)}
+                #page-admin .pmx-u.active{background:rgba(79,70,229,.1);border-color:rgba(79,70,229,.35)}
+                #page-admin .pmx-av{width:34px;height:34px;flex:0 0 34px;border-radius:11px;display:grid;place-items:center;font-weight:900;color:#fff;font-size:14px;background:linear-gradient(135deg,#4f46e5,#818cf8)}
+                #page-admin .pmx-u.ro .pmx-av{background:linear-gradient(135deg,#f59e0b,#f97316)}
+                #page-admin .pmx-u.adm .pmx-av{background:linear-gradient(135deg,#059669,#34d399)}
+                #page-admin .pmx-u b{display:block;font-size:12.5px;color:var(--text-dark,#0f172a)}
+                #page-admin .pmx-u small{display:block;font-size:10.5px;color:var(--text-medium,#64748b);margin-top:2px}
+                #page-admin .pmx-panel{background:var(--card-bg,#fff);border:1px solid var(--border-color,#e5e7eb);border-radius:18px;padding:20px;box-shadow:0 10px 26px -22px rgba(15,23,42,.55)}
+                #page-admin .pmx-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px dashed var(--border-color,#e5e7eb);margin-bottom:16px}
+                #page-admin .pmx-head .pmx-av{width:42px;height:42px;flex:0 0 42px;border-radius:13px;font-size:17px}
+                #page-admin .pmx-chip{font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:99px;background:rgba(79,70,229,.1);color:#4338ca}
+                #page-admin .pmx-tools{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap}
+                #page-admin .pmx-tools button{border:1px solid var(--border-color,#e5e7eb);background:transparent;font-family:inherit;font-size:11.5px;font-weight:800;color:var(--text-medium,#64748b);padding:7px 12px;border-radius:10px;cursor:pointer;transition:.18s}
+                #page-admin .pmx-tools button:hover{border-color:rgba(79,70,229,.5);color:#4f46e5;background:rgba(79,70,229,.06)}
+                #page-admin .pmx-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-bottom:6px}
+                #page-admin .pmx-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid var(--border-color,#e5e7eb);border-radius:13px;cursor:pointer;transition:.18s;background:rgba(148,163,184,.05)}
+                #page-admin .pmx-item:hover{border-color:rgba(79,70,229,.4)}
+                #page-admin .pmx-item.on{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.4)}
+                #page-admin .pmx-item .pi-ic{width:30px;height:30px;flex:0 0 30px;border-radius:9px;display:grid;place-items:center;font-size:12px;background:rgba(148,163,184,.18);color:#64748b}
+                #page-admin .pmx-item.on .pi-ic{background:rgba(16,185,129,.16);color:#059669}
+                #page-admin .pmx-item span.pi-t{font-size:12.5px;font-weight:700;color:var(--text-dark,#0f172a);flex:1}
+                #page-admin .pmx-sw{position:relative;width:38px;height:21px;flex:0 0 38px;border-radius:99px;background:#cbd5e1;transition:.2s}
+                #page-admin .pmx-sw::after{content:'';position:absolute;top:3px;inset-inline-start:3px;width:15px;height:15px;border-radius:50%;background:#fff;transition:.2s}
+                #page-admin .pmx-item.on .pmx-sw{background:#10b981}
+                #page-admin .pmx-item.on .pmx-sw::after{inset-inline-start:20px}
+                #page-admin .pmx-item input{display:none}
+                #page-admin .pmx-save{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px dashed var(--border-color,#e5e7eb)}
+                #page-admin .pmx-empty{text-align:center;padding:50px 20px;color:var(--text-medium,#94a3b8)}
+                #page-admin .pmx-empty i{font-size:34px;margin-bottom:10px;display:block;opacity:.5}
                 </style>
                 <div class="sysw">
                     <div class="sys-hero">
@@ -3094,11 +3139,13 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
 
                     <div class="sys-tabs">
                         <button class="active" onclick="showAdminTab('users',this)"><i class="fas fa-users"></i> المستخدمون والصلاحيات</button>
+                        <button onclick="showAdminTab('perms',this)"><i class="fas fa-user-shield"></i> صلاحيات مفصلة</button>
                         <button onclick="showAdminTab('backup',this)"><i class="fas fa-database"></i> النسخ الاحتياطي</button>
                         <button onclick="showAdminTab('danger',this)"><i class="fas fa-triangle-exclamation"></i> منطقة الخطر</button>
                     </div>
 
                     <div class="sys-pane active" id="admtab-users">
+                        <div class="sys-stats" id="sysStats"></div>
                         <div class="sys-grid">
                             <div class="sys-card">
                                 <h4><i class="fas fa-user-group"></i> المستخدمون الحاليون</h4>
@@ -3171,6 +3218,18 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                         </div>
                     </div>
 
+
+                    <div class="sys-pane" id="admtab-perms">
+                        <div class="pmx-wrap">
+                            <div class="pmx-users">
+                                <div class="sys-sub" style="margin-top:0">اختر مستخدماً</div>
+                                <div id="pmxUsers"></div>
+                            </div>
+                            <div class="pmx-panel" id="pmxPanel">
+                                <div class="pmx-empty"><i class="fas fa-hand-pointer"></i>اختر مستخدماً من القائمة لتحديد ما هو مسموح له داخل النظام</div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="sys-pane" id="admtab-danger">
                         <div class="sys-grid">
                             <div class="sys-card danger">
@@ -3192,12 +3251,172 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     </div>
                 </div>
                 <script>
+
+                /* ===== إحصائيات + مصفوفة الصلاحيات التفصيلية ===== */
+                const PMX_KEY = 'user_permissions_v1';
+                const PMX_ACTIONS = [
+                    {k:'add',    t:'إضافة سجلات جديدة',    i:'fa-plus'},
+                    {k:'edit',   t:'تعديل السجلات',        i:'fa-pen'},
+                    {k:'delete', t:'حذف السجلات',          i:'fa-trash'},
+                    {k:'export', t:'التصدير وتحميل الملفات',i:'fa-file-export'},
+                    {k:'print',  t:'الطباعة',              i:'fa-print'}
+                ];
+                function pmxAllPages(){
+                    const out=[];
+                    document.querySelectorAll('.sidebar .nav-item, nav .nav-item').forEach(a=>{
+                        const oc=a.getAttribute('onclick')||'';
+                        const m=oc.match(/showPage\(\s*['"]([^'"]+)['"]/);
+                        if(!m) return;
+                        if(out.some(p=>p.page===m[1])) return;
+                        const ic=(a.querySelector('i')||{}).className||'fas fa-circle';
+                        out.push({page:m[1], title:a.getAttribute('data-title')||m[1], icon:ic});
+                    });
+                    return out;
+                }
+                function pmxLoadAll(){ try{ return JSON.parse(localStorage.getItem(PMX_KEY)||'{}'); }catch(e){ return {}; } }
+                function pmxSaveAll(o){ localStorage.setItem(PMX_KEY, JSON.stringify(o)); }
+                function pmxDefault(user){
+                    const p={pages:{},actions:{}};
+                    pmxAllPages().forEach(x=>{ p.pages[x.page] = (user && user.role==='admin') ? true : !['admin','documents','reports','advanced_search','departments','periodic'].includes(x.page); });
+                    const ro = user && (user.read_only===true||user.readOnly===true);
+                    PMX_ACTIONS.forEach(a=>{ p.actions[a.k] = ro ? (a.k==='print'||a.k==='export') : true; });
+                    return p;
+                }
+                function pmxGet(user){
+                    if(!user) return null;
+                    const all=pmxLoadAll(); const rec=all[String(user.id)]||all[user.username];
+                    const def=pmxDefault(user);
+                    if(!rec) return def;
+                    return {pages:Object.assign(def.pages, rec.pages||{}), actions:Object.assign(def.actions, rec.actions||{})};
+                }
+                let PMX_SELECTED=null;
+                function pmxEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+                function pmxRenderUsers(){
+                    const box=document.getElementById('pmxUsers'); if(!box) return;
+                    const users=(window.USERS_CACHE||[]);
+                    if(!users.length){ box.innerHTML='<div class="pmx-empty" style="padding:20px"><i class="fas fa-user-slash"></i>لا يوجد مستخدمون</div>'; return; }
+                    box.innerHTML=users.map(u=>{
+                        const ro=(u.read_only===true||u.readOnly===true), adm=u.role==='admin';
+                        const nm=u.full_name||u.fullName||u.username;
+                        return `<div class="pmx-u ${ro?'ro':(adm?'adm':'')} ${PMX_SELECTED==u.id?'active':''}" onclick="pmxSelect(${u.id})">
+                            <div class="pmx-av">${pmxEsc(nm).charAt(0)}</div>
+                            <div><b>${pmxEsc(nm)}</b><small>${adm?'مدير':'مستخدم'}${ro?' • قراءة فقط':''} • ${pmxEsc(u.username)}</small></div>
+                        </div>`;
+                    }).join('');
+                }
+                function pmxSelect(id){
+                    PMX_SELECTED=id; pmxRenderUsers();
+                    const u=(window.USERS_CACHE||[]).find(x=>x.id==id); if(!u) return;
+                    const p=pmxGet(u), pages=pmxAllPages();
+                    const nm=u.full_name||u.fullName||u.username;
+                    document.getElementById('pmxPanel').innerHTML=`
+                        <div class="pmx-head">
+                            <div class="pmx-av">${pmxEsc(nm).charAt(0)}</div>
+                            <div><b style="font-size:14.5px;font-weight:900">${pmxEsc(nm)}</b>
+                            <div style="font-size:11.5px;color:var(--text-medium,#64748b);margin-top:3px">${pmxEsc(u.username)} — ${u.role==='admin'?'مدير':'مستخدم'}</div></div>
+                            <span class="pmx-chip"><i class="fas fa-key"></i> صلاحيات مخصصة</span>
+                            <div class="pmx-tools">
+                                <button onclick="pmxBulk(true)"><i class="fas fa-check-double"></i> تحديد الكل</button>
+                                <button onclick="pmxBulk(false)"><i class="fas fa-xmark"></i> إلغاء الكل</button>
+                            </div>
+                        </div>
+                        <div class="sys-sub" style="margin-top:0">التبويبات المسموح بالوصول إليها</div>
+                        <div class="pmx-grid">${pages.map(x=>`
+                            <label class="pmx-item ${p.pages[x.page]?'on':''}" data-kind="page" data-key="${x.page}" onclick="pmxToggle(this)">
+                                <span class="pi-ic"><i class="${x.icon}"></i></span>
+                                <span class="pi-t">${pmxEsc(x.title)}</span>
+                                <span class="pmx-sw"></span>
+                            </label>`).join('')}</div>
+                        <div class="sys-sub">الإجراءات المسموح بها</div>
+                        <div class="pmx-grid">${PMX_ACTIONS.map(a=>`
+                            <label class="pmx-item ${p.actions[a.k]?'on':''}" data-kind="action" data-key="${a.k}" onclick="pmxToggle(this)">
+                                <span class="pi-ic"><i class="fas ${a.i}"></i></span>
+                                <span class="pi-t">${a.t}</span>
+                                <span class="pmx-sw"></span>
+                            </label>`).join('')}</div>
+                        <div class="pmx-save">
+                            <button class="btn btn-success no-readonly" onclick="if(checkReadOnly())return;pmxSave()"><i class="fas fa-save"></i> حفظ الصلاحيات</button>
+                            <button class="btn btn-secondary" onclick="pmxReset()"><i class="fas fa-rotate-left"></i> استعادة الافتراضي</button>
+                        </div>`;
+                }
+                function pmxToggle(el){ el.classList.toggle('on'); }
+                function pmxBulk(v){ document.querySelectorAll('#pmxPanel .pmx-item').forEach(i=>i.classList.toggle('on',v)); }
+                function pmxSave(){
+                    if(PMX_SELECTED==null) return;
+                    const rec={pages:{},actions:{}};
+                    document.querySelectorAll('#pmxPanel .pmx-item').forEach(i=>{
+                        const on=i.classList.contains('on');
+                        if(i.dataset.kind==='page') rec.pages[i.dataset.key]=on; else rec.actions[i.dataset.key]=on;
+                    });
+                    const all=pmxLoadAll(); all[String(PMX_SELECTED)]=rec; pmxSaveAll(all);
+                    if(window.currentUser && String(window.currentUser.id)===String(PMX_SELECTED)) applyUserPermissions();
+                    showToast('success','تم الحفظ','تم تحديث صلاحيات المستخدم بنجاح');
+                }
+                function pmxReset(){
+                    if(PMX_SELECTED==null) return;
+                    const all=pmxLoadAll(); delete all[String(PMX_SELECTED)]; pmxSaveAll(all);
+                    pmxSelect(PMX_SELECTED); showToast('info','تم','تمت استعادة الصلاحيات الافتراضية');
+                }
+                function renderSysStats(users){
+                    const box=document.getElementById('sysStats'); if(!box) return;
+                    users=users||[];
+                    const admins=users.filter(u=>u.role==='admin').length;
+                    const ro=users.filter(u=>u.read_only===true||u.readOnly===true).length;
+                    const custom=Object.keys(pmxLoadAll()).length;
+                    box.innerHTML=
+                    `<div class="sys-stat s1"><i class="fas fa-users"></i><div><b>${users.length}</b><span>إجمالي المستخدمين</span></div></div>`+
+                    `<div class="sys-stat s2"><i class="fas fa-user-shield"></i><div><b>${admins}</b><span>مدراء النظام</span></div></div>`+
+                    `<div class="sys-stat s3"><i class="fas fa-user"></i><div><b>${users.length-admins}</b><span>مستخدمون عاديون</span></div></div>`+
+                    `<div class="sys-stat s4"><i class="fas fa-eye"></i><div><b>${ro}</b><span>حسابات قراءة فقط</span></div></div>`+
+                    `<div class="sys-stat s1"><i class="fas fa-key"></i><div><b>${custom}</b><span>صلاحيات مخصصة</span></div></div>`;
+                }
+                /* تطبيق الصلاحيات على واجهة المستخدم الحالي */
+                function applyUserPermissions(){
+                    const u=window.currentUser; if(!u) return;
+                    const p=pmxGet(u); window.CURRENT_PERMS=p;
+                    document.querySelectorAll('.sidebar .nav-item, nav .nav-item').forEach(a=>{
+                        const m=(a.getAttribute('onclick')||'').match(/showPage\(\s*['"]([^'"]+)['"]/);
+                        if(!m) return;
+                        if(p.pages[m[1]]===false) a.style.display='none';
+                        else if(a.classList.contains('admin-only')){ if(u.role==='admin'||u.isReadOnly) a.style.display='flex'; }
+                        else a.style.display='flex';
+                    });
+                }
+                function hasPerm(action){
+                    const p=window.CURRENT_PERMS; if(!p||!p.actions) return true;
+                    return p.actions[action]!==false;
+                }
+                function canOpenPage(page){
+                    const p=window.CURRENT_PERMS; if(!p||!p.pages) return true;
+                    return p.pages[page]!==false;
+                }
+                window.pmxSelect=pmxSelect; window.pmxToggle=pmxToggle; window.pmxBulk=pmxBulk;
+                window.pmxSave=pmxSave; window.pmxReset=pmxReset; window.pmxRenderUsers=pmxRenderUsers;
+                window.renderSysStats=renderSysStats; window.applyUserPermissions=applyUserPermissions;
+                window.hasPerm=hasPerm; window.canOpenPage=canOpenPage;
+                /* حاجز الإجراءات: يمنع الأزرار غير المسموح بها */
+                document.addEventListener('click', function(ev){
+                    const p=window.CURRENT_PERMS; if(!p||!p.actions) return;
+                    const el=ev.target.closest('[onclick]'); if(!el) return;
+                    if(el.closest('#admtab-perms')) return;
+                    const oc=el.getAttribute('onclick')||'';
+                    const map=[['delete',/delete|remove|reset[A-Z]/i],['add',/^\s*(if\(checkReadOnly\(\)\)return;)?\s*(open)?(add|create|new)/i],['export',/export|download|backup|import/i],['print',/print/i]];
+                    for(const [k,re] of map){
+                        if(re.test(oc) && p.actions[k]===false){
+                            ev.preventDefault(); ev.stopImmediatePropagation();
+                            if(window.showToast) showToast('warning','غير مصرح','ليست لديك صلاحية لتنفيذ هذا الإجراء');
+                            return;
+                        }
+                    }
+                }, true);
+
                 function showAdminTab(name, el){
                     document.querySelectorAll('#page-admin .sys-pane').forEach(p=>p.classList.remove('active'));
                     document.querySelectorAll('#page-admin .sys-tabs button').forEach(b=>b.classList.remove('active'));
                     var pane=document.getElementById('admtab-'+name);
                     if(pane) pane.classList.add('active');
                     if(el) el.classList.add('active');
+                    if(name==='perms') pmxRenderUsers();
                 }
                 </script>
             </div>
@@ -4073,6 +4292,9 @@ async function handleLogin() {
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
         }
 
+        window.currentUser = currentUser;
+        if (typeof applyUserPermissions === 'function') applyUserPermissions();
+
         showToast('success', 'مرحباً', 'تم تسجيل الدخول بنجاح');
         // Navigate to dashboard by default on every login
         document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
@@ -4560,6 +4782,10 @@ async function showPage(page) {
     const adminPages = ['documents', 'reports', 'advanced_search', 'admin', 'periodic'];
     if (adminPages.includes(page) && (!currentUser || currentUser.role !== 'admin')) {
         showToast('error', 'غير مصرح', 'هذه الصفحة متاحة للمدراء فقط');
+        return;
+    }
+    if (typeof canOpenPage === 'function' && !canOpenPage(page)) {
+        showToast('error', 'غير مصرح', 'ليست لديك صلاحية الوصول إلى هذا التبويب');
         return;
     }
     document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
@@ -8825,7 +9051,10 @@ async function processImportedRequests(data) {
 
 // ==================== ADMIN ====================
 async function loadUsers() {
-    const users = await SupabaseAPI.request('users', 'GET');
+    const users = await SupabaseAPI.request('users', 'GET') || [];
+    window.USERS_CACHE = users;
+    if (typeof renderSysStats === 'function') renderSysStats(users);
+    if (typeof pmxRenderUsers === 'function') pmxRenderUsers();
     const container = document.getElementById('usersList');
     container.innerHTML = users.map(u => {
         const isReadOnly = u.read_only === true || u.readOnly === true;
@@ -9961,6 +10190,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                 if (currentUser.role === 'admin') {
                     document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
                 }
+                window.currentUser = currentUser;
+                if (typeof applyUserPermissions === 'function') applyUserPermissions();
                 // Navigate to dashboard by default on auto-login
                 document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
