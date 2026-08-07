@@ -2204,7 +2204,7 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 #page-computer_items .ci-table td:nth-child(3),#page-computer_items .ci-table th:nth-child(3){width:110px}
                 #page-computer_items .ci-table td:nth-child(4),#page-computer_items .ci-table th:nth-child(4){width:auto}
                 #page-computer_items .ci-table td:nth-child(5),#page-computer_items .ci-table th:nth-child(5){width:62px;text-align:center}
-                #page-computer_items .ci-table td:nth-child(6),#page-computer_items .ci-table th:nth-child(6){width:16%}
+                #page-computer_items .ci-table td:nth-child(6),#page-computer_items .ci-table th:nth-child(6){width:9%;max-width:120px}
                 #page-computer_items .ci-table td:nth-child(7),#page-computer_items .ci-table th:nth-child(7){width:96px;color:#64748b}
                 #page-computer_items .ci-table td:nth-child(8),#page-computer_items .ci-table th:nth-child(8){width:100px;color:#64748b}
                 #page-computer_items .ci-table td:nth-child(9),#page-computer_items .ci-table th:nth-child(9){width:112px}
@@ -4625,7 +4625,7 @@ async function performAdvancedSearch(type) {
             to.setHours(23, 59, 59, 999);
             filtered = filtered.filter(i => new Date(i.created_at || 0) <= to);
         }
-        if (category) filtered = filtered.filter(i => i.category === category);
+        if (category) { const cf = normalizeCategory(category); filtered = filtered.filter(i => normalizeCategory(i.category) === cf); }
         if (number) filtered = filtered.filter(i => (i.item_number || i.itemNumber || '').toLowerCase().includes(number));
         if (name) filtered = filtered.filter(i => (i.name || '').toLowerCase().includes(name));
         if (qty !== '') filtered = filtered.filter(i => (parseInt(i.qty) || 0) <= parseInt(qty));
@@ -5706,8 +5706,48 @@ async function printDocuments() {
 // ==================== COMPUTER ITEMS ====================
 let editingComputerItemId = null;
 
+// Normalizes a category value so filtering is not broken by case,
+// extra spaces, hidden characters or slight spelling variants.
+function normalizeCategory(v) {
+    let s = (v === null || v === undefined) ? '' : String(v);
+    s = s.replace(/[\u200e\u200f\u202a-\u202e\u00a0]/g, ' ').trim().toLowerCase();
+    s = s.replace(/[\s._-]+/g, '');
+    const aliases = {
+        'pc': 'desktop', 'desktops': 'desktop', 'computer': 'desktop', 'كمبيوتر': 'desktop', 'مكتبي': 'desktop',
+        'laptop': 'notebook', 'notebooks': 'notebook', 'note book': 'notebook', 'لابتوب': 'notebook', 'محمول': 'notebook',
+        'printers': 'printer', 'طابعة': 'printer',
+        'others': 'other', 'اخرى': 'other', 'أخرى': 'other'
+    };
+    return aliases[s] || s;
+}
+
+// Keeps the category dropdowns in sync with the categories that actually
+// exist in the data, so every stored category is selectable.
+function syncComputerItemCategoryOptions(items) {
+    const ids = ['computerItemCategoryFilter', 'searchCompCategory'];
+    ids.forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        const current = sel.value;
+        const existing = Array.from(sel.options).map(o => normalizeCategory(o.value)).filter(Boolean);
+        (items || []).forEach(i => {
+            const raw = (i.category || '').toString().trim();
+            if (!raw) return;
+            const norm = normalizeCategory(raw);
+            if (existing.includes(norm)) return;
+            existing.push(norm);
+            const opt = document.createElement('option');
+            opt.value = raw;
+            opt.textContent = raw;
+            sel.appendChild(opt);
+        });
+        sel.value = current;
+    });
+}
+
 async function loadComputerItems() {
     const items = await SupabaseAPI.request('computer_items', 'GET');
+    syncComputerItemCategoryOptions(items);
     const tbody = document.querySelector('#computerItemsTable tbody');
     const search = document.getElementById('computerItemSearch')?.value?.toLowerCase() || '';
     const categoryFilter = document.getElementById('computerItemCategoryFilter')?.value || '';
@@ -5720,7 +5760,10 @@ async function loadComputerItems() {
             (i.notes || '').toLowerCase().includes(search)
         );
     }
-    if (categoryFilter) filtered = filtered.filter(i => i.category === categoryFilter);
+    if (categoryFilter) {
+        const cf = normalizeCategory(categoryFilter);
+        filtered = filtered.filter(i => normalizeCategory(i.category) === cf);
+    }
 
     const categoryColors = {
         Desktop: 'info', Notebook: 'secondary', Printer: 'warning', Other: 'new'
@@ -5731,7 +5774,7 @@ async function loadComputerItems() {
     tbody.innerHTML = sorted.length ? sorted.map((i, idx) => `
         <tr>
             <td>${idx + 1}</td>
-            <td><span class="badge badge-${categoryColors[i.category] || 'new'}">${i.category || '-'}</span></td>
+            <td><span class="badge badge-${categoryColors[i.category] || categoryColors[(i.category||'').trim()] || 'new'}">${i.category || '-'}</span></td>
             <td><span class="ci-num">${i.item_number || i.itemNumber || '-'}</span></td>
             <td title="${(i.name || '').replace(/"/g, '&quot;')}">${i.name || '-'}</td>
             <td><span class="ci-qty">${i.qty}</span></td>
