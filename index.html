@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -3221,6 +3222,18 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                                 </div>
                             </div>
                             <div class="sys-card">
+                                <h4><i class="fas fa-key"></i> كلمة مرور النسخ الاحتياطي</h4>
+                                <p class="hint">كلمة المرور الإضافية المطلوبة لفتح هذا التبويب. الافتراضية: <b>1234</b> — يتم حفظها في قاعدة البيانات (Supabase) بشكل دائم. بعد 5 محاولات خاطئة يتم الحظر المؤقت لمدة 5 دقائق.</p>
+                                <div class="sys-actions">
+                                    <button class="btn btn-secondary no-readonly" onclick="if(checkReadOnly())return;changeBackupPassword()">
+                                        <i class="fas fa-lock"></i> تغيير كلمة المرور
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="lockBackupZone()">
+                                        <i class="fas fa-lock-open"></i> إقفال التبويب الآن
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="sys-card">
                                 <h4><i class="fas fa-upload"></i> استيراد نسخة احتياطية</h4>
                                 <p class="hint">اختر ملف نسخة احتياطية سابقة لاستعادة البيانات.</p>
                                 <div class="file-upload-area" onclick="document.getElementById('backupImportFile').click()" style="padding:22px;">
@@ -3249,7 +3262,7 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                         <div class="sys-grid">
                             <div class="sys-card">
                                 <h4><i class="fas fa-key"></i> كلمة مرور منطقة الخطر</h4>
-                                <p class="hint">كلمة المرور الإضافية المطلوبة لفتح هذا التبويب. الافتراضية: <b>1234</b></p>
+                                <p class="hint">كلمة المرور الإضافية المطلوبة لفتح هذا التبويب. الافتراضية: <b>1234</b> — يتم حفظها في قاعدة البيانات (Supabase) بشكل دائم. بعد 5 محاولات خاطئة يتم الحظر المؤقت لمدة 5 دقائق.</p>
                                 <div class="sys-actions">
                                     <button class="btn btn-secondary no-readonly" onclick="if(checkReadOnly())return;changeDangerPassword()">
                                         <i class="fas fa-lock"></i> تغيير كلمة المرور
@@ -3438,58 +3451,150 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     }
                 }, true);
 
-                /* ===== قفل منطقة الخطر بكلمة مرور إضافية ===== */
-                var DZ_KEY='dangerZonePass', DZ_DEFAULT='1234', dzUnlocked=false, dzTimer=null;
-                function dzGetPass(){ try{ return localStorage.getItem(DZ_KEY) || DZ_DEFAULT; }catch(e){ return DZ_DEFAULT; } }
-                function lockDangerZone(){
-                    dzUnlocked=false; if(dzTimer){clearTimeout(dzTimer); dzTimer=null;}
-                    var b=document.querySelector('#page-admin .sys-tabs button.active');
-                    var pane=document.getElementById('admtab-danger');
+                /* ===== قفل المناطق الحساسة (منطقة الخطر + النسخ الاحتياطي) بكلمة مرور إضافية ===== */
+                var ZONES={
+                    danger:{ setting:'danger_zone_pass', local:'dangerZonePass', def:'1234', title:'منطقة الخطر', icon:'fa-triangle-exclamation' },
+                    backup:{ setting:'backup_zone_pass', local:'backupZonePass', def:'1234', title:'النسخ الاحتياطي', icon:'fa-database' }
+                };
+                var dzUnlocked={danger:false,backup:false}, dzTimers={danger:null,backup:null};
+                var DZ_MAX_TRIES=5, DZ_BLOCK_MS=5*60*1000;   /* 5 محاولات ثم حظر 5 دقائق */
+
+                function zLocalPass(z){ try{ return localStorage.getItem(ZONES[z].local) || ZONES[z].def; }catch(e){ return ZONES[z].def; } }
+                function zCache(z,v){ try{ localStorage.setItem(ZONES[z].local, v); }catch(e){} }
+
+                /* --- حماية ضد المحاولات المتكررة --- */
+                function zLockState(z){
+                    try{ return JSON.parse(localStorage.getItem('zLock_'+z)||'{"fails":0,"until":0}'); }
+                    catch(e){ return {fails:0,until:0}; }
+                }
+                function zLockSave(z,s){ try{ localStorage.setItem('zLock_'+z, JSON.stringify(s)); }catch(e){} }
+                function zBlockedMs(z){ var s=zLockState(z); var left=(s.until||0)-Date.now(); return left>0?left:0; }
+                function zRegisterFail(z){
+                    var s=zLockState(z); s.fails=(s.fails||0)+1;
+                    if(s.fails>=DZ_MAX_TRIES){ s.until=Date.now()+DZ_BLOCK_MS; s.fails=0; }
+                    zLockSave(z,s); return s;
+                }
+                function zResetFails(z){ zLockSave(z,{fails:0,until:0}); }
+                function zFmt(ms){ var t=Math.ceil(ms/1000); var m=Math.floor(t/60), s=t%60; return (m>0? m+' د و ':'')+s+' ث'; }
+
+                async function zGetPass(z){
+                    var cfg=ZONES[z];
+                    try{
+                        if(typeof USE_LOCAL!=='undefined' && USE_LOCAL) return zLocalPass(z);
+                        var res = await fetch(SUPABASE_URL+'/rest/v1/app_settings?key=eq.'+cfg.setting+'&select=value',{
+                            headers:{ 'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY }
+                        });
+                        if(!res.ok) return zLocalPass(z);
+                        var rows = await res.json();
+                        if(rows && rows.length && rows[0].value){ zCache(z,rows[0].value); return rows[0].value; }
+                        return zLocalPass(z);
+                    }catch(e){ return zLocalPass(z); }
+                }
+                async function zSetPass(z,v){
+                    zCache(z,v);
+                    if(typeof USE_LOCAL!=='undefined' && USE_LOCAL) return true;
+                    try{
+                        var res = await fetch(SUPABASE_URL+'/rest/v1/app_settings?on_conflict=key',{
+                            method:'POST',
+                            headers:{ 'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY, 'Content-Type':'application/json', 'Prefer':'resolution=merge-duplicates,return=representation' },
+                            body: JSON.stringify({ key:ZONES[z].setting, value:v, updated_at:new Date().toISOString() })
+                        });
+                        return res.ok;
+                    }catch(e){ return false; }
+                }
+                /* توافق مع الأسماء القديمة */
+                function dzGetPass(){ return zGetPass('danger'); }
+                function dzSetPass(v){ return zSetPass('danger',v); }
+
+                function lockZone(z){
+                    dzUnlocked[z]=false; if(dzTimers[z]){clearTimeout(dzTimers[z]); dzTimers[z]=null;}
+                    var pane=document.getElementById('admtab-'+z);
                     if(pane && pane.classList.contains('active')){
                         var first=document.querySelector('#page-admin .sys-tabs button');
                         showAdminTab('users', first);
                     }
-                    if(typeof showToast==='function') showToast('info','تم الإقفال','منطقة الخطر مقفلة الآن');
+                    if(typeof showToast==='function') showToast('info','تم الإقفال', ZONES[z].title+' مقفلة الآن');
                 }
-                function dzPrompt(onOk){
+                function lockDangerZone(){ lockZone('danger'); }
+                function lockBackupZone(){ lockZone('backup'); }
+
+                function zPrompt(z,onOk){
+                    var cfg=ZONES[z];
                     var ov=document.createElement('div');
                     ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;';
                     ov.innerHTML='<div style="background:var(--card-bg,#fff);color:var(--text-dark,#111);border-radius:14px;padding:24px;width:min(380px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.35);text-align:center">'
                         +'<div style="width:56px;height:56px;border-radius:50%;background:rgba(239,68,68,.12);color:#dc2626;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 12px"><i class="fas fa-lock"></i></div>'
-                        +'<h3 style="margin:0 0 6px;font-size:18px">منطقة الخطر محمية</h3>'
+                        +'<h3 style="margin:0 0 6px;font-size:18px">'+cfg.title+' محمية</h3>'
                         +'<p style="margin:0 0 14px;font-size:13px;color:var(--text-medium,#666)">أدخل كلمة المرور الإضافية للمتابعة</p>'
                         +'<input id="dzPassInput" type="password" autocomplete="off" style="width:100%;padding:12px;border:2px solid var(--border,#ddd);border-radius:10px;text-align:center;font-size:16px;letter-spacing:3px;background:transparent;color:inherit" placeholder="••••">'
-                        +'<div id="dzErr" style="color:#dc2626;font-size:12px;height:16px;margin-top:6px"></div>'
+                        +'<div id="dzErr" style="color:#dc2626;font-size:12px;min-height:16px;margin-top:6px"></div>'
                         +'<div style="display:flex;gap:10px;margin-top:12px"><button id="dzCancel" class="btn btn-secondary" style="flex:1">إلغاء</button><button id="dzOk" class="btn btn-danger" style="flex:1">دخول</button></div>'
                         +'</div>';
                     document.body.appendChild(ov);
-                    var inp=ov.querySelector('#dzPassInput'); inp.focus();
-                    function close(){ ov.remove(); }
-                    function submit(){
-                        if(inp.value===dzGetPass()){ close(); onOk(); }
-                        else { ov.querySelector('#dzErr').textContent='كلمة المرور غير صحيحة'; inp.value=''; inp.focus(); }
+                    var inp=ov.querySelector('#dzPassInput'), err=ov.querySelector('#dzErr'), okBtn=ov.querySelector('#dzOk');
+                    inp.focus();
+                    function close(){ if(tick) clearInterval(tick); ov.remove(); }
+                    var tick=null;
+                    function renderBlock(){
+                        var left=zBlockedMs(z);
+                        if(left>0){
+                            inp.disabled=true; okBtn.disabled=true; okBtn.style.opacity=.5;
+                            err.textContent='تم حظر المحاولات مؤقتاً — أعد المحاولة بعد '+zFmt(left);
+                            if(!tick) tick=setInterval(renderBlock,1000);
+                            return true;
+                        }
+                        inp.disabled=false; okBtn.disabled=false; okBtn.style.opacity=1;
+                        if(tick){ clearInterval(tick); tick=null; err.textContent=''; inp.focus(); }
+                        return false;
+                    }
+                    renderBlock();
+                    var dzBusy=false;
+                    async function submit(){
+                        if(dzBusy || renderBlock()) return;
+                        dzBusy=true;
+                        var old=okBtn.innerHTML; okBtn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
+                        var real = await zGetPass(z);
+                        okBtn.innerHTML=old; dzBusy=false;
+                        if(inp.value===real){ zResetFails(z); close(); onOk(); return; }
+                        var st=zRegisterFail(z); inp.value='';
+                        if(zBlockedMs(z)>0){
+                            if(typeof showToast==='function') showToast('error','حظر مؤقت','تجاوزت عدد المحاولات المسموح بها');
+                            renderBlock();
+                        }else{
+                            err.textContent='كلمة المرور غير صحيحة — المحاولات المتبقية: '+(DZ_MAX_TRIES-st.fails);
+                            inp.focus();
+                        }
                     }
                     ov.querySelector('#dzCancel').onclick=close;
-                    ov.querySelector('#dzOk').onclick=submit;
+                    okBtn.onclick=submit;
                     inp.addEventListener('keydown',function(e){ if(e.key==='Enter') submit(); if(e.key==='Escape') close(); });
                 }
-                function changeDangerPassword(){
-                    dzPrompt(function(){
-                        var np=prompt('أدخل كلمة المرور الجديدة لمنطقة الخطر (4 خانات على الأقل):');
+                function dzPrompt(onOk){ zPrompt('danger', onOk); }
+
+                function changeZonePassword(z){
+                    zPrompt(z, function(){
+                        var np=prompt('أدخل كلمة المرور الجديدة لـ'+ZONES[z].title+' (4 خانات على الأقل):');
                         if(np===null) return;
                         np=String(np).trim();
                         if(np.length<4){ if(typeof showToast==='function') showToast('error','خطأ','كلمة المرور قصيرة جداً'); return; }
-                        try{ localStorage.setItem(DZ_KEY,np); }catch(e){}
-                        if(typeof showToast==='function') showToast('success','تم','تم تغيير كلمة مرور منطقة الخطر');
+                        zSetPass(z,np).then(function(ok){
+                            if(typeof showToast==='function'){
+                                if(ok) showToast('success','تم','تم تغيير كلمة مرور '+ZONES[z].title+' وحفظها بشكل دائم');
+                                else showToast('warning','تحذير','تم الحفظ محلياً فقط — تعذر الحفظ في قاعدة البيانات');
+                            }
+                        });
                     });
                 }
+                function changeDangerPassword(){ changeZonePassword('danger'); }
+                function changeBackupPassword(){ changeZonePassword('backup'); }
+
                 function showAdminTab(name, el){
-                    if(name==='danger' && !dzUnlocked){
-                        dzPrompt(function(){
-                            dzUnlocked=true;
-                            if(dzTimer) clearTimeout(dzTimer);
-                            dzTimer=setTimeout(function(){ dzUnlocked=false; }, 5*60*1000);
-                            showAdminTab('danger', el);
+                    if((name==='danger'||name==='backup') && !dzUnlocked[name]){
+                        zPrompt(name, function(){
+                            dzUnlocked[name]=true;
+                            if(dzTimers[name]) clearTimeout(dzTimers[name]);
+                            dzTimers[name]=setTimeout(function(){ dzUnlocked[name]=false; }, 5*60*1000);
+                            showAdminTab(name, el);
                         });
                         return;
                     }
