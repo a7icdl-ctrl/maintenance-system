@@ -3247,6 +3247,19 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     </div>
                     <div class="sys-pane" id="admtab-danger">
                         <div class="sys-grid">
+                            <div class="sys-card">
+                                <h4><i class="fas fa-key"></i> كلمة مرور منطقة الخطر</h4>
+                                <p class="hint">كلمة المرور الإضافية المطلوبة لفتح هذا التبويب. الافتراضية: <b>1234</b></p>
+                                <div class="sys-actions">
+                                    <button class="btn btn-secondary no-readonly" onclick="if(checkReadOnly())return;changeDangerPassword()">
+                                        <i class="fas fa-lock"></i> تغيير كلمة المرور
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="lockDangerZone()">
+                                        <i class="fas fa-lock-open"></i> إقفال المنطقة الآن
+                                    </button>
+                                </div>
+                            </div>
+
                             <div class="sys-card danger">
                                 <h4><i class="fas fa-triangle-exclamation"></i> منطقة الخطر</h4>
                                 <p class="hint">تنبيه: هذه الإجراءات لا يمكن التراجع عنها — تأكد من وجود نسخة احتياطية قبل المتابعة.</p>
@@ -3425,7 +3438,61 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     }
                 }, true);
 
+                /* ===== قفل منطقة الخطر بكلمة مرور إضافية ===== */
+                var DZ_KEY='dangerZonePass', DZ_DEFAULT='1234', dzUnlocked=false, dzTimer=null;
+                function dzGetPass(){ try{ return localStorage.getItem(DZ_KEY) || DZ_DEFAULT; }catch(e){ return DZ_DEFAULT; } }
+                function lockDangerZone(){
+                    dzUnlocked=false; if(dzTimer){clearTimeout(dzTimer); dzTimer=null;}
+                    var b=document.querySelector('#page-admin .sys-tabs button.active');
+                    var pane=document.getElementById('admtab-danger');
+                    if(pane && pane.classList.contains('active')){
+                        var first=document.querySelector('#page-admin .sys-tabs button');
+                        showAdminTab('users', first);
+                    }
+                    if(typeof showToast==='function') showToast('info','تم الإقفال','منطقة الخطر مقفلة الآن');
+                }
+                function dzPrompt(onOk){
+                    var ov=document.createElement('div');
+                    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;';
+                    ov.innerHTML='<div style="background:var(--card-bg,#fff);color:var(--text-dark,#111);border-radius:14px;padding:24px;width:min(380px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.35);text-align:center">'
+                        +'<div style="width:56px;height:56px;border-radius:50%;background:rgba(239,68,68,.12);color:#dc2626;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 12px"><i class="fas fa-lock"></i></div>'
+                        +'<h3 style="margin:0 0 6px;font-size:18px">منطقة الخطر محمية</h3>'
+                        +'<p style="margin:0 0 14px;font-size:13px;color:var(--text-medium,#666)">أدخل كلمة المرور الإضافية للمتابعة</p>'
+                        +'<input id="dzPassInput" type="password" autocomplete="off" style="width:100%;padding:12px;border:2px solid var(--border,#ddd);border-radius:10px;text-align:center;font-size:16px;letter-spacing:3px;background:transparent;color:inherit" placeholder="••••">'
+                        +'<div id="dzErr" style="color:#dc2626;font-size:12px;height:16px;margin-top:6px"></div>'
+                        +'<div style="display:flex;gap:10px;margin-top:12px"><button id="dzCancel" class="btn btn-secondary" style="flex:1">إلغاء</button><button id="dzOk" class="btn btn-danger" style="flex:1">دخول</button></div>'
+                        +'</div>';
+                    document.body.appendChild(ov);
+                    var inp=ov.querySelector('#dzPassInput'); inp.focus();
+                    function close(){ ov.remove(); }
+                    function submit(){
+                        if(inp.value===dzGetPass()){ close(); onOk(); }
+                        else { ov.querySelector('#dzErr').textContent='كلمة المرور غير صحيحة'; inp.value=''; inp.focus(); }
+                    }
+                    ov.querySelector('#dzCancel').onclick=close;
+                    ov.querySelector('#dzOk').onclick=submit;
+                    inp.addEventListener('keydown',function(e){ if(e.key==='Enter') submit(); if(e.key==='Escape') close(); });
+                }
+                function changeDangerPassword(){
+                    dzPrompt(function(){
+                        var np=prompt('أدخل كلمة المرور الجديدة لمنطقة الخطر (4 خانات على الأقل):');
+                        if(np===null) return;
+                        np=String(np).trim();
+                        if(np.length<4){ if(typeof showToast==='function') showToast('error','خطأ','كلمة المرور قصيرة جداً'); return; }
+                        try{ localStorage.setItem(DZ_KEY,np); }catch(e){}
+                        if(typeof showToast==='function') showToast('success','تم','تم تغيير كلمة مرور منطقة الخطر');
+                    });
+                }
                 function showAdminTab(name, el){
+                    if(name==='danger' && !dzUnlocked){
+                        dzPrompt(function(){
+                            dzUnlocked=true;
+                            if(dzTimer) clearTimeout(dzTimer);
+                            dzTimer=setTimeout(function(){ dzUnlocked=false; }, 5*60*1000);
+                            showAdminTab('danger', el);
+                        });
+                        return;
+                    }
                     document.querySelectorAll('#page-admin .sys-pane').forEach(p=>p.classList.remove('active'));
                     document.querySelectorAll('#page-admin .sys-tabs button').forEach(b=>b.classList.remove('active'));
                     var pane=document.getElementById('admtab-'+name);
