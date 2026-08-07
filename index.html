@@ -3,6 +3,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1674,6 +1675,11 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     <span>المواد الحاسوبية</span>
                     <span class="nav-badge" id="computerItemsBadge">0</span>
                 </a>
+                <a class="nav-item" data-title="البديل الدائم" onclick="showPage('permanent_replacement')">
+                    <i class="fas fa-right-left"></i>
+                    <span>البديل الدائم</span>
+                    <span class="nav-badge" id="prBadge">0</span>
+                </a>
                 <a class="nav-item" data-title="تفاصيل عطاء الصيانة" onclick="showPage('tender')">
                     <i class="fas fa-file-contract"></i>
                     <span>تفاصيل عطاء الصيانة</span>
@@ -2265,6 +2271,92 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                                     <th>الملاحظات</th>
                                     <th>تاريخ الإضافة</th>
                                     <th>المستخدم</th>
+                                    <th class="no-print">إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+<div class="page-section" id="page-permanent_replacement">
+                <style>
+                #page-permanent_replacement .pr-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:12px}
+                #page-permanent_replacement .pr-stat{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:9px}
+                #page-permanent_replacement .pr-stat i{width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;border-radius:8px;background:#eef2ff;color:#4f46e5;font-size:12px}
+                #page-permanent_replacement .pr-stat b{font-size:17px;font-weight:900;line-height:1;display:block}
+                #page-permanent_replacement .pr-stat span{font-size:11px;color:#64748b;display:block}
+                #page-permanent_replacement .pr-bar{display:grid;grid-template-columns:minmax(0,1fr) 170px 170px auto;gap:8px;align-items:center;margin-bottom:10px}
+                #page-permanent_replacement .pr-bar input,#page-permanent_replacement .pr-bar select{width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:9px;font-size:13px;font-family:inherit;background:#fff;color:#334155}
+                #page-permanent_replacement .pr-bar input:focus,#page-permanent_replacement .pr-bar select:focus{outline:none;border-color:#4f46e5}
+                #page-permanent_replacement .pr-count{font-size:11.5px;color:#64748b;white-space:nowrap}
+                #page-permanent_replacement .pr-card{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:#fff}
+                #page-permanent_replacement .pr-table{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px;background:#fff}
+                #page-permanent_replacement .pr-table thead th{background:linear-gradient(135deg,#f8fafc,#eef2ff);color:#334155;font-size:11px;font-weight:800;text-align:right;padding:9px 8px;border-bottom:2px solid #e5e7eb;white-space:nowrap}
+                #page-permanent_replacement .pr-table tbody td{padding:8px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+                #page-permanent_replacement .pr-table tbody tr:hover{background:#f9fafb}
+                #page-permanent_replacement .pr-arrow{color:#4f46e5;font-weight:900}
+                #page-permanent_replacement .pr-chip{display:inline-block;font-size:10.5px;font-weight:800;padding:1px 8px;border-radius:999px;background:#eef2ff;color:#4338ca;margin-inline-start:4px}
+                #page-permanent_replacement .pr-num{color:#4f46e5;font-weight:800;font-size:12px}
+                #page-permanent_replacement .pr-name{display:block;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#475569}
+                #page-permanent_replacement .pr-empty{padding:28px;text-align:center;color:#94a3b8;font-size:13px}
+                #page-permanent_replacement .pr-old{background:#fff7ed}
+                #page-permanent_replacement .pr-new{background:#f0fdf4}
+                .pr-section{border:1px solid #e5e7eb;border-radius:12px;padding:14px;margin-bottom:14px;background:#fcfcfd}
+                .pr-section h4{margin:0 0 12px;font-size:14px;font-weight:900;color:#1e293b;display:flex;align-items:center;gap:8px}
+                .pr-section.old h4 i{color:#f97316}
+                .pr-section.new h4 i{color:#16a34a}
+                html[data-theme="dark"] #page-permanent_replacement .pr-card,
+                html[data-theme="dark"] #page-permanent_replacement .pr-table,
+                html[data-theme="dark"] #page-permanent_replacement .pr-stat,
+                html[data-theme="dark"] .pr-section{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);color:#e2e8f0}
+                html[data-theme="dark"] #page-permanent_replacement .pr-table thead th{background:rgba(255,255,255,.07);color:#e2e8f0}
+                html[data-theme="dark"] .pr-section h4{color:#e2e8f0}
+                @media (max-width:900px){#page-permanent_replacement .pr-bar{grid-template-columns:1fr}}
+                @media print{#page-permanent_replacement .pr-bar,#page-permanent_replacement .pr-stats{display:none!important}}
+                </style>
+                <div class="page-header">
+                    <h1 class="page-title">البديل الدائم</h1>
+                    <div class="page-actions no-print">
+                        <button class="btn btn-primary no-readonly" onclick="if(checkReadOnly())return;openPrModal()">
+                            <i class="fas fa-plus"></i> إضافة بديل دائم
+                        </button>
+                        <button class="btn btn-success" onclick="exportPrCSV()"><i class="fas fa-file-excel"></i> تصدير Excel</button>
+                        <button class="btn btn-secondary" onclick="printPrTable()"><i class="fas fa-print"></i> طباعة</button>
+                        <button class="btn btn-warning" onclick="openPrSql()"><i class="fas fa-database"></i> كود SQL</button>
+                    </div>
+                </div>
+
+                <div class="pr-stats" id="prStats"></div>
+
+                <div class="pr-bar no-print">
+                    <input type="text" id="prSearch" placeholder="🔍 بحث برقم الطلب / الموظف / القسم / رقم أو اسم المادة / رقم الكتاب" oninput="renderPrTable()">
+                    <select id="prStatusFilter" onchange="renderPrTable()">
+                        <option value="">كل الحالات</option>
+                        <option value="done">منجز</option>
+                        <option value="pending">غير منجز</option>
+                    </select>
+                    <select id="prCatFilter" onchange="renderPrTable()">
+                        <option value="">كل التصنيفات</option>
+                    </select>
+                    <span class="pr-count" id="prCount"></span>
+                </div>
+
+                <div class="pr-card">
+                    <div class="table-container">
+                        <table class="pr-table" id="prTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>رقم طلب الصيانة</th>
+                                    <th>الموظف / القسم</th>
+                                    <th class="pr-old">المادة المعطلة</th>
+                                    <th></th>
+                                    <th class="pr-new">البديل الدائم</th>
+                                    <th>الكتاب الرسمي</th>
+                                    <th>مرفق</th>
+                                    <th>الحالة</th>
                                     <th class="no-print">إجراءات</th>
                                 </tr>
                             </thead>
@@ -4256,6 +4348,155 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
         </div>
     </div>
 
+    <div class="modal-overlay" id="prModal">
+        <div class="modal" style="max-width:900px;">
+            <div class="modal-header">
+                <h3 id="prModalTitle">إضافة بديل دائم</h3>
+                <button class="modal-close" onclick="closeModal('prModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="prForm" onsubmit="return false;">
+                    <input type="hidden" id="prId">
+
+                    <div class="pr-section">
+                        <h4><i class="fas fa-clipboard-list"></i> بيانات طلب الصيانة</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>رقم طلب الصيانة الحاسوبي <span style="color: var(--danger);">*</span></label>
+                                <input type="text" class="form-control" id="prRequestNumber" list="prRequestsList" placeholder="اختر من القائمة أو اكتب يدوياً" oninput="prOnRequestPick()" autocomplete="off">
+                                <datalist id="prRequestsList"></datalist>
+                                <small style="color:var(--text-light);font-size:11px;">اكتب جزء من الرقم أو اسم الموظف للبحث ضمن الطلبات النشطة</small>
+                            </div>
+                            <div class="form-group">
+                                <label>اسم الموظف <span style="color: var(--danger);">*</span></label>
+                                <input type="text" class="form-control" id="prEmployeeName" list="prEmployeesList" placeholder="اختر أو اكتب" autocomplete="off">
+                                <datalist id="prEmployeesList"></datalist>
+                            </div>
+                            <div class="form-group">
+                                <label>القسم <span style="color: var(--danger);">*</span></label>
+                                <input type="text" class="form-control" id="prDepartment" list="prDepartmentsList" placeholder="اختر أو اكتب" autocomplete="off">
+                                <datalist id="prDepartmentsList"></datalist>
+                            </div>
+                            <div class="form-group">
+                                <label>حالة الطلب في النظام</label>
+                                <input type="text" class="form-control" id="prRequestStatus" placeholder="—" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pr-section old">
+                        <h4><i class="fas fa-triangle-exclamation"></i> المادة الحاسوبية المعطلة</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>نوع المادة <span style="color: var(--danger);">*</span></label>
+                                <input type="text" class="form-control" id="prOldCategory" list="prCategoriesList" placeholder="Desktop / Notebook / Printer / أخرى" autocomplete="off">
+                                <datalist id="prCategoriesList"></datalist>
+                            </div>
+                            <div class="form-group">
+                                <label>رقم المادة <span style="color: var(--danger);">*</span></label>
+                                <input type="text" class="form-control" id="prOldItemNumber" list="prItemsList" placeholder="اختر أو اكتب رقم المادة" oninput="prOnItemPick('Old')" autocomplete="off">
+                                <datalist id="prItemsList"></datalist>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>اسم المادة المعطلة ومواصفاتها <span style="color: var(--danger);">*</span></label>
+                                <textarea class="form-control" id="prOldItemName" placeholder="اسم المادة والمواصفات الفنية..." style="min-height:70px;"></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>سبب الاستبدال / وصف العطل</label>
+                                <textarea class="form-control" id="prFaultDescription" placeholder="وصف العطل أو سبب الاستبدال الدائم..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pr-section new">
+                        <h4><i class="fas fa-circle-check"></i> بيانات البديل الدائم (مكافئ أو أعلى مواصفات)</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>نوع المادة البديلة <span style="color: var(--danger);">*</span></label>
+                                <input type="text" class="form-control" id="prNewCategory" list="prCategoriesList" placeholder="Desktop / Notebook / Printer / أخرى" autocomplete="off">
+                            </div>
+                            <div class="form-group">
+                                <label>رقم المادة البديلة <span style="color: var(--danger);">*</span></label>
+                                <input type="text" class="form-control" id="prNewItemNumber" list="prItemsList" placeholder="اختر أو اكتب رقم المادة" oninput="prOnItemPick('New')" autocomplete="off">
+                            </div>
+                            <div class="form-group full-width">
+                                <label>اسم المادة البديلة ومواصفاتها <span style="color: var(--danger);">*</span></label>
+                                <textarea class="form-control" id="prNewItemName" placeholder="اسم المادة البديلة والمواصفات الفنية..." style="min-height:70px;"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>مستوى المواصفات</label>
+                                <select class="form-control" id="prSpecLevel">
+                                    <option value="equal">مكافئ</option>
+                                    <option value="higher">أعلى مواصفات</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ الاستبدال</label>
+                                <input type="date" class="form-control" id="prReplaceDate">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pr-section">
+                        <h4><i class="fas fa-file-signature"></i> الكتاب الرسمي والإنجاز</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>رقم الكتاب الرسمي</label>
+                                <input type="text" class="form-control" id="prLetterNumber" placeholder="مثال: 12/3/4567">
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ الكتاب</label>
+                                <input type="date" class="form-control" id="prLetterDate">
+                            </div>
+                            <div class="form-group">
+                                <label>حالة الإنجاز</label>
+                                <select class="form-control" id="prIsDone">
+                                    <option value="false">غير منجز</option>
+                                    <option value="true">منجز</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>مرفق الكتاب</label>
+                                <input type="file" id="prFileInput" style="display:none" onchange="prHandleFile(this)">
+                                <button type="button" class="btn btn-secondary" style="width:100%" onclick="document.getElementById('prFileInput').click()">
+                                    <i class="fas fa-paperclip"></i> إرفاق ملف (حتى 10MB)
+                                </button>
+                            </div>
+                            <div class="form-group full-width">
+                                <div id="prAttachmentsList"></div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>ملاحظات</label>
+                                <textarea class="form-control" id="prNotes" placeholder="ملاحظات إضافية..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('prModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="savePermanentReplacement()"><i class="fas fa-save"></i> حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="prSqlModal">
+        <div class="modal" style="max-width:820px;">
+            <div class="modal-header">
+                <h3>كود SQL لإنشاء جدول البديل الدائم</h3>
+                <button class="modal-close" onclick="closeModal('prSqlModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:13px;color:var(--text-medium);margin-bottom:10px;">انسخ الكود التالي والصقه في Supabase → SQL Editor → Run.</p>
+                <pre id="prSqlCode" style="direction:ltr;text-align:left;background:#0f172a;color:#e2e8f0;padding:16px;border-radius:10px;font-size:12px;line-height:1.7;overflow:auto;max-height:420px;"></pre>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('prSqlModal')">إغلاق</button>
+                <button class="btn btn-primary" onclick="prCopySql()"><i class="fas fa-copy"></i> نسخ الكود</button>
+            </div>
+        </div>
+    </div>
+
 <script>
     // Console warning
     console.log('%c⚠️ MAINTENANCE SYSTEM', 'font-size: 24px; font-weight: bold; color: #ef4444;');
@@ -5079,6 +5320,7 @@ async function showPage(page) {
     if (page === 'admin') await loadUsers();
     if (page === 'documents') await loadDocuments();
     if (page === 'computer_items') await loadComputerItems();
+    if (page === 'permanent_replacement') await loadPermanentReplacements();
     if (page === 'departments') await loadDepartments();
     if (page === 'periodic') await loadPeriodic();
     if (page === 'reports') { setTimeout(() => loadReportsCharts(), 100); }
@@ -16581,6 +16823,453 @@ html[data-theme="dark"] .hd-svc, html[data-theme="dark"] .hd-log { background: r
   else enhance();
   setTimeout(enhance, 1200);
 })();
+</script>
+
+<script>
+/* ==================== البديل الدائم (Permanent Replacement) ====================
+   ربط طلبات الصيانة بالمواد الحاسوبية المعطلة والبديل الدائم.
+   جدول Supabase: permanent_replacements  (انظر زر "كود SQL" داخل الصفحة)
+================================================================================= */
+let PR_DATA = [];
+let PR_REQUESTS = [];
+let PR_ITEMS = [];
+let PR_DEPTS = [];
+let prEditingId = null;
+let prTempAttachments = [];
+
+const PR_SQL = `-- =========================================================
+-- جدول: البديل الدائم | permanent_replacements
+-- نظام إدارة الصيانة
+-- =========================================================
+create table if not exists public.permanent_replacements (
+  id                 bigint generated by default as identity primary key,
+  request_number     text,
+  employee_name      text,
+  department         text,
+  request_status     text,
+  old_category       text,
+  old_item_number    text,
+  old_item_name      text,
+  fault_description  text,
+  new_category       text,
+  new_item_number    text,
+  new_item_name      text,
+  spec_level         text default 'equal',
+  replace_date       date,
+  letter_number      text,
+  letter_date        date,
+  attachments        jsonb default '[]'::jsonb,
+  is_done            boolean default false,
+  notes              text,
+  created_at         timestamptz default now(),
+  updated_at         timestamptz default now(),
+  created_by         text
+);
+
+create index if not exists pr_request_number_idx on public.permanent_replacements (request_number);
+create index if not exists pr_is_done_idx        on public.permanent_replacements (is_done);
+create index if not exists pr_created_at_idx     on public.permanent_replacements (created_at desc);
+
+-- صلاحيات Data API
+grant select, insert, update, delete on public.permanent_replacements to anon;
+grant select, insert, update, delete on public.permanent_replacements to authenticated;
+grant all on public.permanent_replacements to service_role;
+grant usage, select on all sequences in schema public to anon, authenticated;
+
+-- تفعيل RLS مع سياسة مفتوحة (مطابقة لباقي جداول النظام)
+alter table public.permanent_replacements enable row level security;
+
+drop policy if exists "pr_all_access" on public.permanent_replacements;
+create policy "pr_all_access" on public.permanent_replacements
+  for all to anon, authenticated
+  using (true) with check (true);
+`;
+
+function openPrSql(){
+  document.getElementById('prSqlCode').textContent = PR_SQL;
+  openModal('prSqlModal');
+}
+function prCopySql(){
+  navigator.clipboard.writeText(PR_SQL).then(
+    () => showToast('success','تم النسخ','تم نسخ كود SQL إلى الحافظة'),
+    () => showToast('error','تعذّر النسخ','انسخ الكود يدوياً')
+  );
+}
+
+function prEsc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function prDate(d){ if(!d) return '-'; try{ const x=new Date(d); if(isNaN(x)) return d; return x.toLocaleDateString('en-GB'); }catch(e){ return d; } }
+
+async function loadPermanentReplacements(){
+  try { PR_DATA = await SupabaseAPI.request('permanent_replacements','GET') || []; }
+  catch(e){ PR_DATA = []; }
+  try { PR_REQUESTS = await SupabaseAPI.request('requests','GET') || []; } catch(e){ PR_REQUESTS = []; }
+  try { PR_ITEMS = await SupabaseAPI.request('computer_items','GET') || []; } catch(e){ PR_ITEMS = []; }
+  try { PR_DEPTS = await SupabaseAPI.request('departments','GET') || []; } catch(e){ PR_DEPTS = []; }
+  prFillCategoryFilter();
+  renderPrTable();
+}
+
+function prFillCategoryFilter(){
+  const sel = document.getElementById('prCatFilter');
+  if(!sel) return;
+  const cur = sel.value;
+  const cats = Array.from(new Set(
+    PR_DATA.flatMap(r => [r.old_category, r.new_category]).filter(Boolean)
+  )).sort();
+  sel.innerHTML = '<option value="">كل التصنيفات</option>' +
+    cats.map(c => `<option value="${prEsc(c)}">${prEsc(c)}</option>`).join('');
+  sel.value = cur;
+}
+
+function renderPrTable(){
+  const tbody = document.querySelector('#prTable tbody');
+  if(!tbody) return;
+  const q = (document.getElementById('prSearch')?.value || '').trim().toLowerCase();
+  const st = document.getElementById('prStatusFilter')?.value || '';
+  const cf = document.getElementById('prCatFilter')?.value || '';
+
+  let rows = PR_DATA.slice();
+  if(q){
+    rows = rows.filter(r => [r.request_number,r.employee_name,r.department,r.old_item_number,r.old_item_name,
+      r.new_item_number,r.new_item_name,r.letter_number,r.notes]
+      .some(v => String(v||'').toLowerCase().includes(q)));
+  }
+  if(st) rows = rows.filter(r => st==='done' ? !!r.is_done : !r.is_done);
+  if(cf) rows = rows.filter(r => r.old_category===cf || r.new_category===cf);
+  rows.sort((a,b) => (b.id||0)-(a.id||0));
+
+  tbody.innerHTML = rows.length ? rows.map((r,i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td><span class="pr-num">${prEsc(r.request_number || '-')}</span></td>
+      <td><strong>${prEsc(r.employee_name || '-')}</strong><br><span style="font-size:11px;color:#64748b">${prEsc(r.department || '-')}</span></td>
+      <td class="pr-old">
+        <span class="pr-chip">${prEsc(r.old_category || '-')}</span>
+        <span class="pr-num">${prEsc(r.old_item_number || '-')}</span>
+        <span class="pr-name" title="${prEsc(r.old_item_name)}">${prEsc(r.old_item_name || '-')}</span>
+      </td>
+      <td class="pr-arrow"><i class="fas fa-arrow-left-long"></i></td>
+      <td class="pr-new">
+        <span class="pr-chip">${prEsc(r.new_category || '-')}</span>
+        <span class="pr-num">${prEsc(r.new_item_number || '-')}</span>
+        <span class="pr-name" title="${prEsc(r.new_item_name)}">${prEsc(r.new_item_name || '-')}</span>
+        ${r.spec_level==='higher' ? '<span class="badge badge-completed" style="font-size:10px">أعلى مواصفات</span>' : '<span class="badge badge-new" style="font-size:10px">مكافئ</span>'}
+      </td>
+      <td>${r.letter_number ? '<strong>'+prEsc(r.letter_number)+'</strong><br><span style="font-size:11px;color:#64748b">'+prDate(r.letter_date)+'</span>' : '-'}</td>
+      <td>${(r.attachments||[]).length ? `<button class="action-btn view" title="عرض المرفق" onclick="prViewAttachment(${r.id},0)"><i class="fas fa-paperclip"></i></button>` : '<span style="color:#cbd5e1">—</span>'}</td>
+      <td>${r.is_done ? '<span class="badge badge-completed"><i class="fas fa-check"></i> منجز</span>' : '<span class="badge badge-new">غير منجز</span>'}</td>
+      <td class="no-print">
+        <div class="action-btns">
+          <button class="action-btn view" title="عرض" onclick="viewPermanentReplacement(${r.id})"><i class="fas fa-eye"></i></button>
+          <button class="action-btn edit no-readonly" title="تعديل" onclick="openPrModal(${r.id})"><i class="fas fa-edit"></i></button>
+          <button class="action-btn print" title="طباعة" onclick="printPermanentReplacement(${r.id})"><i class="fas fa-print"></i></button>
+          <button class="action-btn delete no-readonly" title="حذف" onclick="deletePermanentReplacement(${r.id})"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join('') : '<tr><td colspan="10" class="pr-empty"><i class="fas fa-inbox"></i> لا توجد سجلات بديل دائم</td></tr>';
+
+  const done = PR_DATA.filter(r => r.is_done).length;
+  const now = new Date();
+  const month = PR_DATA.filter(r => { const d = new Date(r.created_at||''); return !isNaN(d) && d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear(); }).length;
+  const higher = PR_DATA.filter(r => r.spec_level==='higher').length;
+  const stats = document.getElementById('prStats');
+  if(stats) stats.innerHTML =
+    `<div class="pr-stat"><i class="fas fa-right-left"></i><div><b>${PR_DATA.length}</b><span>إجمالي عمليات الاستبدال</span></div></div>`+
+    `<div class="pr-stat"><i class="fas fa-circle-check"></i><div><b>${done}</b><span>منجزة</span></div></div>`+
+    `<div class="pr-stat"><i class="fas fa-hourglass-half"></i><div><b>${PR_DATA.length-done}</b><span>غير منجزة</span></div></div>`+
+    `<div class="pr-stat"><i class="fas fa-arrow-trend-up"></i><div><b>${higher}</b><span>بديل أعلى مواصفات</span></div></div>`+
+    `<div class="pr-stat"><i class="fas fa-calendar-days"></i><div><b>${month}</b><span>هذا الشهر</span></div></div>`;
+
+  const c = document.getElementById('prCount');
+  if(c) c.textContent = `عرض ${rows.length} من ${PR_DATA.length}`;
+  const b = document.getElementById('prBadge');
+  if(b) b.textContent = PR_DATA.length;
+}
+
+/* ---------- النموذج ---------- */
+function prFillDatalists(){
+  const rl = document.getElementById('prRequestsList');
+  if(rl) rl.innerHTML = PR_REQUESTS.slice().sort((a,b)=>(b.id||0)-(a.id||0)).map(r =>
+    `<option value="${prEsc(r.request_number||'')}">${prEsc((r.employee_name||'')+' — '+(r.department||'')+' — '+(r.device_name||''))}</option>`).join('');
+
+  const el = document.getElementById('prEmployeesList');
+  if(el) el.innerHTML = Array.from(new Set(PR_REQUESTS.map(r=>r.employee_name).filter(Boolean))).sort()
+    .map(n => `<option value="${prEsc(n)}"></option>`).join('');
+
+  const dl = document.getElementById('prDepartmentsList');
+  const depts = Array.from(new Set([...PR_DEPTS.map(d=>d.name), ...PR_REQUESTS.map(r=>r.department)].filter(Boolean))).sort();
+  if(dl) dl.innerHTML = depts.map(n => `<option value="${prEsc(n)}"></option>`).join('');
+
+  const cl = document.getElementById('prCategoriesList');
+  const cats = Array.from(new Set([...PR_ITEMS.map(i=>i.category).filter(Boolean), 'Desktop','Notebook','Printer','Scanner','UPS','Other'])).sort();
+  if(cl) cl.innerHTML = cats.map(n => `<option value="${prEsc(n)}"></option>`).join('');
+
+  const il = document.getElementById('prItemsList');
+  if(il) il.innerHTML = PR_ITEMS.map(i =>
+    `<option value="${prEsc(i.item_number||'')}">${prEsc((i.category||'')+' — '+(i.name||'').slice(0,70))}</option>`).join('');
+}
+
+function prOnRequestPick(){
+  const val = (document.getElementById('prRequestNumber').value || '').trim();
+  const req = PR_REQUESTS.find(r => String(r.request_number||'').trim() === val);
+  if(!req) return;
+  const emp = document.getElementById('prEmployeeName');
+  const dep = document.getElementById('prDepartment');
+  if(!emp.value) emp.value = req.employee_name || '';
+  else emp.value = req.employee_name || emp.value;
+  dep.value = req.department || dep.value;
+  const stMap = { new:'جديد', pending:'قيد المعالجة', in_progress:'قيد المعالجة', completed:'منجز', cancelled:'ملغي' };
+  document.getElementById('prRequestStatus').value = stMap[req.status] || req.status || '—';
+  const oldName = document.getElementById('prOldItemName');
+  if(!oldName.value && req.device_name) oldName.value = req.device_name;
+  const fault = document.getElementById('prFaultDescription');
+  if(!fault.value && req.issue_description) fault.value = req.issue_description;
+  const oldNum = document.getElementById('prOldItemNumber');
+  if(!oldNum.value && req.computer_number) oldNum.value = req.computer_number;
+}
+
+function prOnItemPick(which){
+  const num = (document.getElementById('pr'+which+'ItemNumber').value || '').trim();
+  const item = PR_ITEMS.find(i => String(i.item_number||'').trim() === num);
+  if(!item) return;
+  document.getElementById('pr'+which+'Category').value = item.category || '';
+  document.getElementById('pr'+which+'ItemName').value = item.name || '';
+}
+
+async function openPrModal(id){
+  prEditingId = id || null;
+  prTempAttachments = [];
+  document.getElementById('prForm').reset();
+  document.getElementById('prModalTitle').textContent = id ? 'تعديل بديل دائم' : 'إضافة بديل دائم';
+
+  if(!PR_REQUESTS.length || !PR_ITEMS.length){
+    try { PR_REQUESTS = await SupabaseAPI.request('requests','GET') || []; } catch(e){}
+    try { PR_ITEMS = await SupabaseAPI.request('computer_items','GET') || []; } catch(e){}
+    try { PR_DEPTS = await SupabaseAPI.request('departments','GET') || []; } catch(e){}
+  }
+  prFillDatalists();
+
+  if(id){
+    const r = PR_DATA.find(x => x.id === id);
+    if(r){
+      document.getElementById('prId').value = r.id;
+      document.getElementById('prRequestNumber').value = r.request_number || '';
+      document.getElementById('prEmployeeName').value = r.employee_name || '';
+      document.getElementById('prDepartment').value = r.department || '';
+      document.getElementById('prRequestStatus').value = r.request_status || '—';
+      document.getElementById('prOldCategory').value = r.old_category || '';
+      document.getElementById('prOldItemNumber').value = r.old_item_number || '';
+      document.getElementById('prOldItemName').value = r.old_item_name || '';
+      document.getElementById('prFaultDescription').value = r.fault_description || '';
+      document.getElementById('prNewCategory').value = r.new_category || '';
+      document.getElementById('prNewItemNumber').value = r.new_item_number || '';
+      document.getElementById('prNewItemName').value = r.new_item_name || '';
+      document.getElementById('prSpecLevel').value = r.spec_level || 'equal';
+      document.getElementById('prReplaceDate').value = r.replace_date || '';
+      document.getElementById('prLetterNumber').value = r.letter_number || '';
+      document.getElementById('prLetterDate').value = r.letter_date || '';
+      document.getElementById('prIsDone').value = r.is_done ? 'true' : 'false';
+      document.getElementById('prNotes').value = r.notes || '';
+      prTempAttachments = (r.attachments || []).slice();
+    }
+  } else {
+    document.getElementById('prId').value = '';
+    document.getElementById('prReplaceDate').value = new Date().toISOString().split('T')[0];
+  }
+  prRenderAttachments();
+  openModal('prModal');
+}
+
+function prHandleFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 10*1024*1024){ showToast('error','خطأ','حجم الملف يتجاوز 10 ميجابايت'); input.value=''; return; }
+  const reader = new FileReader();
+  reader.onload = function(e){
+    prTempAttachments.push({ id: Date.now(), filename: file.name, size: file.size, type: file.type, data: e.target.result });
+    prRenderAttachments();
+    showToast('success','تم','تم إرفاق الملف');
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+function prRenderAttachments(){
+  const c = document.getElementById('prAttachmentsList');
+  if(!c) return;
+  if(!prTempAttachments.length){ c.innerHTML = '<p style="color:var(--text-light);font-size:12px;">لا يوجد مرفق للكتاب</p>'; return; }
+  c.innerHTML = prTempAttachments.map(a => `
+    <div class="attachment-item" style="margin-bottom:8px;">
+      <div class="attachment-info">
+        <div class="attachment-icon"><i class="fas ${typeof getFileIcon==='function' ? getFileIcon(a.filename) : 'fa-file'}"></i></div>
+        <div class="attachment-details"><h5>${prEsc(a.filename)}</h5><p>${typeof formatFileSize==='function' ? formatFileSize(a.size) : (a.size||0)+' bytes'}</p></div>
+      </div>
+      <div class="attachment-actions">
+        <button type="button" class="action-btn view" onclick="prOpenData('${a.id}')"><i class="fas fa-eye"></i></button>
+        <button type="button" class="action-btn delete" onclick="prRemoveAttachment('${a.id}')"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>`).join('');
+}
+function prRemoveAttachment(id){ prTempAttachments = prTempAttachments.filter(a => String(a.id)!==String(id)); prRenderAttachments(); }
+function prOpenData(id){
+  const a = prTempAttachments.find(x => String(x.id)===String(id));
+  if(a) prShowData(a);
+}
+function prShowData(a){
+  const w = window.open('', '_blank');
+  if(!w){ showToast('error','خطأ','فعّل النوافذ المنبثقة لعرض المرفق'); return; }
+  w.document.write(`<title>${prEsc(a.filename)}</title><body style="margin:0;background:#0f172a;display:grid;place-items:center;height:100vh">${
+    String(a.data).startsWith('data:image')
+      ? `<img src="${a.data}" style="max-width:100%;max-height:100%">`
+      : `<iframe src="${a.data}" style="border:0;width:100%;height:100%"></iframe>`}</body>`);
+}
+function prViewAttachment(recId, idx){
+  const r = PR_DATA.find(x => x.id === recId);
+  const a = r && (r.attachments||[])[idx||0];
+  if(a) prShowData(a);
+}
+
+async function savePermanentReplacement(){
+  if(typeof checkReadOnly === 'function' && checkReadOnly()) return;
+  const v = id => (document.getElementById(id).value || '').trim();
+  const requestNumber = v('prRequestNumber');
+  const employee = v('prEmployeeName');
+  const dept = v('prDepartment');
+  const oldNum = v('prOldItemNumber');
+  const oldName = v('prOldItemName');
+  const newNum = v('prNewItemNumber');
+  const newName = v('prNewItemName');
+
+  if(!requestNumber || !employee || !dept || !oldNum || !oldName || !newNum || !newName){
+    showToast('error','بيانات ناقصة','الرجاء تعبئة رقم الطلب وبيانات الموظف والمادة المعطلة والبديل');
+    return;
+  }
+
+  const payload = {
+    request_number: requestNumber,
+    employee_name: employee,
+    department: dept,
+    request_status: v('prRequestStatus') === '—' ? null : v('prRequestStatus'),
+    old_category: v('prOldCategory'),
+    old_item_number: oldNum,
+    old_item_name: oldName,
+    fault_description: v('prFaultDescription'),
+    new_category: v('prNewCategory'),
+    new_item_number: newNum,
+    new_item_name: newName,
+    spec_level: v('prSpecLevel'),
+    replace_date: v('prReplaceDate') || null,
+    letter_number: v('prLetterNumber'),
+    letter_date: v('prLetterDate') || null,
+    attachments: prTempAttachments,
+    is_done: v('prIsDone') === 'true',
+    notes: v('prNotes'),
+    updated_at: new Date().toISOString(),
+    created_by: (currentUser && (currentUser.full_name || currentUser.fullName)) || 'System'
+  };
+
+  try{
+    if(prEditingId){
+      await SupabaseAPI.request('permanent_replacements','PATCH',payload,prEditingId);
+    } else {
+      payload.created_at = new Date().toISOString();
+      await SupabaseAPI.request('permanent_replacements','POST',payload);
+    }
+  }catch(e){
+    showToast('error','فشل الحفظ','تأكد من إنشاء جدول permanent_replacements عبر زر "كود SQL"');
+    return;
+  }
+  closeModal('prModal');
+  await loadPermanentReplacements();
+  showToast('success','تم الحفظ', prEditingId ? 'تم تحديث السجل' : 'تم إضافة البديل الدائم');
+}
+
+async function deletePermanentReplacement(id){
+  if(typeof checkReadOnly === 'function' && checkReadOnly()) return;
+  if(!confirm('هل أنت متأكد من حذف هذا السجل؟')) return;
+  await SupabaseAPI.request('permanent_replacements','DELETE',null,id);
+  await loadPermanentReplacements();
+  showToast('success','تم الحذف','تم حذف السجل بنجاح');
+}
+
+function prDetailsHtml(r){
+  return `
+  <div style="font-family:'Tajawal',sans-serif;direction:rtl">
+    <h2 style="text-align:center;margin:0 0 6px">نموذج البديل الدائم</h2>
+    <p style="text-align:center;color:#64748b;margin:0 0 16px;font-size:13px">رقم طلب الصيانة: <strong>${prEsc(r.request_number)}</strong> — ${prDate(r.created_at)}</p>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <tr><th style="background:#f1f5f9;border:1px solid #cbd5e1;padding:8px;width:170px">اسم الموظف</th><td style="border:1px solid #cbd5e1;padding:8px">${prEsc(r.employee_name)}</td>
+          <th style="background:#f1f5f9;border:1px solid #cbd5e1;padding:8px;width:110px">القسم</th><td style="border:1px solid #cbd5e1;padding:8px">${prEsc(r.department)}</td></tr>
+      <tr><th style="background:#fff7ed;border:1px solid #cbd5e1;padding:8px">نوع المادة المعطلة</th><td style="border:1px solid #cbd5e1;padding:8px">${prEsc(r.old_category)}</td>
+          <th style="background:#fff7ed;border:1px solid #cbd5e1;padding:8px">رقم المادة</th><td style="border:1px solid #cbd5e1;padding:8px">${prEsc(r.old_item_number)}</td></tr>
+      <tr><th style="background:#fff7ed;border:1px solid #cbd5e1;padding:8px">اسم المادة المعطلة</th><td colspan="3" style="border:1px solid #cbd5e1;padding:8px">${prEsc(r.old_item_name)}</td></tr>
+      <tr><th style="background:#fff7ed;border:1px solid #cbd5e1;padding:8px">سبب الاستبدال</th><td colspan="3" style="border:1px solid #cbd5e1;padding:8px">${prEsc(r.fault_description) || '-'}</td></tr>
+      <tr><th style="background:#f0fdf4;border:1px solid #cbd5e1;padding:8px">نوع المادة البديلة</th><td style="border:1px solid #cbd5e1;padding:8px">${prEsc(r.new_category)}</td>
+          <th style="background:#f0fdf4;border:1px solid #cbd5e1;padding:8px">رقم المادة البديلة</th><td style="border:1px solid #cbd5e1;padding:8px">${prEsc(r.new_item_number)}</td></tr>
+      <tr><th style="background:#f0fdf4;border:1px solid #cbd5e1;padding:8px">اسم المادة البديلة</th><td colspan="3" style="border:1px solid #cbd5e1;padding:8px">${prEsc(r.new_item_name)}</td></tr>
+      <tr><th style="background:#f0fdf4;border:1px solid #cbd5e1;padding:8px">مستوى المواصفات</th><td style="border:1px solid #cbd5e1;padding:8px">${r.spec_level==='higher'?'أعلى مواصفات':'مكافئ'}</td>
+          <th style="background:#f0fdf4;border:1px solid #cbd5e1;padding:8px">تاريخ الاستبدال</th><td style="border:1px solid #cbd5e1;padding:8px">${prDate(r.replace_date)}</td></tr>
+      <tr><th style="background:#f1f5f9;border:1px solid #cbd5e1;padding:8px">رقم الكتاب الرسمي</th><td style="border:1px solid #cbd5e1;padding:8px">${prEsc(r.letter_number) || '-'}</td>
+          <th style="background:#f1f5f9;border:1px solid #cbd5e1;padding:8px">تاريخ الكتاب</th><td style="border:1px solid #cbd5e1;padding:8px">${prDate(r.letter_date)}</td></tr>
+      <tr><th style="background:#f1f5f9;border:1px solid #cbd5e1;padding:8px">حالة الإنجاز</th><td style="border:1px solid #cbd5e1;padding:8px">${r.is_done?'منجز':'غير منجز'}</td>
+          <th style="background:#f1f5f9;border:1px solid #cbd5e1;padding:8px">المرفقات</th><td style="border:1px solid #cbd5e1;padding:8px">${(r.attachments||[]).length ? prEsc((r.attachments||[]).map(a=>a.filename).join('، ')) : 'لا يوجد'}</td></tr>
+      <tr><th style="background:#f1f5f9;border:1px solid #cbd5e1;padding:8px">ملاحظات</th><td colspan="3" style="border:1px solid #cbd5e1;padding:8px">${prEsc(r.notes) || '-'}</td></tr>
+      <tr><th style="background:#f1f5f9;border:1px solid #cbd5e1;padding:8px">أُدخل بواسطة</th><td colspan="3" style="border:1px solid #cbd5e1;padding:8px">${prEsc(r.created_by) || '-'}</td></tr>
+    </table>
+  </div>`;
+}
+
+function viewPermanentReplacement(id){
+  const r = PR_DATA.find(x => x.id === id);
+  if(!r) return;
+  const old = document.getElementById('prViewModal');
+  if(old) old.remove();
+  const div = document.createElement('div');
+  div.className = 'modal-overlay active';
+  div.id = 'prViewModal';
+  div.innerHTML = `
+    <div class="modal" style="max-width:880px">
+      <div class="modal-header"><h3>تفاصيل البديل الدائم</h3>
+        <button class="modal-close" onclick="document.getElementById('prViewModal').remove()">&times;</button></div>
+      <div class="modal-body">${prDetailsHtml(r)}</div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="document.getElementById('prViewModal').remove()">إغلاق</button>
+        <button class="btn btn-primary" onclick="printPermanentReplacement(${r.id})"><i class="fas fa-print"></i> طباعة</button>
+      </div>
+    </div>`;
+  document.body.appendChild(div);
+}
+
+function printPermanentReplacement(id){
+  const r = PR_DATA.find(x => x.id === id);
+  if(!r) return;
+  const w = window.open('', '_blank');
+  if(!w){ showToast('error','خطأ','فعّل النوافذ المنبثقة للطباعة'); return; }
+  w.document.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+    <title>البديل الدائم - ${prEsc(r.request_number)}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>body{font-family:'Tajawal',sans-serif;padding:26px}</style></head>
+    <body>${prDetailsHtml(r)}<script>setTimeout(function(){window.print()},600)<\/script></body></html>`);
+  w.document.close();
+}
+
+function printPrTable(){ window.print(); }
+
+function exportPrCSV(){
+  const head = ['رقم طلب الصيانة','اسم الموظف','القسم','نوع المادة المعطلة','رقم المادة المعطلة','اسم المادة المعطلة','سبب الاستبدال','نوع المادة البديلة','رقم المادة البديلة','اسم المادة البديلة','مستوى المواصفات','تاريخ الاستبدال','رقم الكتاب','تاريخ الكتاب','مرفق','الحالة','ملاحظات'];
+  const rows = PR_DATA.slice().sort((a,b)=>(b.id||0)-(a.id||0)).map(r => [
+    r.request_number, r.employee_name, r.department, r.old_category, r.old_item_number, r.old_item_name,
+    r.fault_description, r.new_category, r.new_item_number, r.new_item_name,
+    r.spec_level==='higher'?'أعلى مواصفات':'مكافئ', r.replace_date, r.letter_number, r.letter_date,
+    (r.attachments||[]).length ? 'نعم' : 'لا', r.is_done ? 'منجز' : 'غير منجز', r.notes
+  ].map(x => `"${String(x==null?'':x).replace(/"/g,'""')}"`).join(','));
+  const csv = '\uFEFF' + head.join(',') + '\n' + rows.join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+  a.download = 'permanent_replacements_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+  showToast('success','تم التصدير','تم تنزيل ملف Excel/CSV');
+}
 </script>
 
 </body>
