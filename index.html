@@ -3158,6 +3158,7 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                         <button onclick="showAdminTab('perms',this)"><i class="fas fa-user-shield"></i> صلاحيات مفصلة</button>
                         <button onclick="showAdminTab('backup',this)"><i class="fas fa-database"></i> النسخ الاحتياطي</button>
                         <button onclick="showAdminTab('danger',this)"><i class="fas fa-triangle-exclamation"></i> منطقة الخطر</button>
+                        <button id="admTabPasswords" onclick="showAdminTab('passwords',this)"><i class="fas fa-key"></i> كلمات المرور الإضافية</button>
                     </div>
 
                     <div class="sys-pane active" id="admtab-users">
@@ -3258,6 +3259,10 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                             </div>
                         </div>
                     </div>
+                    <div class="sys-pane" id="admtab-passwords">
+                        <div class="sys-grid" id="pwdZoneCards"></div>
+                    </div>
+
                     <div class="sys-pane" id="admtab-danger">
                         <div class="sys-grid">
                             <div class="sys-card">
@@ -3332,6 +3337,12 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 }
                 let PMX_SELECTED=null;
                 function pmxEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+                function pwdSyncTabVisibility(){
+                    var b=document.getElementById('admTabPasswords');
+                    if(b) b.style.display = zIsAdmin() ? '' : 'none';
+                }
+                document.addEventListener('DOMContentLoaded', pwdSyncTabVisibility);
+                setInterval(pwdSyncTabVisibility, 1500);
                 function pmxRenderUsers(){
                     const box=document.getElementById('pmxUsers'); if(!box) return;
                     const users=(window.USERS_CACHE||[]);
@@ -3463,11 +3474,19 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 function zCache(z,v){ try{ localStorage.setItem(ZONES[z].local, v); }catch(e){} }
 
                 /* --- حماية ضد المحاولات المتكررة --- */
+                /* المحاولات والحظر محسوبة لكل مستخدم على حدة */
+                function zUserKey(){
+                    try{
+                        var u = window.currentUser || JSON.parse(localStorage.getItem('currentUser')||'null');
+                        return (u && (u.username || u.id)) ? String(u.username || u.id) : '__guest__';
+                    }catch(e){ return '__guest__'; }
+                }
+                function zLockKey(z){ return 'zLock_'+z+'_'+zUserKey(); }
                 function zLockState(z){
-                    try{ return JSON.parse(localStorage.getItem('zLock_'+z)||'{"fails":0,"until":0}'); }
+                    try{ return JSON.parse(localStorage.getItem(zLockKey(z))||'{"fails":0,"until":0}'); }
                     catch(e){ return {fails:0,until:0}; }
                 }
-                function zLockSave(z,s){ try{ localStorage.setItem('zLock_'+z, JSON.stringify(s)); }catch(e){} }
+                function zLockSave(z,s){ try{ localStorage.setItem(zLockKey(z), JSON.stringify(s)); }catch(e){} }
                 function zBlockedMs(z){ var s=zLockState(z); var left=(s.until||0)-Date.now(); return left>0?left:0; }
                 function zRegisterFail(z){
                     var s=zLockState(z); s.fails=(s.fails||0)+1;
@@ -3588,7 +3607,69 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 function changeDangerPassword(){ changeZonePassword('danger'); }
                 function changeBackupPassword(){ changeZonePassword('backup'); }
 
+                function zIsAdmin(){
+                    try{ var u=window.currentUser; return !!(u && u.role==='admin' && !u.isReadOnly); }catch(e){ return false; }
+                }
+                function pwdRender(){
+                    var wrap=document.getElementById('pwdZoneCards'); if(!wrap) return;
+                    var html='';
+                    ['danger','backup'].forEach(function(z){
+                        var cfg=ZONES[z];
+                        html+='<div class="sys-card">'
+                            +'<h4><i class="fas '+cfg.icon+'"></i> كلمة مرور '+cfg.title+'</h4>'
+                            +'<p class="hint">تُحفظ بشكل دائم في قاعدة البيانات. الحد الأقصى '+DZ_MAX_TRIES+' محاولات خاطئة ثم حظر مؤقت '+(DZ_BLOCK_MS/60000)+' دقائق لكل مستخدم على حدة.</p>'
+                            +'<div class="form-grid">'
+                            +'<div class="form-group"><label>كلمة المرور الحالية</label><input type="password" class="form-control" id="pw_cur_'+z+'" autocomplete="new-password" placeholder="••••"></div>'
+                            +'<div class="form-group"><label>كلمة المرور الجديدة</label><input type="password" class="form-control" id="pw_new_'+z+'" autocomplete="new-password" placeholder="4 خانات على الأقل"></div>'
+                            +'<div class="form-group"><label>تأكيد كلمة المرور الجديدة</label><input type="password" class="form-control" id="pw_cnf_'+z+'" autocomplete="new-password" placeholder="أعد الإدخال"></div>'
+                            +'</div>'
+                            +'<div id="pw_state_'+z+'" style="font-size:12px;margin-top:6px;min-height:16px"></div>'
+                            +'<div class="sys-actions" style="margin-top:12px">'
+                            +'<button class="btn btn-primary no-readonly" onclick="if(checkReadOnly())return;pwdSubmit(\''+z+'\')"><i class="fas fa-save"></i> حفظ كلمة المرور</button>'
+                            +'<button class="btn btn-secondary" onclick="lockZone(\''+z+'\')"><i class="fas fa-lock"></i> إقفال التبويب الآن</button>'
+                            +'</div></div>';
+                    });
+                    wrap.innerHTML=html;
+                    pwdTickState();
+                    if(!window.__pwdTick) window.__pwdTick=setInterval(pwdTickState,1000);
+                }
+                function pwdTickState(){
+                    ['danger','backup'].forEach(function(z){
+                        var el=document.getElementById('pw_state_'+z); if(!el) return;
+                        var left=zBlockedMs(z), st=zLockState(z);
+                        if(left>0){ el.style.color='#dc2626'; el.textContent='محظور مؤقتاً لهذا المستخدم — المتبقي '+zFmt(left); }
+                        else if(st.fails>0){ el.style.color='#d97706'; el.textContent='محاولات خاطئة: '+st.fails+' من '+DZ_MAX_TRIES; }
+                        else { el.style.color='var(--text-medium,#64748b)'; el.textContent='لا توجد محاولات فاشلة'; }
+                    });
+                }
+                async function pwdSubmit(z){
+                    if(!zIsAdmin()){ if(typeof showToast==='function') showToast('error','غير مصرح','هذه الصفحة للمدراء فقط'); return; }
+                    if(zBlockedMs(z)>0){ if(typeof showToast==='function') showToast('error','حظر مؤقت','أعد المحاولة بعد '+zFmt(zBlockedMs(z))); return; }
+                    var cur=(document.getElementById('pw_cur_'+z).value||''), np=(document.getElementById('pw_new_'+z).value||'').trim(), cf=(document.getElementById('pw_cnf_'+z).value||'').trim();
+                    var real= await zGetPass(z);
+                    if(cur!==real){
+                        var st=zRegisterFail(z); pwdTickState();
+                        if(typeof showToast==='function'){
+                            if(zBlockedMs(z)>0) showToast('error','حظر مؤقت','تجاوزت عدد المحاولات المسموح بها');
+                            else showToast('error','خطأ','كلمة المرور الحالية غير صحيحة — المتبقي '+(DZ_MAX_TRIES-st.fails));
+                        }
+                        return;
+                    }
+                    zResetFails(z); pwdTickState();
+                    if(np.length<4){ if(typeof showToast==='function') showToast('error','خطأ','كلمة المرور الجديدة قصيرة جداً'); return; }
+                    if(np!==cf){ if(typeof showToast==='function') showToast('error','خطأ','تأكيد كلمة المرور غير مطابق'); return; }
+                    var ok= await zSetPass(z,np);
+                    document.getElementById('pw_cur_'+z).value=''; document.getElementById('pw_new_'+z).value=''; document.getElementById('pw_cnf_'+z).value='';
+                    if(typeof showToast==='function'){
+                        if(ok) showToast('success','تم','تم تغيير كلمة مرور '+ZONES[z].title+' وحفظها بشكل دائم');
+                        else showToast('warning','تحذير','تم الحفظ محلياً فقط — تعذر الحفظ في قاعدة البيانات');
+                    }
+                }
                 function showAdminTab(name, el){
+                    if(name==='passwords' && !zIsAdmin()){
+                        if(typeof showToast==='function') showToast('error','غير مصرح','صفحة كلمات المرور الإضافية للمدراء فقط');
+                        return;
+                    }
                     if((name==='danger'||name==='backup') && !dzUnlocked[name]){
                         zPrompt(name, function(){
                             dzUnlocked[name]=true;
@@ -3604,6 +3685,7 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     if(pane) pane.classList.add('active');
                     if(el) el.classList.add('active');
                     if(name==='perms') pmxRenderUsers();
+                    if(name==='passwords') pwdRender();
                 }
                 </script>
             </div>
