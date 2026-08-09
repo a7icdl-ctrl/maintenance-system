@@ -4,6 +4,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1849,6 +1850,8 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                       <div class="mini-stat" style="--mc:#ec4899"><i class="fas fa-clone"></i><div><div class="ms-v" id="statDuplicate">0</div><div class="ms-l">مكرر</div></div></div>
                       <div class="mini-stat" style="--mc:#f97316"><i class="fas fa-box"></i><div><div class="ms-v" id="statOutOfStock">0</div><div class="ms-l">قطع نفدت</div></div></div>
                       <div class="mini-stat" style="--mc:#8b5cf6"><i class="fas fa-laptop"></i><div><div class="ms-v" id="statAltAvailable">0</div><div class="ms-l">أجهزة بديلة</div></div></div>
+                      <div class="mini-stat" style="--mc:#4f46e5"><i class="fas fa-right-left"></i><div><div class="ms-v" id="statPermReplace">0</div><div class="ms-l">بدائل دائمة</div></div></div>
+                      <div class="mini-stat" style="--mc:#f43f5e"><i class="fas fa-hourglass-half"></i><div><div class="ms-v" id="statPermOpen">0</div><div class="ms-l">بدائل دائمة غير منجزة</div></div></div>
                       <div class="mini-stat" style="--mc:#6366f1"><i class="fas fa-file-alt"></i><div><div class="ms-v" id="statDocuments">0</div><div class="ms-l">وثائق وملاحظات</div></div></div>
                       <div class="mini-stat" style="--mc:#0ea5e9"><i class="fas fa-desktop"></i><div><div class="ms-v" id="statComputerItems">0</div><div class="ms-l">مواد حاسوبية</div></div></div>
                     </div>
@@ -2302,6 +2305,7 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 #page-permanent_replacement .pr-name{display:block;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#475569}
                 #page-permanent_replacement .pr-empty{padding:28px;text-align:center;color:#94a3b8;font-size:13px}
                 #page-permanent_replacement .pr-old{background:#fff7ed}
+                .pr-hint{display:block;margin-top:5px;font-size:11px;color:#6366f1;font-weight:600}
                 #page-permanent_replacement .pr-new{background:#f0fdf4}
                 .pr-section{border:1px solid #e5e7eb;border-radius:12px;padding:14px;margin-bottom:14px;background:#fcfcfd}
                 .pr-section h4{margin:0 0 12px;font-size:14px;font-weight:900;color:#1e293b;display:flex;align-items:center;gap:8px}
@@ -2615,6 +2619,92 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     </div>
                 </div>
 
+                <!-- ===== PERMANENT REPLACEMENT ANALYTICS ===== -->
+                <div class="rep-section-head">
+                    <h2><i class="fas fa-right-left" style="color:#4f46e5"></i> تحليلات البديل الدائم</h2>
+                    <span class="pill" id="repPrScope">—</span>
+                    <span class="line"></span>
+                </div>
+
+                <div class="stats-grid" style="margin-bottom:16px;">
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #4f46e5;">
+                        <div class="stat-icon" style="background:rgba(79,70,229,.1);color:#4f46e5"><i class="fas fa-right-left"></i></div>
+                        <div class="stat-value" id="repPrTotal">0</div>
+                        <div class="stat-label">إجمالي عمليات الاستبدال الدائم</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #10b981;">
+                        <div class="stat-icon" style="background:rgba(16,185,129,.1);color:#10b981"><i class="fas fa-circle-check"></i></div>
+                        <div class="stat-value" id="repPrDone">0</div>
+                        <div class="stat-label">منجزة</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #f59e0b;">
+                        <div class="stat-icon" style="background:rgba(245,158,11,.1);color:#f59e0b"><i class="fas fa-hourglass-half"></i></div>
+                        <div class="stat-value" id="repPrOpen">0</div>
+                        <div class="stat-label">غير منجزة</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #0ea5e9;">
+                        <div class="stat-icon" style="background:rgba(14,165,233,.1);color:#0ea5e9"><i class="fas fa-percentage"></i></div>
+                        <div class="stat-value" id="repPrRate">0%</div>
+                        <div class="stat-label">نسبة إنجاز الاستبدال</div>
+                        <div class="rep-bar"><span id="repPrRateBar" style="width:0%"></span></div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #8b5cf6;">
+                        <div class="stat-icon" style="background:rgba(139,92,246,.1);color:#8b5cf6"><i class="fas fa-arrow-trend-up"></i></div>
+                        <div class="stat-value" id="repPrHigher">0</div>
+                        <div class="stat-label">بديل بمواصفات أعلى</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #ec4899;">
+                        <div class="stat-icon" style="background:rgba(236,72,153,.1);color:#ec4899"><i class="fas fa-building"></i></div>
+                        <div class="stat-value" id="repPrTopDept">—</div>
+                        <div class="stat-label">أكثر قسم استبدالاً</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #14b8a6;">
+                        <div class="stat-icon" style="background:rgba(20,184,166,.1);color:#14b8a6"><i class="fas fa-file-signature"></i></div>
+                        <div class="stat-value" id="repPrLetters">0</div>
+                        <div class="stat-label">مرتبطة بكتاب رسمي</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #dc2626;">
+                        <div class="stat-icon" style="background:rgba(220,38,38,.1);color:#dc2626"><i class="fas fa-calendar-days"></i></div>
+                        <div class="stat-value" id="repPrMonth">0</div>
+                        <div class="stat-label">استبدالات هذا الشهر</div>
+                    </div>
+                </div>
+
+                <div class="rep-grid">
+                    <div class="card rep-card" data-chart="prCats">
+                        <div class="card-header rep-head">
+                            <h3><i class="fas fa-shapes" style="color:#4f46e5"></i> الاستبدال حسب نوع المادة</h3>
+                            <div class="rep-tools no-print">
+                                <button class="rep-icon-btn" title="تكبير" onclick="repFullscreen('prCats')"><i class="fas fa-expand"></i></button>
+                                <button class="rep-icon-btn" title="تحميل صورة" onclick="downloadChart('prCats','البديل_الدائم_حسب_النوع')"><i class="fas fa-download"></i></button>
+                            </div>
+                        </div>
+                        <div class="card-body rep-body"><div class="rep-canvas"><canvas id="prCatsChart"></canvas></div></div>
+                    </div>
+
+                    <div class="card rep-card" data-chart="prTrend">
+                        <div class="card-header rep-head">
+                            <h3><i class="fas fa-chart-line" style="color:#10b981"></i> الاتجاه الشهري للاستبدال الدائم</h3>
+                            <div class="rep-tools no-print">
+                                <button class="rep-icon-btn" title="تكبير" onclick="repFullscreen('prTrend')"><i class="fas fa-expand"></i></button>
+                                <button class="rep-icon-btn" title="تحميل صورة" onclick="downloadChart('prTrend','اتجاه_البديل_الدائم')"><i class="fas fa-download"></i></button>
+                            </div>
+                        </div>
+                        <div class="card-body rep-body"><div class="rep-canvas"><canvas id="prTrendChart"></canvas></div></div>
+                    </div>
+
+                    <div class="card rep-card rep-wide" data-chart="prDepts">
+                        <div class="card-header rep-head">
+                            <h3><i class="fas fa-sitemap" style="color:#f59e0b"></i> الاستبدال الدائم حسب الأقسام</h3>
+                            <div class="rep-tools no-print">
+                                <button class="rep-icon-btn" title="تكبير" onclick="repFullscreen('prDepts')"><i class="fas fa-expand"></i></button>
+                                <button class="rep-icon-btn" title="تحميل صورة" onclick="downloadChart('prDepts','البديل_الدائم_حسب_الاقسام')"><i class="fas fa-download"></i></button>
+                            </div>
+                        </div>
+                        <div class="card-body rep-body"><div class="rep-canvas"><canvas id="prDeptsChart"></canvas></div></div>
+                    </div>
+                </div>
+
                 <!-- ===== PERIODIC MAINTENANCE ANALYTICS ===== -->
                 <div class="rep-section-head">
                     <h2><i class="fas fa-calendar-check" style="color:#0ea5e9"></i> تحليلات الصيانة الدورية</h2>
@@ -2754,6 +2844,7 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                             <button class="tab-btn" onclick="showSearchTab('alternatives')"><i class="fas fa-laptop"></i> الأجهزة البديلة</button>
                             <button class="tab-btn" onclick="showSearchTab('documents')"><i class="fas fa-file-alt"></i> الوثائق</button>
                             <button class="tab-btn" onclick="showSearchTab('computer_items')"><i class="fas fa-desktop"></i> المواد الحاسوبية</button>
+                            <button class="tab-btn" onclick="showSearchTab('permanent_replacement')"><i class="fas fa-right-left"></i> البديل الدائم</button>
                         </div>
 
                         <!-- Search: Requests -->
@@ -2995,6 +3086,74 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                                     <i class="fas fa-search"></i> بحث
                                 </button>
                                 <button class="btn btn-secondary" onclick="clearSearchForm('computer_items')" >
+                                    <i class="fas fa-eraser"></i> مسح
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Search: Permanent Replacement -->
+                        <div class="tab-content" id="search-tab-permanent_replacement">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>من تاريخ</label>
+                                    <input type="date" class="form-control" id="searchPrFromDate">
+                                </div>
+                                <div class="form-group">
+                                    <label>إلى تاريخ</label>
+                                    <input type="date" class="form-control" id="searchPrToDate">
+                                </div>
+                                <div class="form-group">
+                                    <label>نوع المادة</label>
+                                    <select class="form-control" id="searchPrCategory">
+                                        <option value="">جميع الأنواع</option>
+                                        <option value="Desktop">Desktop</option>
+                                        <option value="Notebook">Notebook</option>
+                                        <option value="Printer">Printer</option>
+                                        <option value="Scanner">Scanner</option>
+                                        <option value="UPS">UPS</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>القسم</label>
+                                    <select class="form-control" id="searchPrDepartment">
+                                        <option value="">جميع الأقسام</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>اسم الموظف</label>
+                                    <input type="text" class="form-control" id="searchPrEmployee" placeholder="اسم الموظف">
+                                </div>
+                                <div class="form-group">
+                                    <label>رقم طلب الصيانة</label>
+                                    <input type="text" class="form-control" id="searchPrRequest" placeholder="رقم الطلب">
+                                </div>
+                                <div class="form-group">
+                                    <label>رقم / اسم المادة</label>
+                                    <input type="text" class="form-control" id="searchPrItem" placeholder="رقم المادة أو اسمها">
+                                </div>
+                                <div class="form-group">
+                                    <label>حالة الإنجاز</label>
+                                    <select class="form-control" id="searchPrDone">
+                                        <option value="">الكل</option>
+                                        <option value="done">منجز</option>
+                                        <option value="open">غير منجز</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>مستوى المواصفات</label>
+                                    <select class="form-control" id="searchPrSpec">
+                                        <option value="">الكل</option>
+                                        <option value="equal">مكافئ</option>
+                                        <option value="higher">أعلى مواصفات</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="as-actions">
+                                <button class="btn btn-primary" onclick="performAdvancedSearch('permanent_replacement')">
+                                    <i class="fas fa-search"></i> بحث
+                                </button>
+                                <button class="btn btn-secondary" onclick="clearSearchForm('permanent_replacement')" >
                                     <i class="fas fa-eraser"></i> مسح
                                 </button>
                             </div>
@@ -4389,17 +4548,19 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                         <div class="form-grid">
                             <div class="form-group">
                                 <label>نوع المادة <span style="color: var(--danger);">*</span></label>
-                                <input type="text" class="form-control" id="prOldCategory" list="prCategoriesList" placeholder="Desktop / Notebook / Printer / أخرى" autocomplete="off">
+                                <input type="text" class="form-control" id="prOldCategory" list="prCategoriesList" placeholder="Desktop / Notebook / Printer / أخرى" oninput="prOnCategoryChange('Old')" onchange="prOnCategoryChange('Old')" autocomplete="off">
                                 <datalist id="prCategoriesList"></datalist>
                             </div>
                             <div class="form-group">
                                 <label>رقم المادة <span style="color: var(--danger);">*</span></label>
-                                <input type="text" class="form-control" id="prOldItemNumber" list="prItemsList" placeholder="اختر أو اكتب رقم المادة" oninput="prOnItemPick('Old')" autocomplete="off">
-                                <datalist id="prItemsList"></datalist>
+                                <input type="text" class="form-control" id="prOldItemNumber" list="prItemsListOld" placeholder="اختر أو اكتب رقم المادة" oninput="prOnItemPick('Old')" autocomplete="off">
+                                <datalist id="prItemsListOld"></datalist>
                             </div>
                             <div class="form-group full-width">
                                 <label>اسم المادة المعطلة ومواصفاتها <span style="color: var(--danger);">*</span></label>
-                                <textarea class="form-control" id="prOldItemName" placeholder="اسم المادة والمواصفات الفنية..." style="min-height:70px;"></textarea>
+                                <input type="text" class="form-control" id="prOldItemName" list="prItemNamesListOld" placeholder="اختر اسم المادة من القائمة أو اكتبه يدوياً..." oninput="prOnItemNamePick('Old')" autocomplete="off">
+                                <datalist id="prItemNamesListOld"></datalist>
+                                <small class="pr-hint" id="prOldHint">اختر «نوع المادة» أولاً لتصفية أسماء وأرقام المواد حسب النوع.</small>
                             </div>
                             <div class="form-group full-width">
                                 <label>سبب الاستبدال / وصف العطل</label>
@@ -4413,15 +4574,18 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                         <div class="form-grid">
                             <div class="form-group">
                                 <label>نوع المادة البديلة <span style="color: var(--danger);">*</span></label>
-                                <input type="text" class="form-control" id="prNewCategory" list="prCategoriesList" placeholder="Desktop / Notebook / Printer / أخرى" autocomplete="off">
+                                <input type="text" class="form-control" id="prNewCategory" list="prCategoriesList" placeholder="Desktop / Notebook / Printer / أخرى" oninput="prOnCategoryChange('New')" onchange="prOnCategoryChange('New')" autocomplete="off">
                             </div>
                             <div class="form-group">
                                 <label>رقم المادة البديلة <span style="color: var(--danger);">*</span></label>
-                                <input type="text" class="form-control" id="prNewItemNumber" list="prItemsList" placeholder="اختر أو اكتب رقم المادة" oninput="prOnItemPick('New')" autocomplete="off">
+                                <input type="text" class="form-control" id="prNewItemNumber" list="prItemsListNew" placeholder="اختر أو اكتب رقم المادة" oninput="prOnItemPick('New')" autocomplete="off">
+                                <datalist id="prItemsListNew"></datalist>
                             </div>
                             <div class="form-group full-width">
                                 <label>اسم المادة البديلة ومواصفاتها <span style="color: var(--danger);">*</span></label>
-                                <textarea class="form-control" id="prNewItemName" placeholder="اسم المادة البديلة والمواصفات الفنية..." style="min-height:70px;"></textarea>
+                                <input type="text" class="form-control" id="prNewItemName" list="prItemNamesListNew" placeholder="اختر اسم المادة البديلة من القائمة أو اكتبه يدوياً..." oninput="prOnItemNamePick('New')" autocomplete="off">
+                                <datalist id="prItemNamesListNew"></datalist>
+                                <small class="pr-hint" id="prNewHint">اختر «نوع المادة البديلة» أولاً لتصفية أسماء وأرقام المواد حسب النوع.</small>
                             </div>
                             <div class="form-group">
                                 <label>مستوى المواصفات</label>
@@ -4879,6 +5043,14 @@ async function loadSearchDropdowns() {
             ).join('');
     }
 
+    const prDeptSelect = document.getElementById('searchPrDepartment');
+    if (prDeptSelect) {
+        prDeptSelect.innerHTML = '<option value="">جميع الأقسام</option>' +
+            departments.slice().sort((a, b) => a.name.localeCompare(b.name)).map(d =>
+                `<option value="${d.name}">${d.name}</option>`
+            ).join('');
+    }
+
     // Load inventory items for inventory search
     const inventory = await SupabaseAPI.request('inventory', 'GET');
     const invSelect = document.getElementById('searchInvItem');
@@ -5140,6 +5312,49 @@ async function performAdvancedSearch(type) {
             <td>${formatDate(i.created_at)}</td>
             <td>${i.created_by || i.createdBy || '-'}</td></tr>
         `).join('')}</tbody></table></div>`;
+
+    } else if (type === 'permanent_replacement') {
+        let list = [];
+        try { list = (await SupabaseAPI.request('permanent_replacements', 'GET')) || []; } catch (e) { list = []; }
+        const fromDate = document.getElementById('searchPrFromDate').value;
+        const toDate = document.getElementById('searchPrToDate').value;
+        const category = document.getElementById('searchPrCategory').value;
+        const department = document.getElementById('searchPrDepartment').value;
+        const employee = document.getElementById('searchPrEmployee').value.toLowerCase();
+        const reqNum = document.getElementById('searchPrRequest').value.toLowerCase();
+        const item = document.getElementById('searchPrItem').value.toLowerCase();
+        const doneF = document.getElementById('searchPrDone').value;
+        const specF = document.getElementById('searchPrSpec').value;
+
+        const dOf = r => new Date(r.replace_date || r.created_at || 0);
+        let filtered = list;
+        if (fromDate) { const f = new Date(fromDate); f.setHours(0, 0, 0, 0); filtered = filtered.filter(r => dOf(r) >= f); }
+        if (toDate) { const t = new Date(toDate); t.setHours(23, 59, 59, 999); filtered = filtered.filter(r => dOf(r) <= t); }
+        if (category) filtered = filtered.filter(r => (r.old_category === category || r.new_category === category));
+        if (department) filtered = filtered.filter(r => r.department === department);
+        if (employee) filtered = filtered.filter(r => (r.employee_name || '').toLowerCase().includes(employee));
+        if (reqNum) filtered = filtered.filter(r => String(r.request_number || '').toLowerCase().includes(reqNum));
+        if (item) filtered = filtered.filter(r => [r.old_item_number, r.old_item_name, r.new_item_number, r.new_item_name]
+            .some(v => String(v || '').toLowerCase().includes(item)));
+        if (doneF) filtered = filtered.filter(r => doneF === 'done' ? !!r.is_done : !r.is_done);
+        if (specF) filtered = filtered.filter(r => (r.spec_level || 'equal') === specF);
+
+        currentSearchResults = filtered;
+        count = filtered.length;
+
+        resultsHtml = `<div class="table-container"><table class="data-table">
+        <thead><tr><th>#</th><th>رقم الطلب</th><th>الموظف / القسم</th><th>المادة المعطلة</th><th>البديل الدائم</th><th>المواصفات</th><th>الكتاب الرسمي</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+        <tbody>${filtered.sort((a, b) => (b.id || 0) - (a.id || 0)).map((r, idx) => `
+            <tr><td>${idx + 1}</td>
+            <td><strong>${r.request_number || '-'}</strong></td>
+            <td><strong>${r.employee_name || '-'}</strong><br><span style="font-size:11px;color:var(--text-light)">${r.department || '-'}</span></td>
+            <td><span class="badge badge-warning">${r.old_category || '-'}</span> <strong>${r.old_item_number || '-'}</strong><br><span style="font-size:11px;color:var(--text-light)">${(r.old_item_name || '-')}</span></td>
+            <td><span class="badge badge-success">${r.new_category || '-'}</span> <strong>${r.new_item_number || '-'}</strong><br><span style="font-size:11px;color:var(--text-light)">${(r.new_item_name || '-')}</span></td>
+            <td>${r.spec_level === 'higher' ? '<span class="badge badge-completed">أعلى مواصفات</span>' : '<span class="badge badge-new">مكافئ</span>'}</td>
+            <td>${r.letter_number ? '<strong>' + r.letter_number + '</strong><br><span style="font-size:11px;color:var(--text-light)">' + formatDate(r.letter_date) + '</span>' : '-'}</td>
+            <td>${r.is_done ? '<span class="badge badge-completed">منجز</span>' : '<span class="badge badge-new">غير منجز</span>'}</td>
+            <td>${formatDate(r.replace_date || r.created_at)}</td></tr>
+        `).join('')}</tbody></table></div>`;
     }
 
     document.getElementById('searchResultsCount').textContent = `(${count} نتيجة)`;
@@ -5205,7 +5420,7 @@ async function exportSearchResults() {
 async function printSearchResults() {
     const resultsBody = document.getElementById('searchResultsBody').innerHTML;
     const count = document.getElementById('searchResultsCount').textContent;
-    const typeLabels = { requests: 'طلبات الصيانة', inventory: 'قطع الغيار', alternatives: 'الأجهزة البديلة', documents: 'الوثائق', computer_items: 'المواد الحاسوبية' };
+    const typeLabels = { requests: 'طلبات الصيانة', inventory: 'قطع الغيار', alternatives: 'الأجهزة البديلة', documents: 'الوثائق', computer_items: 'المواد الحاسوبية', permanent_replacement: 'البديل الدائم' };
 
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
@@ -6162,6 +6377,27 @@ async function printDocuments() {
                             <td>${d.created_by || d.createdBy || '-'}</td>
                         </tr>
                     `).join('')}
+                </tbody>
+            </table>
+
+            <h2><i class="fas fa-right-left"></i> أحدث عمليات البديل الدائم</h2>
+            <table>
+                <thead>
+                    <tr><th>رقم الطلب</th><th>الموظف</th><th>القسم</th><th>المادة المعطلة</th><th>البديل الدائم</th><th>المواصفات</th><th>الحالة</th><th>التاريخ</th></tr>
+                </thead>
+                <tbody>
+                    ${permRecent.length ? permRecent.map(r => `
+                        <tr>
+                            <td><strong>${r.request_number || '-'}</strong></td>
+                            <td>${r.employee_name || '-'}</td>
+                            <td>${r.department || '-'}</td>
+                            <td style="font-size:11px;">${(r.old_category || '-') + ' | ' + (r.old_item_number || '-')}<br>${r.old_item_name || ''}</td>
+                            <td style="font-size:11px;">${(r.new_category || '-') + ' | ' + (r.new_item_number || '-')}<br>${r.new_item_name || ''}</td>
+                            <td>${r.spec_level === 'higher' ? 'أعلى مواصفات' : 'مكافئ'}</td>
+                            <td><span class="badge ${r.is_done ? 'badge-completed' : 'badge-new'}">${r.is_done ? 'منجز' : 'غير منجز'}</span></td>
+                            <td>${formatDate(r.replace_date || r.created_at)}</td>
+                        </tr>
+                    `).join('') : '<tr><td colspan="8" style="text-align:center;color:#94a3b8">لا توجد عمليات بديل دائم مسجلة</td></tr>'}
                 </tbody>
             </table>
 
@@ -9883,6 +10119,8 @@ async function updateDashboard() {
     const altModels = await SupabaseAPI.request('alt_models', 'GET');
     const documents = await SupabaseAPI.request('documents', 'GET');
     const computerItems = await SupabaseAPI.request('computer_items', 'GET');
+    let permReplacements = [];
+    try { permReplacements = (await SupabaseAPI.request('permanent_replacements', 'GET')) || []; } catch (e) { permReplacements = []; }
 
     const by = (s) => requests.filter(r => r.status === s).length;
     const setTxt = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
@@ -9899,6 +10137,8 @@ async function updateDashboard() {
     setTxt('statDuplicate', by('duplicate'));
     setTxt('statOutOfStock', inventory.filter(i => (i.qty || 0) === 0).length);
     setTxt('statAltAvailable', altModels.filter(m => m.status === 'available').length);
+    setTxt('statPermReplace', permReplacements.length);
+    setTxt('statPermOpen', permReplacements.filter(r => !r.is_done).length);
     setTxt('statDocuments', documents.length);
     setTxt('statComputerItems', computerItems.length);
 
@@ -10095,6 +10335,10 @@ async function printPage() {
     const altModels = await SupabaseAPI.request('alt_models', 'GET');
     const documents = await SupabaseAPI.request('documents', 'GET');
     const computerItems = await SupabaseAPI.request('computer_items', 'GET');
+    let permReplacements = [];
+    try { permReplacements = (await SupabaseAPI.request('permanent_replacements', 'GET')) || []; } catch (e) { permReplacements = []; }
+    const permDone = permReplacements.filter(r => r.is_done).length;
+    const permRecent = permReplacements.slice().sort((a, b) => (b.id || 0) - (a.id || 0)).slice(0, 10);
 
     const hiddenStatuses = ['completed', 'cancelled', 'duplicate'];
     const activeRequests = requests.filter(r => !hiddenStatuses.includes(r.status)).slice(0, 10);
@@ -10155,6 +10399,9 @@ async function printPage() {
                 <div class="stat-card secondary"><div class="stat-value" style="color: #8b5cf6;">${altModels.filter(m => m.status === 'available').length}</div><div class="stat-label">أجهزة بديلة</div></div>
                 <div class="stat-card primary"><div class="stat-value" style="color: #6366f1;">${documents.length}</div><div class="stat-label">الوثائق</div></div>
                 <div class="stat-card info"><div class="stat-value" style="color: #0ea5e9;">${computerItems.length}</div><div class="stat-label">المواد الحاسوبية</div></div>
+                <div class="stat-card primary"><div class="stat-value" style="color: #4f46e5;">${permReplacements.length}</div><div class="stat-label">البديل الدائم</div></div>
+                <div class="stat-card success"><div class="stat-value" style="color: #10b981;">${permDone}</div><div class="stat-label">بديل دائم منجز</div></div>
+                <div class="stat-card warning"><div class="stat-value" style="color: #f59e0b;">${permReplacements.length - permDone}</div><div class="stat-label">بديل دائم غير منجز</div></div>
             </div>
             <h2><i class="fas fa-history"></i> الطلبات النشطة</h2>
             <table>
@@ -11233,7 +11480,7 @@ async function confirmDocxImport() {
 
 // ==================== REPORTS & CHARTS (INTERACTIVE) ====================
 let charts = {};
-let repRaw = { requests: [], inventory: [], altDevices: [], altModels: [] };
+let repRaw = { requests: [], inventory: [], altDevices: [], altModels: [], perm: [] };
 let repFiltered = [];
 let repTypes = { status: 'doughnut', dept: 'bar', monthly: 'line' };
 let repTopN = 10;
@@ -11276,6 +11523,7 @@ async function loadReportsCharts(force) {
         repRaw.inventory = (await SupabaseAPI.request('inventory', 'GET')) || [];
         repRaw.altDevices = (await SupabaseAPI.request('alt_devices', 'GET')) || [];
         repRaw.altModels = (await SupabaseAPI.request('alt_models', 'GET')) || [];
+        try { repRaw.perm = (await SupabaseAPI.request('permanent_replacements', 'GET')) || []; } catch (e) { repRaw.perm = []; }
         await loadPmReportData();
         repLoaded = true;
         buildRepFilterOptions();
@@ -11437,7 +11685,140 @@ function renderAllRepCharts() {
     renderInventoryChart(repRaw.inventory);
     renderEmployeesChart(repFiltered);
     renderAltDevicesChart(repRaw.altDevices, repRaw.altModels);
+    renderPermReplacementReports();
     renderPmReports();
+}
+
+/* ==================== PERMANENT REPLACEMENT ANALYTICS ==================== */
+function repPermFiltered() {
+    const from = document.getElementById('repFrom')?.value;
+    const to = document.getElementById('repTo')?.value;
+    const dept = document.getElementById('repDept')?.value || '';
+    const q = (document.getElementById('repSearch')?.value || '').trim().toLowerCase();
+    const fromD = from ? new Date(from + 'T00:00:00') : null;
+    const toD = to ? new Date(to + 'T23:59:59') : null;
+    return (repRaw.perm || []).filter(r => {
+        const d = new Date(r.replace_date || r.created_at || 0);
+        if (fromD && (!d || isNaN(d) || d < fromD)) return false;
+        if (toD && (!d || isNaN(d) || d > toD)) return false;
+        if (dept && r.department !== dept) return false;
+        if (q) {
+            const hay = [r.request_number, r.employee_name, r.department, r.old_item_number, r.old_item_name,
+                r.new_item_number, r.new_item_name, r.old_category, r.new_category, r.letter_number]
+                .filter(Boolean).join(' ').toLowerCase();
+            if (!hay.includes(q)) return false;
+        }
+        return true;
+    });
+}
+
+function renderPermReplacementReports() {
+    const rows = repPermFiltered();
+    const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+    const done = rows.filter(r => !!r.is_done).length;
+    const rate = rows.length ? Math.round(done / rows.length * 100) : 0;
+    const now = new Date();
+    const month = rows.filter(r => { const d = new Date(r.replace_date || r.created_at || ''); return !isNaN(d) && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); }).length;
+
+    repCountUp('repPrTotal', rows.length);
+    repCountUp('repPrDone', done);
+    repCountUp('repPrOpen', rows.length - done);
+    set('repPrRate', rate + '%');
+    const bar = document.getElementById('repPrRateBar'); if (bar) bar.style.width = rate + '%';
+    repCountUp('repPrHigher', rows.filter(r => r.spec_level === 'higher').length);
+    repCountUp('repPrLetters', rows.filter(r => r.letter_number).length);
+    repCountUp('repPrMonth', month);
+
+    const dc = {};
+    rows.forEach(r => { const d = r.department || 'غير محدد'; dc[d] = (dc[d] || 0) + 1; });
+    const deptPairs = Object.entries(dc).sort((a, b) => b[1] - a[1]);
+    set('repPrTopDept', deptPairs[0] ? deptPairs[0][0] : '—');
+    const scope = document.getElementById('repPrScope');
+    if (scope) scope.textContent = `${rows.length} عملية استبدال · ${done} منجزة`;
+
+    if (typeof Chart === 'undefined') return;
+
+    // Categories (old vs new)
+    const el1 = document.getElementById('prCatsChart');
+    if (el1) {
+        destroyChart('prCats');
+        const cats = Array.from(new Set(rows.flatMap(r => [r.old_category, r.new_category]).filter(Boolean)));
+        const oldD = cats.map(c => rows.filter(r => r.old_category === c).length);
+        const newD = cats.map(c => rows.filter(r => r.new_category === c).length);
+        charts.prCats = new Chart(el1.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: cats.length ? cats : ['لا توجد بيانات'],
+                datasets: [
+                    { label: 'مواد معطلة', data: cats.length ? oldD : [0], backgroundColor: 'rgba(249,115,22,.85)', borderRadius: 8 },
+                    { label: 'بدائل دائمة', data: cats.length ? newD : [0], backgroundColor: 'rgba(16,185,129,.85)', borderRadius: 8 }
+                ]
+            },
+            options: repBaseOptions({
+                plugins: { legend: { position: 'bottom', labels: { font: repFont(12), usePointStyle: true, color: repTick() } } },
+                scales: {
+                    x: { ticks: { font: repFont(11), color: repTick() }, grid: { display: false } },
+                    y: { beginAtZero: true, ticks: { font: repFont(11), color: repTick(), precision: 0 }, grid: { color: repGrid() } }
+                }
+            })
+        });
+    }
+
+    // Monthly trend (last 12 months)
+    const el2 = document.getElementById('prTrendChart');
+    if (el2) {
+        destroyChart('prTrend');
+        const months = [];
+        for (let i = 11; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            months.push({ key: d.getFullYear() + '-' + d.getMonth(), label: d.toLocaleDateString('ar-EG', { month: 'short', year: '2-digit' }), n: 0, done: 0 });
+        }
+        rows.forEach(r => {
+            const d = new Date(r.replace_date || r.created_at || '');
+            if (isNaN(d)) return;
+            const m = months.find(x => x.key === d.getFullYear() + '-' + d.getMonth());
+            if (m) { m.n++; if (r.is_done) m.done++; }
+        });
+        charts.prTrend = new Chart(el2.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: months.map(m => m.label),
+                datasets: [
+                    { label: 'عمليات الاستبدال', data: months.map(m => m.n), borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,.14)', fill: true, tension: .35, borderWidth: 3, pointRadius: 3 },
+                    { label: 'المنجزة', data: months.map(m => m.done), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,.12)', fill: true, tension: .35, borderWidth: 3, pointRadius: 3 }
+                ]
+            },
+            options: repBaseOptions({
+                plugins: { legend: { position: 'bottom', labels: { font: repFont(12), usePointStyle: true, color: repTick() } } },
+                scales: {
+                    x: { ticks: { font: repFont(11), color: repTick() }, grid: { display: false } },
+                    y: { beginAtZero: true, ticks: { font: repFont(11), color: repTick(), precision: 0 }, grid: { color: repGrid() } }
+                }
+            })
+        });
+    }
+
+    // Departments
+    const el3 = document.getElementById('prDeptsChart');
+    if (el3) {
+        destroyChart('prDepts');
+        const top = deptPairs.slice(0, repTopN || 10);
+        charts.prDepts = new Chart(el3.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: top.length ? top.map(p => p[0]) : ['لا توجد بيانات'],
+                datasets: [{ label: 'عمليات الاستبدال الدائم', data: top.length ? top.map(p => p[1]) : [0], backgroundColor: REP_PALETTE, borderRadius: 8 }]
+            },
+            options: repBaseOptions({
+                indexAxis: 'y',
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, ticks: { font: repFont(11), color: repTick(), precision: 0 }, grid: { color: repGrid() } },
+                    y: { ticks: { font: repFont(11), color: repTick() }, grid: { display: false } }
+                }
+            })
+        });
+    }
 }
 
 /* ==================== PERIODIC MAINTENANCE ANALYTICS ==================== */
@@ -13202,7 +13583,7 @@ html[data-theme="dark"] .sa-qa{background:#0e152b !important;}
    ============================================================ */
 (function(){
 const SA = { data:{}, loaded:false, loading:null, ts:0 };
-const T = ['requests','inventory','transactions','inventory_history','alt_devices','alt_models','assignments','computer_items','documents','departments','users','tenders'];
+const T = ['requests','inventory','transactions','inventory_history','alt_devices','alt_models','assignments','computer_items','documents','departments','users','tenders','permanent_replacements'];
 
 const ST = { new:'جديد', inprogress:'قيد التنفيذ', pending:'معلق', withdrawn:'مسحوب', active:'فعال', completed:'منجز', cancelled:'ملغي', duplicate:'مكرر' };
 const STC = { new:'#3b82f6', inprogress:'#f59e0b', pending:'#8b5cf6', withdrawn:'#64748b', active:'#06b6d4', completed:'#10b981', cancelled:'#ef4444', duplicate:'#a855f7' };
@@ -13287,7 +13668,8 @@ function overviewHTML(){
     ['إجمالي الطلبات',R.length],['جديدة',c('new')],['قيد التنفيذ',c('inprogress')],['منجزة',c('completed')],
     ['قطع الغيار',inv.length],['مخزون منخفض',low],['نفد',out],
     ['أجهزة بديلة',models.length],['متوفرة',avail],
-    ['مواد حاسوبية',(d.computer_items||[]).length],['وثائق',(d.documents||[]).length],['أقسام',(d.departments||[]).length]
+    ['مواد حاسوبية',(d.computer_items||[]).length],['وثائق',(d.documents||[]).length],['أقسام',(d.departments||[]).length],
+    ['بديل دائم',(d.permanent_replacements||[]).length],['منجز',(d.permanent_replacements||[]).filter(r=>!!r.is_done).length]
   ]);
 }
 
@@ -13307,6 +13689,7 @@ function searchAll(term){
   scan(d.assignments,'تسليم جهاز',['employee','model',['device_type','deviceType'],'location'],'model');
   scan(d.transactions,'حركة صرف',[['item_name','itemName'],'employee','notes'],['item_name','itemName']);
   scan(d.departments,'قسم',['name'],'name');
+  scan(d.permanent_replacements,'بديل دائم',[['request_number'],['employee_name'],'department',['old_item_number'],['old_item_name'],['new_item_number'],['new_item_name'],['letter_number']],['new_item_name','old_item_name','request_number']);
   return res.slice(0,40);
 }
 
@@ -13321,6 +13704,7 @@ function answer(qRaw){
       <div class="sa-row"><span>الطلبات</span><b>عدّ · بحث · حالات · تأخير · أقسام</b></div>
       <div class="sa-row"><span>قطع الغيار</span><b>الأرصدة · الناقص · النافد · الصرف</b></div>
       <div class="sa-row"><span>الأجهزة البديلة</span><b>المتوفر · المُسلَّم · لمن</b></div>
+      <div class="sa-row"><span>البديل الدائم</span><b>الاستبدالات · المنجز · الأنواع · الكتب الرسمية</b></div>
       <div class="sa-row"><span>المواد الحاسوبية</span><b>الكميات · التصنيفات</b></div>
       <div class="sa-row"><span>الوثائق والعطاء</span><b>التفاصيل · الشركة · التصنيف</b></div>
       <div class="sa-row"><span>تحليلات</span><b>الأكثر أعطالاً · أنشط قسم · ملخص شامل</b></div>
@@ -14140,7 +14524,7 @@ table.rs-t tbody tr{page-break-inside:avoid}
 (function(){
   var ST={new:'جديد',inprogress:'قيد التنفيذ',pending:'معلق',withdrawn:'مسحوب',active:'فعال',completed:'منجز',cancelled:'ملغي',duplicate:'مكرر',available:'متاح',assigned:'مُسلّم',maintenance:'صيانة',damaged:'تالف',returned:'مُرجع'};
   var STC={new:'#3b82f6',inprogress:'#f59e0b',pending:'#8b5cf6',withdrawn:'#64748b',active:'#06b6d4',completed:'#10b981',cancelled:'#ef4444',duplicate:'#a855f7',available:'#10b981',assigned:'#f59e0b',maintenance:'#0ea5e9',damaged:'#ef4444',returned:'#64748b'};
-  var TABLES=['requests','inventory','transactions','inventory_history','alt_devices','alt_models','assignments','computer_items','documents','departments','users','tenders'];
+  var TABLES=['requests','inventory','transactions','inventory_history','alt_devices','alt_models','assignments','computer_items','documents','departments','users','tenders','permanent_replacements'];
   var DATA={},LOADED=false;
 
   var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
@@ -14164,12 +14548,13 @@ table.rs-t tbody tr{page-break-inside:avoid}
     {id:'alt_models',t:'موديلات الأجهزة البديلة',d:'الحالة والموقع والسيريال',    ic:'fa-laptop',        tbl:'alt_models'},
     {id:'assignments',t:'تسليم واسترجاع الأجهزة',d:'من استلم وماذا ومتى',         ic:'fa-handshake',     tbl:'assignments'},
     {id:'computer_items',t:'المواد الحاسوبية',   d:'جرد المواد والأجهزة',         ic:'fa-microchip',     tbl:'computer_items'},
+    {id:'permanent_replacements',t:'البديل الدائم', d:'استبدال المواد المعطلة نهائياً', ic:'fa-right-left', tbl:'permanent_replacements'},
     {id:'documents',t:'الوثائق والملاحظات',      d:'الوثائق المسجلة بالنظام',     ic:'fa-file-lines',    tbl:'documents'},
     {id:'tenders',  t:'عطاء الصيانة',            d:'بنود ومتابعة العطاء',         ic:'fa-file-contract', tbl:'tenders'},
     {id:'departments',t:'الأقسام',               d:'قائمة أقسام المؤسسة',         ic:'fa-sitemap',       tbl:'departments'},
     {id:'users',    t:'مستخدمو النظام',          d:'الحسابات والصلاحيات',         ic:'fa-users-gear',    tbl:'users'}
   ];
-  var DEFAULT_ON=['summary','requests','byDept','byStatus','timeline','inventory','transactions'];
+  var DEFAULT_ON=['summary','requests','byDept','byStatus','timeline','inventory','transactions','permanent_replacements'];
 
   var COLS={
     requests:[['الرقم',function(r){return dash(g(r,'request_number','requestNumber','id'));}],
@@ -14180,6 +14565,20 @@ table.rs-t tbody tr{page-break-inside:avoid}
               ['العطل',function(r){return dash(g(r,'issue_description','issueDescription','issue'));}],
               ['الحالة',function(r){return badge(g(r,'status'));}],
               ['التاريخ',function(r){return fd(g(r,'created_at','createdAt','date'));}]],
+    permanent_replacements:[
+              ['رقم الطلب',function(r){return dash(g(r,'request_number'));}],
+              ['الموظف',function(r){return dash(g(r,'employee_name'));}],
+              ['القسم',function(r){return dash(g(r,'department'));}],
+              ['نوع المادة المعطلة',function(r){return dash(g(r,'old_category'));}],
+              ['رقم المادة المعطلة',function(r){return dash(g(r,'old_item_number'));}],
+              ['اسم المادة المعطلة',function(r){return dash(g(r,'old_item_name'));}],
+              ['نوع البديل',function(r){return dash(g(r,'new_category'));}],
+              ['رقم البديل',function(r){return dash(g(r,'new_item_number'));}],
+              ['اسم البديل',function(r){return dash(g(r,'new_item_name'));}],
+              ['المواصفات',function(r){return g(r,'spec_level')==='higher'?'أعلى مواصفات':'مكافئ';}],
+              ['الكتاب الرسمي',function(r){return dash(g(r,'letter_number'));}],
+              ['الإنجاز',function(r){return r.is_done?'منجز':'غير منجز';}],
+              ['تاريخ الاستبدال',function(r){return fd(g(r,'replace_date','created_at'));}]],
     inventory:[['القطعة',function(r){return dash(g(r,'name','item_name'));}],
               ['الكمية الحالية',function(r){return num(r.qty);}],
               ['الحد الأعلى',function(r){return num(g(r,'max_qty','maxQty'));}],
@@ -14245,7 +14644,7 @@ table.rs-t tbody tr{page-break-inside:avoid}
   }
 
   /* ---------- الفلترة ---------- */
-  function dateOf(r){ return dt(g(r,'created_at','createdAt','date','assign_date','added_at','updated_at')); }
+  function dateOf(r){ return dt(g(r,'replace_date','created_at','createdAt','date','assign_date','added_at','updated_at')); }
   function filterRows(rows,f){
     return (rows||[]).filter(function(r){
       if(f.from||f.to){ var d=dateOf(r); if(!d)return !(f.from||f.to)?true:false;
@@ -14318,13 +14717,18 @@ table.rs-t tbody tr{page-break-inside:avoid}
       var byDept=countBy(reqAll,function(r){return g(r,'department');});
       var top=byDept[0]?byDept[0][0]:'—';
       out+=h2(n,'fa-star','الملخص التنفيذي');
+      var prAll=filterRows(d.permanent_replacements,f);
+      var prDone=prAll.filter(function(r){return !!r.is_done;}).length;
       out+=kpis([['إجمالي الطلبات',num(reqAll.length)],['منجزة',num(done),'g'],['قيد التنفيذ',num(prog),'o'],['معلقة',num(pend),'v'],
-                 ['نسبة الإنجاز',rate+'%','p'],['متوسط أيام الإنجاز',avg,'c'],['مواد المخزون',num(inv.length)],['نفدت الكمية',num(outSt),'r']]);
+                 ['نسبة الإنجاز',rate+'%','p'],['متوسط أيام الإنجاز',avg,'c'],['مواد المخزون',num(inv.length)],['نفدت الكمية',num(outSt),'r'],
+                 ['البديل الدائم',num(prAll.length),'v'],['بديل دائم منجز',num(prDone),'g']]);
       out+='<div class="rs-sumtxt">خلال الفترة <b>'+esc(period)+'</b> سجّل النظام <b>'+num(reqAll.length)+'</b> طلب صيانة، '+
         'أُنجز منها <b>'+num(done)+'</b> طلباً بنسبة إنجاز <b>'+rate+'%</b>، فيما لا يزال <b>'+num(prog+pend+nw)+'</b> طلباً قيد المعالجة '+
         '(<b>'+num(prog)+'</b> قيد التنفيذ، <b>'+num(pend)+'</b> معلق، <b>'+num(nw)+'</b> جديد). '+
         'أكثر الأقسام طلباً للصيانة هو <b>'+esc(top)+'</b>'+(byDept[0]?' بواقع <b>'+num(byDept[0][1])+'</b> طلب':'')+'، '+
-        'ومتوسط زمن الإنجاز <b>'+avg+'</b> يوم. أما المخزون فيضم <b>'+num(inv.length)+'</b> صنفاً، منها <b>'+num(outSt)+'</b> صنف نفدت كميته و<b>'+num(low)+'</b> صنف بكمية منخفضة تستدعي إعادة التزويد.</div>';
+        'ومتوسط زمن الإنجاز <b>'+avg+'</b> يوم. أما المخزون فيضم <b>'+num(inv.length)+'</b> صنفاً، منها <b>'+num(outSt)+'</b> صنف نفدت كميته و<b>'+num(low)+'</b> صنف بكمية منخفضة تستدعي إعادة التزويد. '+
+        'وفيما يخص إجراء <b>البديل الدائم</b> فقد بلغت عمليات الاستبدال النهائي للمواد المعطلة <b>'+num(prAll.length)+'</b> عملية، أُنجز منها <b>'+num(prDone)+'</b> عملية'+
+        (prAll.length?' بنسبة <b>'+Math.round(prDone/prAll.length*100)+'%</b>':'')+'.</div>';
     }
     if(has('requests')){ n++; out+=h2(n,'fa-screwdriver-wrench','طلبات الصيانة','إجمالي '+num(reqAll.length)+' طلب'); out+=table(COLS.requests,reqAll,lim); }
     if(has('byDept')){
@@ -14354,6 +14758,12 @@ table.rs-t tbody tr{page-break-inside:avoid}
       var rows=filterRows(d[s.tbl]||[],s.id==='users'||s.id==='departments'?{q:f.q}:f);
       n++;
       out+=h2(n,s.ic,s.t,'إجمالي '+num(rows.length)+' سجل');
+      if(s.id==='permanent_replacements'){
+        var pdone=rows.filter(function(r){return !!r.is_done;}).length;
+        var phigh=rows.filter(function(r){return r.spec_level==='higher';}).length;
+        var prate=rows.length?Math.round(pdone/rows.length*100):0;
+        out+=kpis([['عمليات الاستبدال',num(rows.length)],['منجزة',num(pdone),'g'],['غير منجزة',num(rows.length-pdone),'o'],['أعلى مواصفات',num(phigh),'p'],['نسبة الإنجاز',prate+'%','c']]);
+      }
       if(s.id==='inventory'){
         var o0=rows.filter(function(i){return (Number(i.qty)||0)===0;}).length;
         var l0=rows.filter(function(i){var q=Number(i.qty)||0;return q>0&&q<=3;}).length;
@@ -17004,9 +17414,78 @@ function prFillDatalists(){
   const cats = Array.from(new Set([...PR_ITEMS.map(i=>i.category).filter(Boolean), 'Desktop','Notebook','Printer','Scanner','UPS','Other'])).sort();
   if(cl) cl.innerHTML = cats.map(n => `<option value="${prEsc(n)}"></option>`).join('');
 
-  const il = document.getElementById('prItemsList');
-  if(il) il.innerHTML = PR_ITEMS.map(i =>
-    `<option value="${prEsc(i.item_number||'')}">${prEsc((i.category||'')+' — '+(i.name||'').slice(0,70))}</option>`).join('');
+  prSyncItemLists('Old');
+  prSyncItemLists('New');
+}
+
+/* --- تصفية المواد حسب نوع المادة المختار (مع بقاء الكتابة اليدوية) --- */
+function prNormCat(v){
+  v = String(v==null?'':v).trim().toLowerCase();
+  if(!v) return '';
+  if(/desktop|مكتب/.test(v)) return 'desktop';
+  if(/note ?book|laptop|لاب|محمول/.test(v)) return 'notebook';
+  if(/printer|طابع/.test(v)) return 'printer';
+  if(/scanner|ماسح/.test(v)) return 'scanner';
+  if(/ups|مزود|طاقه|طاقة/.test(v)) return 'ups';
+  if(/other|اخرى|أخرى/.test(v)) return 'other';
+  return v;
+}
+function prItemsByCategory(cat){
+  const c = prNormCat(cat);
+  if(!c) return PR_ITEMS.slice();
+  return PR_ITEMS.filter(i => prNormCat(i.category) === c);
+}
+function prSyncItemLists(which){
+  const catEl = document.getElementById('pr'+which+'Category');
+  if(!catEl) return;
+  const cat  = catEl.value || '';
+  const list = prItemsByCategory(cat);
+
+  const nums = document.getElementById('prItemsList'+which);
+  if(nums) nums.innerHTML = list.map(i =>
+    `<option value="${prEsc(i.item_number||'')}">${prEsc((i.name||'').slice(0,70))}</option>`).join('');
+
+  const names = document.getElementById('prItemNamesList'+which);
+  if(names) names.innerHTML = Array.from(new Set(list.map(i => (i.name||'').trim()).filter(Boolean)))
+    .sort().map(n => {
+      const it = list.find(x => String(x.name||'').trim() === n) || {};
+      return `<option value="${prEsc(n)}">${prEsc(it.item_number||'')}</option>`;
+    }).join('');
+
+  const hint = document.getElementById('pr'+which+'Hint');
+  if(hint){
+    hint.innerHTML = cat
+      ? `<i class="fas fa-filter"></i> القائمة مُصفّاة على نوع «${prEsc(cat)}» — ${list.length} مادة متاحة (تقدر تكتب يدوياً أيضاً).`
+      : 'اختر «نوع المادة» أولاً لتصفية أسماء وأرقام المواد حسب النوع.';
+  }
+}
+function prOnCategoryChange(which){
+  const cat = (document.getElementById('pr'+which+'Category').value || '').trim();
+  const numEl = document.getElementById('pr'+which+'ItemNumber');
+  const nameEl = document.getElementById('pr'+which+'ItemName');
+  // إذا كانت المادة المختارة سابقاً لا تتبع النوع الجديد يتم تفريغها
+  if(cat && numEl && numEl.value){
+    const it = PR_ITEMS.find(i => String(i.item_number||'').trim() === numEl.value.trim());
+    if(it && prNormCat(it.category) !== prNormCat(cat)){ numEl.value=''; if(nameEl) nameEl.value=''; }
+  }
+  if(cat && nameEl && nameEl.value){
+    const it2 = PR_ITEMS.find(i => String(i.name||'').trim() === nameEl.value.trim());
+    if(it2 && prNormCat(it2.category) !== prNormCat(cat)) nameEl.value='';
+  }
+  prSyncItemLists(which);
+}
+function prOnItemNamePick(which){
+  const name = (document.getElementById('pr'+which+'ItemName').value || '').trim();
+  if(!name) return;
+  const cat = document.getElementById('pr'+which+'Category').value || '';
+  const pool = prItemsByCategory(cat);
+  const item = pool.find(i => String(i.name||'').trim() === name) ||
+               PR_ITEMS.find(i => String(i.name||'').trim() === name);
+  if(!item) return;
+  const numEl = document.getElementById('pr'+which+'ItemNumber');
+  if(numEl) numEl.value = item.item_number || numEl.value;
+  const catEl = document.getElementById('pr'+which+'Category');
+  if(catEl && !catEl.value){ catEl.value = item.category || ''; prSyncItemLists(which); }
 }
 
 function prOnRequestPick(){
@@ -17030,10 +17509,15 @@ function prOnRequestPick(){
 
 function prOnItemPick(which){
   const num = (document.getElementById('pr'+which+'ItemNumber').value || '').trim();
-  const item = PR_ITEMS.find(i => String(i.item_number||'').trim() === num);
+  const cat = document.getElementById('pr'+which+'Category').value || '';
+  const pool = prItemsByCategory(cat);
+  const item = pool.find(i => String(i.item_number||'').trim() === num) ||
+               PR_ITEMS.find(i => String(i.item_number||'').trim() === num);
   if(!item) return;
-  document.getElementById('pr'+which+'Category').value = item.category || '';
+  const catEl = document.getElementById('pr'+which+'Category');
+  if(!catEl.value || prNormCat(catEl.value) !== prNormCat(item.category)) catEl.value = item.category || catEl.value;
   document.getElementById('pr'+which+'ItemName').value = item.name || '';
+  prSyncItemLists(which);
 }
 
 async function openPrModal(id){
@@ -17077,6 +17561,8 @@ async function openPrModal(id){
     document.getElementById('prReplaceDate').value = new Date().toISOString().split('T')[0];
   }
   prRenderAttachments();
+  prSyncItemLists('Old');
+  prSyncItemLists('New');
   openModal('prModal');
 }
 
