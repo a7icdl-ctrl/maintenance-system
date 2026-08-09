@@ -2214,7 +2214,21 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 #page-computer_items .ci-scrollhint i{font-size:10px}
                 #page-computer_items .ci-scrolltop{border:1px solid #e5e7eb;background:#fff;color:#4f46e5;border-radius:8px;padding:3px 9px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s}
                 #page-computer_items .ci-scrolltop:hover{background:#eef2ff;border-color:#c7d2fe}
-                @media print{#page-computer_items .ci-card .table-container{max-height:none;overflow:visible}}
+                #page-computer_items .ci-table thead th.sortable{cursor:pointer;user-select:none;transition:background .15s,color .15s}
+#page-computer_items .ci-table thead th.sortable:hover{background:linear-gradient(180deg,#eef2ff,#e0e7ff);color:#4f46e5}
+#page-computer_items .ci-table thead th.sortable .th-inner{display:flex;align-items:center;justify-content:flex-start;gap:6px}
+#page-computer_items .ci-table thead th.sortable .sort-icon{width:14px;height:14px;display:inline-grid;place-items:center;font-size:10px;color:#94a3b8;transition:color .15s,transform .15s}
+#page-computer_items .ci-table thead th.sortable:hover .sort-icon{color:#4f46e5}
+#page-computer_items .ci-table thead th.sortable.asc .sort-icon{color:#4f46e5;transform:rotate(0deg)}
+#page-computer_items .ci-table thead th.sortable.desc .sort-icon{color:#4f46e5;transform:rotate(180deg)}
+#page-computer_items .ci-table thead th.sortable.active{background:linear-gradient(180deg,#eef2ff,#e0e7ff);box-shadow:inset 0 -2px 0 #4f46e5,0 6px 10px -8px rgba(15,23,42,.25)}
+html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable:hover{background:linear-gradient(180deg,#1e293b,#0f172a);color:#818cf8}
+html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.active{background:linear-gradient(180deg,#1e293b,#0f172a);box-shadow:inset 0 -2px 0 #818cf8,0 6px 10px -8px rgba(15,23,42,.25)}
+html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable .sort-icon{color:#64748b}
+html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable:hover .sort-icon,
+html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.asc .sort-icon,
+html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .sort-icon{color:#818cf8}
+@media print{#page-computer_items .ci-card .table-container{max-height:none;overflow:visible}}
                 #page-computer_items .ci-table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;font-size:13px;background:#fff}
                 #page-computer_items .ci-table thead th{background:linear-gradient(180deg,#ffffff,#f4f7fb);backdrop-filter:blur(6px);box-shadow:0 1px 0 #e5e7eb, 0 6px 10px -8px rgba(15,23,42,.25);color:#475569;font-size:11.5px;font-weight:800;text-align:right;padding:6px 8px;border-bottom:1px solid #e5e7eb;white-space:nowrap;position:sticky;top:0;z-index:1}
                 #page-computer_items .ci-table tbody td{padding:5px 8px;border-bottom:1px solid #f1f5f9;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -2277,14 +2291,14 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                         <table class="ci-table data-table" id="computerItemsTable">
                             <thead>
                                 <tr>
-                                    <th>#</th>
-                                    <th>التصنيف</th>
-                                    <th>رقم المادة</th>
-                                    <th>اسم المادة ومواصفاتها</th>
-                                    <th>الكمية</th>
-                                    <th>الملاحظات</th>
-                                    <th>تاريخ الإضافة</th>
-                                    <th>المستخدم</th>
+                                    <th class="sortable" data-sort="seq" title="فرز حسب الترتيب"><div class="th-inner"><span>#</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th>
+                                    <th class="sortable" data-sort="category" title="فرز حسب التصنيف"><div class="th-inner"><span>التصنيف</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th>
+                                    <th class="sortable" data-sort="item_number" title="فرز حسب رقم المادة"><div class="th-inner"><span>رقم المادة</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th>
+                                    <th class="sortable" data-sort="name" title="فرز حسب اسم المادة"><div class="th-inner"><span>اسم المادة ومواصفاتها</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th>
+                                    <th class="sortable" data-sort="qty" title="فرز حسب الكمية"><div class="th-inner"><span>الكمية</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th>
+                                    <th class="sortable" data-sort="notes" title="فرز حسب الملاحظات"><div class="th-inner"><span>الملاحظات</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th>
+                                    <th class="sortable" data-sort="created_at" title="فرز حسب التاريخ"><div class="th-inner"><span>تاريخ الإضافة</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th>
+                                    <th class="sortable" data-sort="created_by" title="فرز حسب المستخدم"><div class="th-inner"><span>المستخدم</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th>
                                     <th class="no-print">إجراءات</th>
                                 </tr>
                             </thead>
@@ -6502,6 +6516,57 @@ function syncComputerItemCategoryOptions(items) {
     });
 }
 
+let computerItemsSort = { column: null, direction: 'asc' };
+
+function sortComputerItems(column) {
+    const table = document.getElementById('computerItemsTable');
+    if (!table) return;
+    const headers = table.querySelectorAll('thead th.sortable');
+
+    if (computerItemsSort.column === column) {
+        computerItemsSort.direction = computerItemsSort.direction === 'asc' ? 'desc' : (computerItemsSort.direction === 'desc' ? null : 'asc');
+        if (!computerItemsSort.direction) computerItemsSort.column = null;
+    } else {
+        computerItemsSort.column = column;
+        computerItemsSort.direction = 'asc';
+    }
+
+    headers.forEach(th => {
+        th.classList.remove('asc', 'desc', 'active');
+        const icon = th.querySelector('.sort-icon i');
+        if (icon) icon.className = 'fas fa-sort';
+        if (th.dataset.sort === computerItemsSort.column) {
+            th.classList.add('active', computerItemsSort.direction);
+            const activeIcon = th.querySelector('.sort-icon i');
+            if (activeIcon) activeIcon.className = computerItemsSort.direction === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+        }
+    });
+
+    loadComputerItems();
+}
+
+function applyComputerItemsSort(list) {
+    if (!computerItemsSort.column || !computerItemsSort.direction) return list;
+    const col = computerItemsSort.column;
+    const dir = computerItemsSort.direction === 'asc' ? 1 : -1;
+    const getVal = (i) => {
+        if (col === 'seq') return i.id || 0;
+        if (col === 'qty') return Number(i.qty) || 0;
+        if (col === 'created_at') return new Date(i.created_at || i.createdAt || 0).getTime();
+        if (col === 'item_number') {
+            const v = (i.item_number || i.itemNumber || '').toString();
+            const n = parseFloat(v.replace(/\D/g, ''));
+            return isNaN(n) ? v.toLowerCase() : n;
+        }
+        return ((i[col] || '')).toString().toLowerCase();
+    };
+    return [...list].sort((a, b) => {
+        const av = getVal(a), bv = getVal(b);
+        if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * dir;
+        return (av > bv ? 1 : av < bv ? -1 : 0) * dir;
+    });
+}
+
 async function loadComputerItems() {
     const items = await SupabaseAPI.request('computer_items', 'GET');
     syncComputerItemCategoryOptions(items);
@@ -6526,7 +6591,7 @@ async function loadComputerItems() {
         Desktop: 'info', Notebook: 'secondary', Printer: 'warning', Other: 'new'
     };
 
-    const sorted = filtered.sort((a, b) => (b.id || 0) - (a.id || 0));
+    const sorted = applyComputerItemsSort(filtered);
 
     tbody.innerHTML = sorted.length ? sorted.map((i, idx) => `
         <tr>
@@ -6567,6 +6632,15 @@ async function loadComputerItems() {
 
     const badgeEl = document.getElementById('computerItemsBadge');
     if (badgeEl) badgeEl.textContent = items.length;
+
+    // wire column sorting clicks (idempotent)
+    const table = document.getElementById('computerItemsTable');
+    if (table && !table.dataset.sortWired) {
+        table.dataset.sortWired = '1';
+        table.querySelectorAll('thead th.sortable').forEach(th => {
+            th.addEventListener('click', () => sortComputerItems(th.dataset.sort));
+        });
+    }
 }
 
 function filterComputerItems() { loadComputerItems(); }
