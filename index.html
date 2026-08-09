@@ -5,6 +5,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -2319,6 +2320,16 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 html[data-theme="dark"] .pr-section h4{color:#e2e8f0}
                 @media (max-width:900px){#page-permanent_replacement .pr-bar{grid-template-columns:1fr}}
                 @media print{#page-permanent_replacement .pr-bar,#page-permanent_replacement .pr-stats{display:none!important}}
+                #prModal .pr-hint{display:block;margin-top:6px;font-size:11px;color:var(--text-light);line-height:1.7}
+                #prModal .pr-hint.ok{color:#047857}
+                #prModal .pr-alert{display:flex;gap:10px;align-items:flex-start;margin-top:8px;padding:10px 12px;border-radius:10px;font-size:12px;line-height:1.8;border:1px solid #fcd34d;background:#fffbeb;color:#92400e}
+                #prModal .pr-alert.manual{border-color:#a7f3d0;background:#ecfdf5;color:#065f46}
+                #prModal .pr-alert i{margin-top:3px}
+                #prModal .pr-alert .pr-alert-actions{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+                #prModal .pr-alert button{border:0;cursor:pointer;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;font-family:inherit}
+                #prModal .pr-alert .pr-btn-manual{background:#4f46e5;color:#fff}
+                #prModal .pr-alert .pr-btn-ghost{background:#fff;color:#475569;border:1px solid #e2e8f0}
+                #prModal .pr-manual-badge{display:inline-flex;align-items:center;gap:5px;margin-inline-start:6px;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:10px;font-weight:700}
                 </style>
                 <div class="page-header">
                     <h1 class="page-title">البديل الدائم</h1>
@@ -4557,7 +4568,7 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                                 <datalist id="prItemsListOld"></datalist>
                             </div>
                             <div class="form-group full-width">
-                                <label>اسم المادة المعطلة ومواصفاتها <span style="color: var(--danger);">*</span></label>
+                                <label>اسم المادة المعطلة ومواصفاتها <span style="color: var(--danger);">*</span><span class="pr-manual-badge" id="prOldManualBadge" style="display:none"><i class="fas fa-keyboard"></i> إدخال يدوي</span></label>
                                 <input type="text" class="form-control" id="prOldItemName" list="prItemNamesListOld" placeholder="اختر اسم المادة من القائمة أو اكتبه يدوياً..." oninput="prOnItemNamePick('Old')" autocomplete="off">
                                 <datalist id="prItemNamesListOld"></datalist>
                                 <small class="pr-hint" id="prOldHint">اختر «نوع المادة» أولاً لتصفية أسماء وأرقام المواد حسب النوع.</small>
@@ -4582,7 +4593,7 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                                 <datalist id="prItemsListNew"></datalist>
                             </div>
                             <div class="form-group full-width">
-                                <label>اسم المادة البديلة ومواصفاتها <span style="color: var(--danger);">*</span></label>
+                                <label>اسم المادة البديلة ومواصفاتها <span style="color: var(--danger);">*</span><span class="pr-manual-badge" id="prNewManualBadge" style="display:none"><i class="fas fa-keyboard"></i> إدخال يدوي</span></label>
                                 <input type="text" class="form-control" id="prNewItemName" list="prItemNamesListNew" placeholder="اختر اسم المادة البديلة من القائمة أو اكتبه يدوياً..." oninput="prOnItemNamePick('New')" autocomplete="off">
                                 <datalist id="prItemNamesListNew"></datalist>
                                 <small class="pr-hint" id="prNewHint">اختر «نوع المادة البديلة» أولاً لتصفية أسماء وأرقام المواد حسب النوع.</small>
@@ -17452,12 +17463,153 @@ function prSyncItemLists(which){
       return `<option value="${prEsc(n)}">${prEsc(it.item_number||'')}</option>`;
     }).join('');
 
+  prUpdateItemFeedback(which);
+}
+
+/* --- رسائل واضحة عند عدم توفّر مواد للنوع المختار + خيار الإدخال اليدوي --- */
+const PR_MANUAL = { Old:false, New:false };
+
+function prFindItem(which){
+  const numEl = document.getElementById('pr'+which+'ItemNumber');
+  const nameEl= document.getElementById('pr'+which+'ItemName');
+  const num = (numEl && numEl.value || '').trim();
+  const name= (nameEl && nameEl.value|| '').trim();
+  let byNum = num ? PR_ITEMS.find(i => String(i.item_number||'').trim() === num) : null;
+  let byName= name? PR_ITEMS.find(i => String(i.name||'').trim() === name)      : null;
+  return { num, name, byNum, byName };
+}
+
+function prRenderItemsFeedback(which){ prUpdateItemFeedback(which); }
+
+/* الرسائل مرتبطة برقم المادة / اسم المادة (وليس نوع المادة) */
+function prUpdateItemFeedback(which){
   const hint = document.getElementById('pr'+which+'Hint');
-  if(hint){
-    hint.innerHTML = cat
-      ? `<i class="fas fa-filter"></i> القائمة مُصفّاة على نوع «${prEsc(cat)}» — ${list.length} مادة متاحة (تقدر تكتب يدوياً أيضاً).`
-      : 'اختر «نوع المادة» أولاً لتصفية أسماء وأرقام المواد حسب النوع.';
+  if(!hint) return;
+  const cat = (document.getElementById('pr'+which+'Category')||{}).value || '';
+  const pool = prItemsByCategory(cat);
+
+  if(PR_MANUAL[which]){
+    hint.className = 'pr-hint';
+    hint.innerHTML = `
+      <div class="pr-alert manual">
+        <i class="fas fa-keyboard"></i>
+        <div>
+          <b>وضع الإدخال اليدوي مُفعّل.</b><br>
+          اكتب رقم المادة واسمها ومواصفاتها يدوياً، وسيتم حفظها بشكل طبيعي حتى لو لم تكن مسجّلة ضمن المواد الحاسوبية.
+          <div class="pr-alert-actions">
+            <button type="button" class="pr-btn-ghost" onclick="prDisableManual('${which}')">
+              <i class="fas fa-rotate-left"></i> العودة للاختيار من القائمة
+            </button>
+          </div>
+        </div>
+      </div>`;
+    return;
   }
+
+  const { num, name, byNum, byName } = prFindItem(which);
+
+  // لا يوجد إدخال بعد
+  if(!num && !name){
+    hint.className = 'pr-hint';
+    hint.innerHTML = `<i class="fas fa-circle-info"></i> اختر <b>رقم المادة</b> أو <b>اسم المادة</b> من القائمة (${pool.length} مادة متاحة${cat?` لنوع «${prEsc(cat)}»`:''})، أو <a href="javascript:void(0)" onclick="prEnableManual('${which}')"><b>أكمل الإدخال يدوياً</b></a>.`;
+    return;
+  }
+
+  // قيمة غير مسجّلة (رقم أو اسم)
+  const missing = [];
+  if(num  && !byNum ) missing.push(`رقم المادة «${prEsc(num)}»`);
+  if(name && !byName) missing.push(`اسم المادة «${prEsc(name.slice(0,60))}»`);
+
+  if(missing.length){
+    hint.className = 'pr-hint';
+    hint.innerHTML = `
+      <div class="pr-alert">
+        <i class="fas fa-triangle-exclamation"></i>
+        <div>
+          <b>غير مسجّل في المواد الحاسوبية: ${missing.join(' و ')}.</b><br>
+          تأكد من الاختيار من القائمة، أو أضِف المادة في تبويب «المواد الحاسوبية»، أو أكمل تعبئة القيمة يدوياً الآن.
+          <div class="pr-alert-actions">
+            <button type="button" class="pr-btn-manual" onclick="prEnableManual('${which}')">
+              <i class="fas fa-pen"></i> إكمال القيمة يدوياً
+            </button>
+            <button type="button" class="pr-btn-ghost" onclick="prClearItemFields('${which}')">
+              <i class="fas fa-eraser"></i> مسح وإعادة الاختيار
+            </button>
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // تطابق لكن مع اختلاف بين الرقم والاسم
+  if(byNum && byName && byNum !== byName){
+    hint.className = 'pr-hint';
+    hint.innerHTML = `
+      <div class="pr-alert">
+        <i class="fas fa-circle-exclamation"></i>
+        <div>
+          <b>رقم المادة لا يطابق اسم المادة.</b><br>
+          الرقم «${prEsc(num)}» يخص: ${prEsc((byNum.name||'').slice(0,60))}.
+          <div class="pr-alert-actions">
+            <button type="button" class="pr-btn-ghost" onclick="prOnItemPick('${which}')">
+              <i class="fas fa-wand-magic-sparkles"></i> اعتماد بيانات الرقم
+            </button>
+            <button type="button" class="pr-btn-manual" onclick="prEnableManual('${which}')">
+              <i class="fas fa-pen"></i> إكمال القيمة يدوياً
+            </button>
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const it = byNum || byName;
+  hint.className = 'pr-hint ok';
+  hint.innerHTML = `<i class="fas fa-circle-check"></i> مادة مسجّلة: <b>${prEsc(it.item_number||'—')}</b> — ${prEsc((it.name||'').slice(0,60))}${it.category?` (${prEsc(it.category)})`:''}.`;
+}
+
+function prClearItemFields(which){
+  const num = document.getElementById('pr'+which+'ItemNumber');
+  const nm  = document.getElementById('pr'+which+'ItemName');
+  if(num) num.value='';
+  if(nm)  nm.value='';
+  if(num) num.focus();
+  prUpdateItemFeedback(which);
+}
+
+function prEnableManual(which){
+  PR_MANUAL[which] = true;
+  const cat = document.getElementById('pr'+which+'Category');
+  const num = document.getElementById('pr'+which+'ItemNumber');
+  const nm  = document.getElementById('pr'+which+'ItemName');
+  if(num){ num.placeholder = 'اكتب رقم المادة يدوياً'; }
+  if(nm){ nm.placeholder = 'اكتب اسم المادة ومواصفاتها يدوياً'; }
+  prToggleManualBadge(which, true);
+  void cat;
+  prUpdateItemFeedback(which);
+  if(nm) nm.focus();
+  if(typeof showToast === 'function') showToast('info','الإدخال اليدوي','تقدر تكتب بيانات المادة يدوياً الآن');
+}
+
+function prDisableManual(which){
+  PR_MANUAL[which] = false;
+  const num = document.getElementById('pr'+which+'ItemNumber');
+  const nm  = document.getElementById('pr'+which+'ItemName');
+  if(num) num.placeholder = 'اختر أو اكتب رقم المادة';
+  if(nm)  nm.placeholder  = which === 'Old' ? 'اختر اسم المادة من القائمة أو اكتبه يدوياً...' : 'اختر اسم المادة البديلة من القائمة أو اكتبه يدوياً...';
+  prToggleManualBadge(which, false);
+  prSyncItemLists(which);
+}
+
+function prClearCategory(which){
+  const cat = document.getElementById('pr'+which+'Category');
+  if(cat){ cat.value = ''; cat.focus(); }
+  prSyncItemLists(which);
+}
+
+function prToggleManualBadge(which, on){
+  const badge = document.getElementById('pr'+which+'ManualBadge');
+  if(badge) badge.style.display = on ? 'inline-flex' : 'none';
 }
 function prOnCategoryChange(which){
   const cat = (document.getElementById('pr'+which+'Category').value || '').trim();
@@ -17476,16 +17628,17 @@ function prOnCategoryChange(which){
 }
 function prOnItemNamePick(which){
   const name = (document.getElementById('pr'+which+'ItemName').value || '').trim();
-  if(!name) return;
+  if(!name){ prUpdateItemFeedback(which); return; }
   const cat = document.getElementById('pr'+which+'Category').value || '';
   const pool = prItemsByCategory(cat);
   const item = pool.find(i => String(i.name||'').trim() === name) ||
                PR_ITEMS.find(i => String(i.name||'').trim() === name);
-  if(!item) return;
+  if(!item){ prUpdateItemFeedback(which); return; }
   const numEl = document.getElementById('pr'+which+'ItemNumber');
   if(numEl) numEl.value = item.item_number || numEl.value;
   const catEl = document.getElementById('pr'+which+'Category');
   if(catEl && !catEl.value){ catEl.value = item.category || ''; prSyncItemLists(which); }
+  prUpdateItemFeedback(which);
 }
 
 function prOnRequestPick(){
@@ -17513,7 +17666,7 @@ function prOnItemPick(which){
   const pool = prItemsByCategory(cat);
   const item = pool.find(i => String(i.item_number||'').trim() === num) ||
                PR_ITEMS.find(i => String(i.item_number||'').trim() === num);
-  if(!item) return;
+  if(!item){ prUpdateItemFeedback(which); return; }
   const catEl = document.getElementById('pr'+which+'Category');
   if(!catEl.value || prNormCat(catEl.value) !== prNormCat(item.category)) catEl.value = item.category || catEl.value;
   document.getElementById('pr'+which+'ItemName').value = item.name || '';
@@ -17561,8 +17714,8 @@ async function openPrModal(id){
     document.getElementById('prReplaceDate').value = new Date().toISOString().split('T')[0];
   }
   prRenderAttachments();
-  prSyncItemLists('Old');
-  prSyncItemLists('New');
+  prDisableManual('Old');
+  prDisableManual('New');
   openModal('prModal');
 }
 
