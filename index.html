@@ -6,6 +6,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1878,6 +1879,73 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
             </div>
 
             <div class="page-section" id="page-requests">
+                <style>
+                #page-requests .rq-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-bottom:12px}
+                #page-requests .rq-stat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:11px 13px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 14px rgba(15,23,42,.04)}
+                #page-requests .rq-stat i{width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;border-radius:9px;background:#eef2ff;color:#4f46e5;font-size:12px}
+                #page-requests .rq-stat b{font-size:17px;font-weight:900;line-height:1;display:block}
+                #page-requests .rq-stat span{font-size:11px;color:#64748b;display:block;margin-top:2px}
+                #page-requests .rq-card{border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 8px 26px rgba(15,23,42,.07);display:flex;flex-direction:column;margin-bottom:14px}
+                #page-requests .rq-cardhead{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid #eef2f7;background:linear-gradient(180deg,#fbfcfe,#f4f7fb)}
+                #page-requests .rq-cardhead h3{display:flex;align-items:center;gap:9px;margin:0;font-size:14.5px;font-weight:900;color:#1e293b;min-width:0}
+                #page-requests .rq-cardhead h3 .rq-dot{width:9px;height:9px;border-radius:99px;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.16);flex:0 0 9px}
+                #page-requests .rq-cardhead h3 i{color:#4f46e5}
+                #page-requests .rq-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;border:1px solid #e0e7ff;border-radius:999px;padding:3px 10px;white-space:nowrap}
+                #page-requests .rq-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+                #page-requests .rq-hint{font-size:11px;color:#94a3b8;font-weight:700;white-space:nowrap}
+                #page-requests .rq-card .table-container{max-height:calc(100vh - 420px);min-height:280px;overflow:auto;scrollbar-width:thin;scrollbar-color:#c7d2fe transparent;scroll-behavior:smooth;overscroll-behavior:contain}
+                #page-requests .rq-card .table-container::-webkit-scrollbar{width:9px;height:9px}
+                #page-requests .rq-card .table-container::-webkit-scrollbar-track{background:transparent}
+                #page-requests .rq-card .table-container::-webkit-scrollbar-thumb{background:#dbe1ea;border-radius:99px;border:2px solid #fff}
+                #page-requests .rq-card .table-container:hover::-webkit-scrollbar-thumb{background:#c7d2fe}
+                #page-requests .rq-scrollhint{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 12px;border-top:1px solid #eef2f7;background:linear-gradient(180deg,#fbfcfe,#f6f8fc);font-size:11px;color:#94a3b8;font-weight:700}
+                #page-requests .rq-scrolltop{border:1px solid #e5e7eb;background:#fff;color:#4f46e5;border-radius:8px;padding:3px 9px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s}
+                #page-requests .rq-scrolltop:hover{background:#eef2ff;border-color:#c7d2fe}
+                #page-requests #requestsTable{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;font-size:13px;background:#fff}
+                #page-requests #requestsTable thead th{background:linear-gradient(180deg,#ffffff,#f4f7fb);box-shadow:0 1px 0 #e5e7eb,0 6px 10px -8px rgba(15,23,42,.25);color:#475569;font-size:11.5px;font-weight:800;text-align:right;padding:8px 9px;border-bottom:1px solid #e5e7eb;white-space:nowrap;position:sticky;top:0;z-index:2}
+                #page-requests #requestsTable tbody td{padding:7px 9px;border-bottom:1px solid #f1f5f9;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
+                #page-requests #requestsTable tbody tr{transition:background .15s}
+                #page-requests #requestsTable tbody tr:hover td{background:#f8faff}
+                #page-requests #requestsTable tbody tr.row-selected td{background:#eef2ff}
+                #page-requests #requestsTable th:nth-child(1),#page-requests #requestsTable td:nth-child(1){width:38px;text-align:center}
+                #page-requests #requestsTable th:nth-child(2),#page-requests #requestsTable td:nth-child(2){width:132px}
+                #page-requests #requestsTable th:nth-child(3),#page-requests #requestsTable td:nth-child(3){width:104px}
+                #page-requests #requestsTable th:nth-child(4),#page-requests #requestsTable td:nth-child(4){width:120px}
+                #page-requests #requestsTable th:nth-child(5),#page-requests #requestsTable td:nth-child(5){width:130px}
+                #page-requests #requestsTable th:nth-child(6),#page-requests #requestsTable td:nth-child(6){width:118px}
+                #page-requests #requestsTable th:nth-child(7),#page-requests #requestsTable td:nth-child(7){width:auto}
+                #page-requests #requestsTable th:nth-child(8),#page-requests #requestsTable td:nth-child(8){width:112px}
+                #page-requests #requestsTable th:nth-child(9),#page-requests #requestsTable td:nth-child(9){width:104px;color:#64748b}
+                #page-requests #requestsTable th:nth-child(10),#page-requests #requestsTable td:nth-child(10){width:158px}
+                #page-requests #requestsTable .rq-num{color:#4f46e5;font-weight:900;font-size:12.5px}
+                #page-requests #requestsTable .action-btns{display:flex;gap:3px;justify-content:flex-start}
+                #page-requests #requestsTable .action-btn{width:25px;height:25px;font-size:11px;display:grid;place-items:center;border-radius:7px}
+                #page-requests #requestsTable thead th.sortable{cursor:pointer;user-select:none;transition:background .15s,color .15s}
+                #page-requests #requestsTable thead th.sortable:hover{background:linear-gradient(180deg,#eef2ff,#e0e7ff);color:#4f46e5}
+                #page-requests #requestsTable thead th.sortable .th-inner{display:flex;align-items:center;justify-content:flex-start;gap:6px}
+                #page-requests #requestsTable thead th.sortable .sort-icon{width:14px;height:14px;display:inline-grid;place-items:center;font-size:10px;color:#94a3b8;transition:color .15s}
+                #page-requests #requestsTable thead th.sortable:hover .sort-icon{color:#4f46e5}
+                #page-requests #requestsTable thead th.sortable.active{background:linear-gradient(180deg,#eef2ff,#e0e7ff);box-shadow:inset 0 -2px 0 #4f46e5,0 6px 10px -8px rgba(15,23,42,.25)}
+                #page-requests #requestsTable thead th.sortable.active .sort-icon{color:#4f46e5}
+                #page-requests .rq-empty{padding:28px;text-align:center;color:#94a3b8;font-size:13px}
+                html[data-theme="dark"] #page-requests .rq-card,html[data-theme="dark"] #page-requests .rq-stat{background:#0f172a;border-color:rgba(148,163,184,.18)}
+                html[data-theme="dark"] #page-requests .rq-cardhead,html[data-theme="dark"] #page-requests .rq-scrollhint{background:linear-gradient(180deg,#131c2e,#0f172a);border-color:rgba(148,163,184,.16)}
+                html[data-theme="dark"] #page-requests .rq-cardhead h3{color:#e2e8f0}
+                html[data-theme="dark"] #page-requests #requestsTable{background:#0f172a}
+                html[data-theme="dark"] #page-requests #requestsTable thead th{background:linear-gradient(180deg,#1e293b,#0f172a);color:#cbd5e1;border-color:rgba(148,163,184,.18);box-shadow:0 1px 0 rgba(148,163,184,.18)}
+                html[data-theme="dark"] #page-requests #requestsTable tbody td{border-color:rgba(148,163,184,.12);color:#cbd5e1}
+                html[data-theme="dark"] #page-requests #requestsTable tbody tr:hover td{background:rgba(129,140,248,.08)}
+                html[data-theme="dark"] #page-requests #requestsTable thead th.sortable:hover,html[data-theme="dark"] #page-requests #requestsTable thead th.sortable.active{background:linear-gradient(180deg,#1e293b,#0f172a);color:#818cf8}
+                html[data-theme="dark"] #page-requests .rq-scrolltop{background:#131c2e;border-color:rgba(148,163,184,.2);color:#818cf8}
+                @media print{#page-requests .rq-card .table-container{max-height:none;overflow:visible}#page-requests #requestsTable{table-layout:auto}#page-requests #requestsTable tbody td{white-space:normal}}
+                @media(max-width:900px){
+                  #page-requests .rq-cardhead{grid-template-columns:1fr}
+                  #page-requests .rq-tools{justify-content:flex-start}
+                  #page-requests #requestsTable{table-layout:auto;font-size:12px}
+                  #page-requests #requestsTable thead th,#page-requests #requestsTable tbody td{padding:6px 6px}
+                }
+                </style>
+                <div class="rq-stats no-print" id="rqStats"></div>
                 <div class="page-header">
                     <h1 class="page-title">طلبات الصيانة</h1>
                     <div class="page-actions no-print">
@@ -1950,16 +2018,25 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     <button type="button" class="bulk-btn b-delete" onclick="bulkDeleteRequests()"><i class="fas fa-trash"></i> حذف المحدد</button>
                     <button type="button" class="bulk-btn b-clear" onclick="clearRequestSelection()"><i class="fas fa-xmark"></i> إلغاء التحديد</button>
                 </div>
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-container">
-                            <table class="data-table" id="requestsTable">
-                                <thead>
-                                    <tr><th class="no-print" style="width:38px;text-align:center;"><input type="checkbox" class="row-check" id="requestsSelectAll" onchange="toggleSelectAllRequests(this.checked)" title="تحديد الكل"></th><th>رقم الطلب</th><th>الرقم الحاسوبي</th><th>الجهاز</th><th>الموظف</th><th>القسم</th><th>وصف المشكلة</th><th>الحالة</th><th>تاريخ الطلب</th><th class="no-print">إجراءات</th></tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
+                <div class="rq-card">
+                    <div class="rq-cardhead">
+                        <h3><span class="rq-dot"></span><i class="fas fa-bolt"></i> الطلبات النشطة <span class="rq-chip" id="rqActiveChip"><i class="fas fa-list-check"></i> 0 طلب</span></h3>
+                        <div class="rq-tools no-print">
+                            <span class="rq-chip" id="rqClosedChip" style="background:#f1f5f9;border-color:#e2e8f0;color:#64748b;"><i class="fas fa-box-archive"></i> منتهية: 0</span>
+                            <span class="rq-hint"><i class="fas fa-arrow-pointer"></i> اضغط على أي عمود للفرز</span>
                         </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="requestsTable">
+                            <thead>
+                                <tr><th class="no-print" style="text-align:center;"><input type="checkbox" class="row-check" id="requestsSelectAll" onchange="toggleSelectAllRequests(this.checked)" title="تحديد الكل"></th><th class="sortable" data-sort="request_number" title="فرز حسب رقم الطلب"><div class="th-inner"><span>رقم الطلب</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="computer_number" title="فرز حسب الرقم الحاسوبي"><div class="th-inner"><span>الرقم الحاسوبي</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="device_name" title="فرز حسب الجهاز"><div class="th-inner"><span>الجهاز</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="employee_name" title="فرز حسب الموظف"><div class="th-inner"><span>الموظف</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="department" title="فرز حسب القسم"><div class="th-inner"><span>القسم</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="issue_description" title="فرز حسب الوصف"><div class="th-inner"><span>وصف المشكلة</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="status" title="فرز حسب الحالة"><div class="th-inner"><span>الحالة</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="created_at" title="فرز حسب التاريخ"><div class="th-inner"><span>تاريخ الطلب</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="no-print">إجراءات</th></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="rq-scrollhint no-print">
+                        <span><i class="fas fa-arrows-up-down"></i> استعرض الطلبات داخل هذا الحيز دون تحريك الصفحة — <span id="rqCount"></span></span>
+                        <button type="button" class="rq-scrolltop" onclick="this.closest('.rq-card').querySelector('.table-container').scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-arrow-up"></i> أعلى الجدول</button>
                     </div>
                 </div>
             </div>
@@ -7289,6 +7366,58 @@ async function saveRequest() {
     showToast('success', 'تم الحفظ', editingRequestId ? 'تم تحديث الطلب بنجاح' : 'تم إضافة الطلب بنجاح');
 }
 
+/* ===== فرز أعمدة جدول طلبات الصيانة ===== */
+let requestsSort = { column: null, direction: 'asc' };
+
+function sortRequests(column) {
+    const table = document.getElementById('requestsTable');
+    if (!table) return;
+    if (requestsSort.column === column) {
+        requestsSort.direction = requestsSort.direction === 'asc' ? 'desc' : null;
+        if (!requestsSort.direction) requestsSort.column = null;
+    } else {
+        requestsSort.column = column;
+        requestsSort.direction = 'asc';
+    }
+    table.querySelectorAll('thead th.sortable').forEach(th => {
+        th.classList.remove('active');
+        const icon = th.querySelector('.sort-icon i');
+        if (icon) icon.className = 'fas fa-sort';
+        if (th.dataset.sort === requestsSort.column) {
+            th.classList.add('active');
+            if (icon) icon.className = requestsSort.direction === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+        }
+    });
+    loadRequests();
+}
+
+const REQUEST_STATUS_ORDER = { new: 1, inprogress: 2, pending: 3, withdrawn: 4, active: 5, completed: 6, duplicate: 7, cancelled: 8 };
+
+function applyRequestsSort(list, isClosed, reqNum) {
+    const col = requestsSort.column, dir = requestsSort.direction === 'desc' ? -1 : 1;
+    const val = (r) => {
+        switch (col) {
+            case 'request_number': return reqNum(r);
+            case 'created_at': return new Date(r.created_at || r.createdAt || 0).getTime();
+            case 'status': return REQUEST_STATUS_ORDER[r.status] || 99;
+            case 'computer_number': return (r.computer_number || r.computerNumber || '').toString().toLowerCase();
+            case 'device_name': return (r.device_name || r.deviceName || '').toString().toLowerCase();
+            case 'employee_name': return (r.employee_name || r.employeeName || '').toString().toLowerCase();
+            case 'department': return (r.department || '').toString().toLowerCase();
+            case 'issue_description': return (r.issue_description || r.issueDescription || '').toString().toLowerCase();
+            default: return 0;
+        }
+    };
+    return [...list].sort((a, b) => {
+        const closedDiff = (isClosed(a) ? 1 : 0) - (isClosed(b) ? 1 : 0);
+        if (closedDiff !== 0) return closedDiff;
+        if (!col || !requestsSort.direction) return reqNum(a) - reqNum(b);
+        const av = val(a), bv = val(b);
+        if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * dir;
+        return (av > bv ? 1 : av < bv ? -1 : 0) * dir;
+    });
+}
+
 async function loadRequests() {
     const requests = await SupabaseAPI.request('requests', 'GET');
     const tbody = document.querySelector('#requestsTable tbody');
@@ -7311,11 +7440,7 @@ async function loadRequests() {
     const isClosed = (r) => CLOSED_STATUSES.includes(r.status);
     const reqNum = (r) => parseInt(r.request_number || r.requestNumber || '0') || 0;
 
-    const sorted = [...filtered].sort((a, b) => {
-        const closedDiff = (isClosed(a) ? 1 : 0) - (isClosed(b) ? 1 : 0);
-        if (closedDiff !== 0) return closedDiff;
-        return reqNum(a) - reqNum(b);
-    });
+    const sorted = applyRequestsSort(filtered, isClosed, reqNum);
 
     const activeCount = sorted.filter(r => !isClosed(r)).length;
     const closedCount = sorted.length - activeCount;
@@ -7332,12 +7457,12 @@ async function loadRequests() {
         </tr>` : ''}
         <tr data-request-row="${r.id}" class="${isClosed(r) ? 'request-closed-row ' : ''}${selectedRequestIds.has(r.id) ? 'row-selected' : ''}"${isClosed(r) ? ' style="opacity:.62;background:#fafafa;"' : ''}>
             <td class="no-print" style="text-align:center;"><input type="checkbox" class="row-check request-row-check" value="${r.id}" ${selectedRequestIds.has(r.id) ? 'checked' : ''} onchange="toggleRequestSelection(${r.id}, this.checked)"></td>
-            <td><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><strong>#${r.request_number || r.requestNumber}</strong>${getStatusChip(r.status, true)}</div></td>
+            <td><div style="display:flex;align-items:center;gap:6px;"><span class="rq-num">#${r.request_number || r.requestNumber}</span>${getStatusChip(r.status, true)}</div></td>
             <td>${r.computer_number || r.computerNumber}</td>
             <td>${r.device_name || r.deviceName}</td>
             <td>${r.employee_name || r.employeeName}</td>
             <td>${r.department}</td>
-            <td style="max-width: 200px; white-space: normal; font-size: 13px;">${r.issue_description || r.issueDescription || '-'}</td>
+            <td title="${(r.issue_description || r.issueDescription || '').replace(/"/g, '&quot;')}">${r.issue_description || r.issueDescription || '-'}</td>
             <td>${getStatusChip(r.status)}</td>
             <td>${formatDate(r.created_at || r.createdAt)}</td>
             <td class="no-print">
@@ -7350,7 +7475,7 @@ async function loadRequests() {
                 </div>
             </td>
         </tr>
-    `).join('');
+    `).join('') || '<tr><td colspan="10" class="rq-empty"><i class="fas fa-inbox"></i> لا توجد طلبات مطابقة</td></tr>';
 
     visibleRequestIds = sorted.map(r => r.id);
     [...selectedRequestIds].forEach(id => { if (!requests.some(r => r.id === id)) selectedRequestIds.delete(id); });
@@ -7358,6 +7483,33 @@ async function loadRequests() {
     updateQuickFilterCounts(requests);
     syncQuickFilterUI();
     document.getElementById('requestsBadge').textContent = requests.length;
+
+    const activeChip = document.getElementById('rqActiveChip');
+    if (activeChip) activeChip.innerHTML = `<i class="fas fa-list-check"></i> ${activeCount} طلب`;
+    const closedChip = document.getElementById('rqClosedChip');
+    if (closedChip) closedChip.innerHTML = `<i class="fas fa-box-archive"></i> منتهية: ${closedCount}`;
+    const countEl = document.getElementById('rqCount');
+    if (countEl) countEl.textContent = `عرض ${sorted.length} من ${requests.length}`;
+
+    const statsEl = document.getElementById('rqStats');
+    if (statsEl) {
+        const cnt = (s) => requests.filter(r => r.status === s).length;
+        const allActive = requests.filter(r => !isClosed(r)).length;
+        statsEl.innerHTML =
+            `<div class="rq-stat"><i class="fas fa-clipboard-list"></i><div><b>${requests.length}</b><span>إجمالي الطلبات</span></div></div>` +
+            `<div class="rq-stat"><i class="fas fa-bolt" style="background:#ecfdf5;color:#059669;"></i><div><b>${allActive}</b><span>طلبات نشطة</span></div></div>` +
+            `<div class="rq-stat"><i class="fas fa-spinner" style="background:#eff6ff;color:#2563eb;"></i><div><b>${cnt('inprogress')}</b><span>قيد التنفيذ</span></div></div>` +
+            `<div class="rq-stat"><i class="fas fa-hourglass-half" style="background:#fffbeb;color:#d97706;"></i><div><b>${cnt('pending')}</b><span>قيد الانتظار</span></div></div>` +
+            `<div class="rq-stat"><i class="fas fa-circle-check" style="background:#f0fdf4;color:#16a34a;"></i><div><b>${cnt('completed')}</b><span>مكتملة</span></div></div>`;
+    }
+
+    const table = document.getElementById('requestsTable');
+    if (table && !table.dataset.sortWired) {
+        table.dataset.sortWired = '1';
+        table.querySelectorAll('thead th.sortable').forEach(th => {
+            th.addEventListener('click', () => sortRequests(th.dataset.sort));
+        });
+    }
 }
 
 /* ===== الإجراءات السريعة المتعددة على الطلبات ===== */
