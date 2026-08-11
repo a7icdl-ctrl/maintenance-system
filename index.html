@@ -2008,6 +2008,27 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                 #page-requests .rq-body{display:grid;grid-template-rows:1fr;transition:grid-template-rows .38s cubic-bezier(.4,0,.2,1),opacity .28s ease}
                 #page-requests .rq-body>.rq-body-inner{overflow:hidden;min-height:0}
                 #page-requests .rq-card.is-collapsed .rq-body{grid-template-rows:0fr;opacity:0}
+                /* ===== حالة التحميل (Skeleton) داخل جداول الطلبات ===== */
+                #page-requests .rq-skel-cell{padding:9px !important}
+                #page-requests .rq-skel{height:12px;border-radius:99px;background:linear-gradient(90deg,#eef2f7 25%,#e2e8f0 37%,#eef2f7 63%);background-size:400% 100%;animation:rqShimmer 1.25s ease-in-out infinite}
+                #page-requests .rq-skel.w40{width:40%}
+                #page-requests .rq-skel.w60{width:60%}
+                #page-requests .rq-skel.w80{width:80%}
+                #page-requests .rq-skel.w100{width:100%}
+                #page-requests .rq-skel.chip{height:18px;border-radius:8px}
+                #page-requests .rq-skel.circle{width:22px;height:22px;border-radius:8px;margin-inline-start:auto;margin-inline-end:auto}
+                #page-requests .rq-skel-actions{display:flex;gap:4px}
+                #page-requests .rq-skel-actions .rq-skel{width:24px;height:24px;border-radius:7px}
+                @keyframes rqShimmer{0%{background-position:100% 0}100%{background-position:0 0}}
+                #page-requests .rq-loading-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#4f46e5;background:#eef2ff;border:1px solid #c7d2fe;border-radius:99px;padding:3px 9px}
+                #page-requests .rq-loading-chip i{animation:rqSpin .9s linear infinite}
+                @keyframes rqSpin{to{transform:rotate(360deg)}}
+                #page-requests .rq-card.is-loading .rq-cardhead{position:relative;overflow:hidden}
+                #page-requests .rq-card.is-loading .rq-cardhead::after{content:"";position:absolute;inset-inline:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,#6366f1,transparent);animation:rqBar 1.1s linear infinite}
+                @keyframes rqBar{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+                html[data-theme="dark"] #page-requests .rq-skel{background:linear-gradient(90deg,#1e293b 25%,#273449 37%,#1e293b 63%);background-size:400% 100%}
+                html[data-theme="dark"] #page-requests .rq-loading-chip{background:rgba(99,102,241,.14);border-color:rgba(129,140,248,.35);color:#a5b4fc}
+                @media (prefers-reduced-motion: reduce){#page-requests .rq-skel,#page-requests .rq-loading-chip i,#page-requests .rq-card.is-loading .rq-cardhead::after{animation:none}}
                 #page-requests .rq-card.is-collapsed .rq-toggle i{transform:rotate(-180deg)}
                 #page-requests .rq-card.is-collapsed .rq-cardhead{border-bottom-color:transparent}
                 #page-requests .rq-card.rq-closed-card .rq-cardhead h3 i{color:#64748b}
@@ -7542,8 +7563,68 @@ function applyRequestsSort(list, isClosed, reqNum) {
     });
 }
 
+function renderRequestsSkeleton(rows) {
+    const skelRow = () => `
+        <tr class="rq-skel-row">
+            <td class="no-print rq-skel-cell" style="text-align:center;"><div class="rq-skel circle"></div></td>
+            <td class="rq-skel-cell"><div class="rq-skel chip w80"></div></td>
+            <td class="rq-skel-cell"><div class="rq-skel w60"></div></td>
+            <td class="rq-skel-cell"><div class="rq-skel w80"></div></td>
+            <td class="rq-skel-cell"><div class="rq-skel w60"></div></td>
+            <td class="rq-skel-cell"><div class="rq-skel w60"></div></td>
+            <td class="rq-skel-cell"><div class="rq-skel w100"></div></td>
+            <td class="rq-skel-cell"><div class="rq-skel chip w60"></div></td>
+            <td class="rq-skel-cell"><div class="rq-skel w40"></div></td>
+            <td class="no-print rq-skel-cell"><div class="rq-skel-actions"><div class="rq-skel"></div><div class="rq-skel"></div><div class="rq-skel"></div></div></td>
+        </tr>`;
+    const html = Array.from({ length: rows }, skelRow).join('');
+    const a = document.querySelector('#requestsTable tbody');
+    if (a) a.innerHTML = html;
+    const c = document.querySelector('#requestsClosedTable tbody');
+    if (c) c.innerHTML = Array.from({ length: Math.max(2, Math.round(rows / 2)) }, skelRow).join('');
+}
+
+function setRequestsLoading(on) {
+    ['rqActiveCard', 'rqClosedCard'].forEach(id => {
+        const card = document.getElementById(id);
+        if (card) card.classList.toggle('is-loading', !!on);
+    });
+    const chipHtml = '<i class="fas fa-circle-notch"></i> جاري التحميل...';
+    const activeChip = document.getElementById('rqActiveChip');
+    const closedChip = document.getElementById('rqClosedChip');
+    if (on) {
+        if (activeChip) { activeChip.classList.add('rq-loading-chip'); activeChip.innerHTML = chipHtml; }
+        if (closedChip) { closedChip.classList.add('rq-loading-chip'); closedChip.innerHTML = chipHtml; }
+        const countEl = document.getElementById('rqCount');
+        if (countEl) countEl.textContent = 'جاري جلب البيانات...';
+        const closedCountEl = document.getElementById('rqClosedCount');
+        if (closedCountEl) closedCountEl.textContent = 'جاري جلب البيانات...';
+        renderRequestsSkeleton(6);
+    } else {
+        if (activeChip) activeChip.classList.remove('rq-loading-chip');
+        if (closedChip) closedChip.classList.remove('rq-loading-chip');
+    }
+}
+
+let __requestsLoadToken = 0;
 async function loadRequests() {
-    const requests = await SupabaseAPI.request('requests', 'GET');
+    const token = ++__requestsLoadToken;
+    setRequestsLoading(true);
+    let requests;
+    try {
+        requests = await SupabaseAPI.request('requests', 'GET');
+    } catch (e) {
+        if (token !== __requestsLoadToken) return;
+        setRequestsLoading(false);
+        const tb = document.querySelector('#requestsTable tbody');
+        if (tb) tb.innerHTML = '<tr><td colspan="10" class="rq-empty"><i class="fas fa-triangle-exclamation"></i> تعذر جلب الطلبات، حاول مرة أخرى</td></tr>';
+        const cb = document.querySelector('#requestsClosedTable tbody');
+        if (cb) cb.innerHTML = '<tr><td colspan="10" class="rq-empty"><i class="fas fa-triangle-exclamation"></i> تعذر جلب الطلبات</td></tr>';
+        throw e;
+    }
+    if (token !== __requestsLoadToken) return;
+    setRequestsLoading(false);
+    requests = requests || [];
     const tbody = document.querySelector('#requestsTable tbody');
     const search = document.getElementById('requestSearch')?.value?.toLowerCase() || '';
     const statusFilter = document.getElementById('requestStatusFilter')?.value || '';
