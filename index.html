@@ -7,6 +7,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1944,6 +1945,78 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                   #page-requests #requestsTable{table-layout:auto;font-size:12px}
                   #page-requests #requestsTable thead th,#page-requests #requestsTable tbody td{padding:6px 6px}
                 }
+                #page-requests #requestsClosedTable{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;font-size:13px;background:#fff}
+                #page-requests #requestsClosedTable thead th{background:linear-gradient(180deg,#ffffff,#f4f7fb);box-shadow:0 1px 0 #e5e7eb,0 6px 10px -8px rgba(15,23,42,.25);color:#475569;font-size:11.5px;font-weight:800;text-align:right;padding:8px 9px;border-bottom:1px solid #e5e7eb;white-space:nowrap;position:sticky;top:0;z-index:2}
+                #page-requests #requestsClosedTable tbody td{padding:7px 9px;border-bottom:1px solid #f1f5f9;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
+                #page-requests #requestsClosedTable tbody tr{transition:background .15s}
+                #page-requests #requestsClosedTable tbody tr:hover td{background:#f8faff}
+                #page-requests #requestsClosedTable tbody tr.row-selected td{background:#eef2ff}
+                #page-requests #requestsClosedTable th:nth-child(1),#page-requests #requestsClosedTable td:nth-child(1){width:38px;text-align:center}
+                #page-requests #requestsClosedTable th:nth-child(2),#page-requests #requestsClosedTable td:nth-child(2){width:132px}
+                #page-requests #requestsClosedTable th:nth-child(3),#page-requests #requestsClosedTable td:nth-child(3){width:104px}
+                #page-requests #requestsClosedTable th:nth-child(4),#page-requests #requestsClosedTable td:nth-child(4){width:120px}
+                #page-requests #requestsClosedTable th:nth-child(5),#page-requests #requestsClosedTable td:nth-child(5){width:130px}
+                #page-requests #requestsClosedTable th:nth-child(6),#page-requests #requestsClosedTable td:nth-child(6){width:118px}
+                #page-requests #requestsClosedTable th:nth-child(7),#page-requests #requestsClosedTable td:nth-child(7){width:auto}
+                #page-requests #requestsClosedTable th:nth-child(8),#page-requests #requestsClosedTable td:nth-child(8){width:112px}
+                #page-requests #requestsClosedTable th:nth-child(9),#page-requests #requestsClosedTable td:nth-child(9){width:104px;color:#64748b}
+                #page-requests #requestsClosedTable th:nth-child(10),#page-requests #requestsClosedTable td:nth-child(10){width:158px}
+                #page-requests #requestsClosedTable .rq-num{color:#4f46e5;font-weight:900;font-size:12.5px}
+                #page-requests #requestsClosedTable .action-btns{display:flex;gap:3px;justify-content:flex-start}
+                #page-requests #requestsClosedTable .action-btn{width:25px;height:25px;font-size:11px;display:grid;place-items:center;border-radius:7px}
+                #page-requests #requestsClosedTable thead th.sortable{cursor:pointer;user-select:none;transition:background .15s,color .15s}
+                #page-requests #requestsClosedTable thead th.sortable:hover{background:linear-gradient(180deg,#eef2ff,#e0e7ff);color:#4f46e5}
+                #page-requests #requestsClosedTable thead th.sortable .th-inner{display:flex;align-items:center;justify-content:flex-start;gap:6px}
+                #page-requests #requestsClosedTable thead th.sortable .sort-icon{width:14px;height:14px;display:inline-grid;place-items:center;font-size:10px;color:#94a3b8;transition:color .15s}
+                #page-requests #requestsClosedTable thead th.sortable:hover .sort-icon{color:#4f46e5}
+                #page-requests #requestsClosedTable thead th.sortable.active{background:linear-gradient(180deg,#eef2ff,#e0e7ff);box-shadow:inset 0 -2px 0 #4f46e5,0 6px 10px -8px rgba(15,23,42,.25)}
+                #page-requests #requestsClosedTable thead th.sortable.active .sort-icon{color:#4f46e5}
+                html[data-theme="dark"] #page-requests #requestsClosedTable{background:#0f172a}
+                html[data-theme="dark"] #page-requests #requestsClosedTable thead th{background:linear-gradient(180deg,#1e293b,#0f172a);color:#cbd5e1;border-color:rgba(148,163,184,.18);box-shadow:0 1px 0 rgba(148,163,184,.18)}
+                html[data-theme="dark"] #page-requests #requestsClosedTable tbody td{border-color:rgba(148,163,184,.12);color:#cbd5e1}
+                html[data-theme="dark"] #page-requests #requestsClosedTable tbody tr:hover td{background:rgba(129,140,248,.08)}
+                html[data-theme="dark"] #page-requests #requestsClosedTable thead th.sortable:hover,html[data-theme="dark"] #page-requests #requestsClosedTable thead th.sortable.active{background:linear-gradient(180deg,#1e293b,#0f172a);color:#818cf8}
+                @media print{#page-requests .rq-card .table-container{max-height:none;overflow:visible}#page-requests #requestsClosedTable{table-layout:auto}#page-requests #requestsClosedTable tbody td{white-space:normal}}
+                  #page-requests #requestsClosedTable{table-layout:auto;font-size:12px}
+                  #page-requests #requestsClosedTable thead th,#page-requests #requestsClosedTable tbody td{padding:6px 6px}
+                #page-requests .page-header{align-items:center;gap:10px}
+                #page-requests .page-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;align-items:stretch;background:linear-gradient(180deg,#ffffff,#f6f8fc);border:1px solid #e8edf5;border-radius:12px;padding:6px;box-shadow:0 4px 14px rgba(15,23,42,.05);max-width:660px;margin-inline-start:auto}
+                #page-requests .page-actions .btn{display:inline-flex;align-items:center;justify-content:center;width:100%;height:34px;padding:0 10px;font-size:11.5px;font-weight:800;border-radius:9px;line-height:1;box-shadow:none;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:transform .15s ease,filter .15s ease}
+                #page-requests .page-actions .btn i{width:14px;text-align:center;flex:0 0 14px}
+                #page-requests .page-actions .btn{position:relative;cursor:pointer;border:1px solid rgba(15,23,42,.06);outline:none;-webkit-tap-highlight-color:transparent}
+                #page-requests .page-actions .btn::after{content:"";position:absolute;inset:0;border-radius:inherit;background:#0f172a;opacity:0;transition:opacity .15s ease;pointer-events:none}
+                #page-requests .page-actions .btn:hover:not(:disabled):not([disabled]){transform:translateY(-1px);box-shadow:0 6px 14px -6px rgba(15,23,42,.35)}
+                #page-requests .page-actions .btn:hover:not(:disabled):not([disabled])::after{opacity:.08}
+                #page-requests .page-actions .btn:focus-visible{box-shadow:0 0 0 3px rgba(79,70,229,.35);z-index:1}
+                #page-requests .page-actions .btn:active:not(:disabled):not([disabled]){transform:translateY(1px) scale(.985);box-shadow:inset 0 2px 6px rgba(15,23,42,.22);filter:none}
+                #page-requests .page-actions .btn:active:not(:disabled):not([disabled])::after{opacity:.16}
+                #page-requests .page-actions .btn:disabled,#page-requests .page-actions .btn[disabled],#page-requests .page-actions .btn.is-disabled{opacity:.45;filter:grayscale(.5);cursor:not-allowed;transform:none;box-shadow:none;pointer-events:auto}
+                #page-requests .page-actions .btn:disabled::after,#page-requests .page-actions .btn[disabled]::after,#page-requests .page-actions .btn.is-disabled::after{opacity:0}
+                #page-requests .rq-toggle:active,#page-requests .rq-scrolltop:active{transform:translateY(1px) scale(.97)}
+                #page-requests .rq-toggle:focus-visible,#page-requests .rq-scrolltop:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(79,70,229,.35)}
+                #page-requests .rq-toggle:disabled,#page-requests .rq-scrolltop:disabled{opacity:.45;cursor:not-allowed;transform:none}
+                html[data-theme="dark"] #page-requests .page-actions .btn::after{background:#e2e8f0}
+                html[data-theme="dark"] #page-requests .page-actions .btn:focus-visible,html[data-theme="dark"] #page-requests .rq-toggle:focus-visible{box-shadow:0 0 0 3px rgba(129,140,248,.45)}
+                @media(max-width:1200px){#page-requests .page-actions{grid-template-columns:repeat(3,minmax(0,1fr));max-width:none}}
+                @media(max-width:760px){#page-requests .page-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
+                #page-requests .page-actions .btn i{font-size:11px}
+                #page-requests .page-actions .btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+                #page-requests .rq-toggle{border:1px solid #e2e8f0;background:#fff;color:#4f46e5;border-radius:9px;width:26px;height:26px;display:grid;place-items:center;cursor:pointer;font-size:11px;transition:.2s;flex:0 0 26px}
+                #page-requests .rq-toggle:hover{background:#eef2ff;border-color:#c7d2fe}
+                #page-requests .rq-toggle i{transition:transform .35s cubic-bezier(.4,0,.2,1)}
+                #page-requests .rq-cardhead{cursor:pointer;user-select:none}
+                #page-requests .rq-body{display:grid;grid-template-rows:1fr;transition:grid-template-rows .38s cubic-bezier(.4,0,.2,1),opacity .28s ease}
+                #page-requests .rq-body>.rq-body-inner{overflow:hidden;min-height:0}
+                #page-requests .rq-card.is-collapsed .rq-body{grid-template-rows:0fr;opacity:0}
+                #page-requests .rq-card.is-collapsed .rq-toggle i{transform:rotate(-180deg)}
+                #page-requests .rq-card.is-collapsed .rq-cardhead{border-bottom-color:transparent}
+                #page-requests .rq-card.rq-closed-card .rq-cardhead h3 i{color:#64748b}
+                #page-requests .rq-card.rq-closed-card .rq-cardhead h3 .rq-dot{background:#94a3b8;box-shadow:0 0 0 4px rgba(148,163,184,.18)}
+                #page-requests #requestsClosedTable tbody tr td{opacity:.78}
+                @media print{#page-requests .rq-card.is-collapsed .rq-body{grid-template-rows:1fr;opacity:1}#page-requests .rq-toggle{display:none}}
+                html[data-theme="dark"] #page-requests .page-actions{background:linear-gradient(180deg,#131c2e,#0f172a);border-color:rgba(148,163,184,.18)}
+                html[data-theme="dark"] #page-requests .rq-toggle{background:#0f172a;border-color:rgba(148,163,184,.2);color:#818cf8}
+
                 </style>
                 <div class="rq-stats no-print" id="rqStats"></div>
                 <div class="page-header">
@@ -1953,22 +2026,22 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                             <i class="fas fa-plus"></i> طلب جديد
                         </button>
                         <button class="btn btn-warning btn-sm no-readonly" onclick="if(checkReadOnly())return;showPage('import')">
-                            <i class="fas fa-file-import"></i> استيراد الطلبات
+                            <i class="fas fa-file-import"></i> استيراد
                         </button>
                         <button class="btn btn-primary btn-sm" onclick="printRequests()">
                             <i class="fas fa-print"></i> طباعة
                         </button>
                         <button class="btn btn-danger btn-sm" onclick="printDetailedRequestsReport()" title="تقرير تفصيلي لجميع الطلبات مع مدة التأخير والإجراءات">
-                            <i class="fas fa-file-lines"></i> تقرير تفصيلي (طباعة / PDF)
+                            <i class="fas fa-file-lines"></i> تقرير تفصيلي
                         </button>
                         <button class="btn btn-warning btn-sm" onclick="printDetailedRequestsReport({ activeOnly: true })" title="تقرير تفصيلي للطلبات النشطة فقط (باستثناء المكتمل والملغي والمكرر)">
-                            <i class="fas fa-bolt"></i> تقرير الطلبات النشطة
+                            <i class="fas fa-bolt"></i> تقرير النشطة
                         </button>
                         <button class="btn btn-info btn-sm" onclick="openRequestMap()">
-                            <i class="fas fa-map"></i> خريطة الطلبات
+                            <i class="fas fa-map"></i> الخريطة
                         </button>
                         <button class="btn btn-secondary btn-sm" onclick="openChangeLog()" title="سجل التغييرات والتراجع عن العمليات">
-                            <i class="fas fa-clock-rotate-left"></i> سجل التغييرات <span class="log-badge" id="changeLogBadge" style="display:none;">0</span>
+                            <i class="fas fa-clock-rotate-left"></i> السجل <span class="log-badge" id="changeLogBadge" style="display:none;">0</span>
                         </button>
                     </div>
                 </div>
@@ -2018,14 +2091,14 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                     <button type="button" class="bulk-btn b-delete" onclick="bulkDeleteRequests()"><i class="fas fa-trash"></i> حذف المحدد</button>
                     <button type="button" class="bulk-btn b-clear" onclick="clearRequestSelection()"><i class="fas fa-xmark"></i> إلغاء التحديد</button>
                 </div>
-                <div class="rq-card">
-                    <div class="rq-cardhead">
-                        <h3><span class="rq-dot"></span><i class="fas fa-bolt"></i> الطلبات النشطة <span class="rq-chip" id="rqActiveChip"><i class="fas fa-list-check"></i> 0 طلب</span></h3>
+                <div class="rq-card" id="rqActiveCard">
+                    <div class="rq-cardhead" onclick="toggleRequestsCard('rqActiveCard', event)">
+                        <h3><button type="button" class="rq-toggle no-print" onclick="toggleRequestsCard('rqActiveCard', event)" title="طي / توسيع"><i class="fas fa-chevron-up"></i></button><span class="rq-dot"></span><i class="fas fa-bolt"></i> الطلبات النشطة <span class="rq-chip" id="rqActiveChip"><i class="fas fa-list-check"></i> 0 طلب</span></h3>
                         <div class="rq-tools no-print">
-                            <span class="rq-chip" id="rqClosedChip" style="background:#f1f5f9;border-color:#e2e8f0;color:#64748b;"><i class="fas fa-box-archive"></i> منتهية: 0</span>
                             <span class="rq-hint"><i class="fas fa-arrow-pointer"></i> اضغط على أي عمود للفرز</span>
                         </div>
                     </div>
+                    <div class="rq-body"><div class="rq-body-inner">
                     <div class="table-container">
                         <table class="data-table" id="requestsTable">
                             <thead>
@@ -2038,6 +2111,29 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                         <span><i class="fas fa-arrows-up-down"></i> استعرض الطلبات داخل هذا الحيز دون تحريك الصفحة — <span id="rqCount"></span></span>
                         <button type="button" class="rq-scrolltop" onclick="this.closest('.rq-card').querySelector('.table-container').scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-arrow-up"></i> أعلى الجدول</button>
                     </div>
+                    </div></div>
+                </div>
+                <div class="rq-card rq-closed-card is-collapsed" id="rqClosedCard">
+                    <div class="rq-cardhead" onclick="toggleRequestsCard('rqClosedCard', event)">
+                        <h3><button type="button" class="rq-toggle no-print" onclick="toggleRequestsCard('rqClosedCard', event)" title="طي / توسيع"><i class="fas fa-chevron-up"></i></button><span class="rq-dot"></span><i class="fas fa-box-archive"></i> الطلبات المكتملة والمنتهية <span class="rq-chip" id="rqClosedChip" style="background:#f1f5f9;border-color:#e2e8f0;color:#64748b;"><i class="fas fa-box-archive"></i> منتهية: 0</span></h3>
+                        <div class="rq-tools no-print">
+                            <span class="rq-hint"><i class="fas fa-circle-check"></i> مكتمل / مكرر / ملغي</span>
+                        </div>
+                    </div>
+                    <div class="rq-body"><div class="rq-body-inner">
+                    <div class="table-container">
+                        <table class="data-table" id="requestsClosedTable">
+                            <thead>
+                                <tr><th class="no-print" style="text-align:center;"><input type="checkbox" class="row-check" id="requestsClosedSelectAll" onchange="toggleSelectAllRequests(this.checked)" title="تحديد الكل"></th><th class="sortable" data-sort="request_number" title="فرز حسب رقم الطلب"><div class="th-inner"><span>رقم الطلب</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="computer_number" title="فرز حسب الرقم الحاسوبي"><div class="th-inner"><span>الرقم الحاسوبي</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="device_name" title="فرز حسب الجهاز"><div class="th-inner"><span>الجهاز</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="employee_name" title="فرز حسب الموظف"><div class="th-inner"><span>الموظف</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="department" title="فرز حسب القسم"><div class="th-inner"><span>القسم</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="issue_description" title="فرز حسب الوصف"><div class="th-inner"><span>وصف المشكلة</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="status" title="فرز حسب الحالة"><div class="th-inner"><span>الحالة</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="created_at" title="فرز حسب التاريخ"><div class="th-inner"><span>تاريخ الطلب</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="no-print">إجراءات</th></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="rq-scrollhint no-print">
+                        <span><i class="fas fa-box-archive"></i> أرشيف الطلبات المنتهية — <span id="rqClosedCount"></span></span>
+                        <button type="button" class="rq-scrolltop" onclick="this.closest('.rq-card').querySelector('.table-container').scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-arrow-up"></i> أعلى الجدول</button>
+                    </div>
+                    </div></div>
                 </div>
             </div>
 
@@ -7366,12 +7462,38 @@ async function saveRequest() {
     showToast('success', 'تم الحفظ', editingRequestId ? 'تم تحديث الطلب بنجاح' : 'تم إضافة الطلب بنجاح');
 }
 
+/* ===== طي / توسيع جداول الطلبات ===== */
+function toggleRequestsCard(cardId, ev) {
+    if (ev) {
+        ev.stopPropagation();
+        const t = ev.target;
+        if (t.closest && t.closest('.rq-tools') && !t.closest('.rq-toggle')) return;
+    }
+    const card = document.getElementById(cardId);
+    if (!card) return;
+    card.classList.toggle('is-collapsed');
+    try { localStorage.setItem('rqCollapse_' + cardId, card.classList.contains('is-collapsed') ? '1' : '0'); } catch (e) {}
+}
+
+(function restoreRequestsCardsState() {
+    const apply = () => ['rqActiveCard', 'rqClosedCard'].forEach(id => {
+        const card = document.getElementById(id);
+        if (!card) return;
+        let saved = null;
+        try { saved = localStorage.getItem('rqCollapse_' + id); } catch (e) {}
+        if (saved === '1') card.classList.add('is-collapsed');
+        else if (saved === '0') card.classList.remove('is-collapsed');
+    });
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
+    else apply();
+})();
+
 /* ===== فرز أعمدة جدول طلبات الصيانة ===== */
 let requestsSort = { column: null, direction: 'asc' };
 
 function sortRequests(column) {
-    const table = document.getElementById('requestsTable');
-    if (!table) return;
+    const tables = ['requestsTable', 'requestsClosedTable'].map(id => document.getElementById(id)).filter(Boolean);
+    if (!tables.length) return;
     if (requestsSort.column === column) {
         requestsSort.direction = requestsSort.direction === 'asc' ? 'desc' : null;
         if (!requestsSort.direction) requestsSort.column = null;
@@ -7379,7 +7501,7 @@ function sortRequests(column) {
         requestsSort.column = column;
         requestsSort.direction = 'asc';
     }
-    table.querySelectorAll('thead th.sortable').forEach(th => {
+    tables.forEach(table => table.querySelectorAll('thead th.sortable').forEach(th => {
         th.classList.remove('active');
         const icon = th.querySelector('.sort-icon i');
         if (icon) icon.className = 'fas fa-sort';
@@ -7387,7 +7509,9 @@ function sortRequests(column) {
             th.classList.add('active');
             if (icon) icon.className = requestsSort.direction === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
         }
-    });
+    }));
+
+
     loadRequests();
 }
 
@@ -7444,18 +7568,8 @@ async function loadRequests() {
 
     const activeCount = sorted.filter(r => !isClosed(r)).length;
     const closedCount = sorted.length - activeCount;
-    let dividerShown = false;
-
-    tbody.innerHTML = sorted.map((r, i) => `
-        ${(isClosed(r) && !dividerShown && (dividerShown = true)) ? `
-        <tr class="requests-divider-row">
-            <td colspan="10" style="background:#f1f5f9;border-top:2px solid #cbd5e1;padding:10px 14px;text-align:right;">
-                <span style="display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;color:#64748b;">
-                    <i class="fas fa-box-archive"></i> الطلبات المنتهية (مكتمل / مكرر / ملغي) — ${closedCount}
-                </span>
-            </td>
-        </tr>` : ''}
-        <tr data-request-row="${r.id}" class="${isClosed(r) ? 'request-closed-row ' : ''}${selectedRequestIds.has(r.id) ? 'row-selected' : ''}"${isClosed(r) ? ' style="opacity:.62;background:#fafafa;"' : ''}>
+    const rowHtml = (r) => `
+        <tr data-request-row="${r.id}" class="${isClosed(r) ? 'request-closed-row ' : ''}${selectedRequestIds.has(r.id) ? 'row-selected' : ''}">
             <td class="no-print" style="text-align:center;"><input type="checkbox" class="row-check request-row-check" value="${r.id}" ${selectedRequestIds.has(r.id) ? 'checked' : ''} onchange="toggleRequestSelection(${r.id}, this.checked)"></td>
             <td><div style="display:flex;align-items:center;gap:6px;"><span class="rq-num">#${r.request_number || r.requestNumber}</span>${getStatusChip(r.status, true)}</div></td>
             <td>${r.computer_number || r.computerNumber}</td>
@@ -7475,7 +7589,15 @@ async function loadRequests() {
                 </div>
             </td>
         </tr>
-    `).join('') || '<tr><td colspan="10" class="rq-empty"><i class="fas fa-inbox"></i> لا توجد طلبات مطابقة</td></tr>';
+    `;
+
+    const activeRows = sorted.filter(r => !isClosed(r));
+    const closedRows = sorted.filter(isClosed);
+    tbody.innerHTML = activeRows.map(rowHtml).join('') || '<tr><td colspan="10" class="rq-empty"><i class="fas fa-inbox"></i> لا توجد طلبات نشطة مطابقة</td></tr>';
+    const closedTbody = document.querySelector('#requestsClosedTable tbody');
+    if (closedTbody) closedTbody.innerHTML = closedRows.map(rowHtml).join('') || '<tr><td colspan="10" class="rq-empty"><i class="fas fa-box-open"></i> لا توجد طلبات منتهية</td></tr>';
+    const closedCountEl = document.getElementById('rqClosedCount');
+    if (closedCountEl) closedCountEl.textContent = `عرض ${closedRows.length} طلب منتهٍ`;
 
     visibleRequestIds = sorted.map(r => r.id);
     [...selectedRequestIds].forEach(id => { if (!requests.some(r => r.id === id)) selectedRequestIds.delete(id); });
@@ -7503,13 +7625,15 @@ async function loadRequests() {
             `<div class="rq-stat"><i class="fas fa-circle-check" style="background:#f0fdf4;color:#16a34a;"></i><div><b>${cnt('completed')}</b><span>مكتملة</span></div></div>`;
     }
 
-    const table = document.getElementById('requestsTable');
-    if (table && !table.dataset.sortWired) {
-        table.dataset.sortWired = '1';
-        table.querySelectorAll('thead th.sortable').forEach(th => {
-            th.addEventListener('click', () => sortRequests(th.dataset.sort));
-        });
-    }
+    ['requestsTable', 'requestsClosedTable'].forEach(tid => {
+        const t = document.getElementById(tid);
+        if (t && !t.dataset.sortWired) {
+            t.dataset.sortWired = '1';
+            t.querySelectorAll('thead th.sortable').forEach(th => {
+                th.addEventListener('click', () => sortRequests(th.dataset.sort));
+            });
+        }
+    });
 }
 
 /* ===== الإجراءات السريعة المتعددة على الطلبات ===== */
@@ -7524,7 +7648,7 @@ function toggleRequestSelection(id, checked) {
 }
 
 function toggleSelectAllRequests(checked) {
-    document.querySelectorAll('#requestsTable .request-row-check').forEach(cb => {
+    document.querySelectorAll('#page-requests .request-row-check').forEach(cb => {
         cb.checked = checked;
         const id = parseInt(cb.value);
         if (checked) selectedRequestIds.add(id); else selectedRequestIds.delete(id);
@@ -7536,7 +7660,7 @@ function toggleSelectAllRequests(checked) {
 
 function clearRequestSelection() {
     selectedRequestIds.clear();
-    document.querySelectorAll('#requestsTable .request-row-check').forEach(cb => { cb.checked = false; cb.closest('tr')?.classList.remove('row-selected'); });
+    document.querySelectorAll('#page-requests .request-row-check').forEach(cb => { cb.checked = false; cb.closest('tr')?.classList.remove('row-selected'); });
     const all = document.getElementById('requestsSelectAll');
     if (all) { all.checked = false; all.indeterminate = false; }
     updateBulkBar();
