@@ -10,6 +10,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -18612,6 +18613,591 @@ function exportPrCSV(){
   a.click();
   showToast('success','تم التصدير','تم تنزيل ملف Excel/CSV');
 }
+</script>
+
+<!-- ===== Fresh Dashboard Skin (elegant toolbar + luxe polish) ===== -->
+<style id="fresh-dashboard-skin">
+#page-dashboard{
+  --fd-ring: rgba(99,102,241,.35);
+  --fd-glass: color-mix(in oklab, var(--card-bg, #fff) 78%, transparent);
+}
+
+/* ---------- Header: slim glass bar ---------- */
+#page-dashboard .page-header{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  padding:10px 16px !important; border-radius:18px;
+  background:
+    linear-gradient(120deg, rgba(99,102,241,.10), rgba(6,182,212,.08) 45%, transparent 75%),
+    var(--fd-glass);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
+  backdrop-filter:saturate(180%) blur(14px);
+  border:1px solid color-mix(in oklab, var(--border-color) 70%, transparent);
+  box-shadow:0 10px 30px rgba(15,23,42,.07);
+}
+#page-dashboard .page-title{
+  font-size:19px !important; font-weight:900; letter-spacing:-.3px;
+  display:flex; align-items:center; gap:10px; margin:0;
+}
+#page-dashboard .page-title::before{
+  content:""; width:4px; height:22px; border-radius:99px;
+  background:linear-gradient(180deg,#6366f1,#06b6d4);
+}
+
+/* ---------- Actions: compact icon toolbar ---------- */
+#page-dashboard .page-actions{
+  margin-right:auto; display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  padding:5px; border-radius:14px;
+  background:color-mix(in oklab, var(--border-color) 22%, transparent);
+}
+#page-dashboard .page-actions .btn{
+  height:34px; padding:0 12px !important; font-size:12px !important; font-weight:700;
+  border-radius:10px !important; border:1px solid transparent;
+  background:transparent !important; color:var(--text-medium, #475569) !important;
+  box-shadow:none !important; display:inline-flex; align-items:center; gap:7px;
+  transition:background .18s ease, color .18s ease, transform .18s ease;
+}
+#page-dashboard .page-actions .btn i{ font-size:13px; opacity:.9 }
+#page-dashboard .page-actions .btn:hover{
+  background:var(--card-bg,#fff) !important; color:var(--text-dark,#0f172a) !important;
+  transform:translateY(-1px); box-shadow:0 6px 16px rgba(15,23,42,.08) !important;
+}
+/* primary action keeps the accent */
+#page-dashboard .page-actions .btn.btn-primary{
+  background:linear-gradient(135deg,#4f46e5,#6366f1) !important; color:#fff !important;
+  box-shadow:0 6px 16px rgba(79,70,229,.28) !important;
+}
+#page-dashboard .page-actions .btn.btn-primary:hover{ filter:brightness(1.06); color:#fff !important; }
+#page-dashboard .page-actions .btn.btn-success{ color:#059669 !important; }
+#page-dashboard .page-actions .btn.btn-success:hover{ background:rgba(16,185,129,.12) !important; color:#047857 !important; }
+
+/* theme toggle as a neat round chip */
+#page-dashboard .page-actions .theme-toggle{
+  width:34px; height:34px; padding:0 !important; border-radius:50% !important;
+  display:inline-grid; place-items:center; border:1px solid var(--border-color) !important;
+  background:var(--card-bg,#fff) !important; box-shadow:none !important;
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+#page-dashboard .page-actions .theme-toggle:hover{ transform:rotate(-18deg) scale(1.06); box-shadow:0 6px 16px rgba(15,23,42,.12) !important; }
+
+/* sync status pill */
+#page-dashboard .page-actions .sync-status{
+  height:30px; display:inline-flex; align-items:center; gap:6px;
+  font-size:11.5px !important; font-weight:700; padding:0 11px; border-radius:999px;
+  background:rgba(16,185,129,.12); color:#059669; border:1px solid rgba(16,185,129,.22);
+}
+#page-dashboard .page-actions .sync-status i{ font-size:10.5px }
+
+/* ---------- Hero: deeper, richer ---------- */
+#page-dashboard .dsh-hero{
+  position:relative; overflow:hidden;
+  background:
+    radial-gradient(1000px 320px at 90% -30%, rgba(6,182,212,.35), transparent 60%),
+    radial-gradient(700px 300px at 5% 130%, rgba(139,92,246,.32), transparent 60%),
+    linear-gradient(135deg,#111a3a,#1e1b4b 55%,#0b1229);
+  box-shadow:0 22px 55px -22px rgba(30,27,75,.65);
+}
+#page-dashboard .dsh-hero::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(115deg, transparent 35%, rgba(255,255,255,.07) 50%, transparent 65%);
+}
+
+/* ---------- KPI cards ---------- */
+#page-dashboard .kpi-card{
+  position:relative; overflow:hidden;
+  border:1px solid color-mix(in oklab, var(--border-color) 75%, transparent);
+  transition:transform .22s cubic-bezier(.22,.9,.3,1), box-shadow .22s ease;
+}
+#page-dashboard .kpi-card::after{
+  content:""; position:absolute; inset:auto -30px -50px auto; width:130px; height:130px; border-radius:50%;
+  background:radial-gradient(circle, color-mix(in oklab, var(--kc,#4f46e5) 22%, transparent), transparent 70%);
+  opacity:.5; pointer-events:none;
+}
+#page-dashboard .kpi-card:hover{ transform:translateY(-5px); box-shadow:0 18px 38px rgba(15,23,42,.12); }
+#page-dashboard .kpi-val{ letter-spacing:-1px; font-weight:900; }
+
+/* ---------- Panels ---------- */
+#page-dashboard .dsh-panel{ border:1px solid color-mix(in oklab, var(--border-color) 75%, transparent); }
+#page-dashboard .panel-head{
+  background:linear-gradient(180deg, color-mix(in oklab, var(--border-color) 16%, transparent), transparent);
+}
+
+/* ---------- Dark ---------- */
+html[data-theme="dark"] #page-dashboard .page-header{
+  background:linear-gradient(120deg, rgba(99,102,241,.16), rgba(6,182,212,.10) 45%, transparent 75%), rgba(17,24,39,.72);
+  box-shadow:0 12px 34px rgba(0,0,0,.42);
+}
+html[data-theme="dark"] #page-dashboard .page-actions .btn:hover{ background:rgba(255,255,255,.08) !important; }
+html[data-theme="dark"] #page-dashboard .page-actions .theme-toggle{ background:rgba(255,255,255,.06) !important; }
+
+/* ---------- Small screens: keep the toolbar tidy ---------- */
+@media (max-width: 760px){
+  #page-dashboard .page-actions{ width:100%; justify-content:flex-start; }
+  #page-dashboard .page-actions .btn span, #page-dashboard .page-actions .sync-status{ font-size:11px }
+}
+@media (max-width: 520px){
+  #page-dashboard .page-actions .btn{ padding:0 10px !important; }
+}
+@media print{
+  #page-dashboard .page-actions{ display:none !important; }
+  #page-dashboard .page-header{ background:none; box-shadow:none; border:0; }
+}
+</style>
+
+<!-- ===== Fresh Dashboard v2: Quick Access + Live Charts + Quick Settings ===== -->
+<style id="fd2-style">
+#page-dashboard .fd2-sec{ margin: 18px 0; }
+#page-dashboard .fd2-head{ display:flex; align-items:center; gap:10px; margin:0 2px 12px; }
+#page-dashboard .fd2-head h3{ margin:0; font-size:15px; font-weight:900; letter-spacing:-.2px; display:flex; align-items:center; gap:9px; }
+#page-dashboard .fd2-head h3 i{ color:var(--fd2-accent,#4f46e5); }
+#page-dashboard .fd2-head .fd2-line{ flex:1; height:1px; background:linear-gradient(90deg, color-mix(in oklab, var(--border-color) 90%, transparent), transparent); }
+
+/* ---------- Quick access cards ---------- */
+#page-dashboard .fd2-qa{ display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:14px; }
+#page-dashboard .fd2-card{
+  position:relative; overflow:hidden; cursor:pointer; text-align:right;
+  padding:16px 16px 14px; border-radius:18px; isolation:isolate;
+  background:var(--card-bg,#fff);
+  border:1px solid color-mix(in oklab, var(--border-color) 75%, transparent);
+  box-shadow:0 6px 18px -10px rgba(15,23,42,.25);
+  transform:translateY(10px); opacity:0;
+  animation:fd2In .55s cubic-bezier(.22,.9,.3,1) forwards;
+  transition:transform .3s cubic-bezier(.22,.9,.3,1), box-shadow .3s ease, border-color .3s ease;
+}
+@keyframes fd2In{ to{ transform:translateY(0); opacity:1; } }
+#page-dashboard .fd2-card::before{
+  content:""; position:absolute; inset:0; z-index:-1; opacity:0; transition:opacity .35s ease;
+  background:linear-gradient(140deg, color-mix(in oklab, var(--qc,#4f46e5) 16%, transparent), transparent 65%);
+}
+#page-dashboard .fd2-card::after{
+  content:""; position:absolute; z-index:-1; width:160px; height:160px; border-radius:50%;
+  inset:auto -50px -70px auto; opacity:.35; transition:transform .5s cubic-bezier(.22,.9,.3,1), opacity .35s ease;
+  background:radial-gradient(circle, color-mix(in oklab, var(--qc,#4f46e5) 40%, transparent), transparent 70%);
+}
+#page-dashboard .fd2-card:hover{
+  transform:translateY(-7px) scale(1.015);
+  border-color:color-mix(in oklab, var(--qc,#4f46e5) 45%, transparent);
+  box-shadow:0 22px 44px -18px color-mix(in oklab, var(--qc,#4f46e5) 55%, transparent);
+}
+#page-dashboard .fd2-card:hover::before{ opacity:1; }
+#page-dashboard .fd2-card:hover::after{ transform:scale(1.35) translate(10px,-10px); opacity:.5; }
+#page-dashboard .fd2-card:active{ transform:translateY(-2px) scale(.995); }
+#page-dashboard .fd2-ico{
+  width:42px; height:42px; border-radius:13px; display:grid; place-items:center; font-size:17px; color:#fff;
+  background:linear-gradient(135deg, var(--qc,#4f46e5), color-mix(in oklab, var(--qc,#4f46e5) 55%, #0ea5e9));
+  box-shadow:0 8px 18px -8px color-mix(in oklab, var(--qc,#4f46e5) 80%, transparent);
+  transition:transform .35s cubic-bezier(.22,.9,.3,1);
+}
+#page-dashboard .fd2-card:hover .fd2-ico{ transform:rotate(-8deg) scale(1.08); }
+#page-dashboard .fd2-t{ margin-top:12px; font-size:14px; font-weight:800; color:var(--text-dark,#0f172a); }
+#page-dashboard .fd2-d{ margin-top:3px; font-size:11.5px; color:var(--text-light,#94a3b8); line-height:1.6; }
+#page-dashboard .fd2-go{
+  margin-top:10px; display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:800;
+  color:var(--qc,#4f46e5); opacity:0; transform:translateX(8px); transition:all .3s ease;
+}
+#page-dashboard .fd2-card:hover .fd2-go{ opacity:1; transform:translateX(0); }
+#page-dashboard .fd2-badge{
+  position:absolute; top:14px; left:14px; font-size:11px; font-weight:900; padding:3px 9px; border-radius:999px;
+  background:color-mix(in oklab, var(--qc,#4f46e5) 14%, transparent); color:var(--qc,#4f46e5);
+}
+
+/* ---------- Live charts ---------- */
+#page-dashboard .fd2-live-grid{ display:grid; grid-template-columns:1.6fr 1fr; gap:14px; }
+@media (max-width:1000px){ #page-dashboard .fd2-live-grid{ grid-template-columns:1fr; } }
+#page-dashboard .fd2-panel{
+  border-radius:18px; padding:14px 16px 12px; background:var(--card-bg,#fff);
+  border:1px solid color-mix(in oklab, var(--border-color) 75%, transparent);
+  box-shadow:0 8px 24px -16px rgba(15,23,42,.35);
+  transition:box-shadow .3s ease, transform .3s ease;
+}
+#page-dashboard .fd2-panel:hover{ box-shadow:0 18px 38px -20px rgba(15,23,42,.4); }
+#page-dashboard .fd2-ptop{ display:flex; align-items:center; gap:9px; margin-bottom:8px; }
+#page-dashboard .fd2-ptop h4{ margin:0; font-size:13.5px; font-weight:800; }
+#page-dashboard .fd2-ptop small{ color:var(--text-light,#94a3b8); font-size:11px; }
+#page-dashboard .fd2-canvas{ position:relative; height:250px; }
+#page-dashboard .fd2-canvas.sm{ height:220px; }
+#page-dashboard .fd2-live{
+  display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:800; padding:3px 10px;
+  border-radius:999px; background:rgba(16,185,129,.12); color:#059669; border:1px solid rgba(16,185,129,.25);
+}
+#page-dashboard .fd2-live.paused{ background:rgba(148,163,184,.15); color:#64748b; border-color:rgba(148,163,184,.3); }
+#page-dashboard .fd2-dot{ width:7px; height:7px; border-radius:50%; background:currentColor; animation:fd2Pulse 1.6s infinite; }
+#page-dashboard .fd2-live.paused .fd2-dot{ animation:none; }
+@keyframes fd2Pulse{ 0%,100%{ opacity:1; transform:scale(1);} 50%{ opacity:.35; transform:scale(1.5);} }
+#page-dashboard .fd2-mini-btn{
+  border:1px solid var(--border-color); background:transparent; color:var(--text-medium,#475569);
+  height:28px; padding:0 10px; border-radius:9px; font-size:11.5px; font-weight:700; cursor:pointer;
+  transition:all .2s ease;
+}
+#page-dashboard .fd2-mini-btn:hover{ background:color-mix(in oklab, var(--border-color) 35%, transparent); transform:translateY(-1px); }
+
+/* ---------- Quick settings drawer ---------- */
+.fd2-drawer-back{ position:fixed; inset:0; background:rgba(2,6,23,.45); backdrop-filter:blur(3px); opacity:0; pointer-events:none; transition:opacity .3s ease; z-index:9998; }
+.fd2-drawer-back.open{ opacity:1; pointer-events:auto; }
+.fd2-drawer{
+  position:fixed; top:0; left:0; height:100%; width:360px; max-width:92vw; z-index:9999; direction:rtl;
+  background:var(--card-bg,#fff); border-left:1px solid var(--border-color);
+  box-shadow:20px 0 60px -30px rgba(2,6,23,.6);
+  transform:translateX(-102%); transition:transform .42s cubic-bezier(.22,.9,.3,1);
+  display:flex; flex-direction:column;
+}
+.fd2-drawer.open{ transform:translateX(0); }
+.fd2-dhead{ padding:16px 18px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; gap:10px; }
+.fd2-dhead h3{ margin:0; font-size:15px; font-weight:900; }
+.fd2-dbody{ padding:16px 18px 24px; overflow:auto; flex:1; }
+.fd2-group{ margin-bottom:22px; }
+.fd2-group > label{ display:block; font-size:12px; font-weight:800; margin-bottom:9px; color:var(--text-medium,#475569); }
+.fd2-swatches{ display:flex; flex-wrap:wrap; gap:9px; }
+.fd2-sw{ width:34px; height:34px; border-radius:11px; cursor:pointer; border:2px solid transparent; transition:transform .2s ease, box-shadow .2s ease; }
+.fd2-sw:hover{ transform:translateY(-2px) scale(1.06); }
+.fd2-sw.sel{ border-color:var(--text-dark,#0f172a); box-shadow:0 0 0 3px color-mix(in oklab, var(--text-dark,#0f172a) 12%, transparent); }
+.fd2-order{ display:flex; flex-direction:column; gap:8px; }
+.fd2-oitem{
+  display:flex; align-items:center; gap:10px; padding:9px 11px; border-radius:11px; cursor:grab;
+  background:color-mix(in oklab, var(--border-color) 22%, transparent);
+  border:1px dashed transparent; font-size:12.5px; font-weight:700;
+  transition:background .2s ease, transform .2s ease, border-color .2s ease;
+}
+.fd2-oitem:hover{ transform:translateX(-3px); background:color-mix(in oklab, var(--border-color) 40%, transparent); }
+.fd2-oitem.drag{ opacity:.5; border-color:var(--fd2-accent,#4f46e5); }
+.fd2-oitem i.fa-grip-vertical{ color:var(--text-light,#94a3b8); }
+.fd2-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 0; font-size:12.5px; font-weight:700; }
+.fd2-switch{ position:relative; width:44px; height:25px; border-radius:99px; background:color-mix(in oklab, var(--border-color) 60%, transparent); cursor:pointer; transition:background .25s ease; flex:none; }
+.fd2-switch::after{ content:""; position:absolute; top:3px; right:3px; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.2); transition:transform .25s cubic-bezier(.22,.9,.3,1); }
+.fd2-switch.on{ background:var(--fd2-accent,#4f46e5); }
+.fd2-switch.on::after{ transform:translateX(-19px); }
+.fd2-actions{ display:flex; gap:9px; margin-top:6px; }
+.fd2-btn{ flex:1; height:38px; border-radius:11px; border:none; cursor:pointer; font-weight:800; font-size:12.5px; transition:transform .2s ease, filter .2s ease; }
+.fd2-btn:hover{ transform:translateY(-2px); filter:brightness(1.05); }
+.fd2-btn.p{ background:var(--fd2-accent,#4f46e5); color:#fff; }
+.fd2-btn.g{ background:color-mix(in oklab, var(--border-color) 45%, transparent); color:var(--text-dark,#0f172a); }
+
+/* accent applied to dashboard toolbar */
+#page-dashboard .page-actions .btn.btn-primary{
+  background:linear-gradient(135deg, var(--fd2-accent,#4f46e5), color-mix(in oklab, var(--fd2-accent,#4f46e5) 60%, #8b5cf6)) !important;
+  box-shadow:0 6px 16px color-mix(in oklab, var(--fd2-accent,#4f46e5) 40%, transparent) !important;
+}
+#page-dashboard .page-header{ border-color: color-mix(in oklab, var(--fd2-accent,#4f46e5) 22%, var(--border-color)); }
+#page-dashboard .page-title::before{ background:linear-gradient(180deg, var(--fd2-accent,#4f46e5), color-mix(in oklab, var(--fd2-accent,#4f46e5) 40%, #06b6d4)); }
+#page-dashboard.fd2-compact .page-actions .btn{ height:30px; padding:0 9px !important; font-size:11.5px !important; }
+html[data-theme="dark"] #page-dashboard .fd2-card,
+html[data-theme="dark"] #page-dashboard .fd2-panel{ background:rgba(255,255,255,.04); }
+@media print{ #page-dashboard .fd2-sec, .fd2-drawer, .fd2-drawer-back{ display:none !important; } }
+</style>
+
+<div class="fd2-drawer-back" id="fd2Back" onclick="fd2CloseSettings()"></div>
+<aside class="fd2-drawer" id="fd2Drawer" aria-hidden="true">
+  <div class="fd2-dhead">
+    <i class="fas fa-sliders" style="color:var(--fd2-accent,#4f46e5)"></i>
+    <h3>الإعدادات السريعة</h3>
+    <button class="fd2-mini-btn" style="margin-right:auto" onclick="fd2CloseSettings()"><i class="fas fa-xmark"></i></button>
+  </div>
+  <div class="fd2-dbody">
+    <div class="fd2-group">
+      <label>لون الشريط العلوي</label>
+      <div class="fd2-swatches" id="fd2Swatches"></div>
+      <div style="margin-top:12px; display:flex; align-items:center; gap:10px;">
+        <input type="color" id="fd2CustomColor" style="width:44px;height:34px;border:none;background:none;cursor:pointer" onchange="fd2SetAccent(this.value)">
+        <span style="font-size:12px;color:var(--text-light,#94a3b8)">لون مخصص</span>
+      </div>
+    </div>
+    <div class="fd2-group">
+      <label>ترتيب أزرار الشريط العلوي (اسحب للترتيب)</label>
+      <div class="fd2-order" id="fd2Order"></div>
+    </div>
+    <div class="fd2-group">
+      <label>خيارات العرض</label>
+      <div class="fd2-row"><span>أزرار مضغوطة</span><div class="fd2-switch" id="fd2SwCompact" onclick="fd2Toggle('compact',this)"></div></div>
+      <div class="fd2-row"><span>بطاقات الوصول السريع</span><div class="fd2-switch on" id="fd2SwQuick" onclick="fd2Toggle('quick',this)"></div></div>
+      <div class="fd2-row"><span>التحديث اللحظي للمخططات</span><div class="fd2-switch on" id="fd2SwLive" onclick="fd2Toggle('live',this)"></div></div>
+    </div>
+    <div class="fd2-actions">
+      <button class="fd2-btn g" onclick="fd2Reset()">إعادة الضبط</button>
+      <button class="fd2-btn p" onclick="fd2CloseSettings()">تم</button>
+    </div>
+  </div>
+</aside>
+
+<script id="fd2-script">
+(function(){
+  const LS = 'fd2_prefs_v1';
+  const DEF = { accent:'#4f46e5', order:[], compact:false, quick:true, live:true };
+  let P = Object.assign({}, DEF);
+  try { P = Object.assign({}, DEF, JSON.parse(localStorage.getItem(LS) || '{}')); } catch(e){}
+  const save = () => { try { localStorage.setItem(LS, JSON.stringify(P)); } catch(e){} };
+
+  const PAGES = [
+    { id:'requests', t:'طلبات الصيانة', d:'إنشاء ومتابعة كل طلبات الصيانة', i:'fa-screwdriver-wrench', c:'#4f46e5' },
+    { id:'inventory', t:'قطع الغيار', d:'المخزون والكميات وحد الطلب', i:'fa-boxes-stacked', c:'#f59e0b' },
+    { id:'alternatives', t:'الأجهزة البديلة', d:'الأجهزة المتاحة والمستعارة', i:'fa-laptop', c:'#06b6d4' },
+    { id:'computer_items', t:'المواد الحاسوبية', d:'سجل المواد والأصول', i:'fa-desktop', c:'#0ea5e9' },
+    { id:'permanent_replacement', t:'البديل الدائم', d:'عمليات الاستبدال الدائم', i:'fa-right-left', c:'#8b5cf6' },
+    { id:'periodic', t:'الصيانة الدورية', d:'الجداول والتذكيرات', i:'fa-calendar-check', c:'#10b981', admin:true },
+    { id:'reports', t:'التقارير والرسوم', d:'تحليلات ومخططات قابلة للتصدير', i:'fa-chart-bar', c:'#ef4444', admin:true },
+    { id:'advanced_search', t:'بحث متقدم', d:'فلترة دقيقة عبر كل السجلات', i:'fa-magnifying-glass-chart', c:'#ec4899', admin:true },
+    { id:'smart_forms', t:'نماذج ذكية', d:'نماذج جاهزة للطباعة', i:'fa-file-signature', c:'#14b8a6' },
+    { id:'admin', t:'إدارة النظام', d:'المستخدمون والصلاحيات', i:'fa-user-shield', c:'#64748b', admin:true }
+  ];
+
+  const SWATCHES = ['#4f46e5','#0ea5e9','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#0f172a'];
+
+  /* ---------- accent + prefs ---------- */
+  function applyPrefs(){
+    document.documentElement.style.setProperty('--fd2-accent', P.accent);
+    const dash = document.getElementById('page-dashboard');
+    if (dash) dash.classList.toggle('fd2-compact', !!P.compact);
+    const qa = document.getElementById('fd2QuickSec'); if (qa) qa.style.display = P.quick ? '' : 'none';
+    applyOrder();
+    setSwitch('fd2SwCompact', P.compact); setSwitch('fd2SwQuick', P.quick); setSwitch('fd2SwLive', P.live);
+    document.querySelectorAll('#fd2Swatches .fd2-sw').forEach(s => s.classList.toggle('sel', s.dataset.c === P.accent));
+    const cc = document.getElementById('fd2CustomColor'); if (cc) cc.value = P.accent;
+  }
+  function setSwitch(id, on){ const e = document.getElementById(id); if (e) e.classList.toggle('on', !!on); }
+
+  function toolbar(){ return document.querySelector('#page-dashboard .page-actions'); }
+  function btnKey(el, i){ return el.id || (el.className.split(' ').filter(Boolean).join('_') + '_' + i); }
+  function btnLabel(el){
+    const t = (el.textContent || '').trim();
+    return t || el.getAttribute('title') || 'زر';
+  }
+  function applyOrder(){
+    const tb = toolbar(); if (!tb || !P.order.length) return;
+    const map = new Map(Array.from(tb.children).map((c,i) => [c.dataset.fd2k || btnKey(c,i), c]));
+    P.order.forEach(k => { const el = map.get(k); if (el) tb.appendChild(el); });
+  }
+
+  /* ---------- build UI ---------- */
+  function buildQuick(){
+    const host = document.querySelector('#page-dashboard .dsh');
+    if (!host || document.getElementById('fd2QuickSec')) return;
+    const isAdmin = !!document.querySelector('.nav-item.admin-only:not([style*="display: none"])');
+    const list = PAGES.filter(p => !p.admin || isAdmin);
+    const sec = document.createElement('section');
+    sec.className = 'fd2-sec'; sec.id = 'fd2QuickSec';
+    sec.innerHTML = '<div class="fd2-head"><h3><i class="fas fa-bolt"></i> وصول سريع</h3><span class="fd2-line"></span></div>' +
+      '<div class="fd2-qa">' + list.map((p, i) =>
+        `<div class="fd2-card" style="--qc:${p.c}; animation-delay:${i*55}ms" onclick="showPage('${p.id}')" role="button" tabindex="0">
+           <div class="fd2-ico"><i class="fas ${p.i}"></i></div>
+           <div class="fd2-t">${p.t}</div>
+           <div class="fd2-d">${p.d}</div>
+           <span class="fd2-go">فتح الصفحة <i class="fas fa-arrow-left"></i></span>
+         </div>`).join('') + '</div>';
+    const anchor = document.querySelector('#page-dashboard .kpi-grid');
+    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(sec, anchor.nextSibling); else host.appendChild(sec);
+    sec.querySelectorAll('.fd2-card').forEach(c => c.addEventListener('keydown', e => { if (e.key === 'Enter') c.click(); }));
+  }
+
+  function buildLive(){
+    const grid = document.querySelector('#page-dashboard .dsh-grid');
+    if (!grid || document.getElementById('fd2LiveSec')) return;
+    const sec = document.createElement('section');
+    sec.className = 'fd2-sec'; sec.id = 'fd2LiveSec';
+    sec.innerHTML = `
+      <div class="fd2-head">
+        <h3><i class="fas fa-wave-square"></i> مؤشرات لحظية</h3>
+        <span class="fd2-live" id="fd2LiveBadge"><span class="fd2-dot"></span> مباشر</span>
+        <span class="fd2-line"></span>
+        <small style="color:var(--text-light,#94a3b8);font-size:11px" id="fd2LastUpd">—</small>
+        <button class="fd2-mini-btn" id="fd2PauseBtn" onclick="fd2ToggleLive()"><i class="fas fa-pause"></i> إيقاف</button>
+        <button class="fd2-mini-btn" onclick="fd2Refresh(true)"><i class="fas fa-rotate"></i></button>
+      </div>
+      <div class="fd2-live-grid">
+        <div class="fd2-panel">
+          <div class="fd2-ptop"><h4><i class="fas fa-chart-area" style="color:var(--fd2-accent,#4f46e5)"></i> نبض النشاط</h4><small>الطلبات النشطة خلال آخر 14 يوماً</small></div>
+          <div class="fd2-canvas"><canvas id="fd2ChartPulse"></canvas></div>
+        </div>
+        <div class="fd2-panel">
+          <div class="fd2-ptop"><h4><i class="fas fa-gauge" style="color:#10b981"></i> مؤشرات الأداء</h4><small>لحظي</small></div>
+          <div class="fd2-canvas sm"><canvas id="fd2ChartRadar"></canvas></div>
+        </div>
+        <div class="fd2-panel" style="grid-column:1/-1">
+          <div class="fd2-ptop"><h4><i class="fas fa-building-columns" style="color:#f59e0b"></i> الحمل حسب الأقسام</h4><small>الطلبات المفتوحة</small></div>
+          <div class="fd2-canvas sm"><canvas id="fd2ChartDept"></canvas></div>
+        </div>
+      </div>`;
+    grid.parentNode.insertBefore(sec, grid.nextSibling);
+  }
+
+  function buildToolbarExtras(){
+    const tb = toolbar(); if (!tb || document.getElementById('fd2GearBtn')) return;
+    Array.from(tb.children).forEach((c,i) => { if (!c.dataset.fd2k) c.dataset.fd2k = btnKey(c,i); });
+    const b = document.createElement('button');
+    b.id = 'fd2GearBtn'; b.className = 'btn btn-secondary btn-sm'; b.title = 'الإعدادات السريعة';
+    b.innerHTML = '<i class="fas fa-sliders"></i>';
+    b.onclick = () => window.fd2OpenSettings();
+    tb.appendChild(b); b.dataset.fd2k = 'fd2GearBtn';
+  }
+
+  function buildSwatches(){
+    const host = document.getElementById('fd2Swatches'); if (!host || host.children.length) return;
+    host.innerHTML = SWATCHES.map(c => `<div class="fd2-sw" data-c="${c}" style="background:${c}"></div>`).join('');
+    host.querySelectorAll('.fd2-sw').forEach(s => s.onclick = () => window.fd2SetAccent(s.dataset.c));
+  }
+
+  function buildOrderList(){
+    const tb = toolbar(), host = document.getElementById('fd2Order');
+    if (!tb || !host) return;
+    host.innerHTML = '';
+    Array.from(tb.children).forEach((el,i) => {
+      const k = el.dataset.fd2k || btnKey(el,i);
+      const row = document.createElement('div');
+      row.className = 'fd2-oitem'; row.draggable = true; row.dataset.k = k;
+      row.innerHTML = `<i class="fas fa-grip-vertical"></i><span>${btnLabel(el) || 'عنصر'}</span>`;
+      host.appendChild(row);
+    });
+    let dragged = null;
+    host.querySelectorAll('.fd2-oitem').forEach(row => {
+      row.addEventListener('dragstart', () => { dragged = row; row.classList.add('drag'); });
+      row.addEventListener('dragend', () => { row.classList.remove('drag'); dragged = null; commitOrder(); });
+      row.addEventListener('dragover', e => {
+        e.preventDefault(); if (!dragged || dragged === row) return;
+        const r = row.getBoundingClientRect();
+        host.insertBefore(dragged, (e.clientY - r.top) > r.height/2 ? row.nextSibling : row);
+      });
+    });
+    function commitOrder(){
+      P.order = Array.from(host.children).map(c => c.dataset.k);
+      save(); applyOrder();
+    }
+  }
+
+  /* ---------- live charts ---------- */
+  let charts = {}, timer = null, lastData = null;
+  const ACC = () => P.accent;
+  const daysAgo = (s) => { if (!s) return 9999; const d = new Date(s); return Math.floor((Date.now() - d.getTime())/86400000); };
+
+  async function fetchData(){
+    try {
+      const requests = await SupabaseAPI.request('requests','GET') || [];
+      const inventory = await SupabaseAPI.request('inventory','GET') || [];
+      return { requests, inventory };
+    } catch(e){ return lastData; }
+  }
+
+  function computeSeries(d){
+    const hidden = ['completed','cancelled','duplicate'];
+    const labels = [], created = [], closed = [];
+    for (let i = 13; i >= 0; i--){
+      const day = new Date(); day.setDate(day.getDate() - i);
+      labels.push(day.toLocaleDateString('ar-EG',{ day:'numeric', month:'short' }));
+      created.push(d.requests.filter(r => daysAgo(r.created_at || r.createdAt) === i).length);
+      closed.push(d.requests.filter(r => hidden.includes(r.status) && daysAgo(r.updated_at || r.created_at) === i).length);
+    }
+    const open = d.requests.filter(r => !hidden.includes(r.status));
+    const total = d.requests.length || 1;
+    const comp = d.requests.filter(r => r.status === 'completed').length;
+    const ages = open.map(r => daysAgo(r.created_at || r.createdAt)).filter(n => n < 9999);
+    const avgAge = ages.length ? ages.reduce((a,b)=>a+b,0)/ages.length : 0;
+    const stock = d.inventory.length ? (d.inventory.filter(i => (i.qty||0) > 0).length / d.inventory.length) * 100 : 100;
+    const radar = [
+      Math.round(comp/total*100),
+      Math.round(Math.max(0, 100 - avgAge*6)),
+      Math.round(stock),
+      Math.round(Math.max(0, 100 - open.length*2)),
+      Math.round(Math.min(100, (created.slice(-7).reduce((a,b)=>a+b,0)) * 12))
+    ];
+    const deptMap = {};
+    open.forEach(r => { const k = r.department || 'غير محدد'; deptMap[k] = (deptMap[k]||0)+1; });
+    const depts = Object.entries(deptMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    return { labels, created, closed, radar, depts };
+  }
+
+  function grad(ctx, color){
+    const g = ctx.createLinearGradient(0,0,0,240);
+    g.addColorStop(0, color + '55'); g.addColorStop(1, color + '00');
+    return g;
+  }
+
+  function render(s){
+    if (typeof Chart === 'undefined') return;
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const gridC = dark ? 'rgba(255,255,255,.08)' : 'rgba(15,23,42,.07)';
+    const tick = dark ? '#94a3b8' : '#64748b';
+    const base = { responsive:true, maintainAspectRatio:false, animation:{ duration:700, easing:'easeOutQuart' },
+      plugins:{ legend:{ labels:{ boxWidth:10, font:{ size:11 }, color:tick } } } };
+
+    const c1 = document.getElementById('fd2ChartPulse');
+    if (c1){
+      const ctx = c1.getContext('2d');
+      const ds = [
+        { label:'واردة', data:s.created, borderColor:ACC(), backgroundColor:grad(ctx, ACC()), fill:true, tension:.42, borderWidth:2.5, pointRadius:0, pointHoverRadius:5 },
+        { label:'مغلقة', data:s.closed, borderColor:'#10b981', backgroundColor:grad(ctx,'#10b981'), fill:true, tension:.42, borderWidth:2.5, pointRadius:0, pointHoverRadius:5 }
+      ];
+      if (charts.pulse){ charts.pulse.data.labels = s.labels; charts.pulse.data.datasets.forEach((d,i)=>{ d.data = ds[i].data; d.borderColor = ds[i].borderColor; d.backgroundColor = ds[i].backgroundColor; }); charts.pulse.update(); }
+      else charts.pulse = new Chart(ctx, { type:'line', data:{ labels:s.labels, datasets:ds },
+        options:{ ...base, scales:{ x:{ grid:{ display:false }, ticks:{ color:tick, font:{ size:10 } } }, y:{ beginAtZero:true, grid:{ color:gridC }, ticks:{ color:tick, precision:0 } } } } });
+    }
+
+    const c2 = document.getElementById('fd2ChartRadar');
+    if (c2){
+      const labels = ['الإنجاز','السرعة','المخزون','الاستيعاب','النشاط'];
+      if (charts.radar){ charts.radar.data.datasets[0].data = s.radar; charts.radar.data.datasets[0].borderColor = ACC(); charts.radar.data.datasets[0].backgroundColor = ACC()+'33'; charts.radar.update(); }
+      else charts.radar = new Chart(c2, { type:'radar', data:{ labels, datasets:[{ label:'الأداء', data:s.radar, borderColor:ACC(), backgroundColor:ACC()+'33', pointBackgroundColor:ACC(), borderWidth:2 }] },
+        options:{ ...base, plugins:{ legend:{ display:false } }, scales:{ r:{ beginAtZero:true, max:100, grid:{ color:gridC }, angleLines:{ color:gridC }, pointLabels:{ color:tick, font:{ size:11 } }, ticks:{ display:false } } } } });
+    }
+
+    const c3 = document.getElementById('fd2ChartDept');
+    if (c3){
+      const labels = s.depts.map(d => d[0]), vals = s.depts.map(d => d[1]);
+      if (charts.dept){ charts.dept.data.labels = labels; charts.dept.data.datasets[0].data = vals; charts.dept.data.datasets[0].backgroundColor = ACC()+'cc'; charts.dept.update(); }
+      else charts.dept = new Chart(c3, { type:'bar', data:{ labels, datasets:[{ label:'طلبات مفتوحة', data:vals, backgroundColor:ACC()+'cc', borderRadius:9, maxBarThickness:38 }] },
+        options:{ ...base, plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ display:false }, ticks:{ color:tick, font:{ size:10 } } }, y:{ beginAtZero:true, grid:{ color:gridC }, ticks:{ color:tick, precision:0 } } } } });
+    }
+  }
+
+  async function refresh(manual){
+    const sec = document.getElementById('fd2LiveSec'); if (!sec) return;
+    const d = await fetchData(); if (!d) return; lastData = d;
+    render(computeSeries(d));
+    const u = document.getElementById('fd2LastUpd');
+    if (u) u.textContent = 'آخر تحديث: ' + new Date().toLocaleTimeString('ar-EG',{ hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    if (manual && typeof showToast === 'function') showToast('info','تم التحديث','تم تحديث المؤشرات اللحظية');
+  }
+
+  function startTimer(){ stopTimer(); if (P.live) timer = setInterval(() => { if (!document.hidden && document.getElementById('page-dashboard')?.classList.contains('active')) refresh(); }, 20000); }
+  function stopTimer(){ if (timer) clearInterval(timer); timer = null; }
+  function badge(){
+    const b = document.getElementById('fd2LiveBadge'), btn = document.getElementById('fd2PauseBtn');
+    if (b) { b.classList.toggle('paused', !P.live); b.innerHTML = '<span class="fd2-dot"></span> ' + (P.live ? 'مباشر' : 'متوقف'); }
+    if (btn) btn.innerHTML = P.live ? '<i class="fas fa-pause"></i> إيقاف' : '<i class="fas fa-play"></i> تشغيل';
+  }
+
+  /* ---------- public API ---------- */
+  window.fd2OpenSettings = function(){
+    buildSwatches(); buildOrderList(); applyPrefs();
+    document.getElementById('fd2Drawer').classList.add('open');
+    document.getElementById('fd2Back').classList.add('open');
+  };
+  window.fd2CloseSettings = function(){
+    document.getElementById('fd2Drawer').classList.remove('open');
+    document.getElementById('fd2Back').classList.remove('open');
+  };
+  window.fd2SetAccent = function(c){ P.accent = c; save(); applyPrefs(); if (lastData) render(computeSeries(lastData)); };
+  window.fd2Toggle = function(key, el){
+    P[key] = !P[key]; save(); el.classList.toggle('on', P[key]);
+    if (key === 'live'){ badge(); startTimer(); if (P.live) refresh(); }
+    applyPrefs();
+  };
+  window.fd2ToggleLive = function(){ P.live = !P.live; save(); badge(); startTimer(); setSwitch('fd2SwLive', P.live); if (P.live) refresh(); };
+  window.fd2Refresh = function(m){ refresh(m); };
+  window.fd2Reset = function(){ P = Object.assign({}, DEF); save(); buildOrderList(); applyPrefs(); badge(); if (typeof showToast === 'function') showToast('success','تمت الإعادة','رجعت الإعدادات للوضع الافتراضي'); };
+
+  function init(){
+    buildQuick(); buildLive(); buildToolbarExtras(); buildSwatches(); buildOrderList();
+    applyPrefs(); badge(); refresh(); startTimer();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(init, 600));
+  else setTimeout(init, 600);
+
+  // re-render charts when returning to dashboard or switching theme
+  const _sp = window.showPage;
+  if (typeof _sp === 'function'){
+    window.showPage = function(p){ const r = _sp.apply(this, arguments); if (p === 'dashboard') setTimeout(() => { init(); }, 300); return r; };
+  }
+  const _tt = window.toggleTheme;
+  if (typeof _tt === 'function'){
+    window.toggleTheme = function(){ const r = _tt.apply(this, arguments); setTimeout(() => { Object.values(charts).forEach(c => c && c.destroy()); charts = {}; if (lastData) render(computeSeries(lastData)); }, 220); return r; };
+  }
+})();
 </script>
 
 </body>
