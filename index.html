@@ -19200,5 +19200,401 @@ html[data-theme="dark"] #page-dashboard .fd2-panel{ background:rgba(255,255,255,
 })();
 </script>
 
+<!-- ===== Fresh Dashboard v3: Welcome strip + Notifications + KPI PDF + tidy toolbar ===== -->
+<style id="fd3-style">
+/* ---------- Toolbar: neat segmented layout ---------- */
+#page-dashboard .page-header{ align-items:center; gap:12px; row-gap:10px; }
+#page-dashboard .page-actions{
+  margin-inline-start:auto; margin-right:0 !important;
+  display:flex; align-items:center; gap:6px; flex-wrap:nowrap;
+  padding:5px 6px; border-radius:14px;
+}
+#page-dashboard .page-actions > *{ flex:0 0 auto !important; }
+#page-dashboard .page-actions .theme-toggle{ width:34px !important; height:34px !important; }
+#page-dashboard .page-actions .btn{
+  height:34px !important; min-width:0; width:auto !important; padding:0 12px !important;
+  white-space:nowrap; justify-content:center;
+}
+#page-dashboard .page-actions .btn.btn-primary{ order:5 }
+#page-dashboard .page-actions .btn.btn-success{ order:4 }
+#page-dashboard .page-actions .fd3-sep{
+  width:1px; height:22px; border-radius:2px; order:3;
+  background:color-mix(in oklab, var(--border-color) 90%, transparent);
+}
+#page-dashboard .page-actions .theme-toggle{ order:1 }
+#page-dashboard .page-actions .sync-status{ order:2 }
+#page-dashboard .page-actions #fd3BellWrap{ order:6 }
+#page-dashboard .page-actions #fd3PdfBtn{ order:7 }
+#page-dashboard .page-actions #fd2GearBtn{ order:8 }
+#page-dashboard .page-actions #fd2GearBtn,
+#page-dashboard .page-actions #fd3BellBtn{
+  width:34px !important; height:34px !important; padding:0 !important; display:inline-grid; place-items:center;
+  border:1px solid var(--border-color) !important; background:var(--card-bg,#fff) !important; border-radius:10px !important;
+}
+@media (max-width: 1100px){
+  #page-dashboard .page-actions{ flex-wrap:wrap; justify-content:flex-end; }
+}
+@media (max-width: 760px){
+  #page-dashboard .page-actions{ width:100%; justify-content:flex-start; margin-inline-start:0; }
+  #page-dashboard .page-actions .btn{ flex:1 1 auto !important; }
+  #page-dashboard .page-actions .fd3-sep{ display:none }
+}
+
+/* ---------- Welcome strip ---------- */
+#page-dashboard .fd3-hello{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  margin:0 0 14px; padding:13px 16px; border-radius:18px;
+  background:linear-gradient(120deg, color-mix(in oklab, var(--fd2-accent,#4f46e5) 12%, transparent), transparent 60%), var(--card-bg,#fff);
+  border:1px solid color-mix(in oklab, var(--border-color) 75%, transparent);
+  box-shadow:0 8px 24px -16px rgba(15,23,42,.45);
+  animation:fd3In .5s cubic-bezier(.22,.9,.3,1) both;
+}
+@keyframes fd3In{ from{ opacity:0; transform:translateY(-8px) } to{ opacity:1; transform:none } }
+#page-dashboard .fd3-av{
+  width:44px; height:44px; border-radius:14px; display:grid; place-items:center;
+  font-weight:900; font-size:17px; color:#fff; letter-spacing:-.5px;
+  background:linear-gradient(135deg, var(--fd2-accent,#4f46e5), color-mix(in oklab, var(--fd2-accent,#4f46e5) 45%, #06b6d4));
+  box-shadow:0 8px 18px -8px color-mix(in oklab, var(--fd2-accent,#4f46e5) 80%, transparent);
+}
+#page-dashboard .fd3-htxt{ display:flex; flex-direction:column; gap:3px; min-width:0 }
+#page-dashboard .fd3-htxt b{ font-size:15.5px; font-weight:900; letter-spacing:-.2px; color:var(--text-dark,#0f172a) }
+#page-dashboard .fd3-htxt small{ font-size:11.5px; color:var(--text-light,#94a3b8) }
+#page-dashboard .fd3-hchips{ margin-inline-start:auto; display:flex; align-items:center; gap:8px; flex-wrap:wrap }
+#page-dashboard .fd3-chip{
+  display:inline-flex; align-items:center; gap:7px; height:30px; padding:0 12px; border-radius:999px;
+  font-size:11.5px; font-weight:800; color:var(--text-medium,#475569);
+  background:color-mix(in oklab, var(--border-color) 26%, transparent);
+  border:1px solid color-mix(in oklab, var(--border-color) 60%, transparent);
+}
+#page-dashboard .fd3-chip i{ font-size:11px; color:var(--fd2-accent,#4f46e5) }
+#page-dashboard .fd3-chip.live i{ color:#10b981; animation:fd3Pulse 1.8s infinite }
+@keyframes fd3Pulse{ 0%,100%{ opacity:1 } 50%{ opacity:.35 } }
+
+/* ---------- Notifications ---------- */
+#fd3BellWrap{ position:relative }
+#fd3BellBtn .fd3-count{
+  position:absolute; top:-5px; inset-inline-end:-5px; min-width:17px; height:17px; padding:0 4px;
+  border-radius:99px; background:#ef4444; color:#fff; font-size:10px; font-weight:900;
+  display:grid; place-items:center; box-shadow:0 0 0 2px var(--card-bg,#fff);
+}
+#fd3Panel{
+  position:absolute; top:calc(100% + 10px); inset-inline-end:0; width:340px; max-width:90vw; z-index:1200;
+  background:var(--card-bg,#fff); border:1px solid color-mix(in oklab, var(--border-color) 80%, transparent);
+  border-radius:18px; box-shadow:0 26px 60px -24px rgba(15,23,42,.5); overflow:hidden;
+  opacity:0; visibility:hidden; transform:translateY(-8px) scale(.98);
+  transition:opacity .18s ease, transform .22s cubic-bezier(.22,.9,.3,1), visibility .18s;
+}
+#fd3Panel.open{ opacity:1; visibility:visible; transform:none }
+#fd3Panel .fd3-ph{ display:flex; align-items:center; gap:8px; padding:12px 14px; border-bottom:1px solid color-mix(in oklab, var(--border-color) 70%, transparent) }
+#fd3Panel .fd3-ph b{ font-size:13.5px; font-weight:900 }
+#fd3Panel .fd3-ph button{ margin-inline-start:auto; background:none; border:0; cursor:pointer; font-size:11px; font-weight:800; color:var(--fd2-accent,#4f46e5) }
+#fd3Tabs{ display:flex; gap:6px; padding:10px 12px; flex-wrap:wrap; border-bottom:1px solid color-mix(in oklab, var(--border-color) 55%, transparent) }
+#fd3Tabs .fd3-tab{
+  height:26px; padding:0 11px; border-radius:999px; font-size:11px; font-weight:800; cursor:pointer;
+  border:1px solid color-mix(in oklab, var(--border-color) 70%, transparent);
+  background:transparent; color:var(--text-medium,#475569); transition:all .16s ease;
+}
+#fd3Tabs .fd3-tab.on{ background:var(--fd2-accent,#4f46e5); border-color:transparent; color:#fff }
+#fd3List{ max-height:330px; overflow:auto; padding:8px }
+#fd3List .fd3-n{
+  display:flex; gap:10px; padding:10px; border-radius:13px; cursor:pointer;
+  transition:background .16s ease, transform .16s ease;
+}
+#fd3List .fd3-n:hover{ background:color-mix(in oklab, var(--border-color) 24%, transparent); transform:translateX(-2px) }
+#fd3List .fd3-ni{ width:32px; height:32px; flex:0 0 32px; border-radius:10px; display:grid; place-items:center; font-size:12px; color:#fff }
+#fd3List .fd3-nb{ min-width:0 }
+#fd3List .fd3-nb b{ display:block; font-size:12.5px; font-weight:800; color:var(--text-dark,#0f172a) }
+#fd3List .fd3-nb span{ display:block; font-size:11px; color:var(--text-light,#94a3b8); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+#fd3List .fd3-empty{ padding:26px 10px; text-align:center; font-size:12px; color:var(--text-light,#94a3b8) }
+
+/* ---------- PDF range modal ---------- */
+#fd3PdfBack{ position:fixed; inset:0; background:rgba(15,23,42,.45); backdrop-filter:blur(3px); z-index:1400; opacity:0; visibility:hidden; transition:.2s }
+#fd3PdfBack.open{ opacity:1; visibility:visible }
+#fd3PdfModal{
+  position:fixed; z-index:1401; top:50%; left:50%; transform:translate(-50%,-46%) scale(.97);
+  width:420px; max-width:92vw; background:var(--card-bg,#fff); border-radius:22px; padding:20px;
+  border:1px solid color-mix(in oklab, var(--border-color) 75%, transparent);
+  box-shadow:0 30px 80px -30px rgba(15,23,42,.6); opacity:0; visibility:hidden; transition:.22s cubic-bezier(.22,.9,.3,1);
+}
+#fd3PdfModal.open{ opacity:1; visibility:visible; transform:translate(-50%,-50%) scale(1) }
+#fd3PdfModal h3{ margin:0 0 4px; font-size:16px; font-weight:900; display:flex; align-items:center; gap:9px }
+#fd3PdfModal h3 i{ color:#ef4444 }
+#fd3PdfModal p{ margin:0 0 14px; font-size:12px; color:var(--text-light,#94a3b8) }
+#fd3PdfModal .fd3-presets{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px }
+#fd3PdfModal .fd3-preset{ height:28px; padding:0 12px; border-radius:999px; font-size:11.5px; font-weight:800; cursor:pointer;
+  border:1px solid color-mix(in oklab, var(--border-color) 70%, transparent); background:transparent; color:var(--text-medium,#475569) }
+#fd3PdfModal .fd3-preset.on{ background:var(--fd2-accent,#4f46e5); color:#fff; border-color:transparent }
+#fd3PdfModal .fd3-dates{ display:grid; grid-template-columns:1fr 1fr; gap:10px }
+#fd3PdfModal label{ font-size:11px; font-weight:800; color:var(--text-medium,#475569); display:block; margin-bottom:5px }
+#fd3PdfModal input[type=date]{ width:100%; height:38px; border-radius:11px; padding:0 10px; font-family:inherit; font-size:12.5px;
+  border:1px solid color-mix(in oklab, var(--border-color) 80%, transparent); background:transparent; color:var(--text-dark,#0f172a) }
+#fd3PdfModal .fd3-mact{ display:flex; gap:8px; margin-top:18px }
+#fd3PdfModal .fd3-mact button{ flex:1; height:40px; border-radius:12px; border:0; cursor:pointer; font-family:inherit; font-size:12.5px; font-weight:800 }
+#fd3PdfModal .fd3-mact .g{ background:color-mix(in oklab, var(--border-color) 35%, transparent); color:var(--text-medium,#475569) }
+#fd3PdfModal .fd3-mact .p{ background:linear-gradient(135deg, var(--fd2-accent,#4f46e5), color-mix(in oklab, var(--fd2-accent,#4f46e5) 55%, #06b6d4)); color:#fff }
+
+html[data-theme="dark"] #page-dashboard .fd3-hello,
+html[data-theme="dark"] #fd3Panel,
+html[data-theme="dark"] #fd3PdfModal{ background:rgba(17,24,39,.96) }
+html[data-theme="dark"] #page-dashboard .page-actions #fd2GearBtn,
+html[data-theme="dark"] #page-dashboard .page-actions #fd3BellBtn{ background:rgba(255,255,255,.06) !important }
+@media print{ #page-dashboard .fd3-hello, #fd3Panel, #fd3PdfModal, #fd3PdfBack{ display:none !important } }
+</style>
+
+<div id="fd3PdfBack" onclick="fd3ClosePdf()"></div>
+<div id="fd3PdfModal">
+  <h3><i class="fas fa-file-pdf"></i> تصدير ملخص المؤشرات</h3>
+  <p>اختر النطاق الزمني قبل توليد ملف PDF.</p>
+  <div class="fd3-presets" id="fd3Presets">
+    <button class="fd3-preset" data-d="7">آخر 7 أيام</button>
+    <button class="fd3-preset on" data-d="30">آخر 30 يوم</button>
+    <button class="fd3-preset" data-d="90">آخر 90 يوم</button>
+    <button class="fd3-preset" data-d="365">سنة</button>
+  </div>
+  <div class="fd3-dates">
+    <div><label>من تاريخ</label><input type="date" id="fd3From"></div>
+    <div><label>إلى تاريخ</label><input type="date" id="fd3To"></div>
+  </div>
+  <div class="fd3-mact">
+    <button class="g" onclick="fd3ClosePdf()">إلغاء</button>
+    <button class="p" id="fd3GenBtn" onclick="fd3GeneratePdf()"><i class="fas fa-download"></i> توليد PDF</button>
+  </div>
+</div>
+
+<script id="fd3-script">
+(function(){
+  const $ = (s, r) => (r||document).querySelector(s);
+  const toolbar = () => $('#page-dashboard .page-actions');
+  const fmtT = d => new Date(d).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
+  const fmtD = d => new Date(d).toLocaleDateString('ar-EG',{day:'numeric',month:'long',year:'numeric'});
+  const days = s => { if(!s) return 9999; return Math.floor((Date.now()-new Date(s).getTime())/86400000); };
+  const HIDDEN = ['completed','cancelled','duplicate'];
+  let data = { requests:[], inventory:[] }, notes = [], filter = 'all', lastSync = null;
+
+  function userName(){
+    const u = window.currentUser || {};
+    const el = document.getElementById('userName');
+    return u.full_name || u.name || u.username || (el && el.textContent.trim()) || u.email || 'مستخدم النظام';
+  }
+  function userRole(){
+    const u = window.currentUser || {};
+    const el = document.getElementById('userRole');
+    const r = u.role || u.user_role || (el && el.textContent.trim()) || '';
+    return ({admin:'مدير النظام', manager:'مشرف', user:'مستخدم', viewer:'قراءة فقط'})[r] || (r || 'عضو الفريق');
+  }
+  function greet(){
+    const h = new Date().getHours();
+    if (h < 12) return 'صباح الخير'; if (h < 17) return 'طاب يومك'; if (h < 21) return 'مساء الخير'; return 'مساء الخير';
+  }
+
+  /* ---------- welcome strip ---------- */
+  function buildHello(){
+    const page = document.getElementById('page-dashboard');
+    const header = page && page.querySelector('.page-header');
+    if (!page || !header || document.getElementById('fd3Hello')) return;
+    const el = document.createElement('div');
+    el.className = 'fd3-hello no-print'; el.id = 'fd3Hello';
+    el.innerHTML = `
+      <div class="fd3-av" id="fd3Av">؟</div>
+      <div class="fd3-htxt">
+        <b id="fd3Greet">مرحباً بك</b>
+        <small id="fd3Sub">لوحة الأداء التنفيذية</small>
+      </div>
+      <div class="fd3-hchips">
+        <span class="fd3-chip live"><i class="fas fa-circle"></i> <span id="fd3Sync">جاري التحديث…</span></span>
+        <span class="fd3-chip"><i class="fas fa-calendar-day"></i> <span id="fd3Today">—</span></span>
+      </div>`;
+    header.parentNode.insertBefore(el, header);
+    paintHello();
+  }
+  function paintHello(){
+    const n = userName();
+    const av = $('#fd3Av'); if (av) av.textContent = (n.trim()[0] || '؟').toUpperCase();
+    const g = $('#fd3Greet'); if (g) g.textContent = `${greet()}، ${n} 👋`;
+    const s = $('#fd3Sub'); if (s) s.textContent = `${userRole()} — نظرة سريعة على أداء الصيانة اليوم`;
+    const t = $('#fd3Today'); if (t) t.textContent = fmtD(new Date());
+    const sy = $('#fd3Sync'); if (sy) sy.textContent = lastSync ? ('آخر تحديث للبيانات ' + fmtT(lastSync)) : 'جاري التحديث…';
+  }
+
+  /* ---------- toolbar buttons ---------- */
+  function buildToolbar(){
+    const tb = toolbar(); if (!tb) return;
+    if (!$('.fd3-sep', tb)){ const sp = document.createElement('span'); sp.className = 'fd3-sep'; tb.appendChild(sp); }
+    if (!document.getElementById('fd3BellWrap')){
+      const w = document.createElement('div'); w.id = 'fd3BellWrap'; w.dataset.fd2k = 'fd3BellWrap';
+      w.innerHTML = `<button class="btn btn-secondary btn-sm" id="fd3BellBtn" title="مركز التنبيهات"><i class="fas fa-bell"></i><span class="fd3-count" id="fd3Count" style="display:none">0</span></button>
+        <div id="fd3Panel">
+          <div class="fd3-ph"><i class="fas fa-bell" style="color:var(--fd2-accent,#4f46e5)"></i><b>مركز التنبيهات</b><button onclick="fd3Refresh()">تحديث</button></div>
+          <div id="fd3Tabs">
+            <button class="fd3-tab on" data-f="all">الكل</button>
+            <button class="fd3-tab" data-f="critical">حرجة</button>
+            <button class="fd3-tab" data-f="requests">طلبات</button>
+            <button class="fd3-tab" data-f="inventory">مخزون</button>
+          </div>
+          <div id="fd3List"></div>
+        </div>`;
+      tb.appendChild(w);
+      $('#fd3BellBtn', w).onclick = e => { e.stopPropagation(); $('#fd3Panel').classList.toggle('open'); };
+      w.querySelectorAll('.fd3-tab').forEach(t => t.onclick = e => {
+        e.stopPropagation(); filter = t.dataset.f;
+        w.querySelectorAll('.fd3-tab').forEach(x => x.classList.toggle('on', x === t));
+        renderNotes();
+      });
+      $('#fd3Panel', w).addEventListener('click', e => e.stopPropagation());
+      document.addEventListener('click', () => { const p = document.getElementById('fd3Panel'); if (p) p.classList.remove('open'); });
+    }
+    if (!document.getElementById('fd3PdfBtn')){
+      const b = document.createElement('button');
+      b.id = 'fd3PdfBtn'; b.className = 'btn btn-secondary btn-sm'; b.dataset.fd2k = 'fd3PdfBtn';
+      b.innerHTML = '<i class="fas fa-file-arrow-down"></i> ملخص PDF';
+      b.onclick = () => window.fd3OpenPdf();
+      tb.appendChild(b);
+    }
+  }
+
+  /* ---------- data + notifications ---------- */
+  async function load(){
+    try{
+      const requests = await SupabaseAPI.request('requests','GET') || [];
+      const inventory = await SupabaseAPI.request('inventory','GET') || [];
+      data = { requests, inventory }; lastSync = new Date();
+    }catch(e){ /* keep old data */ }
+    buildNotes(); renderNotes(); paintHello();
+  }
+
+  function buildNotes(){
+    const out = [];
+    const open = data.requests.filter(r => !HIDDEN.includes(r.status));
+    open.filter(r => (r.priority === 'urgent' || r.priority === 'high' || r.priority === 'critical'))
+      .slice(0, 8).forEach(r => out.push({
+        cat:'critical', c:'#ef4444', i:'fa-triangle-exclamation',
+        t:`طلب عاجل: ${r.device_name || r.title || ('#'+(r.request_number||r.id||''))}`,
+        s:`${r.department || 'غير محدد'} — منذ ${days(r.created_at||r.createdAt)} يوم`,
+        ts:r.created_at || r.createdAt, go:'requests'
+      }));
+    open.filter(r => days(r.created_at||r.createdAt) >= 7).slice(0, 6).forEach(r => out.push({
+      cat:'requests', c:'#f59e0b', i:'fa-clock',
+      t:`طلب متأخر: ${r.device_name || r.title || ('#'+(r.request_number||r.id||''))}`,
+      s:`مفتوح منذ ${days(r.created_at||r.createdAt)} يوم`, ts:r.created_at||r.createdAt, go:'requests'
+    }));
+    data.requests.slice().sort((a,b) => new Date(b.created_at||0) - new Date(a.created_at||0)).slice(0, 6).forEach(r => out.push({
+      cat:'requests', c:'#4f46e5', i:'fa-file-circle-plus',
+      t:`طلب جديد: ${r.device_name || r.title || ('#'+(r.request_number||r.id||''))}`,
+      s:`${r.department || 'غير محدد'} — ${r.created_at ? fmtD(r.created_at) : ''}`, ts:r.created_at, go:'requests'
+    }));
+    data.inventory.filter(i => Number(i.qty || i.quantity || 0) <= Number(i.min_qty || i.reorder_level || 2)).slice(0, 8).forEach(i => out.push({
+      cat:'inventory', c:'#0ea5e9', i:'fa-boxes-stacked',
+      t:`مخزون منخفض: ${i.name || i.item_name || 'قطعة'}`,
+      s:`المتبقي ${Number(i.qty || i.quantity || 0)} وحدة`, ts:i.updated_at || i.created_at, go:'inventory'
+    }));
+    const seen = new Set();
+    notes = out.filter(n => { const k = n.t + n.s; if (seen.has(k)) return false; seen.add(k); return true; })
+               .sort((a,b) => new Date(b.ts||0) - new Date(a.ts||0)).slice(0, 30);
+  }
+
+  function renderNotes(){
+    const list = document.getElementById('fd3List'); if (!list) return;
+    const items = notes.filter(n => filter === 'all' || n.cat === filter);
+    const cnt = document.getElementById('fd3Count');
+    const critical = notes.filter(n => n.cat === 'critical' || n.cat === 'inventory').length;
+    if (cnt){ cnt.textContent = critical > 99 ? '99+' : critical; cnt.style.display = critical ? 'grid' : 'none'; }
+    list.innerHTML = items.length ? items.map(n => `
+      <div class="fd3-n" onclick="showPage('${n.go}')">
+        <div class="fd3-ni" style="background:${n.c}"><i class="fas ${n.i}"></i></div>
+        <div class="fd3-nb"><b>${n.t}</b><span>${n.s}</span></div>
+      </div>`).join('') : '<div class="fd3-empty"><i class="fas fa-check-circle" style="font-size:22px;display:block;margin-bottom:8px;color:#10b981"></i>لا توجد تنبيهات في هذا التصنيف</div>';
+  }
+
+  /* ---------- KPI PDF ---------- */
+  function setRange(d){
+    const to = new Date(), from = new Date(); from.setDate(from.getDate() - d);
+    $('#fd3From').value = from.toISOString().slice(0,10);
+    $('#fd3To').value = to.toISOString().slice(0,10);
+  }
+  window.fd3OpenPdf = function(){
+    if (!$('#fd3From').value) setRange(30);
+    $('#fd3PdfBack').classList.add('open'); $('#fd3PdfModal').classList.add('open');
+  };
+  window.fd3ClosePdf = function(){
+    $('#fd3PdfBack').classList.remove('open'); $('#fd3PdfModal').classList.remove('open');
+  };
+  window.fd3Refresh = function(){ load(); };
+
+  window.fd3GeneratePdf = async function(){
+    const from = new Date($('#fd3From').value + 'T00:00:00');
+    const to = new Date($('#fd3To').value + 'T23:59:59');
+    if (isNaN(from) || isNaN(to) || from > to){
+      if (typeof showToast === 'function') showToast('error','نطاق غير صالح','تأكد من تواريخ البداية والنهاية'); return;
+    }
+    const btn = document.getElementById('fd3GenBtn'); const old = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التوليد…'; btn.disabled = true;
+    try{
+      if (!data.requests.length) await load();
+      const inRange = data.requests.filter(r => { const d = new Date(r.created_at || r.createdAt || 0); return d >= from && d <= to; });
+      const done = inRange.filter(r => r.status === 'completed').length;
+      const open = inRange.filter(r => !HIDDEN.includes(r.status)).length;
+      const urgent = inRange.filter(r => ['urgent','high','critical'].includes(r.priority)).length;
+      const low = data.inventory.filter(i => Number(i.qty || i.quantity || 0) <= Number(i.min_qty || i.reorder_level || 2)).length;
+      const rate = inRange.length ? Math.round(done / inRange.length * 100) : 0;
+      const deptMap = {}; inRange.forEach(r => { const k = r.department || 'غير محدد'; deptMap[k] = (deptMap[k]||0)+1; });
+      const rows = Object.entries(deptMap).sort((a,b)=>b[1]-a[1]).slice(0,10)
+        .map(([k,v]) => `<tr><td>${k}</td><td>${v}</td><td>${Math.round(v/(inRange.length||1)*100)}%</td></tr>`).join('') ||
+        '<tr><td colspan="3">لا توجد بيانات ضمن النطاق</td></tr>';
+      const kpi = (t,v,c) => `<div class="k" style="border-top:3px solid ${c}"><span>${t}</span><b>${v}</b></div>`;
+      const html = `
+      <div dir="rtl" style="font-family:Tajawal,Arial,sans-serif;padding:26px;color:#0f172a;width:760px">
+        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #4f46e5;padding-bottom:12px">
+          <div><h1 style="margin:0;font-size:22px">ملخص مؤشرات الأداء</h1>
+          <div style="font-size:12px;color:#64748b;margin-top:4px">من ${fmtD(from)} إلى ${fmtD(to)}</div></div>
+          <div style="text-align:left;font-size:11px;color:#64748b">أُصدر بواسطة: ${userName()}<br>${fmtD(new Date())} — ${fmtT(new Date())}</div>
+        </div>
+        <div style="display:flex;gap:10px;margin:18px 0">
+          ${kpi('إجمالي الطلبات', inRange.length, '#4f46e5')}
+          ${kpi('مكتملة', done, '#10b981')}
+          ${kpi('مفتوحة', open, '#f59e0b')}
+          ${kpi('عاجلة', urgent, '#ef4444')}
+          ${kpi('نسبة الإنجاز', rate + '%', '#06b6d4')}
+        </div>
+        <h3 style="font-size:14px;margin:16px 0 8px">التوزيع حسب الأقسام</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:#f1f5f9"><th style="padding:8px;text-align:right">القسم</th><th style="padding:8px;text-align:right">الطلبات</th><th style="padding:8px;text-align:right">النسبة</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <p style="font-size:11.5px;color:#475569;margin-top:16px">قطع الغيار تحت حد الطلب: <b>${low}</b> صنف.</p>
+        <div style="margin-top:22px;border-top:1px solid #e2e8f0;padding-top:8px;font-size:10.5px;color:#94a3b8">نظام إدارة الصيانة — تقرير تلقائي</div>
+      </div>`;
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'position:fixed;left:-9999px;top:0';
+      wrap.innerHTML = `<style>.k{flex:1;background:#f8fafc;border-radius:10px;padding:10px 12px;text-align:center}.k span{display:block;font-size:10.5px;color:#64748b}.k b{font-size:19px}table td{padding:7px 8px;border-bottom:1px solid #e2e8f0}</style>` + html;
+      document.body.appendChild(wrap);
+      if (typeof html2pdf === 'function'){
+        await html2pdf().set({ margin:[8,8,10,8], filename:'ملخص_المؤشرات_'+new Date().toISOString().slice(0,10)+'.pdf',
+          image:{type:'jpeg',quality:.98}, html2canvas:{scale:2,useCORS:true}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'} })
+          .from(wrap.firstElementChild.nextElementSibling || wrap).save();
+      } else { window.print(); }
+      wrap.remove();
+      if (typeof showToast === 'function') showToast('success','تم التصدير','تم توليد ملخص المؤشرات بصيغة PDF');
+      window.fd3ClosePdf();
+    } catch(e){
+      if (typeof showToast === 'function') showToast('error','تعذر التصدير', e.message || 'حدث خطأ');
+    } finally { btn.innerHTML = old; btn.disabled = false; }
+  };
+
+  document.addEventListener('click', e => {
+    const p = e.target.closest && e.target.closest('.fd3-preset');
+    if (!p) return;
+    document.querySelectorAll('#fd3Presets .fd3-preset').forEach(x => x.classList.toggle('on', x === p));
+    setRange(Number(p.dataset.d));
+  });
+
+  function init(){ buildHello(); buildToolbar(); load(); paintHello(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(init, 900));
+  else setTimeout(init, 900);
+  setInterval(() => { if (!document.hidden && document.getElementById('page-dashboard')?.classList.contains('active')) load(); }, 60000);
+  const _sp = window.showPage;
+  if (typeof _sp === 'function'){ window.showPage = function(p){ const r = _sp.apply(this, arguments); if (p === 'dashboard') setTimeout(init, 350); return r; }; }
+})();
+</script>
+
 </body>
 </html>
