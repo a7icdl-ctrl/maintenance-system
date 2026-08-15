@@ -11,6 +11,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1833,8 +1834,8 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
                   <div class="dsh-hero dash-hero">
                     <div class="dash-hero-inner dsh-hero-in">
                       <div class="dash-hello dsh-hello">
-                        <h2 id="dashGreeting">مرحباً بك</h2>
-                        <p id="dashDateLine">لوحة الأداء التنفيذية لإدارة الصيانة</p>
+                        <h2 id="dashGreeting">لوحة الأداء التنفيذية</h2>
+                        <p id="dashDateLine">مؤشرات محدَّثة لحظياً لجميع طلبات الصيانة</p>
                         <div class="dash-chips">
                           <span class="dash-chip"><i class="fas fa-bolt"></i> <span id="chipOpen">0</span> مفتوح</span>
                           <span class="dash-chip good"><i class="fas fa-circle-check"></i> <span id="chipToday">0</span> اليوم</span>
@@ -10890,11 +10891,9 @@ async function updateDashboard() {
     const deltaPct = lastMonth ? Math.round(((thisMonth - lastMonth) / lastMonth) * 100) : (thisMonth ? 100 : 0);
 
     // ---- Hero ----
-    const h = now.getHours();
-    const greet = h < 12 ? 'صباح الخير' : (h < 17 ? 'مساء الخير' : 'مساء الخير');
-    const uname = (typeof currentUser !== 'undefined' && currentUser && (currentUser.full_name || currentUser.fullName || currentUser.username)) || '';
-    setTxt('dashGreeting', `${greet}${uname ? '، ' + uname : ''}`);
-    setTxt('dashDateLine', now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+    // ملاحظة: الترحيب بالاسم يظهر مرة واحدة فقط في شريط الترحيب أعلى الصفحة (fd3Hello)
+    setTxt('dashGreeting', 'لوحة الأداء التنفيذية');
+    setTxt('dashDateLine', 'مؤشرات محدَّثة لحظياً لجميع طلبات الصيانة');
     setTxt('chipOpen', openCount);
     setTxt('chipToday', todayCount);
     setTxt('chipCritical', critical);
@@ -19593,6 +19592,529 @@ html[data-theme="dark"] #page-dashboard .page-actions #fd3BellBtn{ background:rg
   setInterval(() => { if (!document.hidden && document.getElementById('page-dashboard')?.classList.contains('active')) load(); }, 60000);
   const _sp = window.showPage;
   if (typeof _sp === 'function'){ window.showPage = function(p){ const r = _sp.apply(this, arguments); if (p === 'dashboard') setTimeout(init, 350); return r; }; }
+})();
+</script>
+
+<!-- ===== A11y + Skeleton + Responsive Dashboard (v4) ===== -->
+<style id="a11y-resp-style">
+/* ---------- 1) تباين ألوان أفضل (WCAG AA) ---------- */
+:root{ --text-light:#64748b; --text-medium:#3f4a5a; --border-color:#dbe2ea; }
+html[data-theme="dark"]{ --text-light:#aab6c6; --text-medium:#d7dee8; }
+
+/* تركيز واضح للوحة المفاتيح */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, [tabindex]:focus-visible, .nav-item:focus-visible{
+  outline:3px solid #2563eb !important; outline-offset:2px !important; border-radius:10px;
+}
+html[data-theme="dark"] a:focus-visible, html[data-theme="dark"] button:focus-visible,
+html[data-theme="dark"] .nav-item:focus-visible{ outline-color:#7dd3fc !important; }
+.a11y-sr{ position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+  clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+.a11y-skip{ position:fixed; top:-60px; inset-inline-start:12px; z-index:3000; background:#1d4ed8; color:#fff;
+  padding:10px 16px; border-radius:0 0 12px 12px; font-weight:800; font-size:13px; transition:top .18s ease; }
+.a11y-skip:focus{ top:0 }
+@media (prefers-reduced-motion: reduce){ *{ animation-duration:.001s !important; transition-duration:.001s !important } }
+
+/* ---------- 2) Skeleton أثناء جلب البيانات ---------- */
+@keyframes skShine{ 0%{ background-position:-220% 0 } 100%{ background-position:220% 0 } }
+#page-dashboard.dash-loading .kpi-val,
+#page-dashboard.dash-loading .kpi-delta,
+#page-dashboard.dash-loading .kpi-sub,
+#page-dashboard.dash-loading .dash-chip,
+#page-dashboard.dash-loading .ring-inner b,
+#page-dashboard.dash-loading .ring-inner span,
+#page-dashboard.dash-loading .dsh-ring-t,
+#page-dashboard.dash-loading .stat-value,
+#page-dashboard.dash-loading .ms-v{
+  color:transparent !important; border-radius:8px; min-height:1em; display:inline-block; min-width:64px;
+  background:linear-gradient(90deg, color-mix(in oklab, var(--border-color) 55%, transparent) 25%,
+    color-mix(in oklab, var(--border-color) 95%, #fff) 45%,
+    color-mix(in oklab, var(--border-color) 55%, transparent) 65%) 0 0/220% 100% no-repeat;
+  animation:skShine 1.25s linear infinite;
+}
+#page-dashboard.dash-loading .kpi-val{ min-width:110px; min-height:34px }
+#page-dashboard.dash-loading .chart-wrap,
+#page-dashboard.dash-loading .rank-list,
+#page-dashboard.dash-loading canvas{ position:relative; }
+#page-dashboard.dash-loading .chart-wrap::after,
+#page-dashboard.dash-loading .rank-list::after{
+  content:''; position:absolute; inset:0; border-radius:14px;
+  background:linear-gradient(90deg, color-mix(in oklab, var(--border-color) 45%, transparent) 25%,
+    color-mix(in oklab, var(--border-color) 90%, #fff) 45%,
+    color-mix(in oklab, var(--border-color) 45%, transparent) 65%) 0 0/220% 100% no-repeat;
+  animation:skShine 1.25s linear infinite;
+}
+#dashSkeletonMsg{ display:none }
+#page-dashboard.dash-loading #dashSkeletonMsg{
+  display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:800; color:var(--text-medium);
+}
+#page-dashboard.dash-loading #dashSkeletonMsg i{ animation:spin 1s linear infinite }
+@keyframes spin{ to{ transform:rotate(360deg) } }
+
+/* ---------- 3) تجاوب كامل: جوال + تابلت ---------- */
+#a11yNavBtn{ display:none }
+#a11yNavOverlay{ display:none }
+@media (max-width: 1024px){
+  #page-dashboard .kpi-grid, #page-dashboard .dsh-kpis{ grid-template-columns:repeat(2,minmax(0,1fr)) !important }
+  #page-dashboard .dsh-grid{ grid-template-columns:1fr !important }
+  #page-dashboard .chart-wrap{ height:260px !important }
+}
+@media (max-width: 768px){
+  #a11yNavBtn{
+    display:inline-grid; place-items:center; position:fixed; top:12px; inset-inline-end:12px; z-index:1300;
+    width:46px; height:46px; border-radius:14px; border:1px solid var(--border-color);
+    background:var(--card-bg,#fff); color:var(--text-dark,#0f172a); font-size:18px; cursor:pointer;
+    box-shadow:0 10px 26px -14px rgba(15,23,42,.5);
+  }
+  #a11yNavOverlay{ display:block; position:fixed; inset:0; z-index:1200; background:rgba(15,23,42,.5);
+    opacity:0; visibility:hidden; transition:.2s }
+  #a11yNavOverlay.open{ opacity:1; visibility:visible }
+  .sidebar{ z-index:1250; width:min(84vw,300px) !important; box-shadow:-18px 0 50px -20px rgba(15,23,42,.5) }
+  .main-content{ margin-right:0 !important; padding:64px 14px 26px !important }
+  #page-dashboard .page-header{ flex-direction:column; align-items:stretch; gap:10px }
+  #page-dashboard .page-title{ font-size:22px }
+  #page-dashboard .page-actions{ width:100%; flex-wrap:wrap; justify-content:flex-start }
+  #page-dashboard .fd3-hello{ flex-direction:column; align-items:flex-start; gap:10px }
+  #page-dashboard .fd3-hchips{ margin-inline-start:0; width:100% }
+  #page-dashboard .dash-hero, #page-dashboard .dsh-hero{ padding:18px 16px !important }
+  #page-dashboard .dash-hero-inner, #page-dashboard .dsh-hero-in{ flex-direction:column; align-items:flex-start; gap:16px }
+  #page-dashboard .health-ring, #page-dashboard .dsh-ring{ width:100%; justify-content:flex-start }
+  #page-dashboard .dash-chips{ flex-wrap:wrap }
+  #page-dashboard .chart-wrap{ height:230px !important }
+  .data-table{ min-width:640px }
+  .table-container, .panel-body{ overflow-x:auto; -webkit-overflow-scrolling:touch }
+  /* أهداف لمس ≥44px */
+  .nav-item{ min-height:48px }
+  .btn, .theme-toggle, #fd2GearBtn, #fd3BellBtn{ min-height:44px !important }
+  #fd3Panel{ position:fixed !important; inset-inline:12px !important; width:auto !important; top:70px !important }
+}
+@media (max-width: 520px){
+  #page-dashboard .kpi-grid, #page-dashboard .dsh-kpis{ grid-template-columns:1fr !important }
+  #page-dashboard .page-actions .btn{ flex:1 1 46%; justify-content:center }
+  #page-dashboard .kpi-val{ font-size:26px }
+}
+@media print{ #a11yNavBtn, #a11yNavOverlay, .a11y-skip{ display:none !important } }
+</style>
+
+<button id="a11yNavBtn" type="button" aria-label="فتح قائمة التنقل" aria-expanded="false" aria-controls="sidebar">
+  <i class="fas fa-bars" aria-hidden="true"></i>
+</button>
+<div id="a11yNavOverlay" tabindex="-1" aria-hidden="true"></div>
+
+<script>
+(function(){
+  'use strict';
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+
+  /* ---------- ARIA ---------- */
+  function labelIconButtons(){
+    $$('button, a[onclick]').forEach(b => {
+      if (b.getAttribute('aria-label')) return;
+      const txt = (b.textContent || '').trim();
+      if (txt) return;
+      const lbl = b.getAttribute('title') || b.dataset.title ||
+        (b.querySelector('i') ? (b.querySelector('i').className.split(' ').pop().replace('fa-','')) : '');
+      if (lbl) b.setAttribute('aria-label', lbl);
+    });
+    $$('i.fas, i.far, i.fab').forEach(i => i.setAttribute('aria-hidden','true'));
+  }
+  function applyAria(){
+    const main = $('.main-content');
+    if (main && !main.getAttribute('role')){ main.setAttribute('role','main'); main.id = main.id || 'mainContent'; }
+    if (!$('.a11y-skip')){
+      const sk = document.createElement('a');
+      sk.className = 'a11y-skip'; sk.href = '#' + (main ? main.id : 'app'); sk.textContent = 'تخطَّ إلى المحتوى';
+      document.body.insertBefore(sk, document.body.firstChild);
+    }
+    const nav = $('.nav-menu');
+    if (nav){ nav.setAttribute('role','navigation'); nav.setAttribute('aria-label','القائمة الرئيسية'); }
+    $$('.nav-item').forEach(a => {
+      a.setAttribute('role','link');
+      if (!a.hasAttribute('tabindex')) a.tabIndex = 0;
+      a.setAttribute('aria-current', a.classList.contains('active') ? 'page' : 'false');
+      if (!a.dataset.a11yKey){
+        a.dataset.a11yKey = '1';
+        a.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); a.click(); } });
+      }
+    });
+    const sy = $('#dashboardSyncStatus');
+    if (sy){ sy.setAttribute('role','status'); sy.setAttribute('aria-live','polite'); }
+    const kpis = $('#page-dashboard .kpi-grid');
+    if (kpis){ kpis.setAttribute('role','group'); kpis.setAttribute('aria-label','مؤشرات الأداء'); kpis.setAttribute('aria-busy','false'); }
+    $$('#page-dashboard .kpi-card').forEach(c => {
+      const v = $('.kpi-val', c), l = $('.kpi-lbl', c);
+      if (v && l) v.setAttribute('aria-label', l.textContent.trim());
+      if (v) v.setAttribute('aria-live','polite');
+    });
+    $$('canvas').forEach(c => { c.setAttribute('role','img');
+      const h = c.closest('.panel') && $('.panel-head h3', c.closest('.panel'));
+      if (h && !c.getAttribute('aria-label')) c.setAttribute('aria-label', h.textContent.trim()); });
+    const ring = $('#healthRing');
+    if (ring){ ring.setAttribute('role','meter'); ring.setAttribute('aria-label','مؤشر صحة النظام');
+      ring.setAttribute('aria-valuemin','0'); ring.setAttribute('aria-valuemax','100'); }
+    const bell = $('#fd3BellBtn'), panel = $('#fd3Panel');
+    if (bell && panel){ panel.id = 'fd3Panel'; panel.setAttribute('role','dialog'); panel.setAttribute('aria-label','مركز التنبيهات');
+      bell.setAttribute('aria-controls','fd3Panel');
+      bell.setAttribute('aria-expanded', panel.classList.contains('open') ? 'true' : 'false');
+      if (!bell.dataset.a11y){ bell.dataset.a11y = '1';
+        bell.addEventListener('click', () => setTimeout(() =>
+          bell.setAttribute('aria-expanded', panel.classList.contains('open') ? 'true' : 'false'), 30)); }
+    }
+    $$('.modal, [id$="Modal"]').forEach(m => { m.setAttribute('role','dialog'); m.setAttribute('aria-modal','true'); });
+    labelIconButtons();
+  }
+
+  /* ---------- Skeleton ---------- */
+  const page = () => document.getElementById('page-dashboard');
+  function skOn(){ const p = page(); if (!p) return; p.classList.add('dash-loading');
+    const g = $('#page-dashboard .kpi-grid'); if (g) g.setAttribute('aria-busy','true'); }
+  function skOff(){ const p = page(); if (!p) return; p.classList.remove('dash-loading');
+    const g = $('#page-dashboard .kpi-grid'); if (g) g.setAttribute('aria-busy','false');
+    const r = $('#healthRing'), v = $('#healthScore');
+    if (r && v) r.setAttribute('aria-valuenow', parseInt(v.textContent,10) || 0); }
+  function addLoadingMsg(){
+    const acts = $('#page-dashboard .page-actions');
+    if (!acts || document.getElementById('dashSkeletonMsg')) return;
+    const s = document.createElement('span');
+    s.id = 'dashSkeletonMsg'; s.setAttribute('role','status'); s.setAttribute('aria-live','polite');
+    s.innerHTML = '<i class="fas fa-spinner" aria-hidden="true"></i> جاري تحميل البيانات…';
+    acts.insertBefore(s, acts.firstChild);
+  }
+  function wrapUpdate(){
+    const fn = window.updateDashboard;
+    if (typeof fn !== 'function' || fn.__skWrapped) return;
+    const wrapped = async function(){
+      skOn();
+      try { return await fn.apply(this, arguments); }
+      finally { setTimeout(() => { skOff(); applyAria(); }, 260); }
+    };
+    wrapped.__skWrapped = true;
+    window.updateDashboard = wrapped;
+  }
+
+  /* ---------- قائمة الجوال ---------- */
+  function mobileNav(){
+    const btn = document.getElementById('a11yNavBtn');
+    const ov = document.getElementById('a11yNavOverlay');
+    const sb = document.getElementById('sidebar');
+    if (!btn || !ov || !sb || btn.dataset.ready) return;
+    btn.dataset.ready = '1';
+    const set = open => {
+      sb.classList.toggle('open', open);
+      ov.classList.toggle('open', open);
+      ov.setAttribute('aria-hidden', open ? 'false' : 'true');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.setAttribute('aria-label', open ? 'إغلاق قائمة التنقل' : 'فتح قائمة التنقل');
+      btn.querySelector('i').className = open ? 'fas fa-xmark' : 'fas fa-bars';
+      if (open) { const f = sb.querySelector('.nav-item'); if (f) f.focus(); }
+    };
+    btn.addEventListener('click', () => set(!sb.classList.contains('open')));
+    ov.addEventListener('click', () => set(false));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && sb.classList.contains('open')) { set(false); btn.focus(); } });
+    sb.addEventListener('click', e => { if (e.target.closest('.nav-item') && window.innerWidth <= 768) set(false); });
+  }
+
+  function boot(){ applyAria(); addLoadingMsg(); wrapUpdate(); mobileNav(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(boot, 300));
+  else setTimeout(boot, 300);
+  setTimeout(boot, 1400);
+  const _sp = window.showPage;
+  if (typeof _sp === 'function' && !_sp.__a11y){
+    const w = function(){ const r = _sp.apply(this, arguments); setTimeout(boot, 250); return r; };
+    w.__a11y = true; window.showPage = w;
+  }
+})();
+</script>
+
+<!-- ===== FD4: تخصيص شاشة الترحيب من الإعدادات السريعة ===== -->
+<style id="fd4-style">
+/* ---------- Welcome screen skins ---------- */
+#page-dashboard .fd3-hello{ position:relative; overflow:hidden; transition:background .3s ease, padding .25s ease, border-radius .25s ease, box-shadow .3s ease; }
+#page-dashboard .fd3-hello .fd4-extra{ width:100%; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+#page-dashboard .fd3-hello .fd4-quote{
+  display:flex; align-items:center; gap:8px; font-size:11.5px; font-weight:700;
+  color:var(--text-medium,#475569); opacity:.95; line-height:1.7;
+}
+#page-dashboard .fd3-hello .fd4-quote i{ color:var(--fd2-accent,#4f46e5); font-size:11px }
+
+/* skin: glass */
+#page-dashboard .fd3-hello.fd4-glass{
+  background:linear-gradient(135deg, color-mix(in oklab, var(--fd2-accent,#4f46e5) 16%, transparent), color-mix(in oklab, var(--card-bg,#fff) 78%, transparent));
+  backdrop-filter:blur(14px) saturate(1.2);
+  border:1px solid color-mix(in oklab, var(--fd2-accent,#4f46e5) 26%, transparent);
+  box-shadow:0 18px 40px -26px color-mix(in oklab, var(--fd2-accent,#4f46e5) 75%, transparent);
+}
+/* skin: gradient */
+#page-dashboard .fd3-hello.fd4-gradient{
+  background:linear-gradient(120deg, var(--fd2-accent,#4f46e5), color-mix(in oklab, var(--fd2-accent,#4f46e5) 45%, #06b6d4));
+  border-color:transparent;
+  box-shadow:0 20px 40px -24px color-mix(in oklab, var(--fd2-accent,#4f46e5) 85%, transparent);
+}
+#page-dashboard .fd3-hello.fd4-gradient .fd3-htxt b,
+#page-dashboard .fd3-hello.fd4-gradient .fd3-htxt small,
+#page-dashboard .fd3-hello.fd4-gradient .fd4-quote{ color:#fff }
+#page-dashboard .fd3-hello.fd4-gradient .fd3-htxt small,
+#page-dashboard .fd3-hello.fd4-gradient .fd4-quote{ opacity:.92 }
+#page-dashboard .fd3-hello.fd4-gradient .fd4-quote i{ color:#fff }
+#page-dashboard .fd3-hello.fd4-gradient .fd3-av{ background:rgba(255,255,255,.2); box-shadow:inset 0 0 0 1px rgba(255,255,255,.4) }
+#page-dashboard .fd3-hello.fd4-gradient .fd3-chip{ background:rgba(255,255,255,.18); border-color:rgba(255,255,255,.32); color:#fff }
+#page-dashboard .fd3-hello.fd4-gradient .fd3-chip i{ color:#fff }
+#page-dashboard .fd3-hello.fd4-gradient .fd3-chip.live i{ color:#a7f3d0 }
+/* skin: outline / minimal */
+#page-dashboard .fd3-hello.fd4-outline{
+  background:transparent; border:1px dashed color-mix(in oklab, var(--fd2-accent,#4f46e5) 45%, var(--border-color)); box-shadow:none;
+}
+/* skin: aurora */
+#page-dashboard .fd3-hello.fd4-aurora{
+  background:
+    radial-gradient(120% 160% at 92% -30%, color-mix(in oklab, var(--fd2-accent,#4f46e5) 34%, transparent), transparent 60%),
+    radial-gradient(120% 150% at 6% 130%, color-mix(in oklab, #06b6d4 26%, transparent), transparent 60%),
+    var(--card-bg,#fff);
+  border:1px solid color-mix(in oklab, var(--border-color) 70%, transparent);
+  box-shadow:0 16px 36px -26px rgba(15,23,42,.6);
+}
+#page-dashboard .fd3-hello.fd4-aurora::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(115deg, transparent 35%, color-mix(in oklab, var(--fd2-accent,#4f46e5) 12%, transparent) 50%, transparent 65%);
+  background-size:220% 100%; animation:fd4Shine 7s linear infinite;
+}
+@keyframes fd4Shine{ from{ background-position:120% 0 } to{ background-position:-120% 0 } }
+
+/* sizes */
+#page-dashboard .fd3-hello.fd4-sm{ padding:9px 13px; border-radius:14px; gap:10px }
+#page-dashboard .fd3-hello.fd4-sm .fd3-av{ width:34px; height:34px; border-radius:11px; font-size:14px }
+#page-dashboard .fd3-hello.fd4-sm .fd3-htxt b{ font-size:13.5px }
+#page-dashboard .fd3-hello.fd4-lg{ padding:22px 22px; border-radius:24px; gap:18px }
+#page-dashboard .fd3-hello.fd4-lg .fd3-av{ width:60px; height:60px; border-radius:19px; font-size:24px }
+#page-dashboard .fd3-hello.fd4-lg .fd3-htxt b{ font-size:21px }
+#page-dashboard .fd3-hello.fd4-lg .fd3-htxt small{ font-size:12.5px }
+
+/* center alignment */
+#page-dashboard .fd3-hello.fd4-center{ flex-direction:column; text-align:center; justify-content:center }
+#page-dashboard .fd3-hello.fd4-center .fd3-htxt{ align-items:center }
+#page-dashboard .fd3-hello.fd4-center .fd3-hchips{ margin-inline-start:0; justify-content:center }
+#page-dashboard .fd3-hello.fd4-center .fd4-extra{ justify-content:center }
+
+/* hidden bits */
+#page-dashboard .fd3-hello.fd4-noav .fd3-av{ display:none }
+#page-dashboard .fd3-hello.fd4-nochips .fd3-hchips{ display:none }
+#page-dashboard .fd3-hello.fd4-off{ display:none !important }
+
+/* drawer preview */
+.fd4-preview{
+  border-radius:14px; padding:11px 12px; display:flex; align-items:center; gap:10px;
+  border:1px solid color-mix(in oklab, var(--border-color) 70%, transparent);
+  background:linear-gradient(120deg, color-mix(in oklab, var(--fd2-accent,#4f46e5) 14%, transparent), transparent 65%), var(--card-bg,#fff);
+  margin-bottom:10px;
+}
+.fd4-preview .pv-av{ width:30px;height:30px;border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:900;font-size:12px;
+  background:linear-gradient(135deg, var(--fd2-accent,#4f46e5), color-mix(in oklab, var(--fd2-accent,#4f46e5) 45%, #06b6d4)); flex:none }
+.fd4-preview .pv-t{ font-size:12px; font-weight:900; color:var(--text-dark,#0f172a) }
+.fd4-preview .pv-s{ font-size:10.5px; color:var(--text-light,#94a3b8) }
+.fd4-skins{ display:grid; grid-template-columns:repeat(auto-fill,minmax(78px,1fr)); gap:8px }
+.fd4-skin{
+  height:52px; border-radius:12px; cursor:pointer; position:relative; overflow:hidden;
+  border:2px solid transparent; box-shadow:inset 0 0 0 1px color-mix(in oklab, var(--border-color) 70%, transparent);
+  transition:transform .18s ease, border-color .18s ease;
+}
+.fd4-skin:hover{ transform:translateY(-2px) }
+.fd4-skin.sel{ border-color:var(--fd2-accent,#4f46e5) }
+.fd4-skin span{ position:absolute; inset-inline:0; bottom:0; text-align:center; font-size:9.5px; font-weight:800; padding:2px 0;
+  background:rgba(15,23,42,.55); color:#fff }
+.fd4-seg{ display:flex; gap:6px; flex-wrap:wrap }
+.fd4-seg button{
+  flex:1; min-width:64px; height:32px; border-radius:10px; cursor:pointer; font-family:inherit; font-size:11.5px; font-weight:800;
+  background:color-mix(in oklab, var(--border-color) 28%, transparent); color:var(--text-medium,#475569);
+  border:1px solid color-mix(in oklab, var(--border-color) 60%, transparent); transition:.18s ease;
+}
+.fd4-seg button.on{ background:var(--fd2-accent,#4f46e5); border-color:transparent; color:#fff }
+.fd4-input{
+  width:100%; height:36px; border-radius:11px; padding:0 11px; font-family:inherit; font-size:12px;
+  background:var(--card-bg,#fff); color:var(--text-dark,#0f172a);
+  border:1px solid color-mix(in oklab, var(--border-color) 70%, transparent);
+}
+.fd4-input:focus{ outline:2px solid color-mix(in oklab, var(--fd2-accent,#4f46e5) 45%, transparent); outline-offset:1px }
+.fd4-hint{ font-size:10.5px; color:var(--text-light,#94a3b8); margin-top:6px; display:block }
+html[data-theme="dark"] .fd4-preview{ background:rgba(255,255,255,.05) }
+html[data-theme="dark"] #page-dashboard .fd3-hello.fd4-aurora{ background:
+  radial-gradient(120% 160% at 92% -30%, color-mix(in oklab, var(--fd2-accent,#4f46e5) 40%, transparent), transparent 60%),
+  radial-gradient(120% 150% at 6% 130%, rgba(6,182,212,.25), transparent 60%), rgba(17,24,39,.96) }
+@media (max-width:640px){
+  #page-dashboard .fd3-hello.fd4-lg{ padding:16px; border-radius:18px }
+  #page-dashboard .fd3-hello.fd4-lg .fd3-htxt b{ font-size:17px }
+}
+@media (prefers-reduced-motion:reduce){
+  #page-dashboard .fd3-hello.fd4-aurora::after{ animation:none }
+}
+</style>
+
+<script id="fd4-script">
+(function(){
+  const LS = 'fd4_hello_v1';
+  const DEF = { on:true, skin:'classic', size:'md', align:'start', avatar:true, chips:true, quote:true, msg:'' };
+  let P = Object.assign({}, DEF);
+  try { P = Object.assign({}, DEF, JSON.parse(localStorage.getItem(LS) || '{}')); } catch(e){}
+  const save = () => { try { localStorage.setItem(LS, JSON.stringify(P)); } catch(e){} };
+
+  const SKINS = [
+    { id:'classic',  t:'كلاسيكي', css:'linear-gradient(120deg,color-mix(in oklab,var(--fd2-accent,#4f46e5) 22%,transparent),transparent 65%),var(--card-bg,#fff)' },
+    { id:'glass',    t:'زجاجي',   css:'linear-gradient(135deg,color-mix(in oklab,var(--fd2-accent,#4f46e5) 30%,transparent),color-mix(in oklab,#fff 70%,transparent))' },
+    { id:'gradient', t:'متدرج',   css:'linear-gradient(120deg,var(--fd2-accent,#4f46e5),color-mix(in oklab,var(--fd2-accent,#4f46e5) 45%,#06b6d4))' },
+    { id:'aurora',   t:'شفقي',    css:'radial-gradient(120% 150% at 90% -20%,color-mix(in oklab,var(--fd2-accent,#4f46e5) 55%,transparent),transparent 60%),radial-gradient(120% 150% at 5% 130%,rgba(6,182,212,.5),transparent 60%),var(--card-bg,#fff)' },
+    { id:'outline',  t:'بسيط',    css:'repeating-linear-gradient(45deg,transparent,transparent 7px,color-mix(in oklab,var(--fd2-accent,#4f46e5) 18%,transparent) 7px,color-mix(in oklab,var(--fd2-accent,#4f46e5) 18%,transparent) 8px)' }
+  ];
+  const QUOTES = [
+    'الصيانة الاستباقية توفّر ضعف تكلفة الإصلاح الطارئ.',
+    'كل طلب يُغلق اليوم هو وقت يُوفَّر غداً.',
+    'جودة البيانات = جودة القرار. حدّث السجلات باستمرار.',
+    'المتابعة المنظمة أسرع طريق لرضا المستخدمين.',
+    'راقب المؤشرات مبكراً لتتجنب التعطل المتأخر.'
+  ];
+
+  function hello(){ return document.getElementById('fd3Hello'); }
+  function nameOf(){
+    const u = window.currentUser || {};
+    const el = document.getElementById('userName');
+    return (u.full_name || u.name || u.username || (el && el.textContent.trim()) || 'مستخدم النظام');
+  }
+
+  let painting = false;
+  function apply(){
+    const el = hello(); if (!el) return;
+    painting = true;
+    el.classList.remove('fd4-glass','fd4-gradient','fd4-outline','fd4-aurora','fd4-sm','fd4-lg','fd4-center','fd4-noav','fd4-nochips','fd4-off');
+    if (!P.on) el.classList.add('fd4-off');
+    if (P.skin !== 'classic') el.classList.add('fd4-' + P.skin);
+    if (P.size === 'sm') el.classList.add('fd4-sm');
+    if (P.size === 'lg') el.classList.add('fd4-lg');
+    if (P.align === 'center') el.classList.add('fd4-center');
+    if (!P.avatar) el.classList.add('fd4-noav');
+    if (!P.chips) el.classList.add('fd4-nochips');
+
+    // custom message
+    const g = document.getElementById('fd3Greet');
+    if (g){
+      if (P.msg && P.msg.trim()){
+        const txt = P.msg.replace(/\{name\}/g, nameOf());
+        if (g.textContent !== txt) g.textContent = txt;
+      }
+    }
+    // quote row
+    let extra = el.querySelector('.fd4-extra');
+    if (P.quote){
+      if (!extra){
+        extra = document.createElement('div');
+        extra.className = 'fd4-extra';
+        extra.innerHTML = '<div class="fd4-quote"><i class="fas fa-lightbulb"></i><span></span></div>';
+        el.appendChild(extra);
+      }
+      const sp = extra.querySelector('.fd4-quote span');
+      if (sp && !sp.textContent) sp.textContent = QUOTES[new Date().getDate() % QUOTES.length];
+    } else if (extra){ extra.remove(); }
+    paintPreview();
+    setTimeout(()=>{ painting = false; }, 0);
+  }
+  window.fd4ApplyHello = apply;
+
+  /* ---------- drawer UI ---------- */
+  function buildDrawerGroup(){
+    const body = document.querySelector('#fd2Drawer .fd2-dbody');
+    if (!body || document.getElementById('fd4Group')) return;
+    const g = document.createElement('div');
+    g.className = 'fd2-group'; g.id = 'fd4Group';
+    g.innerHTML = `
+      <label>شاشة الترحيب</label>
+      <div class="fd4-preview" id="fd4Preview">
+        <div class="pv-av">أ</div>
+        <div><div class="pv-t" id="fd4PvT">مرحباً بك 👋</div><div class="pv-s">معاينة مباشرة للتصميم</div></div>
+      </div>
+      <div class="fd2-row"><span>إظهار شاشة الترحيب</span><div class="fd2-switch" id="fd4SwOn" data-k="on"></div></div>
+      <div style="margin:10px 0 6px;font-size:11.5px;font-weight:800;color:var(--text-medium,#475569)">نمط التصميم</div>
+      <div class="fd4-skins" id="fd4Skins"></div>
+      <div style="margin:12px 0 6px;font-size:11.5px;font-weight:800;color:var(--text-medium,#475569)">الحجم</div>
+      <div class="fd4-seg" id="fd4Size">
+        <button data-v="sm">مضغوط</button><button data-v="md">عادي</button><button data-v="lg">بارز</button>
+      </div>
+      <div style="margin:12px 0 6px;font-size:11.5px;font-weight:800;color:var(--text-medium,#475569)">المحاذاة</div>
+      <div class="fd4-seg" id="fd4Align">
+        <button data-v="start">جانبي</button><button data-v="center">وسط</button>
+      </div>
+      <div class="fd2-row"><span>الصورة الرمزية</span><div class="fd2-switch" id="fd4SwAv" data-k="avatar"></div></div>
+      <div class="fd2-row"><span>شرائح الوقت والمزامنة</span><div class="fd2-switch" id="fd4SwChips" data-k="chips"></div></div>
+      <div class="fd2-row"><span>عبارة تحفيزية يومية</span><div class="fd2-switch" id="fd4SwQuote" data-k="quote"></div></div>
+      <div style="margin:12px 0 6px;font-size:11.5px;font-weight:800;color:var(--text-medium,#475569)">رسالة ترحيب مخصصة</div>
+      <input class="fd4-input" id="fd4Msg" placeholder="مثال: أهلاً {name}، يوم موفق!" aria-label="رسالة ترحيب مخصصة">
+      <span class="fd4-hint">اتركها فارغة للرسالة التلقائية حسب الوقت. استخدم {name} لإدراج الاسم.</span>
+      <div class="fd2-actions" style="margin-top:12px">
+        <button class="fd2-btn g" id="fd4ResetBtn" type="button">استعادة الافتراضي</button>
+      </div>`;
+    const actions = body.querySelector('.fd2-actions');
+    if (actions) body.insertBefore(g, actions); else body.appendChild(g);
+
+    const skins = g.querySelector('#fd4Skins');
+    skins.innerHTML = SKINS.map(s => `<div class="fd4-skin" data-v="${s.id}" role="button" tabindex="0" aria-label="نمط ${s.t}" style="background:${s.css}"><span>${s.t}</span></div>`).join('');
+    skins.querySelectorAll('.fd4-skin').forEach(s => {
+      const pick = () => { P.skin = s.dataset.v; save(); apply(); syncUI(); };
+      s.onclick = pick;
+      s.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } };
+    });
+    g.querySelectorAll('#fd4Size button').forEach(b => b.onclick = () => { P.size = b.dataset.v; save(); apply(); syncUI(); });
+    g.querySelectorAll('#fd4Align button').forEach(b => b.onclick = () => { P.align = b.dataset.v; save(); apply(); syncUI(); });
+    g.querySelectorAll('.fd2-switch[data-k]').forEach(sw => {
+      sw.setAttribute('role','switch'); sw.setAttribute('tabindex','0');
+      const t = () => { P[sw.dataset.k] = !P[sw.dataset.k]; save(); apply(); syncUI(); };
+      sw.onclick = t;
+      sw.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); t(); } };
+    });
+    const msg = g.querySelector('#fd4Msg');
+    msg.oninput = () => { P.msg = msg.value; save(); apply(); };
+    g.querySelector('#fd4ResetBtn').onclick = () => { P = Object.assign({}, DEF); save(); apply(); syncUI(); };
+    syncUI();
+  }
+
+  function syncUI(){
+    const g = document.getElementById('fd4Group'); if (!g) return;
+    g.querySelectorAll('.fd4-skin').forEach(s => s.classList.toggle('sel', s.dataset.v === P.skin));
+    g.querySelectorAll('#fd4Size button').forEach(b => b.classList.toggle('on', b.dataset.v === P.size));
+    g.querySelectorAll('#fd4Align button').forEach(b => b.classList.toggle('on', b.dataset.v === P.align));
+    g.querySelectorAll('.fd2-switch[data-k]').forEach(sw => {
+      const on = !!P[sw.dataset.k];
+      sw.classList.toggle('on', on); sw.setAttribute('aria-checked', on ? 'true' : 'false');
+    });
+    const msg = g.querySelector('#fd4Msg'); if (msg && msg.value !== (P.msg || '')) msg.value = P.msg || '';
+    paintPreview();
+  }
+
+  function paintPreview(){
+    const pv = document.getElementById('fd4Preview'); if (!pv) return;
+    const s = SKINS.find(x => x.id === P.skin) || SKINS[0];
+    pv.style.background = s.css;
+    pv.style.opacity = P.on ? '1' : '.45';
+    pv.style.justifyContent = P.align === 'center' ? 'center' : 'flex-start';
+    pv.style.textAlign = P.align === 'center' ? 'center' : 'start';
+    pv.style.padding = P.size === 'lg' ? '18px 14px' : (P.size === 'sm' ? '8px 10px' : '11px 12px');
+    const av = pv.querySelector('.pv-av'); if (av) av.style.display = P.avatar ? '' : 'none';
+    const t = document.getElementById('fd4PvT');
+    if (t) t.textContent = (P.msg && P.msg.trim()) ? P.msg.replace(/\{name\}/g, nameOf()) : 'مرحباً بك 👋';
+    const light = (P.skin === 'gradient');
+    pv.querySelectorAll('.pv-t,.pv-s').forEach(e => e.style.color = light ? '#fff' : '');
+  }
+
+  /* keep in sync while dashboard repaints */
+  const mo = new MutationObserver(() => {
+    if (painting) return;
+    if (hello()) apply();
+    buildDrawerGroup();
+  });
+
+  function boot(){
+    buildDrawerGroup(); apply();
+    mo.observe(document.body, { childList:true, subtree:true });
+    setInterval(() => { if (hello()) apply(); }, 4000);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(boot, 700));
+  else setTimeout(boot, 700);
 })();
 </script>
 
