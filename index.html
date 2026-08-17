@@ -12,6 +12,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -20569,6 +20570,228 @@ html.fd6-hl-on ::selection{ background:color-mix(in oklab, var(--fd6-hl) 30%, tr
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ apply(); setTimeout(boot, 900); });
   else { apply(); setTimeout(boot, 900); }
   setTimeout(boot, 2000);
+})();
+</script>
+
+
+<!-- ===== FD7: تحقق تلقائي من التباين + إعادة تعيين المظهر + توحيد ألوان الثيم ===== -->
+<style id="fd7-style">
+:root{ --fd7-hl: var(--fd6-hl, var(--fd2-accent, #4f46e5)); }
+
+/* ===== توحيد ألوان الثيم على عناصر لوحة التحكم ===== */
+html.fd7-unify #page-dashboard .kpi-card,
+html.fd7-unify #page-dashboard .fd2-card,
+html.fd7-unify #page-dashboard .fd2-panel,
+html.fd7-unify #page-dashboard .card,
+html.fd7-unify #page-dashboard .stat-card{
+  border-color: color-mix(in oklab, var(--fd7-hl) 28%, var(--border-color)) !important;
+}
+html.fd7-unify #page-dashboard .page-header{
+  border-color: color-mix(in oklab, var(--fd7-hl) 32%, var(--border-color)) !important;
+}
+html.fd7-unify #page-dashboard .kpi-card{ --kc: var(--fd7-hl); }
+html.fd7-unify #page-dashboard .kpi-card::before{
+  background: linear-gradient(90deg, var(--fd7-hl), color-mix(in oklab, var(--fd7-hl) 35%, transparent)) !important;
+}
+html.fd7-unify #page-dashboard .kpi-ico{
+  background: linear-gradient(135deg, var(--fd7-hl), color-mix(in oklab, var(--fd7-hl) 55%, #06b6d4)) !important;
+}
+html.fd7-unify #page-dashboard .kpi-val{ color: color-mix(in oklab, var(--fd7-hl) 22%, var(--text-dark)) !important; }
+html.fd7-unify #page-dashboard .stat-card::before{
+  background: linear-gradient(90deg, var(--fd7-hl), color-mix(in oklab, var(--fd7-hl) 40%, transparent)) !important;
+}
+html.fd7-unify .alt-kpi{ --kc: var(--fd7-hl); }
+html.fd7-unify #page-dashboard .fd3-chip{
+  border-color: color-mix(in oklab, var(--fd7-hl) 30%, var(--border-color)) !important;
+}
+html.fd7-unify #page-dashboard .fd3-chip i{ color: var(--fd7-hl) !important; }
+html.fd7-unify #page-dashboard .fd3-hello.fd5-in .fd3-chip i{ color:#fff !important; }
+html.fd7-unify #page-dashboard .fd3-hello.fd5-in .fd3-chip.live i{ color:#6ee7b7 !important; }
+html.fd7-unify #page-dashboard .fd3-chip.live i{ color:#10b981 !important; }
+
+/* مركز التنبيهات: الحدود وخطوط العدادات */
+html.fd7-unify #fd3Panel{ border-color: color-mix(in oklab, var(--fd7-hl) 30%, var(--border-color)) !important; }
+html.fd7-unify #fd3Panel .fd3-ph{ border-color: color-mix(in oklab, var(--fd7-hl) 25%, var(--border-color)) !important; }
+html.fd7-unify #fd3Panel .fd3-ph i,
+html.fd7-unify #fd3Panel .fd3-ph button{ color: var(--fd7-hl) !important; }
+html.fd7-unify #fd3Tabs .fd3-tab{ border-color: color-mix(in oklab, var(--fd7-hl) 24%, var(--border-color)) !important; }
+html.fd7-unify #fd3Tabs .fd3-tab.on{ background: var(--fd7-hl) !important; border-color: transparent !important; color:#fff !important; }
+html.fd7-unify #fd3List .fd3-n{
+  border-inline-end: 3px solid color-mix(in oklab, var(--fd7-hl) 55%, transparent) !important;
+}
+html.fd7-unify #fd3BellWrap .fd3-badge,
+html.fd7-unify #fd3BellWrap [class*="badge"]{
+  background: var(--fd7-hl) !important; color:#fff !important;
+}
+
+/* ===== تنبيه التباين داخل الإعدادات السريعة ===== */
+#fd7Warn{ display:none; margin-top:10px; border-radius:12px; padding:10px 12px; font-size:11.5px; font-weight:700;
+  line-height:1.7; background: color-mix(in oklab, #f59e0b 14%, transparent);
+  border:1px solid color-mix(in oklab, #f59e0b 45%, transparent); color: var(--text-dark, #0f172a); }
+#fd7Warn.bad{ background: color-mix(in oklab, #ef4444 14%, transparent);
+  border-color: color-mix(in oklab, #ef4444 48%, transparent); }
+#fd7Warn.ok{ display:block; background: color-mix(in oklab, #10b981 12%, transparent);
+  border-color: color-mix(in oklab, #10b981 42%, transparent); }
+#fd7Warn b{ display:flex; align-items:center; gap:6px; margin-bottom:4px; font-size:12px; }
+#fd7Warn ul{ margin:0; padding-inline-start:16px; }
+#fd7Warn .fd7-ratio{ font-weight:900; }
+#fd7ResetAllBtn{ width:100%; margin-top:12px; display:flex; align-items:center; justify-content:center; gap:8px;
+  font:inherit; font-size:12px; font-weight:800; cursor:pointer; border-radius:12px; padding:10px 14px;
+  color: var(--text-medium, #475569); background: transparent;
+  border:1px dashed color-mix(in oklab, var(--fd7-hl) 45%, var(--border-color)); transition:.18s; }
+#fd7ResetAllBtn:hover{ color:#fff; border-style:solid; border-color:transparent;
+  background: linear-gradient(135deg, var(--fd7-hl), color-mix(in oklab, var(--fd7-hl) 55%, #06b6d4)); }
+@media print{ #fd7Warn, #fd7ResetAllBtn{ display:none !important } }
+</style>
+
+<script id="fd7-script">
+(function(){
+  'use strict';
+  document.documentElement.classList.add('fd7-unify');
+
+  /* ---------- أدوات لون ---------- */
+  function toRgb(c){
+    if (!c) return null;
+    c = String(c).trim();
+    var m = c.match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i);
+    if (m){
+      var h = m[1];
+      if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+      return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+    }
+    m = c.match(/rgba?\(([^)]+)\)/i);
+    if (m){
+      var p = m[1].split(',').map(function(x){ return parseFloat(x); });
+      if (p.length >= 3 && !isNaN(p[0])) return [p[0], p[1], p[2]];
+    }
+    try {
+      var d = document.createElement('span');
+      d.style.cssText = 'position:absolute;opacity:0;color:' + c;
+      document.body.appendChild(d);
+      var v = getComputedStyle(d).color; d.remove();
+      return v && v !== c ? toRgb(v) : null;
+    } catch(e){ return null; }
+  }
+  function lum(rgb){
+    var a = rgb.map(function(v){ v /= 255; return v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4); });
+    return 0.2126*a[0] + 0.7152*a[1] + 0.0722*a[2];
+  }
+  function ratio(c1, c2){
+    var a = toRgb(c1), b = toRgb(c2);
+    if (!a || !b) return null;
+    var l1 = lum(a), l2 = lum(b);
+    return (Math.max(l1,l2) + 0.05) / (Math.min(l1,l2) + 0.05);
+  }
+  function cssVar(name, fallback){
+    var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+  }
+
+  /* ---------- التحقق التلقائي من التباين ---------- */
+  function checks(){
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var bg    = cssVar('--fd6-bg', '') || cssVar('--bg-main', '') || (isDark ? '#0f172a' : '#f6f8fc');
+    var hero  = cssVar('--fd6-hero', '') || '#0b1229';
+    var hl    = cssVar('--fd6-hl', '') || cssVar('--fd2-accent', '') || '#4f46e5';
+    var textD = cssVar('--text-dark', '') || (isDark ? '#f1f5f9' : '#0f172a');
+    var textM = cssVar('--text-medium', '') || (isDark ? '#cbd5e1' : '#475569');
+    return [
+      { t: 'نص المحتوى على خلفية الصفحة', r: ratio(textD, bg), min: 4.5 },
+      { t: 'النص الثانوي على خلفية الصفحة', r: ratio(textM, bg), min: 4.5 },
+      { t: 'لون الهايلايت على خلفية الصفحة', r: ratio(hl, bg), min: 3 },
+      { t: 'النص الأبيض على لون الهايلايت', r: ratio('#ffffff', hl), min: 4.5 },
+      { t: 'النص الأبيض على قاعدة الهيرو', r: ratio('#ffffff', hero), min: 4.5 }
+    ].filter(function(c){ return c.r; });
+  }
+
+  function renderWarn(){
+    var box = document.getElementById('fd7Warn');
+    if (!box) return;
+    var bad = checks().filter(function(c){ return c.r < c.min; });
+    box.classList.remove('bad','ok');
+    if (!bad.length){
+      box.classList.add('ok');
+      box.innerHTML = '<b><i class="fas fa-circle-check"></i> التباين ممتاز</b>' +
+        'كل ألوان النصوص والخلفيات الحالية مقروءة بوضوح.';
+      box.style.display = 'block';
+      return;
+    }
+    var severe = bad.some(function(c){ return c.r < c.min * 0.7; });
+    if (severe) box.classList.add('bad');
+    box.innerHTML = '<b><i class="fas fa-triangle-exclamation"></i> تنبيه: تباين ضعيف في الألوان</b>' +
+      '<ul>' + bad.map(function(c){
+        return '<li>' + c.t + ' — <span class="fd7-ratio">' + c.r.toFixed(2) + ':1</span>' +
+               ' (المطلوب ' + c.min + ':1)</li>';
+      }).join('') + '</ul>' +
+      'جرّب لوناً أغمق أو أفتح، أو اضغط «إعادة تعيين للمظهر الافتراضي».';
+    box.style.display = 'block';
+  }
+  window.fd7CheckContrast = renderWarn;
+
+  /* ---------- إعادة تعيين كاملة ---------- */
+  window.fd7ResetTheme = function(){
+    try { if (typeof window.fd6ResetTheme === 'function') window.fd6ResetTheme(); } catch(e){}
+    try { if (typeof window.fd2SetAccent === 'function') window.fd2SetAccent('#4f46e5'); } catch(e){}
+    try {
+      document.documentElement.style.removeProperty('--fd6-bg');
+      document.documentElement.style.removeProperty('--fd6-hero');
+      document.documentElement.style.removeProperty('--fd6-hl');
+      document.documentElement.style.removeProperty('--fd6-int');
+      document.documentElement.style.setProperty('--fd2-accent', '#4f46e5');
+      document.documentElement.classList.remove('fd6-bg-on','fd6-hero-on','fd6-hl-on');
+    } catch(e){}
+    try { localStorage.removeItem('fd6_theme_v1'); } catch(e){}
+    setTimeout(renderWarn, 60);
+    if (typeof showToast === 'function') showToast('success','إعادة تعيين','رجعت ألوان المظهر للوضع الافتراضي');
+  };
+
+  /* ---------- بناء عناصر الواجهة داخل الإعدادات السريعة ---------- */
+  function build(){
+    var g = document.getElementById('fd6Group') ||
+            document.querySelector('#fd2Drawer .fd2-dbody');
+    if (!g) return;
+    if (!document.getElementById('fd7Warn')){
+      var w = document.createElement('div');
+      w.id = 'fd7Warn';
+      g.appendChild(w);
+    }
+    if (!document.getElementById('fd7ResetAllBtn')){
+      var b = document.createElement('button');
+      b.type = 'button'; b.id = 'fd7ResetAllBtn';
+      b.innerHTML = '<i class="fas fa-rotate-left"></i> إعادة تعيين للمظهر الافتراضي';
+      b.onclick = function(){ window.fd7ResetTheme(); };
+      g.appendChild(b);
+    }
+    renderWarn();
+  }
+
+  /* ---------- مراقبة أي تغيير في الألوان ---------- */
+  var t = null;
+  function schedule(){ clearTimeout(t); t = setTimeout(renderWarn, 120); }
+  ['fd6Set','fd6SetInt','fd2SetAccent','fd6ResetTheme','fd2Reset','toggleTheme'].forEach(function(fn){
+    var orig = window[fn];
+    if (typeof orig !== 'function' || orig.__fd7) return;
+    var wrapped = function(){ var r = orig.apply(this, arguments); schedule(); return r; };
+    wrapped.__fd7 = true; window[fn] = wrapped;
+  });
+
+  function hookOpen(){
+    var open = window.fd2OpenSettings;
+    if (typeof open !== 'function' || open.__fd7) return;
+    var w = function(){ var r = open.apply(this, arguments); setTimeout(build, 60); return r; };
+    w.__fd7 = true; window.fd2OpenSettings = w;
+    var gear = document.getElementById('fd2GearBtn');
+    if (gear) gear.onclick = function(){ window.fd2OpenSettings(); };
+  }
+
+  function boot(){ build(); hookOpen(); }
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(boot, 1200); });
+  else setTimeout(boot, 1200);
+  setTimeout(boot, 2600);
+  setInterval(function(){
+    if (document.getElementById('fd7Warn') && !document.getElementById('fd7ResetAllBtn')) build();
+  }, 4000);
 })();
 </script>
 
