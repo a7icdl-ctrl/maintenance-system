@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -21397,6 +21398,11 @@ html[data-theme="dark"] #fd8Modal .fd8-win{ background:#111827; }
 
   /* ---------- الأوامر العامة ---------- */
   window.fd8Open = function(){
+    if (!isSysAdmin()){
+      if (window.showToast) showToast('error','غير مصرح','خاصية تخصيص شاشة الدخول متاحة لمدير النظام فقط');
+      removeButton();
+      return;
+    }
     snapshot(); buildStatic();
     scope = curUser() || GLOBAL;
     P = Object.assign({}, DEF, read(scope) || read(GLOBAL) || {});
@@ -21462,23 +21468,67 @@ html[data-theme="dark"] #fd8Modal .fd8-win{ background:#111827; }
     var m = q('fd8Modal'); if (m) m.classList.add('open');
   };
 
-  /* ---------- زر داخل درج الإعدادات السريعة ---------- */
+  /* ---------- زر داخل تبويب إدارة النظام ---------- */
+  function isSysAdmin(){
+    try{
+      var u = window.currentUser;
+      if (!u){ var raw = localStorage.getItem('currentUser'); if (raw) u = JSON.parse(raw); }
+      return !!(u && u.role === 'admin' && !u.isReadOnly && !u.read_only && !u.readOnly);
+    }catch(e){ return false; }
+  }
+  window.fd8IsAdmin = isSysAdmin;
+
+  function removeButton(){
+    var tb = q('admTabLoginSkin'); if (tb && tb.parentNode) tb.parentNode.removeChild(tb);
+    var pane = q('admtab-loginskin');
+    if (pane){
+      var wasActive = pane.classList.contains('active');
+      pane.parentNode.removeChild(pane);
+      if (wasActive){
+        var first = document.querySelector('#page-admin .sys-tabs button');
+        if (first) first.click();
+      }
+    }
+    var m = q('fd8Modal'); if (m) m.classList.remove('open');
+  }
+
   function injectButton(){
-    var body = document.querySelector('#fd2Drawer .fd2-dbody');
-    if (!body || q('fd8OpenBtn')) return;
-    var g = document.createElement('div');
-    g.className = 'fd2-group';
-    g.innerHTML = '<label>شاشة تسجيل الدخول</label>';
-    var b = document.createElement('button');
-    b.id = 'fd8OpenBtn';
-    b.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> تخصيص شاشة الدخول';
-    b.onclick = function(){ window.fd8Open(); };
-    g.appendChild(b);
-    var who = document.createElement('div');
-    who.id = 'fd8Who';
-    g.appendChild(who);
-    var actions = body.querySelector('.fd2-actions');
-    if (actions && actions.parentNode) actions.parentNode.insertBefore(g, actions); else body.appendChild(g);
+    var tabs = document.querySelector('#page-admin .sys-tabs');
+    var wrap = document.querySelector('#page-admin .sysw');
+    if (!tabs || !wrap) return;
+    if (!isSysAdmin()){ removeButton(); return; }
+
+    if (!q('admTabLoginSkin')){
+      var tb = document.createElement('button');
+      tb.id = 'admTabLoginSkin';
+      tb.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> شاشة تسجيل الدخول';
+      tb.onclick = function(){ showAdminTab('loginskin', this); };
+      tabs.appendChild(tb);
+    }
+
+    if (!q('admtab-loginskin')){
+      var pane = document.createElement('div');
+      pane.className = 'sys-pane';
+      pane.id = 'admtab-loginskin';
+      pane.innerHTML =
+        '<div class="sys-grid"><div class="sys-card">' +
+          '<h4><i class="fas fa-wand-magic-sparkles"></i> تخصيص شاشة تسجيل الدخول</h4>' +
+          '<p class="hint">تحكّم بألوان وشكل شاشة الدخول، مع معاينة مباشرة قبل الحفظ.</p>' +
+          '<div class="sys-actions"><button id="fd8OpenBtn" class="btn btn-primary">' +
+            '<i class="fas fa-wand-magic-sparkles"></i> تخصيص شاشة الدخول</button></div>' +
+          '<div id="fd8Who" class="hint" style="margin-top:12px;"></div>' +
+        '</div></div>';
+      wrap.appendChild(pane);
+      var ob = pane.querySelector('#fd8OpenBtn');
+      if (ob) ob.onclick = function(){ window.fd8Open(); };
+    }
+
+    /* إزالة الزر القديم من الإعدادات السريعة إن وجد */
+    var old = document.querySelector('#fd2Drawer #fd8OpenBtn');
+    if (old){
+      var grp = old.closest('.fd2-group');
+      if (grp && grp.parentNode) grp.parentNode.removeChild(grp);
+    }
     updateWho();
   }
   function updateWho(){
@@ -21525,5 +21575,241 @@ html[data-theme="dark"] #fd8Modal .fd8-win{ background:#111827; }
   });
 })();
 </script>
+
+<!-- ===== FD9: مؤشر صحة النظام التفاعلي (لوحة الأداء التنفيذية) ===== -->
+<style id="fd9-style">
+@property --fd9p { syntax:'<number>'; inherits:true; initial-value:0; }
+
+#page-dashboard .dsh-ring{ position:relative; }
+#page-dashboard #healthRing{
+  position:relative; overflow:visible; isolation:isolate;
+  transition:transform .35s cubic-bezier(.22,.9,.3,1), filter .35s ease;
+  --fd9c1:#22c55e; --fd9c2:#a7f3d0;
+}
+/* هالة متوهجة تتبع لون الحالة */
+#page-dashboard #healthRing::before{
+  content:''; position:absolute; inset:-14px; border-radius:50%; z-index:-2;
+  background:radial-gradient(circle, color-mix(in oklab, var(--fd9c1) 55%, transparent) 0%, transparent 68%);
+  opacity:.35; filter:blur(10px);
+  animation:fd9Breathe 4.2s ease-in-out infinite;
+}
+@keyframes fd9Breathe{ 0%,100%{ transform:scale(.94); opacity:.28 } 50%{ transform:scale(1.06); opacity:.5 } }
+
+/* حلقة التقدّم المتدرّجة (تتحرك بسلاسة) */
+#page-dashboard #healthRing.fd9-on{
+  background:
+    conic-gradient(from -90deg,
+      var(--fd9c1) 0deg,
+      var(--fd9c2) calc(var(--fd9p) * 3.6deg * .65),
+      var(--fd9c1) calc(var(--fd9p) * 3.6deg),
+      rgba(255,255,255,.14) calc(var(--fd9p) * 3.6deg)
+    ) !important;
+  transition:--fd9p 1.1s cubic-bezier(.22,.9,.3,1), transform .35s cubic-bezier(.22,.9,.3,1), filter .35s ease;
+}
+/* لمعة دوّارة */
+#page-dashboard #healthRing::after{
+  content:''; position:absolute; inset:0; border-radius:50%; pointer-events:none; z-index:0;
+  background:conic-gradient(from 0deg, transparent 0 78%, rgba(255,255,255,.55) 88%, transparent 100%);
+  -webkit-mask:radial-gradient(circle, transparent 62%, #000 63%);
+  mask:radial-gradient(circle, transparent 62%, #000 63%);
+  opacity:.0; animation:fd9Spin 6s linear infinite;
+}
+#page-dashboard #healthRing:hover::after{ opacity:.85; }
+@keyframes fd9Spin{ to{ transform:rotate(360deg) } }
+
+#page-dashboard #healthRing:hover{ transform:scale(1.06) translateY(-2px); filter:brightness(1.06) saturate(1.1); }
+#page-dashboard #healthRing:active{ transform:scale(1.01); }
+#page-dashboard #healthRing .ring-inner{
+  position:relative; z-index:1;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14), 0 10px 26px rgba(2,6,23,.35);
+  transition:background .3s ease;
+}
+#page-dashboard #healthRing.fd9-critical::before{ animation-duration:1.6s; }
+
+/* شارة الاتجاه */
+.fd9-trend{
+  position:absolute; top:-6px; inset-inline-start:-6px; z-index:3;
+  display:inline-flex; align-items:center; gap:4px;
+  background:rgba(15,23,42,.72); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.2); color:#fff;
+  font-size:10.5px; font-weight:800; padding:3px 8px; border-radius:999px;
+  opacity:0; transform:translateY(-4px); transition:.3s ease;
+}
+#page-dashboard #healthRing.fd9-ready .fd9-trend{ opacity:1; transform:none; }
+.fd9-trend.up{ color:#6ee7b7 } .fd9-trend.down{ color:#fca5a5 }
+
+/* بطاقة التفاصيل عند المرور */
+.fd9-pop{
+  position:fixed; z-index:9500; top:0; inset-inline-start:0; width:270px;
+  background:rgba(15,23,42,.92); backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.16); border-radius:16px; padding:14px;
+  box-shadow:0 22px 55px rgba(2,6,23,.5); color:#fff;
+  opacity:0; visibility:hidden; transform:translateY(-8px) scale(.97);
+  transition:opacity .25s ease, transform .3s cubic-bezier(.22,.9,.3,1), visibility .25s;
+  pointer-events:none;
+}
+.fd9-pop.show{ opacity:1; visibility:visible; transform:none; }
+.fd9-pop h6{ font-size:12.5px; font-weight:900; margin:0 0 10px; display:flex; align-items:center; gap:6px; }
+.fd9-bar{ margin-bottom:10px; }
+.fd9-bar .fd9-l{ display:flex; justify-content:space-between; font-size:11px; opacity:.85; margin-bottom:4px; }
+.fd9-bar .fd9-t{ height:7px; border-radius:99px; background:rgba(255,255,255,.14); overflow:hidden; }
+.fd9-bar .fd9-f{ height:100%; width:0; border-radius:99px; transition:width .9s cubic-bezier(.22,.9,.3,1); }
+.fd9-pop .fd9-note{ font-size:10.5px; opacity:.7; margin-top:6px; display:flex; align-items:center; gap:5px; }
+@media (max-width:700px){ .fd9-pop{ width:min(280px, 86vw) } }
+@media print{ .fd9-pop, .fd9-trend{ display:none !important } }
+@media (prefers-reduced-motion:reduce){
+  #page-dashboard #healthRing::before, #page-dashboard #healthRing::after{ animation:none !important }
+}
+</style>
+<script>
+(function(){
+  var LASTK = 'fd9_last_health';
+  function q(id){ return document.getElementById(id); }
+  function tone(v){
+    if (v >= 80) return ['#22c55e','#a7f3d0'];
+    if (v >= 60) return ['#0ea5e9','#a5f3fc'];
+    if (v >= 40) return ['#f59e0b','#fde68a'];
+    return ['#ef4444','#fecaca'];
+  }
+  function nums(){
+    var r = {}, out = { rate:0, backlog:0, stock:0 };
+    try{
+      var reqs = window.requests || [], inv = window.inventory || [];
+      var done = reqs.filter(function(x){ return x.status==='completed'; }).length;
+      var open = reqs.filter(function(x){ return ['completed','cancelled','duplicate'].indexOf(x.status)===-1; }).length;
+      var crit = reqs.filter(function(x){ return x.priority==='urgent' || x.priority==='critical'; }).length;
+      out.rate = reqs.length ? Math.round(done/reqs.length*100) : 0;
+      out.backlog = Math.round(Math.max(0, 1 - (crit/Math.max(1, open||1)))*100);
+      var zero = inv.filter(function(i){ return (i.qty||0)===0; }).length;
+      out.stock = inv.length ? Math.round((1 - zero/inv.length)*100) : 100;
+    }catch(e){}
+    if (!(window.requests && window.requests.length)){
+      var el = q('kpiCompletionRate');
+      out.rate = el ? (parseInt(el.textContent,10)||0) : 0;
+      var co = parseInt((q('chipOpen')||{}).textContent,10)||0;
+      var cc = parseInt((q('chipCritical')||{}).textContent,10)||0;
+      out.backlog = Math.round(Math.max(0, 1 - (cc/Math.max(1, co)))*100);
+    }
+    return out;
+  }
+
+  var built = false, popEl, trendEl, animRaf, shown = 0;
+  function build(){
+    var ring = q('healthRing'); if (!ring || built) return;
+    var host = ring.closest('.dsh-ring') || ring.parentNode;
+    host.style.position = 'relative';
+    ring.classList.add('fd9-on');
+    ring.setAttribute('role','button');
+    ring.setAttribute('tabindex','0');
+    ring.setAttribute('aria-label','مؤشر صحة النظام — اضغط لعرض التفاصيل');
+    ring.title = 'اضغط لعرض تقرير صحة النظام';
+
+    trendEl = document.createElement('span');
+    trendEl.className = 'fd9-trend';
+    ring.appendChild(trendEl);
+
+    popEl = document.createElement('div');
+    popEl.className = 'fd9-pop';
+    popEl.innerHTML =
+      '<h6><i class="fas fa-heart-pulse"></i> تفاصيل مؤشر الصحة</h6>' +
+      bar('rate','نسبة الإنجاز','#22c55e') +
+      bar('backlog','انسيابية الطلبات','#0ea5e9') +
+      bar('stock','توفّر قطع الغيار','#a855f7') +
+      '<div class="fd9-note"><i class="fas fa-arrow-pointer"></i> اضغط على المؤشر لعرض التقرير الكامل</div>';
+    document.body.appendChild(popEl);
+
+    function place(){
+      var r = ring.getBoundingClientRect();
+      var w = 270, top = r.bottom + 12;
+      var left = Math.min(Math.max(8, r.left + r.width/2 - w/2), window.innerWidth - w - 8);
+      if (top + 200 > window.innerHeight) top = Math.max(8, r.top - 210);
+      popEl.style.top = top + 'px';
+      popEl.style.left = left + 'px';
+      popEl.style.insetInlineStart = 'auto';
+      popEl.style.right = 'auto';
+    }
+    function open(){ update(); place(); popEl.classList.add('show'); }
+    function close(){ popEl.classList.remove('show'); }
+    ring.addEventListener('mouseenter', open);
+    ring.addEventListener('mouseleave', close);
+    ring.addEventListener('focus', open);
+    ring.addEventListener('blur', close);
+    ring.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); ring.click(); }
+    });
+    if (!ring.onclick && typeof window.openHealthDetails === 'function'){
+      ring.addEventListener('click', function(){ window.openHealthDetails(); });
+    }
+    built = true;
+  }
+  function bar(k,label,color){
+    return '<div class="fd9-bar" data-k="'+k+'"><div class="fd9-l"><span>'+label+'</span><b class="fd9-v">0%</b></div>' +
+      '<div class="fd9-t"><div class="fd9-f" style="background:linear-gradient(90deg,'+color+',color-mix(in oklab,'+color+' 45%, #fff))"></div></div></div>';
+  }
+
+  function countTo(el, to){
+    if (!el) return;
+    var from = shown;
+    if (from === to){ el.textContent = to + '%'; return; }
+    var t0 = performance.now(), dur = 950;
+    cancelAnimationFrame(animRaf);
+    (function step(t){
+      var p = Math.min(1, (t - t0)/dur);
+      var e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(from + (to - from)*e) + '%';
+      if (p < 1) animRaf = requestAnimationFrame(step);
+      else shown = to;
+    })(t0);
+  }
+
+  function update(){
+    var ring = q('healthRing'); if (!ring) return;
+    var v = parseInt(ring.style.getPropertyValue('--p'),10);
+    if (isNaN(v)) v = parseInt((q('healthScore')||{}).textContent,10) || 0;
+    var c = tone(v);
+    ring.style.setProperty('--fd9c1', c[0]);
+    ring.style.setProperty('--fd9c2', c[1]);
+    ring.style.setProperty('--fd9p', v);
+    ring.classList.toggle('fd9-critical', v < 40);
+    ring.classList.add('fd9-ready');
+
+    if (v !== shown) countTo(q('healthScore'), v);
+
+    var prev = parseInt(localStorage.getItem(LASTK),10);
+    if (!isNaN(prev) && trendEl){
+      var d = v - prev;
+      trendEl.className = 'fd9-trend ' + (d > 0 ? 'up' : d < 0 ? 'down' : '');
+      trendEl.innerHTML = d === 0
+        ? '<i class="fas fa-minus"></i> مستقر'
+        : '<i class="fas fa-arrow-' + (d>0?'up':'down') + '"></i> ' + Math.abs(d) + '%';
+    } else if (trendEl){ trendEl.className = 'fd9-trend'; trendEl.innerHTML = '<i class="fas fa-clock-rotate-left"></i> جديد'; }
+    try{ localStorage.setItem(LASTK, v); }catch(e){}
+
+    if (popEl){
+      var n = nums();
+      ['rate','backlog','stock'].forEach(function(k){
+        var row = popEl.querySelector('[data-k="'+k+'"]'); if (!row) return;
+        row.querySelector('.fd9-v').textContent = n[k] + '%';
+        row.querySelector('.fd9-f').style.width = Math.max(2, Math.min(100, n[k])) + '%';
+      });
+    }
+  }
+
+  function boot(){
+    build();
+    update();
+    var ring = q('healthRing');
+    if (ring && window.MutationObserver){
+      new MutationObserver(function(){ update(); })
+        .observe(ring, { attributes:true, attributeFilter:['style'] });
+    }
+    setInterval(function(){ build(); update(); }, 5000);
+  }
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(boot, 900); });
+  else setTimeout(boot, 900);
+})();
+</script>
+
 </body>
 </html>
