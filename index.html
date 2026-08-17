@@ -1,18 +1,4 @@
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -20051,7 +20037,7 @@ html[data-theme="dark"] #page-dashboard .fd3-hello.fd4-aurora{ background:
         <button class="fd2-btn g" id="fd4ResetBtn" type="button">استعادة الافتراضي</button>
       </div>`;
     const actions = body.querySelector('.fd2-actions');
-    if (actions) body.insertBefore(g, actions); else body.appendChild(g);
+    if (actions && actions.parentNode) actions.parentNode.insertBefore(g, actions); else body.appendChild(g);
 
     const skins = g.querySelector('#fd4Skins');
     skins.innerHTML = SKINS.map(s => `<div class="fd4-skin" data-v="${s.id}" role="button" tabindex="0" aria-label="نمط ${s.t}" style="background:${s.css}"><span>${s.t}</span></div>`).join('');
@@ -20795,5 +20781,749 @@ html.fd7-unify #fd3BellWrap [class*="badge"]{
 })();
 </script>
 
+<!-- ===== FD8: تخصيص شاشة تسجيل الدخول من الإعدادات السريعة (حفظ لكل مستخدم) ===== -->
+<style id="fd8-style">
+/* ---------- متغيرات التخصيص ---------- */
+html{
+  --fd8-c1:#4f46e5; --fd8-c2:#06b6d4; --fd8-c3:#ec4899;
+  --fd8-radius:30px; --fd8-brand-w:1.05fr; --fd8-panel-w:.95fr;
+}
+
+/* ---------- خلفية لوحة العلامة ---------- */
+html.fd8 .auth-brand{
+  background:linear-gradient(150deg,
+      color-mix(in oklab, var(--fd8-c1) 78%, #050915) 0%,
+      color-mix(in oklab, var(--fd8-c1) 55%, #0b1030) 45%,
+      color-mix(in oklab, var(--fd8-c2) 55%, #041a26) 100%) !important;
+}
+html.fd8 .auth-brand::before{
+  background:
+    radial-gradient(closest-side, color-mix(in oklab, var(--fd8-c1) 70%, transparent), transparent 70%) 18% 22%/58% 58% no-repeat,
+    radial-gradient(closest-side, color-mix(in oklab, var(--fd8-c2) 62%, transparent), transparent 70%) 82% 70%/62% 62% no-repeat,
+    radial-gradient(closest-side, color-mix(in oklab, var(--fd8-c3) 45%, transparent), transparent 70%) 55% 95%/52% 52% no-repeat !important;
+}
+html.fd8 .brand-ring::before{ background:conic-gradient(from 0deg, var(--fd8-c1), var(--fd8-c2), var(--fd8-c3), var(--fd8-c1)) !important; }
+html.fd8 .brand-mark h1{ background-image:linear-gradient(90deg,#fff, color-mix(in oklab, var(--fd8-c1) 40%, #fff) 55%, color-mix(in oklab, var(--fd8-c2) 55%, #fff)) !important;
+  background-color:transparent !important; -webkit-background-clip:text !important; background-clip:text !important; color:transparent !important; }
+html.fd8 .brand-tag span{ color:color-mix(in oklab, var(--fd8-c2) 65%, #fff) !important; }
+html.fd8 .brand-feat i{ background:linear-gradient(140deg, color-mix(in oklab, var(--fd8-c1) 88%, transparent), color-mix(in oklab, var(--fd8-c2) 75%, transparent)) !important;
+  box-shadow:0 8px 20px color-mix(in oklab, var(--fd8-c2) 35%, transparent) !important; }
+html.fd8 .auth-card::before{ background:linear-gradient(90deg, var(--fd8-c1), var(--fd8-c2), var(--fd8-c3), var(--fd8-c1)) !important; background-size:300% 100% !important; }
+html.fd8 .auth-card{ border-radius:var(--fd8-radius) !important; }
+html.fd8 .auth-welcome{ color:var(--fd8-c1) !important; }
+html.fd8 .auth-form .btn-primary{
+  background:linear-gradient(120deg, var(--fd8-c1), var(--fd8-c2)) !important;
+  box-shadow:0 16px 34px color-mix(in oklab, var(--fd8-c1) 38%, transparent) !important;
+}
+html.fd8 .auth-form .form-control:focus{ border-color:color-mix(in oklab, var(--fd8-c1) 60%, transparent) !important;
+  box-shadow:0 0 0 4px color-mix(in oklab, var(--fd8-c1) 16%, transparent) !important; }
+html.fd8 .auth-link, html.fd8 .auth-credit .ac-phone{ color:var(--fd8-c1) !important; }
+html.fd8 .auth-credit .ac-phone{ border-color:color-mix(in oklab, var(--fd8-c1) 40%, transparent) !important; }
+html.fd8 .auth-credit .ac-phone:hover{ background:var(--fd8-c1) !important; color:#fff !important; }
+html.fd8 .auth-credit .ac-head i{ color:var(--fd8-c1) !important; }
+
+/* ---------- أنماط الخلفية ---------- */
+html.fd8-bg-mesh .auth-brand::after{
+  background-image:radial-gradient(color-mix(in oklab, #fff 22%, transparent) 1px, transparent 1px) !important;
+  background-size:24px 24px !important; opacity:.35 !important;
+}
+html.fd8-bg-waves .auth-brand::after{
+  background-image:repeating-linear-gradient(115deg, color-mix(in oklab,#fff 9%,transparent) 0 2px, transparent 2px 22px) !important;
+  background-size:auto !important; opacity:.5 !important;
+}
+html.fd8-bg-plain .auth-brand::after{ display:none !important; }
+html.fd8-bg-plain .auth-brand::before{ filter:blur(60px) !important; opacity:.55 !important; animation:none !important; }
+
+/* ---------- التخطيطات ---------- */
+html.fd8-lay-center .auth-stage{ grid-template-columns:1fr !important; }
+html.fd8-lay-center .auth-brand{ display:none !important; }
+html.fd8-lay-center .auth-panel{
+  background:linear-gradient(150deg,
+      color-mix(in oklab, var(--fd8-c1) 20%, var(--card-bg,#fff)),
+      color-mix(in oklab, var(--fd8-c2) 18%, var(--card-bg,#fff))) !important;
+}
+html.fd8-lay-center .auth-card{ max-width:460px !important; box-shadow:0 40px 90px rgba(15,23,42,.22) !important; }
+html.fd8-lay-flip .auth-stage{ direction:ltr; }
+html.fd8-lay-flip .auth-stage > *{ direction:rtl; }
+html.fd8-lay-wide .auth-stage{ grid-template-columns:1.45fr .85fr !important; }
+
+/* ---------- إظهار/إخفاء ---------- */
+html.fd8-noorbs .auth-orb{ display:none !important; }
+html.fd8-nofeats .brand-feats{ display:none !important; }
+html.fd8-nobar .auth-card::before{ animation:none !important; }
+html.fd8-noglass .auth-card{ backdrop-filter:none !important; }
+html.fd8-nocredit .auth-credit{ display:none !important; }
+html.fd8-nostatus .auth-status-row{ display:none !important; }
+
+/* ---------- لمسات إضافية للأناقة ---------- */
+html.fd8 .auth-card{ box-shadow:0 34px 80px color-mix(in oklab, var(--fd8-c1) 18%, rgba(15,23,42,.18)) !important; }
+html.fd8 .auth-form .form-control{ border-radius:15px !important; }
+html.fd8 .fd8-badge{
+  display:inline-flex; align-items:center; gap:7px; margin-bottom:14px; padding:6px 13px; border-radius:99px;
+  font-size:11px; font-weight:900; letter-spacing:.5px;
+  color:var(--fd8-c1); background:color-mix(in oklab, var(--fd8-c1) 12%, transparent);
+  border:1px solid color-mix(in oklab, var(--fd8-c1) 28%, transparent);
+}
+html.fd8-nobadge .fd8-badge{ display:none !important; }
+
+/* ---------- زر داخل درج الإعدادات ---------- */
+#fd8OpenBtn{ width:100%; margin-top:4px; display:flex; align-items:center; justify-content:center; gap:8px;
+  font:inherit; font-size:12.5px; font-weight:800; cursor:pointer; border-radius:12px; padding:11px 14px; color:#fff; border:none;
+  background:linear-gradient(135deg, var(--fd8-c1), var(--fd8-c2)); box-shadow:0 10px 22px -12px var(--fd8-c1); transition:.2s; }
+#fd8OpenBtn:hover{ transform:translateY(-2px); filter:brightness(1.06); }
+#fd8Who{ margin-top:8px; font-size:11px; font-weight:700; text-align:center; color:var(--text-light,#94a3b8); }
+
+/* ---------- نافذة التخصيص ---------- */
+#fd8Modal{ position:fixed; inset:0; z-index:100000; display:none; }
+#fd8Modal.open{ display:block; }
+#fd8Modal .fd8-back{ position:absolute; inset:0; background:rgba(6,10,25,.55); backdrop-filter:blur(4px); }
+#fd8Modal .fd8-win{
+  position:absolute; inset:auto; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:min(940px, 94vw); max-height:90vh; display:flex; flex-direction:column; overflow:hidden;
+  border-radius:22px; background:var(--card-bg,#fff); color:var(--text-dark,#0f172a);
+  border:1px solid var(--border-color,#e2e8f0); box-shadow:0 40px 110px rgba(2,6,23,.45);
+  animation:fd8In .3s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes fd8In{ from{ opacity:0; transform:translate(-50%,-46%) scale(.97) } to{ opacity:1; transform:translate(-50%,-50%) scale(1) } }
+#fd8Modal .fd8-h{ display:flex; align-items:center; gap:10px; padding:15px 18px; color:#fff;
+  background:linear-gradient(120deg, var(--fd8-c1), var(--fd8-c2)); }
+#fd8Modal .fd8-h h3{ margin:0; font-size:15.5px; font-weight:900; }
+#fd8Modal .fd8-h .fd8-x{ margin-inline-start:auto; background:rgba(255,255,255,.18); border:none; color:#fff; cursor:pointer;
+  width:32px; height:32px; border-radius:10px; font-size:14px; }
+#fd8Modal .fd8-tabs{ display:flex; gap:6px; padding:10px 14px 0; border-bottom:1px solid var(--border-color,#e2e8f0); flex-wrap:wrap; }
+#fd8Modal .fd8-tab{ border:none; background:transparent; cursor:pointer; font:inherit; font-size:12.5px; font-weight:800;
+  padding:9px 14px; border-radius:11px 11px 0 0; color:var(--text-medium,#475569); }
+#fd8Modal .fd8-tab.on{ background:color-mix(in oklab, var(--fd8-c1) 12%, transparent); color:var(--fd8-c1);
+  box-shadow:inset 0 -2px 0 var(--fd8-c1); }
+#fd8Modal .fd8-body{ padding:16px 18px; overflow:auto; }
+#fd8Modal .fd8-pane{ display:none; }
+#fd8Modal .fd8-pane.on{ display:block; animation:fd8Fade .25s ease; }
+@keyframes fd8Fade{ from{ opacity:0; transform:translateY(6px) } to{ opacity:1; transform:none } }
+#fd8Modal .fd8-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+#fd8Modal .fd8-f{ display:flex; flex-direction:column; gap:6px; }
+#fd8Modal .fd8-f > label{ font-size:11.5px; font-weight:800; color:var(--text-light,#94a3b8); }
+#fd8Modal input[type="text"], #fd8Modal textarea, #fd8Modal select{
+  width:100%; font:inherit; font-size:13px; font-weight:700; padding:9px 11px; border-radius:11px;
+  background:color-mix(in oklab, var(--border-color,#e2e8f0) 18%, transparent);
+  border:1px solid var(--border-color,#e2e8f0); color:var(--text-dark,#0f172a); }
+#fd8Modal textarea{ min-height:70px; resize:vertical; line-height:1.8; }
+#fd8Modal input[type="color"]{ width:100%; height:38px; padding:2px; border-radius:11px; cursor:pointer;
+  border:1px solid var(--border-color,#e2e8f0); background:transparent; }
+#fd8Modal input[type="range"]{ width:100%; accent-color:var(--fd8-c1); }
+#fd8Modal .fd8-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 0;
+  font-size:12.5px; font-weight:800; border-bottom:1px dashed color-mix(in oklab, var(--border-color,#e2e8f0) 70%, transparent); }
+#fd8Modal .fd8-sw{ position:relative; width:44px; height:25px; border-radius:99px; flex:none; cursor:pointer;
+  background:color-mix(in oklab, var(--border-color,#e2e8f0) 70%, transparent); transition:background .25s; }
+#fd8Modal .fd8-sw::after{ content:""; position:absolute; top:3px; right:3px; width:19px; height:19px; border-radius:50%;
+  background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.2); transition:transform .25s cubic-bezier(.22,.9,.3,1); }
+#fd8Modal .fd8-sw.on{ background:var(--fd8-c1); }
+#fd8Modal .fd8-sw.on::after{ transform:translateX(-19px); }
+#fd8Modal .fd8-presets{ display:flex; flex-wrap:wrap; gap:9px; }
+#fd8Modal .fd8-pre{ cursor:pointer; border-radius:13px; padding:8px 10px; min-width:104px; text-align:center;
+  font-size:11.5px; font-weight:800; color:#fff; border:2px solid transparent; transition:.2s; }
+#fd8Modal .fd8-pre:hover{ transform:translateY(-2px); }
+#fd8Modal .fd8-pre.sel{ border-color:var(--text-dark,#0f172a); box-shadow:0 0 0 3px color-mix(in oklab, var(--fd8-c1) 22%, transparent); }
+#fd8Modal .fd8-chips{ display:flex; gap:8px; flex-wrap:wrap; }
+#fd8Modal .fd8-chip{ cursor:pointer; font:inherit; font-size:12px; font-weight:800; padding:8px 13px; border-radius:11px;
+  border:1px solid var(--border-color,#e2e8f0); background:transparent; color:var(--text-medium,#475569); transition:.2s; }
+#fd8Modal .fd8-chip.on{ background:var(--fd8-c1); border-color:transparent; color:#fff; }
+#fd8Modal .fd8-note{ font-size:11.5px; font-weight:700; line-height:1.9; color:var(--text-light,#94a3b8); margin-top:10px; }
+#fd8Modal .fd8-foot{ display:flex; gap:9px; padding:13px 18px; border-top:1px solid var(--border-color,#e2e8f0); flex-wrap:wrap; }
+#fd8Modal .fd8-b{ flex:1; min-width:130px; height:40px; border-radius:12px; border:none; cursor:pointer;
+  font:inherit; font-size:12.5px; font-weight:900; transition:.2s; display:flex; align-items:center; justify-content:center; gap:7px; }
+#fd8Modal .fd8-b:hover{ transform:translateY(-2px); filter:brightness(1.05); }
+#fd8Modal .fd8-b.p{ background:linear-gradient(120deg, var(--fd8-c1), var(--fd8-c2)); color:#fff; }
+#fd8Modal .fd8-b.g{ background:color-mix(in oklab, var(--border-color,#e2e8f0) 45%, transparent); color:var(--text-dark,#0f172a); }
+#fd8Modal .fd8-b.d{ background:transparent; color:#ef4444; border:1px dashed color-mix(in oklab,#ef4444 45%, transparent); }
+html[data-theme="dark"] #fd8Modal .fd8-win{ background:#111827; }
+
+/* معاينة حية */
+#fd8PreviewBar{ position:fixed; z-index:100001; top:16px; left:50%; transform:translateX(-50%); display:none;
+  align-items:center; gap:10px; padding:9px 14px; border-radius:99px; font-size:12.5px; font-weight:800; color:#fff;
+  background:rgba(15,23,42,.92); box-shadow:0 16px 40px rgba(2,6,23,.5); }
+#fd8PreviewBar.on{ display:flex; }
+#fd8PreviewBar button{ background:linear-gradient(120deg, var(--fd8-c1), var(--fd8-c2)); border:none; color:#fff;
+  cursor:pointer; font:inherit; font-size:12px; font-weight:900; padding:6px 13px; border-radius:99px; }
+@media (max-width: 900px){ #fd8Modal .fd8-win{ width:96vw } }
+@media print{ #fd8Modal, #fd8PreviewBar, #fd8OpenBtn{ display:none !important } }
+</style>
+
+<div id="fd8Modal" aria-hidden="true">
+  <div class="fd8-back" onclick="fd8Close()"></div>
+  <div class="fd8-win" role="dialog" aria-modal="true">
+    <div class="fd8-h">
+      <i class="fas fa-wand-magic-sparkles"></i>
+      <h3>تخصيص شاشة تسجيل الدخول</h3>
+      <button class="fd8-x" onclick="fd8Close()"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="fd8-tabs">
+      <button class="fd8-tab on" data-p="look"><i class="fas fa-palette"></i> المظهر</button>
+      <button class="fd8-tab" data-p="text"><i class="fas fa-font"></i> النصوص</button>
+      <button class="fd8-tab" data-p="dev"><i class="fas fa-user-astronaut"></i> معلومات المطوّر</button>
+      <button class="fd8-tab" data-p="save"><i class="fas fa-floppy-disk"></i> الحفظ والمستخدمون</button>
+    </div>
+    <div class="fd8-body">
+
+      <div class="fd8-pane on" data-p="look">
+        <div class="fd8-f" style="margin-bottom:14px">
+          <label>ثيمات جاهزة</label>
+          <div class="fd8-presets" id="fd8Presets"></div>
+        </div>
+        <div class="fd8-grid">
+          <div class="fd8-f"><label>اللون الأساسي</label><input type="color" id="fd8C1"></div>
+          <div class="fd8-f"><label>اللون الثانوي</label><input type="color" id="fd8C2"></div>
+          <div class="fd8-f"><label>لون التمييز</label><input type="color" id="fd8C3"></div>
+        </div>
+        <div class="fd8-f" style="margin-top:14px"><label>التخطيط</label>
+          <div class="fd8-chips" id="fd8Layout"></div>
+        </div>
+        <div class="fd8-f" style="margin-top:14px"><label>نمط الخلفية</label>
+          <div class="fd8-chips" id="fd8Bg"></div>
+        </div>
+        <div class="fd8-f" style="margin-top:14px">
+          <label>استدارة البطاقة — <b id="fd8RadiusVal">30</b>px</label>
+          <input type="range" id="fd8Radius" min="0" max="46" step="2">
+        </div>
+        <div style="margin-top:12px">
+          <div class="fd8-row"><span>كرات الضوء المتحركة</span><div class="fd8-sw" data-k="orbs"></div></div>
+          <div class="fd8-row"><span>قائمة المزايا في اللوحة الجانبية</span><div class="fd8-sw" data-k="feats"></div></div>
+          <div class="fd8-row"><span>شريط الألوان المتحرك أعلى البطاقة</span><div class="fd8-sw" data-k="bar"></div></div>
+          <div class="fd8-row"><span>تأثير الزجاج (Glass)</span><div class="fd8-sw" data-k="glass"></div></div>
+          <div class="fd8-row"><span>شارة صغيرة أعلى البطاقة</span><div class="fd8-sw" data-k="badge"></div></div>
+          <div class="fd8-row"><span>مؤشّر حالة الاتصال</span><div class="fd8-sw" data-k="status"></div></div>
+          <div class="fd8-row" style="border:none"><span>بطاقة معلومات المطوّر</span><div class="fd8-sw" data-k="credit"></div></div>
+        </div>
+      </div>
+
+      <div class="fd8-pane" data-p="text">
+        <div class="fd8-grid">
+          <div class="fd8-f"><label>اسم النظام (عربي)</label><input type="text" id="fd8Title"></div>
+          <div class="fd8-f"><label>الاسم اللاتيني</label><input type="text" id="fd8Sub"></div>
+          <div class="fd8-f"><label>نص الشارة الصغيرة</label><input type="text" id="fd8Badge"></div>
+          <div class="fd8-f"><label>عنوان البطاقة</label><input type="text" id="fd8CardTitle"></div>
+          <div class="fd8-f"><label>سطر الترحيب (أعلى العنوان)</label><input type="text" id="fd8Welcome"></div>
+          <div class="fd8-f"><label>السطر أسفل العنوان</label><input type="text" id="fd8CardSub"></div>
+        </div>
+        <div class="fd8-f" style="margin-top:14px"><label>الوصف التعريفي</label><textarea id="fd8Tag"></textarea></div>
+        <div class="fd8-grid" style="margin-top:14px">
+          <div class="fd8-f"><label>ميزة 1</label><input type="text" id="fd8F1"></div>
+          <div class="fd8-f"><label>ميزة 2</label><input type="text" id="fd8F2"></div>
+          <div class="fd8-f"><label>ميزة 3</label><input type="text" id="fd8F3"></div>
+        </div>
+        <div class="fd8-note"><i class="fas fa-circle-info"></i> اتركه فارغاً لإرجاع النص الأصلي لهذا الحقل.</div>
+      </div>
+
+      <div class="fd8-pane" data-p="dev">
+        <div class="fd8-grid">
+          <div class="fd8-f"><label>اسم المطوّر</label><input type="text" id="fd8DevName"></div>
+          <div class="fd8-f"><label>الدور / الوصف</label><input type="text" id="fd8DevRole"></div>
+          <div class="fd8-f"><label>رقم التواصل</label><input type="text" id="fd8DevPhone"></div>
+          <div class="fd8-f"><label>البريد الإلكتروني (اختياري)</label><input type="text" id="fd8DevMail"></div>
+          <div class="fd8-f"><label>عنوان البطاقة</label><input type="text" id="fd8DevHead"></div>
+          <div class="fd8-f"><label>سطر الحقوق</label><input type="text" id="fd8DevCopy"></div>
+        </div>
+        <div class="fd8-note"><i class="fas fa-shield-halved"></i> تظهر هذه المعلومات أسفل بطاقة تسجيل الدخول، ويمكن إخفاؤها كلياً من تبويب المظهر.</div>
+      </div>
+
+      <div class="fd8-pane" data-p="save">
+        <div class="fd8-f"><label>الملف الحالي</label>
+          <div class="fd8-chips" id="fd8Scope"></div>
+        </div>
+        <div class="fd8-note" id="fd8ScopeNote"></div>
+        <div class="fd8-f" style="margin-top:14px"><label>نسخ الإعدادات إلى مستخدم آخر</label>
+          <select id="fd8CopyTo"></select>
+        </div>
+        <div class="fd8-chips" style="margin-top:10px">
+          <button class="fd8-chip" onclick="fd8CopyToUser()"><i class="fas fa-copy"></i> نسخ الإعدادات الحالية</button>
+          <button class="fd8-chip" onclick="fd8Export()"><i class="fas fa-file-export"></i> تصدير ملف</button>
+          <button class="fd8-chip" onclick="fd8ImportPick()"><i class="fas fa-file-import"></i> استيراد ملف</button>
+        </div>
+        <input type="file" id="fd8File" accept="application/json" style="display:none">
+        <div class="fd8-note"><i class="fas fa-user-lock"></i> يتم حفظ التخصيص لكل مستخدم على حدة، وتُطبَّق إعدادات آخر مستخدم سجّل دخوله عند ظهور شاشة الدخول. «الإعداد العام» يُستخدم لأي مستخدم بلا تخصيص خاص.</div>
+      </div>
+
+    </div>
+    <div class="fd8-foot">
+      <button class="fd8-b g" onclick="fd8Preview()"><i class="fas fa-eye"></i> معاينة الشاشة</button>
+      <button class="fd8-b d" onclick="fd8ResetCurrent()"><i class="fas fa-rotate-left"></i> إعادة التعيين</button>
+      <button class="fd8-b p" onclick="fd8Save()"><i class="fas fa-floppy-disk"></i> حفظ التخصيص</button>
+    </div>
+  </div>
+</div>
+
+<div id="fd8PreviewBar">
+  <i class="fas fa-eye"></i> وضع معاينة شاشة الدخول
+  <button onclick="fd8EndPreview()">إنهاء المعاينة</button>
+</div>
+
+<script id="fd8-script">
+(function(){
+  'use strict';
+
+  var NS = 'fd8_login_v1::';
+  var LAST = 'fd8_last_user';
+  var GLOBAL = '__global__';
+
+  var DEF = {
+    preset:'aurora', c1:'#4f46e5', c2:'#06b6d4', c3:'#ec4899',
+    layout:'split', bg:'aurora', radius:30,
+    orbs:true, feats:true, bar:true, glass:true, badge:false, status:true, credit:true,
+    title:'', sub:'', tag:'', f1:'', f2:'', f3:'',
+    badgeText:'نظام آمن • دخول موحّد', welcome:'', cardTitle:'', cardSub:'',
+    devName:'', devRole:'', devPhone:'', devMail:'', devHead:'', devCopy:''
+  };
+
+  var PRESETS = {
+    aurora:  { n:'Aurora',   c1:'#4f46e5', c2:'#06b6d4', c3:'#ec4899' },
+    midnight:{ n:'Midnight', c1:'#1e3a8a', c2:'#0ea5e9', c3:'#38bdf8' },
+    emerald: { n:'Emerald',  c1:'#047857', c2:'#10b981', c3:'#a3e635' },
+    sunset:  { n:'Sunset',   c1:'#b91c1c', c2:'#f59e0b', c3:'#fb7185' },
+    royal:   { n:'Royal',    c1:'#6d28d9', c2:'#a855f7', c3:'#f472b6' },
+    graphite:{ n:'Graphite', c1:'#334155', c2:'#64748b', c3:'#94a3b8' },
+    ocean:   { n:'Ocean',    c1:'#0e7490', c2:'#22d3ee', c3:'#2dd4bf' },
+    rose:    { n:'Rose',     c1:'#be123c', c2:'#f43f5e', c3:'#fda4af' }
+  };
+  var LAYOUTS = [
+    { k:'split',  t:'مقسوم كلاسيكي' },
+    { k:'wide',   t:'لوحة عريضة' },
+    { k:'flip',   t:'عكس الجهات' },
+    { k:'center', t:'بطاقة في المنتصف' }
+  ];
+  var BGS = [
+    { k:'aurora', t:'شفق متحرك' },
+    { k:'mesh',   t:'نقاط ناعمة' },
+    { k:'waves',  t:'خطوط مائلة' },
+    { k:'plain',  t:'هادئ بلا نقشة' }
+  ];
+
+  var ORIG = null;         // النصوص الأصلية
+  var scope = GLOBAL;      // الملف الجاري تحريره
+  var P = Object.assign({}, DEF);
+  var previewing = false;
+
+  /* ---------- أدوات ---------- */
+  function q(id){ return document.getElementById(id); }
+  function read(key){
+    try { return JSON.parse(localStorage.getItem(NS + key) || 'null'); } catch(e){ return null; }
+  }
+  function write(key, val){
+    try { localStorage.setItem(NS + key, JSON.stringify(val)); } catch(e){}
+  }
+  function curUser(){
+    try {
+      var u = window.currentUser || JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (u) return String(u.username || u.full_name || u.id || '').trim() || null;
+    } catch(e){}
+    return null;
+  }
+  function activeKey(){
+    var u = curUser();
+    if (u) return u;
+    var last = null;
+    try { last = localStorage.getItem(LAST); } catch(e){}
+    return (last && read(last)) ? last : GLOBAL;
+  }
+  function prefsFor(key){
+    return Object.assign({}, DEF, read(key) || read(GLOBAL) || {});
+  }
+  function knownUsers(){
+    var out = [];
+    try {
+      for (var i = 0; i < localStorage.length; i++){
+        var k = localStorage.key(i);
+        if (k && k.indexOf(NS) === 0){
+          var n = k.slice(NS.length);
+          if (n !== GLOBAL) out.push(n);
+        }
+      }
+      var arr = JSON.parse(localStorage.getItem('users') || '[]');
+      if (Array.isArray(arr)) arr.forEach(function(u){
+        var n = String(u.username || '').trim();
+        if (n && out.indexOf(n) < 0) out.push(n);
+      });
+    } catch(e){}
+    var cu = curUser();
+    if (cu && out.indexOf(cu) < 0) out.push(cu);
+    return out;
+  }
+  function toast(t, ttl, msg){
+    if (typeof window.showToast === 'function') { try { window.showToast(t, ttl, msg); return; } catch(e){} }
+    console.log('[fd8]', ttl, msg);
+  }
+
+  /* ---------- النصوص الأصلية ---------- */
+  function snapshot(){
+    if (ORIG) return ORIG;
+    var g = function(sel){ var e = document.querySelector(sel); return e ? e.textContent.trim() : ''; };
+    ORIG = {
+      title:      g('#loginScreen .brand-mark h1'),
+      sub:        g('#loginScreen .brand-mark p'),
+      tag:        (function(){ var e = document.querySelector('#loginScreen .brand-tag'); return e ? e.innerHTML : ''; })(),
+      feats:      Array.prototype.map.call(document.querySelectorAll('#loginScreen .brand-feat'), function(e){
+                    return e.textContent.trim(); }),
+      welcome:    g('#loginScreen .auth-welcome'),
+      cardTitle:  g('#loginScreen .auth-card > h1'),
+      cardSub:    g('#loginScreen .auth-sub'),
+      devHead:    g('#loginScreen .auth-credit .ac-head'),
+      devName:    g('#loginScreen .auth-credit .ac-value'),
+      devRole:    g('#loginScreen .auth-credit .ac-role'),
+      devPhone:   g('#loginScreen .auth-credit .ac-phone'),
+      devCopy:    g('#loginScreen .auth-credit .ac-copy span')
+    };
+    return ORIG;
+  }
+
+  /* ---------- التطبيق ---------- */
+  function setTxt(sel, val, keepIcon){
+    var e = document.querySelector(sel);
+    if (!e || val == null || val === '') return;
+    if (keepIcon){
+      var ic = e.querySelector('i');
+      e.textContent = ' ' + val;
+      if (ic) e.insertBefore(ic, e.firstChild);
+    } else e.textContent = val;
+  }
+
+  function apply(p){
+    var r = document.documentElement;
+    r.classList.add('fd8');
+    r.style.setProperty('--fd8-c1', p.c1);
+    r.style.setProperty('--fd8-c2', p.c2);
+    r.style.setProperty('--fd8-c3', p.c3);
+    r.style.setProperty('--fd8-radius', (p.radius || 30) + 'px');
+
+    LAYOUTS.forEach(function(l){ r.classList.toggle('fd8-lay-' + l.k, p.layout === l.k); });
+    BGS.forEach(function(b){ r.classList.toggle('fd8-bg-' + b.k, p.bg === b.k); });
+    r.classList.toggle('fd8-noorbs',  !p.orbs);
+    r.classList.toggle('fd8-nofeats', !p.feats);
+    r.classList.toggle('fd8-nobar',   !p.bar);
+    r.classList.toggle('fd8-noglass', !p.glass);
+    r.classList.toggle('fd8-nobadge', !p.badge);
+    r.classList.toggle('fd8-nostatus',!p.status);
+    r.classList.toggle('fd8-nocredit',!p.credit);
+
+    var o = snapshot();
+    setTxt('#loginScreen .brand-mark h1', p.title || o.title);
+    setTxt('#loginScreen .brand-mark p',  p.sub   || o.sub);
+    var tagEl = document.querySelector('#loginScreen .brand-tag');
+    if (tagEl) tagEl.innerHTML = p.tag ? String(p.tag).replace(/[<>]/g, '') : o.tag;
+    var feats = document.querySelectorAll('#loginScreen .brand-feat');
+    [p.f1, p.f2, p.f3].forEach(function(v, i){
+      if (!feats[i]) return;
+      var ic = feats[i].querySelector('i');
+      feats[i].textContent = ' ' + (v || (o.feats[i] || ''));
+      if (ic) feats[i].insertBefore(ic, feats[i].firstChild);
+    });
+    setTxt('#loginScreen .auth-welcome', p.welcome   || o.welcome);
+    setTxt('#loginScreen .auth-card > h1', p.cardTitle || o.cardTitle);
+    setTxt('#loginScreen .auth-sub',     p.cardSub   || o.cardSub);
+
+    /* الشارة */
+    var card = document.querySelector('#loginScreen .auth-card');
+    if (card){
+      var b = card.querySelector('.fd8-badge');
+      if (!b){
+        b = document.createElement('div');
+        b.className = 'fd8-badge';
+        b.innerHTML = '<i class="fas fa-shield-halved"></i><span></span>';
+        card.insertBefore(b, card.firstChild);
+      }
+      b.querySelector('span').textContent = p.badgeText || DEF.badgeText;
+    }
+
+    /* المطوّر */
+    setTxt('#loginScreen .auth-credit .ac-head',  p.devHead  || o.devHead, true);
+    setTxt('#loginScreen .auth-credit .ac-value', p.devName  || o.devName);
+    setTxt('#loginScreen .auth-credit .ac-role',  p.devRole  || o.devRole);
+    var ph = document.querySelector('#loginScreen .auth-credit .ac-phone');
+    if (ph){
+      var num = p.devPhone || o.devPhone;
+      var ic2 = ph.querySelector('i');
+      ph.textContent = ' ' + num;
+      if (ic2) ph.insertBefore(ic2, ph.firstChild);
+      ph.setAttribute('href', 'tel:' + String(num).replace(/[^\d+]/g, ''));
+    }
+    var lines = document.querySelector('#loginScreen .auth-credit .ac-lines');
+    if (lines){
+      var mailRow = lines.querySelector('.fd8-mail');
+      if (p.devMail){
+        if (!mailRow){
+          mailRow = document.createElement('div');
+          mailRow.className = 'ac-line fd8-mail';
+          mailRow.innerHTML = '<span class="ac-label">البريد:</span><a class="ac-phone" href="#"></a>';
+          lines.appendChild(mailRow);
+        }
+        var a = mailRow.querySelector('a');
+        a.textContent = p.devMail;
+        a.setAttribute('href', 'mailto:' + p.devMail);
+      } else if (mailRow) mailRow.remove();
+    }
+    setTxt('#loginScreen .auth-credit .ac-copy span', p.devCopy || o.devCopy);
+  }
+
+  function applyActive(){
+    var k = activeKey();
+    apply(prefsFor(k));
+  }
+
+  /* ---------- بناء عناصر النافذة ---------- */
+  function buildStatic(){
+    var ps = q('fd8Presets');
+    if (ps && !ps.children.length){
+      Object.keys(PRESETS).forEach(function(k){
+        var p = PRESETS[k];
+        var d = document.createElement('div');
+        d.className = 'fd8-pre'; d.dataset.k = k; d.textContent = p.n;
+        d.style.background = 'linear-gradient(120deg,' + p.c1 + ',' + p.c2 + ')';
+        d.onclick = function(){
+          P.preset = k; P.c1 = p.c1; P.c2 = p.c2; P.c3 = p.c3;
+          fill(); live();
+        };
+        ps.appendChild(d);
+      });
+    }
+    var ly = q('fd8Layout');
+    if (ly && !ly.children.length) LAYOUTS.forEach(function(l){
+      var b = document.createElement('button');
+      b.className = 'fd8-chip'; b.dataset.k = l.k; b.textContent = l.t;
+      b.onclick = function(){ P.layout = l.k; fill(); live(); };
+      ly.appendChild(b);
+    });
+    var bg = q('fd8Bg');
+    if (bg && !bg.children.length) BGS.forEach(function(g){
+      var b = document.createElement('button');
+      b.className = 'fd8-chip'; b.dataset.k = g.k; b.textContent = g.t;
+      b.onclick = function(){ P.bg = g.k; fill(); live(); };
+      bg.appendChild(b);
+    });
+
+    document.querySelectorAll('#fd8Modal .fd8-tab').forEach(function(t){
+      t.onclick = function(){
+        document.querySelectorAll('#fd8Modal .fd8-tab').forEach(function(x){ x.classList.toggle('on', x === t); });
+        document.querySelectorAll('#fd8Modal .fd8-pane').forEach(function(x){ x.classList.toggle('on', x.dataset.p === t.dataset.p); });
+      };
+    });
+    document.querySelectorAll('#fd8Modal .fd8-sw').forEach(function(s){
+      s.onclick = function(){ P[s.dataset.k] = !P[s.dataset.k]; fill(); live(); };
+    });
+
+    bindColor('fd8C1', 'c1'); bindColor('fd8C2', 'c2'); bindColor('fd8C3', 'c3');
+    var rg = q('fd8Radius');
+    if (rg) rg.oninput = function(){ P.radius = +rg.value; q('fd8RadiusVal').textContent = rg.value; live(); };
+
+    [['fd8Title','title'],['fd8Sub','sub'],['fd8Tag','tag'],['fd8F1','f1'],['fd8F2','f2'],['fd8F3','f3'],
+     ['fd8Badge','badgeText'],['fd8Welcome','welcome'],['fd8CardTitle','cardTitle'],['fd8CardSub','cardSub'],
+     ['fd8DevName','devName'],['fd8DevRole','devRole'],['fd8DevPhone','devPhone'],['fd8DevMail','devMail'],
+     ['fd8DevHead','devHead'],['fd8DevCopy','devCopy']
+    ].forEach(function(pair){
+      var el = q(pair[0]);
+      if (el) el.oninput = function(){ P[pair[1]] = el.value; live(); };
+    });
+
+    var f = q('fd8File');
+    if (f) f.onchange = function(){
+      var file = f.files && f.files[0];
+      if (!file) return;
+      var rd = new FileReader();
+      rd.onload = function(){
+        try {
+          P = Object.assign({}, DEF, JSON.parse(rd.result));
+          fill(); live();
+          toast('success', 'تم', 'تم استيراد الإعدادات — لا تنسَ الحفظ');
+        } catch(e){ toast('error', 'خطأ', 'ملف غير صالح'); }
+      };
+      rd.readAsText(file);
+      f.value = '';
+    };
+  }
+  function bindColor(id, key){
+    var el = q(id);
+    if (el) el.oninput = function(){ P[key] = el.value; P.preset = 'custom'; live(); markPresets(); };
+  }
+  function markPresets(){
+    document.querySelectorAll('#fd8Presets .fd8-pre').forEach(function(d){
+      d.classList.toggle('sel', d.dataset.k === P.preset);
+    });
+  }
+
+  function buildScope(){
+    var sc = q('fd8Scope'); if (!sc) return;
+    sc.innerHTML = '';
+    var list = [{ k:GLOBAL, t:'الإعداد العام (لكل المستخدمين)' }];
+    knownUsers().forEach(function(u){ list.push({ k:u, t:'المستخدم: ' + u }); });
+    list.forEach(function(it){
+      var b = document.createElement('button');
+      b.className = 'fd8-chip' + (it.k === scope ? ' on' : '');
+      b.textContent = it.t + (read(it.k) ? ' ✓' : '');
+      b.onclick = function(){ scope = it.k; P = Object.assign({}, DEF, read(scope) || {}); buildScope(); fill(); live(); };
+      sc.appendChild(b);
+    });
+    var note = q('fd8ScopeNote');
+    if (note) note.innerHTML = '<i class="fas fa-pen"></i> تُحرَّر الآن إعدادات: <b>' +
+      (scope === GLOBAL ? 'الإعداد العام' : scope) + '</b>' + (read(scope) ? ' — يوجد تخصيص محفوظ.' : ' — لا يوجد تخصيص محفوظ بعد.');
+    var sel = q('fd8CopyTo');
+    if (sel){
+      sel.innerHTML = '';
+      list.forEach(function(it){
+        var o = document.createElement('option'); o.value = it.k; o.textContent = it.t; sel.appendChild(o);
+      });
+    }
+  }
+
+  function fill(){
+    if (q('fd8C1')) q('fd8C1').value = P.c1;
+    if (q('fd8C2')) q('fd8C2').value = P.c2;
+    if (q('fd8C3')) q('fd8C3').value = P.c3;
+    if (q('fd8Radius')){ q('fd8Radius').value = P.radius; q('fd8RadiusVal').textContent = P.radius; }
+    markPresets();
+    document.querySelectorAll('#fd8Layout .fd8-chip').forEach(function(b){ b.classList.toggle('on', b.dataset.k === P.layout); });
+    document.querySelectorAll('#fd8Bg .fd8-chip').forEach(function(b){ b.classList.toggle('on', b.dataset.k === P.bg); });
+    document.querySelectorAll('#fd8Modal .fd8-sw').forEach(function(s){ s.classList.toggle('on', !!P[s.dataset.k]); });
+    var o = snapshot();
+    var map = [['fd8Title','title',o.title],['fd8Sub','sub',o.sub],['fd8Tag','tag',(o.tag||'').replace(/<[^>]*>/g,'')],
+      ['fd8F1','f1',o.feats[0]],['fd8F2','f2',o.feats[1]],['fd8F3','f3',o.feats[2]],
+      ['fd8Badge','badgeText',DEF.badgeText],['fd8Welcome','welcome',o.welcome],
+      ['fd8CardTitle','cardTitle',o.cardTitle],['fd8CardSub','cardSub',o.cardSub],
+      ['fd8DevName','devName',o.devName],['fd8DevRole','devRole',o.devRole],['fd8DevPhone','devPhone',o.devPhone],
+      ['fd8DevMail','devMail',''],['fd8DevHead','devHead',o.devHead],['fd8DevCopy','devCopy',o.devCopy]];
+    map.forEach(function(m){
+      var el = q(m[0]); if (!el) return;
+      el.value = P[m[1]] || '';
+      el.placeholder = m[2] || '';
+    });
+  }
+
+  function live(){ apply(P); }
+
+  /* ---------- الأوامر العامة ---------- */
+  window.fd8Open = function(){
+    snapshot(); buildStatic();
+    scope = curUser() || GLOBAL;
+    P = Object.assign({}, DEF, read(scope) || read(GLOBAL) || {});
+    buildScope(); fill(); live();
+    var m = q('fd8Modal'); if (m){ m.classList.add('open'); m.setAttribute('aria-hidden', 'false'); }
+    if (typeof window.fd2CloseSettings === 'function') { try { window.fd2CloseSettings(); } catch(e){} }
+  };
+  window.fd8Close = function(){
+    var m = q('fd8Modal'); if (m){ m.classList.remove('open'); m.setAttribute('aria-hidden', 'true'); }
+    applyActive();
+    if (previewing) fd8EndPreview();
+  };
+  window.fd8Save = function(){
+    write(scope, P);
+    toast('success', 'تم الحفظ', scope === GLOBAL ? 'تم حفظ الإعداد العام لشاشة الدخول' : 'تم حفظ التخصيص للمستخدم: ' + scope);
+    buildScope();
+  };
+  window.fd8ResetCurrent = function(){
+    try { localStorage.removeItem(NS + scope); } catch(e){}
+    P = Object.assign({}, DEF, scope !== GLOBAL ? (read(GLOBAL) || {}) : {});
+    buildScope(); fill(); live();
+    toast('info', 'تمت الإعادة', 'رجعت شاشة الدخول للمظهر الافتراضي');
+  };
+  window.fd8CopyToUser = function(){
+    var sel = q('fd8CopyTo'); if (!sel || !sel.value) return;
+    write(sel.value, P);
+    toast('success', 'تم', 'تم نسخ الإعدادات إلى: ' + (sel.value === GLOBAL ? 'الإعداد العام' : sel.value));
+    buildScope();
+  };
+  window.fd8Export = function(){
+    try {
+      var blob = new Blob([JSON.stringify(P, null, 2)], { type:'application/json' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'login-theme-' + (scope === GLOBAL ? 'global' : scope) + '.json';
+      a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1500);
+    } catch(e){ toast('error', 'خطأ', 'تعذّر التصدير'); }
+  };
+  window.fd8ImportPick = function(){ var f = q('fd8File'); if (f) f.click(); };
+
+  window.fd8Preview = function(){
+    var ls = q('loginScreen'), app = q('appContainer');
+    if (!ls) return;
+    previewing = true;
+    ls.dataset.fd8Prev = app ? (app.style.display || '') : '';
+    ls.style.display = 'flex';
+    ls.style.position = 'fixed';
+    ls.style.inset = '0';
+    ls.style.zIndex = '99990';
+    var m = q('fd8Modal'); if (m) m.classList.remove('open');
+    var bar = q('fd8PreviewBar'); if (bar) bar.classList.add('on');
+    live();
+  };
+  window.fd8EndPreview = function(){
+    var ls = q('loginScreen');
+    previewing = false;
+    if (ls){
+      ls.style.position = ''; ls.style.inset = ''; ls.style.zIndex = '';
+      var logged = !!(window.currentUser || localStorage.getItem('currentUser'));
+      if (logged) ls.style.display = 'none';
+    }
+    var bar = q('fd8PreviewBar'); if (bar) bar.classList.remove('on');
+    var m = q('fd8Modal'); if (m) m.classList.add('open');
+  };
+
+  /* ---------- زر داخل درج الإعدادات السريعة ---------- */
+  function injectButton(){
+    var body = document.querySelector('#fd2Drawer .fd2-dbody');
+    if (!body || q('fd8OpenBtn')) return;
+    var g = document.createElement('div');
+    g.className = 'fd2-group';
+    g.innerHTML = '<label>شاشة تسجيل الدخول</label>';
+    var b = document.createElement('button');
+    b.id = 'fd8OpenBtn';
+    b.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> تخصيص شاشة الدخول';
+    b.onclick = function(){ window.fd8Open(); };
+    g.appendChild(b);
+    var who = document.createElement('div');
+    who.id = 'fd8Who';
+    g.appendChild(who);
+    var actions = body.querySelector('.fd2-actions');
+    if (actions && actions.parentNode) actions.parentNode.insertBefore(g, actions); else body.appendChild(g);
+    updateWho();
+  }
+  function updateWho(){
+    var w = q('fd8Who'); if (!w) return;
+    var u = curUser();
+    w.innerHTML = u
+      ? '<i class="fas fa-user-check"></i> يُحفظ التخصيص للمستخدم: <b>' + u + '</b>'
+      : '<i class="fas fa-globe"></i> سيُحفظ التخصيص كإعداد عام';
+  }
+
+  /* ---------- التتبّع والتشغيل ---------- */
+  function trackUser(){
+    var u = curUser();
+    if (u){
+      try {
+        if (localStorage.getItem(LAST) !== u){
+          localStorage.setItem(LAST, u);
+          applyActive();
+        }
+      } catch(e){}
+    }
+    updateWho();
+  }
+
+  function boot(){
+    snapshot();
+    applyActive();
+    injectButton();
+    trackUser();
+  }
+
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(boot, 800); });
+  else setTimeout(boot, 800);
+  setTimeout(boot, 2000);
+  setInterval(function(){ injectButton(); trackUser(); }, 3000);
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape'){
+      var m = q('fd8Modal');
+      if (m && m.classList.contains('open')) window.fd8Close();
+      else if (previewing) window.fd8EndPreview();
+    }
+  });
+})();
+</script>
 </body>
 </html>
