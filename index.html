@@ -11,6 +11,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -20114,6 +20115,460 @@ html[data-theme="dark"] #page-dashboard .fd3-hello.fd4-aurora{ background:
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(boot, 700));
   else setTimeout(boot, 700);
+})();
+</script>
+
+
+<!-- ===== FD5: دمج شاشة الترحيب مع لوحة الأداء + بطاقات أصغر + تنظيف التنبيهات + ترتيب الإعدادات ===== -->
+<style id="fd5-style">
+/* ---------- 1) دمج شاشة الترحيب داخل لوحة الأداء التنفيذية ---------- */
+#page-dashboard .dsh-hero.fd5-host{ display:block; }
+#page-dashboard .fd3-hello.fd5-in{
+  margin:0 0 16px !important; padding:0 0 15px !important;
+  background:none !important; backdrop-filter:none !important;
+  border:0 !important; border-bottom:1px solid rgba(255,255,255,.16) !important;
+  border-radius:0 !important; box-shadow:none !important;
+  animation:fd5In .55s cubic-bezier(.22,.9,.3,1) both;
+}
+@keyframes fd5In{ from{ opacity:0; transform:translateY(-6px) } to{ opacity:1; transform:none } }
+#page-dashboard .fd3-hello.fd5-in::after,
+#page-dashboard .fd3-hello.fd5-in::before{ display:none !important; content:none !important; }
+#page-dashboard .fd3-hello.fd5-in .fd3-htxt b{ color:#fff !important; font-size:17px; }
+#page-dashboard .fd3-hello.fd5-in .fd3-htxt small,
+#page-dashboard .fd3-hello.fd5-in .fd4-quote{ color:rgba(255,255,255,.72) !important; }
+#page-dashboard .fd3-hello.fd5-in .fd4-quote i{ color:rgba(255,255,255,.85) !important; }
+#page-dashboard .fd3-hello.fd5-in .fd4-extra{ margin-top:2px; }
+#page-dashboard .fd3-hello.fd5-in .fd3-av{
+  background:rgba(255,255,255,.16) !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.35) !important; color:#fff !important;
+}
+#page-dashboard .fd3-hello.fd5-in .fd3-chip{
+  background:rgba(255,255,255,.13) !important; border-color:rgba(255,255,255,.22) !important; color:#fff !important;
+  backdrop-filter:blur(8px);
+}
+#page-dashboard .fd3-hello.fd5-in .fd3-chip i{ color:#fff !important; }
+#page-dashboard .fd3-hello.fd5-in .fd3-chip.live i{ color:#6ee7b7 !important; }
+#page-dashboard .dsh-hero.fd5-host #dashGreeting{ font-size:20px; opacity:.96; }
+#page-dashboard .dsh-hero.fd5-host #dashDateLine{ font-size:12.5px; }
+@media (max-width:700px){
+  #page-dashboard .fd3-hello.fd5-in .fd3-hchips{ margin-inline-start:0; }
+}
+@media print{ #page-dashboard .fd3-hello.fd5-in{ display:none !important } }
+
+/* ---------- 2) بطاقات الوصول السريع أصغر وأنيقة ---------- */
+#page-dashboard .fd2-qa{ grid-template-columns:repeat(auto-fill,minmax(148px,1fr)) !important; gap:10px !important; }
+#page-dashboard .fd2-card{ padding:12px 12px 11px !important; border-radius:14px !important; }
+#page-dashboard .fd2-ico{ width:32px !important; height:32px !important; border-radius:10px !important; font-size:13px !important; }
+#page-dashboard .fd2-t{ margin-top:9px !important; font-size:12.5px !important; }
+#page-dashboard .fd2-d{ margin-top:2px !important; font-size:10.5px !important; line-height:1.5;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+#page-dashboard .fd2-go{ margin-top:7px !important; font-size:10.5px !important; }
+#page-dashboard .fd2-card:hover{ transform:translateY(-4px) scale(1.01) !important; }
+#page-dashboard .fd2-card::after{ width:110px !important; height:110px !important; inset:auto -36px -52px auto !important; }
+#page-dashboard .fd2-badge{ top:10px !important; left:10px !important; font-size:10px !important; }
+
+/* ---------- 3) زر تنظيف الإشعارات ---------- */
+#fd3Panel .fd3-ph{ gap:6px; }
+#fd3Panel .fd3-ph .fd5-clear{
+  margin-inline-start:0 !important; display:inline-flex; align-items:center; gap:5px;
+  height:26px; padding:0 10px; border-radius:999px; cursor:pointer;
+  font-family:inherit; font-size:10.5px; font-weight:800;
+  color:#ef4444; background:color-mix(in oklab, #ef4444 10%, transparent);
+  border:1px solid color-mix(in oklab, #ef4444 28%, transparent) !important;
+  transition:background .18s ease, transform .18s ease;
+}
+#fd3Panel .fd3-ph .fd5-clear:hover{ background:color-mix(in oklab, #ef4444 18%, transparent); transform:translateY(-1px); }
+#fd3Panel .fd3-ph button[onclick]{ margin-inline-start:auto; }
+
+#fd3Panel{ background:var(--card-bg,#fff) !important; }
+#fd3Panel .fd3-ph, #fd3Panel #fd3Tabs, #fd3Panel #fd3List{ background:var(--card-bg,#fff); }
+html[data-theme="dark"] #fd3Panel,
+html[data-theme="dark"] #fd3Panel .fd3-ph,
+html[data-theme="dark"] #fd3Panel #fd3Tabs,
+html[data-theme="dark"] #fd3Panel #fd3List{ background:#111827 !important; }
+
+/* ---------- 4) ترتيب درج الإعدادات السريعة ---------- */
+.fd2-drawer{ width:378px; }
+.fd2-dhead{ position:sticky; top:0; z-index:3; background:var(--card-bg,#fff);
+  box-shadow:0 8px 20px -20px rgba(15,23,42,.7); }
+.fd2-dbody{ padding:14px 16px 18px !important; display:flex; flex-direction:column; gap:12px; }
+.fd2-dbody > .fd2-group{
+  margin:0 !important; padding:13px 14px; border-radius:16px;
+  background:color-mix(in oklab, var(--border-color) 14%, transparent);
+  border:1px solid color-mix(in oklab, var(--border-color) 45%, transparent);
+}
+.fd2-dbody > .fd2-group > label{ margin-bottom:10px !important; font-size:11.5px; letter-spacing:-.1px;
+  display:flex; align-items:center; gap:7px; color:var(--text-medium,#475569); }
+.fd2-dbody > .fd2-group > label::before{
+  content:""; width:3px; height:13px; border-radius:3px; background:var(--fd2-accent,#4f46e5); flex:none;
+}
+.fd2-row{ padding:7px 0 !important; font-size:12px !important; }
+.fd2-row + .fd2-row{ border-top:1px solid color-mix(in oklab, var(--border-color) 35%, transparent); }
+.fd2-sw, .fd2-swatches .fd2-sw{ width:30px; height:30px; border-radius:9px; }
+.fd2-order{ gap:6px !important; }
+.fd2-oitem{ padding:7px 10px !important; font-size:11.5px !important; border-radius:10px !important; }
+.fd2-oitem span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:230px; display:block; }
+.fd2-dbody > .fd2-actions{
+  position:sticky; bottom:-18px; margin:2px 0 0 !important; padding:12px 0 0;
+  background:linear-gradient(180deg, transparent, var(--card-bg,#fff) 45%);
+}
+.fd4-skins{ gap:7px !important; }
+.fd4-skin{ height:46px !important; }
+#fd4Group .fd4-input{ height:34px }
+html[data-theme="dark"] .fd2-dhead{ background:rgba(17,24,39,.98) }
+html[data-theme="dark"] .fd2-dbody > .fd2-group{ background:rgba(255,255,255,.04) }
+html[data-theme="dark"] .fd2-dbody > .fd2-actions{ background:linear-gradient(180deg, transparent, rgba(17,24,39,.98) 45%) }
+</style>
+
+<script id="fd5-script">
+(function(){
+  'use strict';
+  const $  = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+
+  /* ============ 1) دمج شاشة الترحيب مع لوحة الأداء ============ */
+  function mergeHello(){
+    const hello = document.getElementById('fd3Hello');
+    const hero  = $('#page-dashboard .dsh-hero') || $('#page-dashboard .dash-hero');
+    if (!hello || !hero) return;
+    hero.classList.add('fd5-host');
+    hello.classList.add('fd5-in');
+    if (hello.parentElement !== hero || hero.firstElementChild !== hello){
+      hero.insertBefore(hello, hero.firstElementChild);
+    }
+  }
+
+  /* ============ 3) تنظيف الإشعارات ============ */
+  const LS = 'fd5_cleared_notes_v1';
+  let cleared = new Set();
+  try { cleared = new Set(JSON.parse(localStorage.getItem(LS) || '[]')); } catch(e){}
+  const saveCleared = () => { try { localStorage.setItem(LS, JSON.stringify(Array.from(cleared).slice(-400))); } catch(e){} };
+  const keyOf = n => {
+    const b = $('.fd3-nb b', n), s = $('.fd3-nb span', n);
+    return ((b && b.textContent) || '') + '|' + ((s && s.textContent) || '');
+  };
+
+  function emptyState(list){
+    if ($('.fd3-empty', list)) return;
+    list.innerHTML = '<div class="fd3-empty"><i class="fas fa-check-circle" style="font-size:22px;display:block;margin-bottom:8px;color:#10b981"></i>لا توجد تنبيهات — تم تنظيف المركز</div>';
+  }
+
+  function applyCleared(){
+    const list = document.getElementById('fd3List');
+    if (!list) return;
+    let removed = 0;
+    $$('.fd3-n', list).forEach(n => { if (cleared.has(keyOf(n))) { n.remove(); removed++; } });
+    if (!$('.fd3-n', list)) emptyState(list);
+    updateCount();
+    return removed;
+  }
+
+  function updateCount(){
+    const cnt = document.getElementById('fd3Count');
+    if (!cnt) return;
+    const visible = $$('#fd3List .fd3-n').filter(n => !cleared.has(keyOf(n))).length;
+    const hasHidden = cleared.size > 0;
+    if (!visible && hasHidden){ cnt.style.display = 'none'; cnt.textContent = '0'; }
+  }
+
+  window.fd5ClearNotes = function(){
+    const list = document.getElementById('fd3List');
+    if (!list) return;
+    const items = $$('.fd3-n', list);
+    items.forEach(n => cleared.add(keyOf(n)));
+    saveCleared();
+    items.forEach((n, i) => {
+      n.style.transition = 'opacity .22s ease, transform .22s ease';
+      setTimeout(() => { n.style.opacity = '0'; n.style.transform = 'translateX(-14px)'; }, i * 22);
+    });
+    setTimeout(() => {
+      items.forEach(n => n.remove());
+      emptyState(list);
+      const cnt = document.getElementById('fd3Count');
+      if (cnt){ cnt.textContent = '0'; cnt.style.display = 'none'; }
+      if (typeof showToast === 'function') showToast('success', 'تم التنظيف', 'تم تنظيف كل التنبيهات الحالية');
+    }, items.length * 22 + 240);
+  };
+
+  window.fd5RestoreNotes = function(){
+    cleared = new Set(); saveCleared();
+    if (typeof window.fd3Refresh === 'function') window.fd3Refresh();
+    if (typeof showToast === 'function') showToast('info', 'تمت الاستعادة', 'ستظهر التنبيهات من جديد');
+  };
+
+  function buildClearBtn(){
+    const head = $('#fd3Panel .fd3-ph');
+    if (!head || $('.fd5-clear', head)) return;
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'fd5-clear'; b.title = 'تنظيف كل التنبيهات';
+    b.innerHTML = '<i class="fas fa-broom"></i> تنظيف';
+    b.onclick = e => { e.stopPropagation(); window.fd5ClearNotes(); };
+    const refreshBtn = head.querySelector('button:not(.fd5-clear)');
+    if (refreshBtn) head.insertBefore(b, refreshBtn); else head.appendChild(b);
+  }
+
+  /* ============ 4) تسميات ترتيب الأزرار (بدون سرد التنبيهات) ============ */
+  const LABELS = {
+    themeToggleBtn: 'تبديل الثيم',
+    dashboardSyncStatus: 'حالة الاتصال بالسيرفر',
+    dashSkeletonMsg: 'مؤشر التحميل',
+    fd3BellWrap: 'مركز التنبيهات',
+    fd3PdfBtn: 'ملخص PDF',
+    fd2GearBtn: 'الإعدادات السريعة'
+  };
+  function labelFor(el, key){
+    if (LABELS[key]) return LABELS[key];
+    if (el){
+      if (el.classList && el.classList.contains('fd3-sep')) return 'فاصل';
+      const own = Array.from(el.childNodes)
+        .filter(n => n.nodeType === 3).map(n => n.textContent.trim()).join(' ').trim();
+      const t = own || (el.getAttribute && el.getAttribute('title')) || (el.textContent || '').trim();
+      if (t) return t.length > 34 ? t.slice(0, 34) + '…' : t;
+    }
+    return 'عنصر';
+  }
+  function tidyOrderList(){
+    const tb = $('#page-dashboard .page-actions');
+    const host = document.getElementById('fd2Order');
+    if (!tb || !host) return;
+    $$('.fd2-oitem', host).forEach(row => {
+      const k = row.dataset.k || '';
+      const el = tb.querySelector('[data-fd2k="' + k + '"]') || document.getElementById(k);
+      if (/sep/i.test(k) || (el && el.classList && el.classList.contains('fd3-sep'))){
+        row.style.display = 'none'; return;
+      }
+      const span = row.querySelector('span');
+      if (span) span.textContent = labelFor(el, k);
+      row.title = span ? span.textContent : '';
+    });
+  }
+
+  function wrapSettings(){
+    const open = window.fd2OpenSettings;
+    if (typeof open !== 'function' || open.__fd5) return;
+    const w = function(){
+      const r = open.apply(this, arguments);
+      setTimeout(tidyOrderList, 30);
+      return r;
+    };
+    w.__fd5 = true; window.fd2OpenSettings = w;
+    const gear = document.getElementById('fd2GearBtn');
+    if (gear) gear.onclick = () => window.fd2OpenSettings();
+  }
+
+  /* ============ boot + keep applied ============ */
+  function boot(){
+    mergeHello();
+    buildClearBtn();
+    applyCleared();
+    wrapSettings();
+    tidyOrderList();
+  }
+
+  let t = null;
+  const mo = new MutationObserver(() => { clearTimeout(t); t = setTimeout(boot, 120); });
+
+  function start(){
+    boot();
+    mo.observe(document.body, { childList:true, subtree:true });
+    setInterval(boot, 3000);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(start, 900));
+  else setTimeout(start, 900);
+})();
+</script>
+
+<!-- ===== FD6: تخصيص سريع للثيم (الخلفية + الهايلايت + قاعدة الهيرو) ===== -->
+<style id="fd6-style">
+#fd6Group .fd6-sub{ display:flex; align-items:center; justify-content:space-between; gap:8px;
+  margin:2px 0 8px; font-size:11px; font-weight:800; color:var(--text-light,#94a3b8); }
+#fd6Group .fd6-sub + .fd6-sw-row{ margin-bottom:12px; }
+#fd6Group .fd6-sw-row{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:12px; }
+#fd6Group .fd6-sw{ width:28px; height:28px; border-radius:9px; cursor:pointer; flex:none;
+  border:1px solid color-mix(in oklab, var(--border-color) 80%, transparent);
+  box-shadow:0 4px 10px -6px rgba(15,23,42,.55); transition:transform .16s ease, box-shadow .16s ease; position:relative; }
+#fd6Group .fd6-sw:hover{ transform:translateY(-2px); }
+#fd6Group .fd6-sw.sel{ box-shadow:0 0 0 2px var(--card-bg,#fff), 0 0 0 4px var(--fd6-hl, var(--fd2-accent,#4f46e5)); }
+#fd6Group .fd6-sw.none{ background:
+  linear-gradient(135deg, transparent 46%, color-mix(in oklab, #ef4444 55%, transparent) 46% 54%, transparent 54%),
+  var(--card-bg,#fff); }
+#fd6Group .fd6-pick{ width:34px; height:28px; border:none; background:none; cursor:pointer; padding:0; flex:none; }
+#fd6Group .fd6-range{ -webkit-appearance:none; appearance:none; height:5px; border-radius:999px; flex:1; min-width:110px;
+  background:color-mix(in oklab, var(--fd6-hl, var(--fd2-accent,#4f46e5)) 35%, var(--border-color)); cursor:pointer; }
+#fd6Group .fd6-range::-webkit-slider-thumb{ -webkit-appearance:none; width:15px; height:15px; border-radius:50%;
+  background:var(--fd6-hl, var(--fd2-accent,#4f46e5)); border:2px solid var(--card-bg,#fff); box-shadow:0 2px 6px rgba(15,23,42,.35); }
+#fd6Group .fd6-mini{ font-size:10.5px; font-weight:800; color:var(--text-light,#94a3b8); min-width:34px; text-align:center; }
+#fd6Group .fd6-reset{ font:inherit; font-size:10.5px; font-weight:800; cursor:pointer; border-radius:999px;
+  padding:4px 10px; color:var(--text-medium,#475569); background:transparent;
+  border:1px solid color-mix(in oklab, var(--border-color) 70%, transparent); }
+#fd6Group .fd6-reset:hover{ color:var(--fd6-hl, var(--fd2-accent,#4f46e5)); border-color:color-mix(in oklab, var(--fd6-hl,#4f46e5) 45%, transparent); }
+#fd6Group .fd6-prev{ margin-top:2px; height:44px; border-radius:12px; overflow:hidden; position:relative;
+  border:1px solid color-mix(in oklab, var(--border-color) 60%, transparent);
+  display:flex; align-items:center; gap:8px; padding:0 12px; color:#fff; font-size:11px; font-weight:800;
+  background:
+    radial-gradient(120% 200% at 92% -40%, color-mix(in oklab, var(--fd6-hl,#06b6d4) 55%, transparent), transparent 60%),
+    linear-gradient(135deg, color-mix(in oklab, var(--fd6-hero,#0b1229) 88%, var(--fd6-hl,#4f46e5)), var(--fd6-hero,#0b1229)); }
+#fd6Group .fd6-prev span{ padding:3px 8px; border-radius:999px; font-size:10px;
+  background:color-mix(in oklab, var(--fd6-hl,#4f46e5) 55%, transparent); }
+
+/* ===== تطبيق الخلفية ===== */
+html.fd6-bg-on body{
+  background-image:
+    radial-gradient(1100px 620px at 88% -12%, color-mix(in oklab, var(--fd6-hl,#4f46e5) calc(var(--fd6-int,1) * 9%), transparent), transparent 60%),
+    radial-gradient(900px 520px at -8% 108%, color-mix(in oklab, var(--fd6-hl,#4f46e5) calc(var(--fd6-int,1) * 6%), transparent), transparent 60%) !important;
+  background-color:var(--fd6-bg,#f6f8fc) !important;
+  background-attachment:fixed !important;
+}
+html.fd6-bg-on[data-theme="dark"] body{
+  background-color:color-mix(in oklab, var(--fd6-bg,#0f172a) 16%, #0b1220) !important;
+}
+
+/* ===== الهيرو ===== */
+html.fd6-hero-on #page-dashboard .dsh-hero,
+html.fd6-hero-on #page-dashboard .dash-hero{
+  background:
+    radial-gradient(1000px 320px at 90% -30%, color-mix(in oklab, var(--fd6-hl,#4f46e5) 46%, transparent), transparent 60%),
+    radial-gradient(700px 300px at 5% 130%, color-mix(in oklab, var(--fd6-hl,#4f46e5) 30%, transparent), transparent 60%),
+    linear-gradient(135deg,
+      color-mix(in oklab, var(--fd6-hero,#0b1229) 82%, var(--fd6-hl,#4f46e5)),
+      var(--fd6-hero,#0b1229) 58%,
+      color-mix(in oklab, var(--fd6-hero,#0b1229) 90%, #000)) !important;
+  box-shadow:0 22px 55px -24px color-mix(in oklab, var(--fd6-hero,#0b1229) 70%, transparent) !important;
+}
+html.fd6-hero-on #page-dashboard .fd3-hello.fd5-in .fd3-chip.live i{ color:#a7f3d0 !important; }
+
+/* ===== الهايلايت: التنبيهات وبقية اللوحة ===== */
+html.fd6-hl-on{ --fd2-hl:var(--fd6-hl); }
+html.fd6-hl-on #fd3Tabs .fd3-tab.on{ background:var(--fd6-hl) !important; border-color:transparent !important; color:#fff !important; }
+html.fd6-hl-on #fd3Panel .fd3-ph i{ color:var(--fd6-hl) !important; }
+html.fd6-hl-on #fd3Panel .fd3-ph button:not(.fd5-clear){ color:var(--fd6-hl) !important; }
+html.fd6-hl-on #fd3Panel .fd3-n:hover{ background:color-mix(in oklab, var(--fd6-hl) 9%, transparent) !important; }
+html.fd6-hl-on #fd3Panel{ box-shadow:0 26px 60px -30px color-mix(in oklab, var(--fd6-hl) 60%, transparent), 0 10px 26px -18px rgba(15,23,42,.4) !important; }
+html.fd6-hl-on #page-dashboard .fd3-chip i{ color:var(--fd6-hl) !important; }
+html.fd6-hl-on #page-dashboard .kpi-card:hover{ box-shadow:0 18px 40px -26px color-mix(in oklab, var(--fd6-hl) 70%, transparent) !important; }
+html.fd6-hl-on #page-dashboard .fd2-card:hover{ border-color:color-mix(in oklab, var(--fd6-hl) 45%, transparent) !important; }
+html.fd6-hl-on #page-dashboard .fd2-panel, html.fd6-hl-on #page-dashboard .fd2-sec .fd2-head h3 i{ }
+html.fd6-hl-on #page-dashboard .page-title::before{
+  background:linear-gradient(180deg, var(--fd6-hl), color-mix(in oklab, var(--fd6-hl) 40%, #06b6d4)) !important; }
+html.fd6-hl-on ::selection{ background:color-mix(in oklab, var(--fd6-hl) 30%, transparent); }
+@media print{ #fd6Group{ display:none !important } }
+</style>
+
+<script id="fd6-script">
+(function(){
+  'use strict';
+  var LS = 'fd6_theme_v1';
+  var DEF = { bg:null, hero:null, hl:null, intensity:1 };
+  var P = Object.assign({}, DEF);
+  try { P = Object.assign({}, DEF, JSON.parse(localStorage.getItem(LS) || '{}')); } catch(e){}
+  var save = function(){ try { localStorage.setItem(LS, JSON.stringify(P)); } catch(e){} };
+
+  var BGS = [
+    { c:'#f6f8fc', t:'رمادي هادئ' }, { c:'#f4f7f3', t:'أخضر فاتح' },
+    { c:'#fdf7ef', t:'رملي' },       { c:'#f2f6ff', t:'أزرق فاتح' },
+    { c:'#f8f4fb', t:'بنفسجي فاتح' },{ c:'#eef4f4', t:'فيروزي فاتح' }
+  ];
+  var HEROS = [
+    { c:'#0b1229', t:'ليلي' }, { c:'#1e1b4b', t:'نيلي' }, { c:'#0f172a', t:'فحمي' },
+    { c:'#062a26', t:'زمردي' }, { c:'#3b0f22', t:'نبيتي' }, { c:'#1b2a12', t:'زيتوني' }
+  ];
+  var HLS = ['#4f46e5','#06b6d4','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#0ea5e9'];
+
+  function apply(){
+    var r = document.documentElement;
+    r.classList.toggle('fd6-bg-on',   !!P.bg);
+    r.classList.toggle('fd6-hero-on', !!(P.hero || P.hl));
+    r.classList.toggle('fd6-hl-on',   !!P.hl);
+    if (P.bg)   r.style.setProperty('--fd6-bg', P.bg);   else r.style.removeProperty('--fd6-bg');
+    if (P.hero) r.style.setProperty('--fd6-hero', P.hero); else r.style.setProperty('--fd6-hero', '#0b1229');
+    if (P.hl)   r.style.setProperty('--fd6-hl', P.hl);   else r.style.removeProperty('--fd6-hl');
+    r.style.setProperty('--fd6-int', String(P.intensity || 1));
+    syncUI();
+  }
+
+  function syncUI(){
+    var g = document.getElementById('fd6Group'); if (!g) return;
+    g.querySelectorAll('.fd6-sw').forEach(function(s){
+      var k = s.dataset.k, v = s.dataset.c || null;
+      s.classList.toggle('sel', (P[k] || null) === v);
+    });
+    var pb = document.getElementById('fd6PickBg'); if (pb) pb.value = P.bg || '#f6f8fc';
+    var ph = document.getElementById('fd6PickHero'); if (ph) ph.value = P.hero || '#0b1229';
+    var pl = document.getElementById('fd6PickHl'); if (pl) pl.value = P.hl || '#4f46e5';
+    var rg = document.getElementById('fd6Int'); if (rg) rg.value = String(P.intensity || 1);
+    var mn = document.getElementById('fd6IntVal'); if (mn) mn.textContent = Math.round((P.intensity || 1) * 100) + '%';
+  }
+
+  window.fd6Set = function(key, val){
+    P[key] = val || null; save(); apply();
+    if (key === 'hl' && typeof window.fd2Refresh === 'function') { try { window.fd2Refresh(); } catch(e){} }
+  };
+  window.fd6SetInt = function(v){ P.intensity = parseFloat(v) || 1; save(); apply(); };
+  window.fd6ResetTheme = function(){
+    P = Object.assign({}, DEF); save(); apply();
+    if (typeof showToast === 'function') showToast('info', 'إعادة ضبط', 'رجع مظهر اللوحة للوضع الافتراضي');
+  };
+
+  function swatches(key, arr){
+    var none = '<button type="button" class="fd6-sw none" data-k="' + key + '" title="افتراضي" onclick="fd6Set(\'' + key + '\', null)"></button>';
+    return none + arr.map(function(o){
+      var c = o.c || o, t = o.t || o;
+      return '<button type="button" class="fd6-sw" data-k="' + key + '" data-c="' + c + '" title="' + t + '" ' +
+             'style="background:' + c + '" onclick="fd6Set(\'' + key + '\',\'' + c + '\')"></button>';
+    }).join('');
+  }
+
+  function build(){
+    var body = document.querySelector('#fd2Drawer .fd2-dbody');
+    if (!body || document.getElementById('fd6Group')) return;
+    var g = document.createElement('div');
+    g.className = 'fd2-group'; g.id = 'fd6Group';
+    g.innerHTML =
+      '<label>مظهر اللوحة (الخلفية والهايلايت)' +
+        '<button type="button" class="fd6-reset" style="margin-inline-start:auto" onclick="fd6ResetTheme()">افتراضي</button>' +
+      '</label>' +
+      '<div class="fd6-sub">لون خلفية الصفحة</div>' +
+      '<div class="fd6-sw-row">' + swatches('bg', BGS) +
+        '<input type="color" class="fd6-pick" id="fd6PickBg" title="خلفية مخصصة" oninput="fd6Set(\'bg\', this.value)">' +
+      '</div>' +
+      '<div class="fd6-sub">قاعدة لون الهيرو</div>' +
+      '<div class="fd6-sw-row">' + swatches('hero', HEROS) +
+        '<input type="color" class="fd6-pick" id="fd6PickHero" title="قاعدة مخصصة" oninput="fd6Set(\'hero\', this.value)">' +
+      '</div>' +
+      '<div class="fd6-sub">لون الهايلايت (الهيرو + التنبيهات)</div>' +
+      '<div class="fd6-sw-row">' + swatches('hl', HLS) +
+        '<input type="color" class="fd6-pick" id="fd6PickHl" title="هايلايت مخصص" oninput="fd6Set(\'hl\', this.value)">' +
+      '</div>' +
+      '<div class="fd6-sub">شدة التوهج<span class="fd6-mini" id="fd6IntVal">100%</span></div>' +
+      '<div class="fd6-sw-row"><input type="range" class="fd6-range" id="fd6Int" min="0" max="1.6" step="0.1" value="1" oninput="fd6SetInt(this.value)"></div>' +
+      '<div class="fd6-prev">معاينة مباشرة <span>تنبيه</span></div>';
+    var actions = body.querySelector('.fd2-actions');
+    try {
+      if (actions && actions.parentNode) actions.parentNode.insertBefore(g, actions);
+      else body.appendChild(g);
+    } catch(e){ body.appendChild(g); }
+    syncUI();
+  }
+
+  function hookOpen(){
+    var open = window.fd2OpenSettings;
+    if (typeof open !== 'function' || open.__fd6) return;
+    var w = function(){ var r = open.apply(this, arguments); build(); syncUI(); return r; };
+    w.__fd6 = true; window.fd2OpenSettings = w;
+    var gear = document.getElementById('fd2GearBtn');
+    if (gear) gear.onclick = function(){ window.fd2OpenSettings(); };
+  }
+
+  var reset = window.fd2Reset;
+  if (typeof reset === 'function' && !reset.__fd6){
+    var wr = function(){ var r = reset.apply(this, arguments); apply(); return r; };
+    wr.__fd6 = true; window.fd2Reset = wr;
+  }
+
+  function boot(){ apply(); build(); hookOpen(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ apply(); setTimeout(boot, 900); });
+  else { apply(); setTimeout(boot, 900); }
+  setTimeout(boot, 2000);
 })();
 </script>
 
