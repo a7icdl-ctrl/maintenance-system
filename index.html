@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -21808,6 +21809,302 @@ html[data-theme="dark"] #fd8Modal .fd8-win{ background:#111827; }
   if (document.readyState === 'loading')
     document.addEventListener('DOMContentLoaded', function(){ setTimeout(boot, 900); });
   else setTimeout(boot, 900);
+})();
+</script>
+
+<!-- ===== SB1: تخصيص الشريط الجانبي (الألوان + الترتيب + الشكل) من الإعدادات السريعة ===== -->
+<style id="sb1-style">
+html{
+  --sb1-c1:#1e1b4b; --sb1-c2:#312e81; --sb1-c3:#4338ca;
+  --sb1-accent:#f59e0b; --sb1-radius:14px; --sb1-w:255px; --sb1-gap:3px;
+}
+html.sb1 .sidebar{
+  width:var(--sb1-w) !important;
+  background:linear-gradient(165deg, var(--sb1-c1) 0%, var(--sb1-c2) 52%, var(--sb1-c3) 100%) !important;
+  box-shadow:-18px 0 46px -28px rgba(2,6,23,.75) !important;
+  border-left:1px solid rgba(255,255,255,.07);
+  overflow:hidden;
+}
+html.sb1 .sidebar.collapsed{ width:76px !important; }
+html.sb1 .sidebar::before{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:
+    radial-gradient(120% 55% at 100% 0%, color-mix(in oklab, var(--sb1-accent) 26%, transparent) 0%, transparent 62%),
+    radial-gradient(90% 45% at 0% 100%, rgba(255,255,255,.09) 0%, transparent 60%);
+  opacity:.9;
+}
+html.sb1.sb1-glass .sidebar{
+  background:linear-gradient(165deg,
+      color-mix(in oklab, var(--sb1-c1) 82%, transparent) 0%,
+      color-mix(in oklab, var(--sb1-c2) 76%, transparent) 52%,
+      color-mix(in oklab, var(--sb1-c3) 72%, transparent) 100%) !important;
+  backdrop-filter:blur(16px) saturate(140%);
+}
+html.sb1 .sidebar-header, html.sb1 .sidebar-footer, html.sb1 .nav-menu{ position:relative; z-index:1; }
+html.sb1 .sidebar-header{ padding:10px 14px 14px; border-bottom:1px solid rgba(255,255,255,.10); }
+html.sb1 .sidebar-logo{
+  background:linear-gradient(135deg, color-mix(in oklab, var(--sb1-accent) 85%, #fff), color-mix(in oklab, var(--sb1-accent) 45%, #6366f1));
+  box-shadow:0 8px 22px -10px color-mix(in oklab, var(--sb1-accent) 80%, transparent);
+  border-radius:14px;
+}
+html.sb1 .nav-menu{ padding:12px 10px; display:flex; flex-direction:column; gap:var(--sb1-gap); }
+html.sb1 .nav-item{
+  border-radius:var(--sb1-radius); margin-bottom:0; padding:10px 12px;
+  color:rgba(255,255,255,.74); font-weight:600;
+  transition:background .25s ease, color .25s ease, transform .25s cubic-bezier(.22,.9,.3,1), box-shadow .25s ease;
+}
+html.sb1 .nav-item i{
+  border-radius:9px; transition:transform .25s ease, color .2s ease;
+}
+html.sb1 .nav-item:hover{
+  background:rgba(255,255,255,.10); color:#fff; transform:translateX(-4px);
+}
+html.sb1 .nav-item:hover i{ transform:scale(1.12); color:var(--sb1-accent); }
+html.sb1 .nav-item.active{
+  background:linear-gradient(90deg, rgba(255,255,255,.20), rgba(255,255,255,.06));
+  color:#fff; box-shadow:0 10px 24px -16px rgba(0,0,0,.9), inset 0 0 0 1px rgba(255,255,255,.10);
+}
+html.sb1 .nav-item.active i{ color:var(--sb1-accent); }
+html.sb1 .nav-item.active::before{
+  width:4px; height:64%; border-radius:6px;
+  background:linear-gradient(180deg, var(--sb1-accent), color-mix(in oklab, var(--sb1-accent) 40%, #fff));
+  box-shadow:0 0 14px color-mix(in oklab, var(--sb1-accent) 70%, transparent);
+}
+html.sb1.sb1-dividers .nav-item + .nav-item{ border-top:1px solid rgba(255,255,255,.06); border-radius:var(--sb1-radius); }
+html.sb1.sb1-compact .nav-item{ padding:7px 10px; }
+html.sb1.sb1-compact .nav-item span:not(.nav-badge){ font-size:12.5px; }
+html.sb1 .sidebar-footer{ border-top:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.16); }
+html.sb1 .nav-item.sb1-hidden{ display:none !important; }
+html.sb1 .main-content{ margin-right:var(--sb1-w); transition:margin .28s cubic-bezier(.4,0,.2,1); }
+html.sb1 .sidebar.collapsed ~ .main-content{ margin-right:76px; }
+@media (max-width:768px){ html.sb1 .main-content{ margin-right:0 !important; } }
+
+/* ---- عناصر التحكم داخل درج الإعدادات السريعة ---- */
+#sb1Group .sb1-presets{ display:grid; grid-template-columns:repeat(4,1fr); gap:9px; }
+#sb1Group .sb1-p{
+  height:42px; border-radius:12px; cursor:pointer; border:2px solid transparent;
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+#sb1Group .sb1-p:hover{ transform:translateY(-2px) scale(1.04); }
+#sb1Group .sb1-p.sel{ border-color:var(--fd2-accent,#4f46e5); box-shadow:0 0 0 3px color-mix(in oklab, var(--fd2-accent,#4f46e5) 18%, transparent); }
+#sb1Group .sb1-colors{ display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; }
+#sb1Group .sb1-cbox{ display:flex; align-items:center; gap:7px; font-size:11.5px; font-weight:700; color:var(--text-medium,#475569); }
+#sb1Group input[type="color"]{ width:38px; height:32px; border:none; background:none; cursor:pointer; padding:0; }
+#sb1Group .sb1-list{ display:flex; flex-direction:column; gap:7px; }
+#sb1Group .sb1-item{
+  display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:11px; cursor:grab;
+  background:color-mix(in oklab, var(--border-color) 22%, transparent);
+  border:1px dashed transparent; font-size:12.5px; font-weight:700;
+  transition:background .2s ease, transform .2s ease, border-color .2s ease;
+}
+#sb1Group .sb1-item:hover{ transform:translateX(-3px); background:color-mix(in oklab, var(--border-color) 40%, transparent); }
+#sb1Group .sb1-item.drag{ opacity:.5; border-color:var(--fd2-accent,#4f46e5); }
+#sb1Group .sb1-item .sb1-eye{ margin-right:auto; background:none; border:none; cursor:pointer; color:var(--text-light,#94a3b8); font-size:13px; }
+#sb1Group .sb1-item.off{ opacity:.5; }
+#sb1Group .sb1-range{ width:100%; accent-color:var(--fd2-accent,#4f46e5); }
+#sb1Group h4{ margin:0 0 10px; font-size:13px; font-weight:900; display:flex; align-items:center; gap:8px; }
+#sb1Group{ margin-bottom:22px; padding-top:14px; border-top:1px solid var(--border-color); }
+#sb1Group > label{ display:block; font-size:12px; font-weight:800; margin:14px 0 8px; color:var(--text-medium,#475569); }
+@media print{ #sb1Group{ display:none !important; } }
+</style>
+
+<script id="sb1-script">
+(function(){
+  var LS = 'sb1_sidebar_v1';
+  var PRESETS = [
+    { id:'royal',   t:'ملكي',    c1:'#1e1b4b', c2:'#312e81', c3:'#4338ca', a:'#f59e0b' },
+    { id:'midnight',t:'منتصف الليل', c1:'#020617', c2:'#0f172a', c3:'#1e293b', a:'#38bdf8' },
+    { id:'emerald', t:'زمردي',   c1:'#052e2b', c2:'#065f46', c3:'#059669', a:'#fbbf24' },
+    { id:'ocean',   t:'محيطي',   c1:'#082f49', c2:'#0c4a6e', c3:'#0284c7', a:'#22d3ee' },
+    { id:'plum',    t:'برقوقي',  c1:'#2e1065', c2:'#4c1d95', c3:'#7c3aed', a:'#f472b6' },
+    { id:'ember',   t:'جمري',    c1:'#450a0a', c2:'#7f1d1d', c3:'#b91c1c', a:'#fbbf24' },
+    { id:'slate',   t:'رمادي',   c1:'#111827', c2:'#1f2937', c3:'#374151', a:'#a78bfa' },
+    { id:'sand',    t:'رملي',    c1:'#3b2f12', c2:'#78350f', c3:'#b45309', a:'#fde68a' }
+  ];
+  var DEF = { on:true, preset:'royal', c1:'#1e1b4b', c2:'#312e81', c3:'#4338ca', accent:'#f59e0b',
+              radius:14, width:255, gap:3, glass:false, compact:false, dividers:false, order:[], hidden:[] };
+  var P = Object.assign({}, DEF);
+  try { P = Object.assign({}, DEF, JSON.parse(localStorage.getItem(LS) || '{}')); } catch(e){}
+  function save(){ try { localStorage.setItem(LS, JSON.stringify(P)); } catch(e){} }
+
+  function items(){ return Array.prototype.slice.call(document.querySelectorAll('#sidebar .nav-menu .nav-item')); }
+  function keyOf(el){
+    var m = (el.getAttribute('onclick') || '').match(/showPage\('([^']+)'\)/);
+    return m ? m[1] : (el.getAttribute('data-title') || '');
+  }
+  function labelOf(el){ return el.getAttribute('data-title') || keyOf(el); }
+
+  function apply(){
+    var r = document.documentElement;
+    r.classList.toggle('sb1', !!P.on);
+    r.classList.toggle('sb1-glass', !!P.glass);
+    r.classList.toggle('sb1-compact', !!P.compact);
+    r.classList.toggle('sb1-dividers', !!P.dividers);
+    r.style.setProperty('--sb1-c1', P.c1);
+    r.style.setProperty('--sb1-c2', P.c2);
+    r.style.setProperty('--sb1-c3', P.c3);
+    r.style.setProperty('--sb1-accent', P.accent);
+    r.style.setProperty('--sb1-radius', P.radius + 'px');
+    r.style.setProperty('--sb1-w', P.width + 'px');
+    r.style.setProperty('--sb1-gap', P.gap + 'px');
+    applyOrder();
+  }
+
+  function applyOrder(){
+    var nav = document.querySelector('#sidebar .nav-menu'); if (!nav) return;
+    var map = {};
+    items().forEach(function(el){
+      var k = keyOf(el);
+      map[k] = el;
+      el.classList.toggle('sb1-hidden', P.hidden.indexOf(k) > -1);
+    });
+    (P.order || []).forEach(function(k){ if (map[k]) nav.appendChild(map[k]); });
+  }
+
+  /* ---------- بناء واجهة التخصيص داخل الإعدادات السريعة ---------- */
+  function build(){
+    var body = document.querySelector('#fd2Drawer .fd2-dbody');
+    if (!body || document.getElementById('sb1Group')) { renderList(); return; }
+    var g = document.createElement('div');
+    g.id = 'sb1Group';
+    g.innerHTML =
+      '<h4><i class="fas fa-bars-staggered" style="color:var(--fd2-accent,#4f46e5)"></i> تخصيص الشريط الجانبي</h4>' +
+      '<label>سمات جاهزة</label><div class="sb1-presets" id="sb1Presets"></div>' +
+      '<label>ألوان مخصصة</label>' +
+      '<div class="sb1-colors">' +
+        '<span class="sb1-cbox"><input type="color" id="sb1C1"> أعلى</span>' +
+        '<span class="sb1-cbox"><input type="color" id="sb1C2"> وسط</span>' +
+        '<span class="sb1-cbox"><input type="color" id="sb1C3"> أسفل</span>' +
+        '<span class="sb1-cbox"><input type="color" id="sb1CA"> التمييز</span>' +
+      '</div>' +
+      '<label>عرض الشريط <span id="sb1WVal" style="color:var(--fd2-accent,#4f46e5)"></span></label>' +
+      '<input type="range" class="sb1-range" id="sb1W" min="210" max="320" step="5">' +
+      '<label>استدارة العناصر <span id="sb1RVal" style="color:var(--fd2-accent,#4f46e5)"></span></label>' +
+      '<input type="range" class="sb1-range" id="sb1R" min="0" max="22" step="1">' +
+      '<label>المسافة بين العناصر <span id="sb1GVal" style="color:var(--fd2-accent,#4f46e5)"></span></label>' +
+      '<input type="range" class="sb1-range" id="sb1G" min="0" max="12" step="1">' +
+      '<label>خيارات المظهر</label>' +
+      '<div class="fd2-row"><span>تفعيل التصميم المخصص</span><div class="fd2-switch" id="sb1SwOn"></div></div>' +
+      '<div class="fd2-row"><span>تأثير زجاجي</span><div class="fd2-switch" id="sb1SwGlass"></div></div>' +
+      '<div class="fd2-row"><span>وضع مضغوط</span><div class="fd2-switch" id="sb1SwCompact"></div></div>' +
+      '<div class="fd2-row"><span>فواصل بين العناصر</span><div class="fd2-switch" id="sb1SwDiv"></div></div>' +
+      '<label>ترتيب التبويبات (اسحب للترتيب — العين للإخفاء)</label>' +
+      '<div class="sb1-list" id="sb1List"></div>' +
+      '<div class="fd2-actions" style="margin-top:14px"><button class="fd2-btn g" id="sb1Reset">إعادة ضبط الشريط</button></div>';
+    var actions = body.querySelector('.fd2-actions');
+    if (actions && actions.parentNode === body) body.insertBefore(g, actions); else body.appendChild(g);
+
+    var pres = g.querySelector('#sb1Presets');
+    PRESETS.forEach(function(p){
+      var d = document.createElement('div');
+      d.className = 'sb1-p'; d.title = p.t; d.dataset.id = p.id;
+      d.style.background = 'linear-gradient(165deg,' + p.c1 + ',' + p.c2 + ' 55%,' + p.c3 + ')';
+      d.onclick = function(){
+        P.preset = p.id; P.c1 = p.c1; P.c2 = p.c2; P.c3 = p.c3; P.accent = p.a; P.on = true;
+        save(); apply(); sync();
+        if (typeof showToast === 'function') showToast('success','تم التطبيق','سمة الشريط: ' + p.t);
+      };
+      pres.appendChild(d);
+    });
+
+    function bindColor(id, key){
+      var el = g.querySelector(id);
+      el.oninput = function(){ P[key] = el.value; P.preset = 'custom'; P.on = true; save(); apply(); sync(); };
+    }
+    bindColor('#sb1C1','c1'); bindColor('#sb1C2','c2'); bindColor('#sb1C3','c3'); bindColor('#sb1CA','accent');
+
+    function bindRange(id, key, valId, suffix){
+      var el = g.querySelector(id);
+      el.oninput = function(){ P[key] = +el.value; save(); apply();
+        var v = g.querySelector(valId); if (v) v.textContent = el.value + (suffix||''); };
+    }
+    bindRange('#sb1W','width','#sb1WVal','px');
+    bindRange('#sb1R','radius','#sb1RVal','px');
+    bindRange('#sb1G','gap','#sb1GVal','px');
+
+    function bindSw(id, key){
+      var el = g.querySelector(id);
+      el.onclick = function(){ P[key] = !P[key]; save(); apply(); sync(); };
+    }
+    bindSw('#sb1SwOn','on'); bindSw('#sb1SwGlass','glass');
+    bindSw('#sb1SwCompact','compact'); bindSw('#sb1SwDiv','dividers');
+
+    g.querySelector('#sb1Reset').onclick = function(){
+      P = Object.assign({}, DEF); save(); apply(); sync();
+      if (typeof showToast === 'function') showToast('success','إعادة ضبط','رجع الشريط الجانبي للوضع الافتراضي');
+    };
+
+    sync();
+  }
+
+  function sync(){
+    var g = document.getElementById('sb1Group'); if (!g) return;
+    g.querySelector('#sb1C1').value = P.c1; g.querySelector('#sb1C2').value = P.c2;
+    g.querySelector('#sb1C3').value = P.c3; g.querySelector('#sb1CA').value = P.accent;
+    g.querySelector('#sb1W').value = P.width; g.querySelector('#sb1WVal').textContent = P.width + 'px';
+    g.querySelector('#sb1R').value = P.radius; g.querySelector('#sb1RVal').textContent = P.radius + 'px';
+    g.querySelector('#sb1G').value = P.gap; g.querySelector('#sb1GVal').textContent = P.gap + 'px';
+    g.querySelector('#sb1SwOn').classList.toggle('on', !!P.on);
+    g.querySelector('#sb1SwGlass').classList.toggle('on', !!P.glass);
+    g.querySelector('#sb1SwCompact').classList.toggle('on', !!P.compact);
+    g.querySelector('#sb1SwDiv').classList.toggle('on', !!P.dividers);
+    g.querySelectorAll('.sb1-p').forEach(function(d){ d.classList.toggle('sel', d.dataset.id === P.preset); });
+    renderList();
+  }
+
+  function renderList(){
+    var list = document.getElementById('sb1List'); if (!list) return;
+    list.innerHTML = '';
+    items().forEach(function(el){
+      var k = keyOf(el);
+      var row = document.createElement('div');
+      row.className = 'sb1-item' + (P.hidden.indexOf(k) > -1 ? ' off' : '');
+      row.draggable = true; row.dataset.k = k;
+      var ic = el.querySelector('i');
+      row.innerHTML = '<i class="fas fa-grip-vertical"></i><i class="' + (ic ? ic.className : 'fas fa-circle') + '"></i>' +
+                      '<span>' + labelOf(el) + '</span>' +
+                      '<button class="sb1-eye"><i class="fas fa-' + (P.hidden.indexOf(k) > -1 ? 'eye-slash' : 'eye') + '"></i></button>';
+      row.querySelector('.sb1-eye').onclick = function(ev){
+        ev.stopPropagation();
+        var i = P.hidden.indexOf(k);
+        if (i > -1) P.hidden.splice(i,1); else P.hidden.push(k);
+        save(); apply(); renderList();
+      };
+      row.addEventListener('dragstart', function(){ row.classList.add('drag'); list.dataset.drag = k; });
+      row.addEventListener('dragend', function(){ row.classList.remove('drag'); commit(); });
+      row.addEventListener('dragover', function(ev){
+        ev.preventDefault();
+        var dragged = list.querySelector('.sb1-item.drag'); if (!dragged || dragged === row) return;
+        var rect = row.getBoundingClientRect();
+        var after = (ev.clientY - rect.top) > rect.height / 2;
+        list.insertBefore(dragged, after ? row.nextSibling : row);
+      });
+      list.appendChild(row);
+    });
+  }
+
+  function commit(){
+    var list = document.getElementById('sb1List'); if (!list) return;
+    P.order = Array.prototype.map.call(list.children, function(c){ return c.dataset.k; });
+    save(); apply();
+  }
+
+  function hookOpen(){
+    var open = window.fd2OpenSettings;
+    if (typeof open === 'function' && !open.__sb1){
+      var w = function(){ var r = open.apply(this, arguments); setTimeout(build, 60); return r; };
+      w.__sb1 = true; window.fd2OpenSettings = w;
+      var gear = document.getElementById('fd2GearBtn');
+      if (gear) gear.onclick = function(){ window.fd2OpenSettings(); };
+    }
+  }
+
+  function boot(){ apply(); build(); hookOpen(); }
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', function(){ apply(); setTimeout(boot, 1300); });
+  else { apply(); setTimeout(boot, 1300); }
+  setTimeout(boot, 2800);
+  setInterval(function(){ hookOpen(); applyOrder(); }, 5000);
 })();
 </script>
 
