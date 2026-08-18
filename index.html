@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -22112,6 +22113,512 @@ html.sb1 .sidebar.collapsed ~ .main-content{ margin-right:76px; }
   else { apply(); setTimeout(boot, 1300); }
   setTimeout(boot, 2800);
   setInterval(function(){ hookOpen(); applyOrder(); }, 5000);
+})();
+</script>
+
+<!-- ============================================================
+     UNIFIED THEME + ENHANCED WELCOME + SELECTIVE DATA PURGE
+     (index_newVer) — إضافات متوافقة مع هوية الهيدر واللائحة الجانبية
+     ============================================================ -->
+<style id="unifiedBrandTheme">
+:root{
+  --brand-900:#1e1b4b; --brand-800:#272563; --brand-700:#312e81;
+  --brand-600:#3730a3; --brand-500:#4338ca; --brand-400:#4f46e5; --brand-300:#818cf8;
+  --brand-gradient: linear-gradient(180deg,#1e1b4b 0%,#312e81 55%,#4338ca 100%);
+  --brand-gradient-h: linear-gradient(120deg,#1e1b4b 0%,#312e81 42%,#4338ca 78%,#4f46e5 115%);
+  --brand-soft: rgba(67,56,202,.08);
+  --brand-ring: rgba(67,56,202,.22);
+}
+html body{
+  --primary:#4338ca; --primary-light:#818cf8; --primary-dark:#1e1b4b;
+  --secondary:#4f46e5; --info:#4f46e5;
+  --shadow:0 10px 34px rgba(30,27,75,.12); --shadow-hover:0 20px 52px rgba(30,27,75,.20);
+}
+/* ---------- عناصر عامة موحّدة مع اللائحة الجانبية ---------- */
+html body .page-title::after{ background: var(--brand-gradient-h) !important; }
+html body .card-header h3 i,
+html body .sys-card h4 i,
+html body .modal-header h3 i{ color: var(--brand-500) !important; }
+html body .data-table th{
+  background: linear-gradient(135deg, rgba(67,56,202,.10), rgba(49,46,129,.06)) !important;
+  color: var(--brand-900) !important; border-bottom: 2px solid var(--brand-ring) !important;
+}
+html body .data-table tr:hover td{ background: var(--brand-soft) !important; }
+html body .btn-primary{ background: var(--brand-gradient-h) !important; color:#fff !important; border:none !important; }
+html body .btn-primary:hover{ filter: brightness(1.08); }
+html body .stat-card.primary::before,
+html body .stat-card.info::before,
+html body .stat-card.secondary::before{ background: var(--brand-gradient-h) !important; }
+html body .stat-card.primary .stat-icon,
+html body .stat-card.info .stat-icon,
+html body .stat-card.secondary .stat-icon{ background: var(--brand-soft) !important; color: var(--brand-500) !important; }
+html body #page-dashboard .kpi-card[style*="--kc:#4f46e5"]{ --kc:#4338ca; }
+html body #page-dashboard .kpi-card[style*="--kc:#06b6d4"]{ --kc:#4f46e5; }
+html body #page-dashboard .kpi-card[style*="--kc:#3b82f6"]{ --kc:#312e81; }
+html body .card, html body #page-dashboard .dsh-panel, html body #page-dashboard .dsh-more{
+  border:1px solid var(--brand-ring) !important;
+}
+html body .nav-item.active::before{ background: var(--brand-300) !important; }
+
+/* ---------- قسم الترحيب المحسّن ---------- */
+html body #page-dashboard .dsh-hero,
+html body .dash-hero{
+  background: var(--brand-gradient-h) !important;
+  border-radius: 24px !important;
+  padding: 30px 34px !important;
+  margin-bottom: 26px !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  box-shadow: 0 22px 48px rgba(30,27,75,.30) !important;
+}
+html body .dash-hero::after{
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255,255,255,.16), transparent 46%),
+    radial-gradient(circle at 88% 92%, rgba(129,140,248,.35), transparent 52%) !important;
+}
+html body #page-dashboard .dsh-hero-in{ gap: 30px !important; align-items: center; row-gap: 24px; }
+html body #page-dashboard .dsh-hello{ min-width: 260px; }
+html body #page-dashboard .dsh-hello h2{
+  font-size: 32px !important; line-height: 1.35; margin-bottom: 2px;
+  text-shadow: 0 2px 14px rgba(0,0,0,.22);
+}
+html body #page-dashboard .dsh-hello p{
+  font-size: 14.5px !important; opacity:.9 !important; margin-top: 10px !important;
+  padding-top: 12px; border-top: 1px solid rgba(255,255,255,.16); max-width: 520px; line-height: 1.75;
+}
+html body #page-dashboard .dash-chips{ margin-top: 18px !important; gap: 10px !important; }
+html body #page-dashboard .dash-chip{
+  padding: 8px 15px !important; font-size: 12.5px !important;
+  background: rgba(255,255,255,.13) !important; border:1px solid rgba(255,255,255,.24) !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,.12); transition: transform .2s ease, background .2s ease;
+}
+html body #page-dashboard .dash-chip:hover{ transform: translateY(-2px); background: rgba(255,255,255,.22) !important; }
+html body #page-dashboard .dsh-ring{ gap: 20px !important; padding-right: 6px; }
+html body #page-dashboard .dsh-ring-txt{ max-width: 230px !important; }
+html body #page-dashboard .dsh-ring-t{ font-size: 13.5px !important; margin-bottom: 6px !important; }
+html body #page-dashboard .dsh-ring-h{ font-size: 11.5px !important; line-height: 1.8 !important; }
+@media (max-width: 760px){
+  html body #page-dashboard .dsh-hero, html body .dash-hero{ padding: 24px 20px !important; }
+  html body #page-dashboard .dsh-hello h2{ font-size: 25px !important; }
+}
+
+/* ---------- نافذة المسح الانتقائي ---------- */
+.sdp-overlay{ position:fixed; inset:0; background:rgba(15,23,42,.62); backdrop-filter: blur(4px);
+  display:flex; align-items:center; justify-content:center; z-index:4000; padding:18px; }
+.sdp-box{ width:min(680px,100%); max-height:88vh; display:flex; flex-direction:column;
+  background:var(--card-bg,#fff); border-radius:20px; overflow:hidden;
+  box-shadow:0 30px 70px rgba(15,23,42,.35); border:1px solid var(--brand-ring); }
+.sdp-head{ background: var(--brand-gradient-h); color:#fff; padding:18px 22px; }
+.sdp-head h3{ font-size:18px; font-weight:900; display:flex; align-items:center; gap:10px; }
+.sdp-head p{ font-size:12.5px; opacity:.85; margin-top:6px; line-height:1.7; }
+.sdp-body{ padding:18px 22px; overflow:auto; }
+.sdp-tools{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+.sdp-tools button{ border:1px solid var(--brand-ring); background:var(--brand-soft); color:var(--brand-600);
+  font-family:'Tajawal',sans-serif; font-weight:700; font-size:12px; padding:6px 12px; border-radius:999px; cursor:pointer; }
+.sdp-tools button:hover{ background:var(--brand-500); color:#fff; }
+.sdp-list{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:10px; }
+.sdp-item{ display:flex; align-items:center; gap:11px; padding:11px 13px; border-radius:13px;
+  border:1px solid var(--border-color); background:rgba(255,255,255,.55); cursor:pointer; transition:all .2s; }
+.sdp-item:hover{ border-color:var(--brand-500); background:var(--brand-soft); }
+.sdp-item input{ width:17px; height:17px; accent-color:var(--brand-500); cursor:pointer; }
+.sdp-item.on{ border-color:#ef4444; background:rgba(239,68,68,.07); }
+.sdp-ic{ width:34px; height:34px; flex:0 0 34px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+  background:var(--brand-soft); color:var(--brand-500); font-size:14px; }
+.sdp-item.on .sdp-ic{ background:rgba(239,68,68,.12); color:#ef4444; }
+.sdp-txt{ min-width:0; }
+.sdp-txt b{ display:block; font-size:13.5px; color:var(--text-dark); }
+.sdp-txt span{ font-size:11px; color:var(--text-medium); }
+.sdp-cnt{ margin-right:auto; font-size:11.5px; font-weight:800; color:var(--brand-600);
+  background:var(--brand-soft); padding:3px 10px; border-radius:999px; white-space:nowrap; }
+.sdp-warn{ margin-top:16px; border:1px dashed #ef4444; background:rgba(239,68,68,.06);
+  border-radius:13px; padding:13px 14px; font-size:12.5px; color:#b91c1c; line-height:1.8; }
+.sdp-warn input{ width:100%; margin-top:9px; padding:9px 12px; border-radius:10px;
+  border:1px solid rgba(239,68,68,.4); font-family:'Tajawal',sans-serif; font-size:13px; }
+.sdp-foot{ padding:14px 22px; border-top:1px solid var(--border-color); display:flex; gap:10px; }
+.sdp-foot .btn{ flex:1; justify-content:center; }
+.sdp-prog{ font-size:12px; color:var(--text-medium); text-align:center; padding:0 22px 12px; }
+html[data-theme="dark"] .sdp-item{ background:rgba(255,255,255,.04); }
+html[data-theme="dark"] .sdp-txt b{ color:#e2e8f0; }
+</style>
+
+<script id="selectiveDataPurge">
+(function(){
+  "use strict";
+  var SDP_TABLES = [
+    { t:'requests',              n:'طلبات الصيانة',            d:'كل سجلات الطلبات',                 i:'fa-clipboard-list' },
+    { t:'transactions',          n:'حركات قطع الغيار',          d:'صرف/إدخال القطع',                  i:'fa-right-left' },
+    { t:'inventory_history',     n:'سجل حركة المخزون',          d:'أرشيف تغيّر الكميات',              i:'fa-clock-rotate-left' },
+    { t:'inventory',             n:'قطع الغيار (المخزون)',      d:'أصناف المخزون وكمياتها',           i:'fa-boxes-stacked' },
+    { t:'alt_models',            n:'موديلات الأجهزة البديلة',   d:'قائمة الموديلات',                  i:'fa-layer-group' },
+    { t:'alt_devices',           n:'الأجهزة البديلة',           d:'الأجهزة وحالاتها',                 i:'fa-desktop' },
+    { t:'permanent_replacements',n:'الاستبدالات الدائمة',       d:'سجلات الاستبدال الدائم',           i:'fa-repeat' },
+    { t:'assignments',           n:'التسليمات / العُهد',        d:'سجلات تسليم الأجهزة',              i:'fa-handshake' },
+    { t:'computer_items',        n:'أجهزة الحاسوب',             d:'جرد الأجهزة',                      i:'fa-computer' },
+    { t:'documents',             n:'المستندات',                 d:'الملفات المرفقة',                  i:'fa-file-lines' },
+    { t:'tenders',               n:'العطاءات',                  d:'بيانات العطاءات',                  i:'fa-file-signature' },
+    { t:'departments',           n:'الأقسام',                   d:'قائمة الأقسام',                    i:'fa-sitemap' }
+  ];
+
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function toast(t,a,b){ if (typeof showToast==='function') showToast(t,a,b); }
+
+  async function count(table){
+    try{ var r = await SupabaseAPI.request(table,'GET'); return Array.isArray(r)? r.length : 0; }
+    catch(e){ return -1; }
+  }
+
+  window.openSelectivePurge = async function(){
+    if (typeof checkReadOnly==='function' && checkReadOnly()) return;
+    if (typeof SupabaseAPI==='undefined'){ toast('error','خطأ','تعذّر الاتصال بقاعدة البيانات'); return; }
+
+    var ov = document.createElement('div');
+    ov.className = 'sdp-overlay';
+    ov.innerHTML =
+      '<div class="sdp-box">'+
+        '<div class="sdp-head">'+
+          '<h3><i class="fas fa-list-check"></i> مسح بيانات مختارة</h3>'+
+          '<p>اختر أنواع البيانات التي تريد مسحها فقط — كل ما لا تختاره يبقى موجوداً في النظام كما هو.</p>'+
+        '</div>'+
+        '<div class="sdp-body">'+
+          '<div class="sdp-tools">'+
+            '<button type="button" data-a="all"><i class="fas fa-check-double"></i> تحديد الكل</button>'+
+            '<button type="button" data-a="none"><i class="fas fa-xmark"></i> إلغاء التحديد</button>'+
+            '<button type="button" data-a="invert"><i class="fas fa-arrows-rotate"></i> عكس التحديد</button>'+
+          '</div>'+
+          '<div class="sdp-list" id="sdpList"></div>'+
+          '<div class="sdp-warn">'+
+            '<i class="fas fa-triangle-exclamation"></i> هذا الإجراء نهائي ولا يمكن التراجع عنه. للتأكيد اكتب كلمة <b>مسح</b> في الحقل التالي:'+
+            '<input type="text" id="sdpConfirm" placeholder="اكتب: مسح" autocomplete="off">'+
+          '</div>'+
+        '</div>'+
+        '<div class="sdp-prog" id="sdpProg"></div>'+
+        '<div class="sdp-foot">'+
+          '<button class="btn btn-secondary" id="sdpCancel"><i class="fas fa-xmark"></i> إلغاء</button>'+
+          '<button class="btn btn-danger" id="sdpRun"><i class="fas fa-trash-alt"></i> مسح المحدد</button>'+
+        '</div>'+
+      '</div>';
+    document.body.appendChild(ov);
+
+    var list = ov.querySelector('#sdpList');
+    list.innerHTML = SDP_TABLES.map(function(x){
+      return '<label class="sdp-item" data-t="'+x.t+'">'+
+        '<input type="checkbox" value="'+x.t+'">'+
+        '<span class="sdp-ic"><i class="fas '+x.i+'"></i></span>'+
+        '<span class="sdp-txt"><b>'+esc(x.n)+'</b><span>'+esc(x.d)+'</span></span>'+
+        '<span class="sdp-cnt" data-c="'+x.t+'">…</span></label>';
+    }).join('');
+
+    SDP_TABLES.forEach(async function(x){
+      var c = await count(x.t);
+      var el = ov.querySelector('[data-c="'+x.t+'"]');
+      if (!el) return;
+      if (c < 0){ el.textContent = 'غير متاح'; var it = ov.querySelector('.sdp-item[data-t="'+x.t+'"]');
+        if (it){ it.style.opacity='.45'; var cb=it.querySelector('input'); if(cb){cb.disabled=true;} } }
+      else el.textContent = c + ' سجل';
+    });
+
+    list.addEventListener('change', function(e){
+      var it = e.target.closest('.sdp-item'); if (it) it.classList.toggle('on', e.target.checked);
+    });
+    ov.querySelector('.sdp-tools').addEventListener('click', function(e){
+      var b = e.target.closest('button'); if(!b) return;
+      ov.querySelectorAll('.sdp-item input:not(:disabled)').forEach(function(cb){
+        cb.checked = b.dataset.a==='all' ? true : b.dataset.a==='none' ? false : !cb.checked;
+        cb.closest('.sdp-item').classList.toggle('on', cb.checked);
+      });
+    });
+
+    function close(){ ov.remove(); }
+    ov.querySelector('#sdpCancel').onclick = close;
+    ov.addEventListener('mousedown', function(e){ if (e.target===ov) close(); });
+
+    ov.querySelector('#sdpRun').onclick = async function(){
+      var picked = Array.prototype.map.call(ov.querySelectorAll('.sdp-item input:checked'), function(c){ return c.value; });
+      if (!picked.length){ toast('error','تنبيه','لم تختر أي نوع بيانات للمسح'); return; }
+      if ((ov.querySelector('#sdpConfirm').value||'').trim() !== 'مسح'){
+        toast('error','تأكيد مطلوب','اكتب كلمة «مسح» في حقل التأكيد للمتابعة'); return; }
+
+      var names = SDP_TABLES.filter(function(x){ return picked.indexOf(x.t)>-1; }).map(function(x){ return x.n; });
+      if (!confirm('سيتم مسح: \n- ' + names.join('\n- ') + '\n\nهل أنت متأكد؟')) return;
+
+      var run = this, cancel = ov.querySelector('#sdpCancel'), prog = ov.querySelector('#sdpProg');
+      run.disabled = cancel.disabled = true;
+      run.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ المسح...';
+
+      var done = 0, failed = [];
+      for (var i=0;i<picked.length;i++){
+        var tb = picked[i];
+        prog.textContent = 'جارٍ مسح: ' + (names[i]||tb) + ' (' + (i+1) + '/' + picked.length + ')';
+        try{
+          var rows = await SupabaseAPI.request(tb,'GET');
+          for (var j=0;j<rows.length;j++){
+            await SupabaseAPI.request(tb,'DELETE',null,rows[j].id);
+            if (j % 10 === 0) prog.textContent = 'جارٍ مسح: '+(names[i]||tb)+' — '+(j+1)+'/'+rows.length;
+          }
+          done++;
+        }catch(e){ failed.push(names[i]||tb); }
+      }
+
+      prog.textContent = 'جارٍ تحديث الواجهة...';
+      var refresh = ['updateDashboard','loadRequests','loadInventory','loadAlternatives','loadDepartments','loadDocuments'];
+      for (var k=0;k<refresh.length;k++){
+        try{ if (typeof window[refresh[k]]==='function') await window[refresh[k]](); }catch(e){}
+      }
+      close();
+      if (failed.length) toast('error','اكتمل جزئياً','تم مسح '+done+' نوع، وتعذّر: '+failed.join('، '));
+      else toast('success','تم بنجاح','تم مسح '+done+' نوع من البيانات، وبقيت باقي البيانات كما هي');
+    };
+  };
+
+  /* حقن الزر داخل بطاقة منطقة الخطر */
+  function injectBtn(){
+    var card = document.querySelector('#admtab-danger .sys-card.danger .sys-actions');
+    if (!card || card.querySelector('#sdpOpenBtn')) return;
+    var b = document.createElement('button');
+    b.id = 'sdpOpenBtn';
+    b.className = 'btn btn-primary no-readonly';
+    b.innerHTML = '<i class="fas fa-list-check"></i> مسح بيانات مختارة';
+    b.onclick = function(){ if (typeof checkReadOnly==='function' && checkReadOnly()) return; window.openSelectivePurge(); };
+    card.insertBefore(b, card.firstChild);
+    var p = card.parentElement.querySelector('.hint');
+    if (p && !p.dataset.sdp){ p.dataset.sdp='1';
+      p.innerHTML += ' <br><b>جديد:</b> استخدم «مسح بيانات مختارة» لتحديد أنواع البيانات المراد حذفها فقط مع الإبقاء على الباقي.'; }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', injectBtn);
+  else injectBtn();
+  setInterval(injectBtn, 2000);
+})();
+</script>
+
+<!-- ============================================================
+     v3 UPGRADE: VIVID HEADER · ADMIN TABS REDESIGN · RECORD DETAILS
+     ============================================================ -->
+<style id="v3BrandUpgrade">
+:root{
+  /* لوحة زاهية وأنيقة (بنفسجي/نيلي حيوي) */
+  --brand-vivid-1:#312e81;
+  --brand-vivid-2:#4f46e5;
+  --brand-vivid-3:#6d5ef8;
+  --brand-vivid-4:#8b5cf6;
+  --brand-gradient-h: linear-gradient(115deg,#312e81 0%,#4f46e5 38%,#6d5ef8 68%,#8b5cf6 100%);
+  --brand-500:#5b52e8; --brand-600:#4f46e5; --brand-400:#7c6ff9;
+  --brand-soft: rgba(91,82,232,.09);
+  --brand-ring: rgba(91,82,232,.24);
+}
+/* ---------- الهيدر: ألوان زاهية + حجم أصغر قليلاً ---------- */
+html body #page-dashboard .dsh-hero,
+html body .dash-hero{
+  background: var(--brand-gradient-h) !important;
+  padding: 22px 26px !important;
+  border-radius: 20px !important;
+  margin-bottom: 20px !important;
+  box-shadow: 0 16px 38px rgba(79,70,229,.32) !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+}
+html body .dash-hero::after{
+  background:
+    radial-gradient(circle at 12% 12%, rgba(255,255,255,.22), transparent 44%),
+    radial-gradient(circle at 90% 96%, rgba(167,139,250,.45), transparent 50%) !important;
+}
+html body #page-dashboard .dsh-hero-in{ gap: 22px !important; row-gap: 18px !important; }
+html body #page-dashboard .dsh-hello h2{ font-size: 26px !important; text-shadow: 0 2px 12px rgba(49,46,129,.35); }
+html body #page-dashboard .dsh-hello p{
+  font-size: 13.5px !important; margin-top: 8px !important; padding-top: 9px; max-width: 520px;
+}
+html body #page-dashboard .dash-chips{ margin-top: 13px !important; gap: 9px !important; }
+html body #page-dashboard .dash-chip{ padding: 6px 13px !important; font-size: 12px !important; }
+html body #page-dashboard .ring{ width: 96px !important; height: 96px !important; }
+html body #page-dashboard .ring-inner{ width: 76px !important; height: 76px !important; }
+@media (max-width: 760px){
+  html body #page-dashboard .dsh-hero, html body .dash-hero{ padding: 18px 16px !important; }
+  html body #page-dashboard .dsh-hello h2{ font-size: 22px !important; }
+}
+/* ترويسة إدارة النظام بنفس الروح */
+html body #page-admin .sys-hero, html body #page-admin .sh-hero, html body #page-admin .sys-head{
+  background: var(--brand-gradient-h) !important;
+}
+
+/* ---------- تبويبات إدارة النظام ---------- */
+html body #page-admin .sys-tabs{
+  gap:6px !important; padding:7px !important; border-radius:18px !important;
+  background: linear-gradient(135deg, rgba(91,82,232,.10), rgba(139,92,246,.07)) !important;
+  border:1px solid var(--brand-ring) !important;
+  box-shadow: 0 10px 28px -20px rgba(49,46,129,.9) !important;
+  backdrop-filter: blur(8px);
+}
+html body #page-admin .sys-tabs button{
+  position:relative; padding:11px 15px !important; border-radius:13px !important;
+  font-size:12.8px !important; color:var(--text-medium) !important;
+  transition: transform .18s ease, background .18s ease, color .18s ease, box-shadow .18s ease !important;
+}
+html body #page-admin .sys-tabs button i{ font-size:13px; opacity:.9; }
+html body #page-admin .sys-tabs button:hover{
+  background: rgba(255,255,255,.75) !important; color: var(--brand-600) !important; transform: translateY(-1px);
+}
+html body #page-admin .sys-tabs button.active{
+  background: var(--brand-gradient-h) !important; color:#fff !important;
+  box-shadow: 0 12px 24px -12px rgba(79,70,229,.85) !important; transform: translateY(-1px);
+}
+html body #page-admin .sys-tabs button.active::after{
+  content:''; position:absolute; left:14px; right:14px; bottom:5px; height:2px; border-radius:2px;
+  background: rgba(255,255,255,.55);
+}
+html body #page-admin .sys-pane.active{ animation: v3paneIn .28s ease both; }
+@keyframes v3paneIn{ from{ opacity:0; transform: translateY(8px); } to{ opacity:1; transform:none; } }
+html body #page-admin .sys-card{
+  border:1px solid var(--brand-ring) !important; border-radius:18px !important;
+  box-shadow: 0 12px 30px -24px rgba(30,27,75,.9) !important; overflow:hidden; position:relative;
+}
+html body #page-admin .sys-card::before{
+  content:''; position:absolute; inset:0 0 auto 0; height:3px; background: var(--brand-gradient-h);
+}
+html body #page-admin .sys-card.danger::before{ background: linear-gradient(115deg,#dc2626,#f97316); }
+html body #page-admin .sys-card h4{ font-size:14.5px !important; }
+html body #page-admin .sys-card h4 i{ color: var(--brand-500) !important; }
+html body #page-admin .sys-card.danger h4 i{ color:#ef4444 !important; }
+html body #page-admin .sys-stats .sys-stat, html body #page-admin .sys-stats > div{
+  border-radius:16px !important;
+}
+html[data-theme="dark"] #page-admin .sys-tabs{ background: rgba(255,255,255,.05) !important; }
+html[data-theme="dark"] #page-admin .sys-tabs button:hover{ background: rgba(255,255,255,.10) !important; color:#c7d2fe !important; }
+
+/* ---------- زر التفاصيل داخل قائمة المسح ---------- */
+.sdp-item{ position:relative; }
+.sdp-det{
+  border:1px solid var(--brand-ring); background:var(--brand-soft); color:var(--brand-600);
+  font-family:'Tajawal',sans-serif; font-weight:800; font-size:11px; padding:5px 10px;
+  border-radius:999px; cursor:pointer; white-space:nowrap; transition:.18s; display:inline-flex; gap:5px; align-items:center;
+}
+.sdp-det:hover{ background: var(--brand-gradient-h); color:#fff; border-color:transparent; }
+.sdp-cnt{ margin-right:auto !important; }
+.sdp-actions{ display:flex; align-items:center; gap:7px; margin-right:auto; flex:0 0 auto; }
+html body .sdp-list{ grid-template-columns:repeat(auto-fill,minmax(360px,1fr)) !important; }
+html body .sdp-item{ align-items:center; }
+html body .sdp-txt{ flex:1 1 auto; }
+html body .sdp-txt b{ white-space:normal; line-height:1.5; }
+html body .sdp-txt span{ display:block; white-space:normal; line-height:1.5; }
+@media (max-width:520px){ html body .sdp-item{ flex-wrap:wrap; } html body .sdp-actions{ width:100%; margin-right:0; justify-content:flex-end; } }
+</style>
+
+<script id="v3RecordDetails">
+(function(){
+  "use strict";
+  var LABELS = {
+    requests:'طلبات الصيانة', transactions:'حركات قطع الغيار', inventory_history:'سجل حركة المخزون',
+    inventory:'قطع الغيار (المخزون)', alt_models:'موديلات الأجهزة البديلة', alt_devices:'الأجهزة البديلة',
+    permanent_replacements:'الاستبدالات الدائمة', assignments:'التسليمات / العُهد',
+    computer_items:'أجهزة الحاسوب', documents:'المستندات', tenders:'العطاءات', departments:'الأقسام'
+  };
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function cell(v){
+    if (v==null) return '<span class="nul">—</span>';
+    if (typeof v==='object') return '<code>'+esc(JSON.stringify(v)).slice(0,240)+'</code>';
+    var s = String(v);
+    if (/^data:|^https?:\/\//.test(s) && s.length>90) return '<span class="nul">[ملف/رابط]</span>';
+    return esc(s.length>200 ? s.slice(0,200)+'…' : s);
+  }
+
+  window.openTypeDetails = async function(table, title){
+    title = title || LABELS[table] || table;
+    var w = window.open('', 'details_'+table, 'width=1180,height=760,scrollbars=yes,resizable=yes');
+    if (!w){ if(typeof showToast==='function') showToast('error','المتصفح منع النافذة','اسمح بالنوافذ المنبثقة لعرض التفاصيل'); return; }
+    w.document.write('<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8">'+
+      '<title>تفاصيل: '+esc(title)+'</title>'+
+      '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">'+
+      '<style>'+
+      '*{box-sizing:border-box}body{margin:0;font-family:Tajawal,system-ui,sans-serif;background:#f5f6fb;color:#0f172a}'+
+      'header{background:linear-gradient(115deg,#312e81 0%,#4f46e5 38%,#6d5ef8 68%,#8b5cf6 100%);color:#fff;padding:18px 22px;box-shadow:0 10px 30px rgba(79,70,229,.28)}'+
+      'header h1{margin:0;font-size:19px;font-weight:900;display:flex;align-items:center;gap:10px}'+
+      'header p{margin:6px 0 0;font-size:12.5px;opacity:.85}'+
+      '.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:14px 22px}'+
+      '.bar input{flex:1 1 260px;padding:9px 13px;border-radius:11px;border:1px solid #d9dcf0;font-family:inherit;font-size:13px;background:#fff}'+
+      '.bar button{border:1px solid #d9dcf0;background:#fff;color:#4f46e5;font-family:inherit;font-weight:800;font-size:12.5px;padding:9px 14px;border-radius:11px;cursor:pointer}'+
+      '.bar button:hover{background:#4f46e5;color:#fff;border-color:#4f46e5}'+
+      '.wrap{margin:0 22px 22px;background:#fff;border:1px solid #e7e9f7;border-radius:16px;overflow:auto;max-height:calc(100vh - 170px);box-shadow:0 12px 32px -24px rgba(30,27,75,.8)}'+
+      'table{border-collapse:collapse;width:100%;font-size:12.5px;white-space:nowrap}'+
+      'th{position:sticky;top:0;background:linear-gradient(135deg,#eef0ff,#f6f2ff);color:#312e81;font-weight:800;padding:11px 12px;border-bottom:2px solid #dcd9fb;text-align:right}'+
+      'td{padding:9px 12px;border-bottom:1px solid #f0f1fa;max-width:320px;overflow:hidden;text-overflow:ellipsis}'+
+      'tr:nth-child(even) td{background:#fbfbff}tr:hover td{background:#f2f0ff}'+
+      '.nul{color:#94a3b8}code{font-size:11px;color:#4f46e5;direction:ltr;display:inline-block}'+
+      '.empty{padding:50px;text-align:center;color:#94a3b8;font-size:14px}'+
+      '@media print{.bar{display:none}.wrap{max-height:none;border:0}}'+
+      '</style></head><body>'+
+      '<header><h1><i class="fas fa-table-list"></i> تفاصيل سجلات: '+esc(title)+'</h1>'+
+      '<p id="meta">جارٍ تحميل البيانات…</p></header>'+
+      '<div class="bar"><input id="q" placeholder="بحث داخل السجلات..."><button onclick="window.print()">طباعة</button>'+
+      '<button id="csv">تصدير CSV</button><button onclick="window.close()">إغلاق</button></div>'+
+      '<div class="wrap" id="wrap"><div class="empty"><i class="fas fa-spinner fa-spin"></i> جارٍ التحميل…</div></div>'+
+      '</body></html>');
+    w.document.close();
+
+    var rows;
+    try{ rows = await SupabaseAPI.request(table,'GET'); }
+    catch(e){
+      w.document.getElementById('wrap').innerHTML = '<div class="empty">تعذّر جلب البيانات لهذا النوع.</div>';
+      w.document.getElementById('meta').textContent = 'خطأ في الاتصال';
+      return;
+    }
+    rows = Array.isArray(rows) ? rows : [];
+    var doc = w.document;
+    doc.getElementById('meta').textContent = 'عدد السجلات: ' + rows.length + '  ·  الجدول: ' + table;
+    if (!rows.length){ doc.getElementById('wrap').innerHTML = '<div class="empty">لا توجد سجلات في هذا النوع.</div>'; return; }
+
+    var cols = [];
+    rows.slice(0,60).forEach(function(r){ Object.keys(r||{}).forEach(function(k){ if(cols.indexOf(k)<0) cols.push(k); }); });
+    var html = '<table><thead><tr><th>#</th>'+cols.map(function(c){return '<th>'+esc(c)+'</th>';}).join('')+'</tr></thead><tbody>'+
+      rows.map(function(r,i){
+        return '<tr><td>'+(i+1)+'</td>'+cols.map(function(c){ return '<td>'+cell(r[c])+'</td>'; }).join('')+'</tr>';
+      }).join('')+'</tbody></table>';
+    doc.getElementById('wrap').innerHTML = html;
+
+    doc.getElementById('q').addEventListener('input', function(){
+      var v = this.value.trim().toLowerCase();
+      var shown = 0;
+      Array.prototype.forEach.call(doc.querySelectorAll('tbody tr'), function(tr){
+        var ok = !v || tr.textContent.toLowerCase().indexOf(v) > -1;
+        tr.style.display = ok ? '' : 'none'; if (ok) shown++;
+      });
+      doc.getElementById('meta').textContent = 'عدد السجلات: ' + shown + ' / ' + rows.length + '  ·  الجدول: ' + table;
+    });
+    doc.getElementById('csv').addEventListener('click', function(){
+      var lines = [cols.join(',')].concat(rows.map(function(r){
+        return cols.map(function(c){
+          var v = r[c]; if (v==null) v='';
+          if (typeof v==='object') v = JSON.stringify(v);
+          return '"'+String(v).replace(/"/g,'""')+'"';
+        }).join(',');
+      }));
+      var blob = new Blob(['\uFEFF'+lines.join('\n')], {type:'text/csv;charset=utf-8'});
+      var a = doc.createElement('a'); a.href = URL.createObjectURL(blob); a.download = table + '.csv'; a.click();
+    });
+  };
+
+  /* حقن زر «عرض التفاصيل» لكل نوع داخل نافذة المسح الانتقائي */
+  function decorate(root){
+    root.querySelectorAll('.sdp-item').forEach(function(it){
+      if (it.querySelector('.sdp-det')) return;
+      var t = it.dataset.t; if (!t) return;
+      var cnt = it.querySelector('.sdp-cnt');
+      var box = document.createElement('span');
+      box.className = 'sdp-actions';
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'sdp-det';
+      b.innerHTML = '<i class="fas fa-eye"></i> عرض التفاصيل';
+      b.addEventListener('click', function(e){
+        e.preventDefault(); e.stopPropagation();
+        var nm = it.querySelector('.sdp-txt b'); 
+        window.openTypeDetails(t, nm ? nm.textContent : t);
+      });
+      if (cnt && cnt.parentNode === it){ it.insertBefore(box, cnt); box.appendChild(cnt); }
+      else it.appendChild(box);
+      box.appendChild(b);
+    });
+  }
+  var mo = new MutationObserver(function(){
+    var ov = document.querySelector('.sdp-overlay'); if (ov) decorate(ov);
+  });
+  function start(){ mo.observe(document.body, {childList:true, subtree:true});
+    var ov = document.querySelector('.sdp-overlay'); if (ov) decorate(ov); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 </script>
 
