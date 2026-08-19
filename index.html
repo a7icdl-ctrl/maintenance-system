@@ -3,6 +3,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -22621,6 +22622,75 @@ html body .sdp-txt span{ display:block; white-space:normal; line-height:1.5; }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 </script>
+
+<style id="nl-hero-theme">
+/* ===== NEW LOOK: Emerald / Jade + Champagne Gold (hero & welcome) ===== */
+:root{
+  --nl-g1:#04231d; --nl-g2:#0b4f42; --nl-g3:#12796a; --nl-g4:#1fa38b;
+  --nl-gold:#e8c07d; --nl-gold-2:#c99a4e;
+  --nl-hero: linear-gradient(118deg, var(--nl-g1) 0%, var(--nl-g2) 38%, var(--nl-g3) 68%, var(--nl-g4) 100%);
+}
+html body #page-dashboard .dsh-hero,
+html body .dash-hero,
+html body #page-admin .sys-hero,
+html body #page-admin .sh-hero,
+html body #page-admin .sys-head,
+html body .rqm-hero{
+  background: var(--nl-hero) !important;
+  box-shadow: 0 20px 46px -18px rgba(4,35,29,.6) !important;
+  border: 1px solid rgba(232,192,125,.22) !important;
+  color:#fff !important;
+}
+html body .dash-hero::after,
+html body #page-dashboard .dsh-hero::after{
+  background:
+    radial-gradient(circle at 10% 12%, rgba(255,255,255,.16), transparent 46%),
+    radial-gradient(circle at 88% 92%, rgba(232,192,125,.30), transparent 52%),
+    radial-gradient(circle at 60% -10%, rgba(31,163,139,.35), transparent 55%) !important;
+}
+html body #page-dashboard .dsh-hello h2,
+html body .dash-hello h2{
+  color:#fff !important;
+  text-shadow: 0 2px 14px rgba(4,35,29,.45) !important;
+}
+html body #page-dashboard .dsh-hello p,
+html body .dash-hello p{ color: rgba(240,253,248,.82) !important; }
+html body .dash-chip{
+  background: rgba(255,255,255,.10) !important;
+  border:1px solid rgba(232,192,125,.35) !important;
+  color:#f4efe4 !important;
+}
+html body .dash-chip i{ color: var(--nl-gold) !important; }
+html body #page-admin .sys-hero .sh-ic{
+  background: linear-gradient(135deg, var(--nl-gold), var(--nl-gold-2)) !important;
+  border:1px solid rgba(255,255,255,.35) !important; color:#0b3b31 !important;
+}
+/* ring / KPI accents */
+html body #page-dashboard .ring-inner{ background:#06291f !important; color:#fff !important; }
+html body #page-dashboard .ring b, html body .ring-inner b{ color: var(--nl-gold) !important; }
+
+/* ===== Welcome strip (شريط الترحيب) ===== */
+html body #page-dashboard .fd3-hello{
+  background: linear-gradient(115deg,#0b4f42 0%,#12796a 55%,#1fa38b 100%) !important;
+  border:1px solid rgba(232,192,125,.28) !important;
+  box-shadow: 0 14px 34px -18px rgba(4,35,29,.65) !important;
+}
+html body #page-dashboard .fd3-hello .fd3-htxt b,
+html body #page-dashboard .fd3-hello .fd3-htxt small,
+html body #page-dashboard .fd3-hello .fd4-quote{ color:#fff !important; }
+html body #page-dashboard .fd3-hello .fd3-htxt small{ opacity:.9 !important; }
+html body #page-dashboard .fd3-hello .fd4-quote i{ color: var(--nl-gold) !important; }
+html body #page-dashboard .fd3-hello .fd3-av{
+  background: linear-gradient(135deg, var(--nl-gold), var(--nl-gold-2)) !important;
+  color:#06291f !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.35) !important;
+}
+html body #page-dashboard .fd3-hello .fd3-chip{
+  background: rgba(255,255,255,.14) !important;
+  border:1px solid rgba(232,192,125,.32) !important; color:#fff !important;
+}
+html body #page-dashboard .fd3-hello .fd3-chip i{ color:#ffe9bd !important; }
+html body #page-dashboard .fd3-hello .fd3-chip.live i{ color:#7ef0c8 !important; }
+</style>
 
 </body>
 </html>
