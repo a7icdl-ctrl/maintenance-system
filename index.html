@@ -5,6 +5,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -891,6 +892,55 @@ html[data-theme="dark"] .sf-toolbar, html[data-theme="dark"] .sf-hint { backgrou
 .rep-fs-body { position:relative; height:min(66vh,560px); }
 @media (max-width:640px){ .rep-canvas{height:260px;} .rep-grid{grid-template-columns:1fr;} }
 @media print { .rep-filters,.rep-tools,.rep-fs{display:none !important;} .rep-grid{grid-template-columns:1fr 1fr;} }
+
+
+/* ============ REPORTS HUB STYLES ============ */
+.rh-wrap{margin:6px 0 22px}
+.rh-hero{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:18px 20px;border-radius:20px;
+  background:linear-gradient(135deg,#1e1b4b,#4338ca 48%,#0ea5e9);color:#fff;box-shadow:0 18px 40px rgba(49,46,129,.28)}
+.rh-hero-ic{width:54px;height:54px;border-radius:16px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:23px;flex:none}
+.rh-hero-txt h2{margin:0;font-size:20px;font-weight:900;color:#fff;letter-spacing:-.3px}
+.rh-hero-txt p{margin:4px 0 0;font-size:12.5px;opacity:.9;font-weight:600}
+.rh-hero-actions{margin-inline-start:auto;display:flex;gap:9px;flex-wrap:wrap}
+.rh-btn{border:0;border-radius:12px;padding:10px 16px;font-family:Tajawal,sans-serif;font-weight:800;font-size:13px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;transition:.16s}
+.rh-btn:hover{transform:translateY(-2px)}
+.rh-btn-p{background:#fff;color:#3730a3}
+.rh-btn-s{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.35)}
+.rh-tabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0 12px}
+.rh-tab{border:1.5px solid #e2e8f0;background:#fff;color:#475569;border-radius:999px;padding:8px 15px;font-family:Tajawal,sans-serif;
+  font-size:12.5px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.15s}
+.rh-tab:hover{border-color:#a5b4fc;color:#3730a3}
+.rh-tab.active{background:linear-gradient(135deg,#4f46e5,#6366f1);border-color:#4f46e5;color:#fff;box-shadow:0 6px 16px rgba(79,70,229,.25)}
+.rh-tabs-note{flex-basis:100%;font-size:11.5px;color:#94a3b8;font-weight:600;margin:2px 2px 0}
+.rh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:13px}
+.rh-card{position:relative;background:#fff;border:1.5px solid #e8ecf3;border-radius:18px;padding:16px 15px 14px;cursor:pointer;
+  transition:.18s;overflow:hidden}
+.rh-card::before{content:'';position:absolute;inset-inline-start:0;top:0;height:100%;width:5px;background:var(--rh,#4f46e5);opacity:.9}
+.rh-card:hover{transform:translateY(-4px);border-color:var(--rh,#4f46e5);box-shadow:0 16px 34px rgba(15,23,42,.13)}
+.rh-card:active{transform:translateY(-1px) scale(.995)}
+.rh-ic{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:17px;margin-bottom:11px;
+  background:color-mix(in srgb,var(--rh,#4f46e5) 12%,#fff);color:var(--rh,#4f46e5)}
+.rh-card h4{margin:0;font-size:14.5px;font-weight:900;color:#0f172a;letter-spacing:-.2px}
+.rh-card p{margin:5px 0 0;font-size:11.5px;line-height:1.7;color:#64748b;font-weight:600;min-height:34px}
+.rh-go{display:inline-flex;align-items:center;gap:6px;margin-top:11px;font-size:11.5px;font-weight:800;color:var(--rh,#4f46e5)}
+.rh-go i{transition:.18s}
+.rh-card:hover .rh-go i{transform:translateX(-4px)}
+.rh-card.c-indigo{--rh:#4f46e5}.rh-card.c-sky{--rh:#0284c7}.rh-card.c-violet{--rh:#8b5cf6}
+.rh-card.c-green{--rh:#10b981}.rh-card.c-amber{--rh:#f59e0b}.rh-card.c-teal{--rh:#14b8a6}
+.rh-card.c-rose{--rh:#ec4899}.rh-card.c-cyan{--rh:#06b6d4}.rh-card.c-slate{--rh:#64748b}
+.rh-card[hidden]{display:none!important}
+body.dark-mode .rh-card,.dark-mode .rh-card{background:#111827;border-color:#1f2937}
+body.dark-mode .rh-card h4,.dark-mode .rh-card h4{color:#e5e7eb}
+body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f2937;color:#cbd5e1}
+@media (max-width:640px){
+  .rh-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+  .rh-card{padding:13px 12px}
+  .rh-card h4{font-size:13px}.rh-card p{font-size:10.5px;min-height:30px}
+  .rh-hero{padding:15px}.rh-hero-txt h2{font-size:17px}
+  .rh-hero-actions{width:100%}
+  .rh-tabs-note{display:none}
+}
 
 /* ===== Compact KPI cards (reports page only) ===== */
 #page-reports .stats-grid { grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:16px !important; }
@@ -2765,6 +2815,189 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                             <i class="fas fa-file-invoice"></i> مركز التقارير الشامل
                         </button>
                     </div>
+                </div>
+
+
+                <!-- ============ REPORTS HUB (بطاقات التقارير) ============ -->
+                <div class="rh-wrap no-print">
+                  <div class="rh-hero">
+                    <div class="rh-hero-ic"><i class="fas fa-file-invoice"></i></div>
+                    <div class="rh-hero-txt">
+                      <h2>مركز تقارير النظام</h2>
+                      <p>اضغط أي بطاقة للحصول على تقرير أنيق جاهز للطباعة أو التصدير (PDF / Word / Excel).</p>
+                    </div>
+                    <div class="rh-hero-actions">
+                      <button class="rh-btn rh-btn-p" onclick="rhRun(['summary','requests','byDept','byStatus','timeline','inventory','transactions','permanent_replacements'],'التقرير الشامل لنظام إدارة الصيانة')"><i class="fas fa-wand-magic-sparkles"></i> التقرير الشامل</button>
+                      <button class="rh-btn rh-btn-s" onclick="rsOpen()"><i class="fas fa-sliders"></i> تقرير مخصّص</button>
+                    </div>
+                  </div>
+
+                  <div class="rh-tabs">
+                    <button class="rh-tab active" data-rh="all" onclick="rhFilter('all',this)"><i class="fas fa-border-all"></i> الكل</button>
+                    <button class="rh-tab" data-rh="req" onclick="rhFilter('req',this)"><i class="fas fa-screwdriver-wrench"></i> الطلبات</button>
+                    <button class="rh-tab" data-rh="stock" onclick="rhFilter('stock',this)"><i class="fas fa-boxes-stacked"></i> المخزون والأجهزة</button>
+                    <button class="rh-tab" data-rh="admin" onclick="rhFilter('admin',this)"><i class="fas fa-building-columns"></i> إدارية ووثائق</button>
+                    <button class="rh-tab" data-rh="quick" onclick="rhFilter('quick',this)"><i class="fas fa-bolt"></i> تقارير سريعة</button>
+                    <button class="rh-tab" data-rh="chart" onclick="rhFilter('chart',this)"><i class="fas fa-chart-pie"></i> الرسوم البيانية</button>
+                    <span class="rh-tabs-note">تُطبَّق فلاتر الفترة/القسم/الحالة أدناه على التقارير تلقائياً</span>
+                  </div>
+
+                  <div class="rh-grid" id="rhGrid">
+                    <!-- الطلبات -->
+                    <div class="rh-card c-indigo" data-g="req" onclick="rhRun(['summary','requests','byDept','byStatus','timeline'],'تقرير طلبات الصيانة')">
+                      <div class="rh-ic"><i class="fas fa-clipboard-list"></i></div>
+                      <h4>تقرير طلبات الصيانة</h4><p>كل الطلبات وتفاصيلها مع الحالة والتاريخ</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-sky" data-g="req" onclick="rhRun(['summary','byDept'],'تقرير الطلبات حسب الأقسام')">
+                      <div class="rh-ic"><i class="fas fa-building"></i></div>
+                      <h4>الطلبات حسب الأقسام</h4><p>توزيع الطلبات ونسب الإنجاز لكل قسم</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-violet" data-g="req" onclick="rhRun(['summary','byStatus'],'تقرير حالات الطلبات')">
+                      <div class="rh-ic"><i class="fas fa-chart-pie"></i></div>
+                      <h4>تحليل حالات الطلبات</h4><p>نِسب الحالات ومعدل الإنجاز العام</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-green" data-g="req" onclick="rhRun(['summary','timeline'],'الاتجاه الزمني لطلبات الصيانة')">
+                      <div class="rh-ic"><i class="fas fa-chart-line"></i></div>
+                      <h4>الاتجاه الزمني الشهري</h4><p>حركة الطلبات شهرياً ومقارنة الفترات</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+
+                    <!-- المخزون والأجهزة -->
+                    <div class="rh-card c-amber" data-g="stock" onclick="rhRun(['summary','inventory'],'تقرير المخزون وقطع الغيار')">
+                      <div class="rh-ic"><i class="fas fa-boxes-stacked"></i></div>
+                      <h4>المخزون وقطع الغيار</h4><p>الكميات الحالية والنواقص والحدود</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-teal" data-g="stock" onclick="rhRun(['summary','transactions'],'تقرير حركات صرف قطع الغيار')">
+                      <div class="rh-ic"><i class="fas fa-right-left"></i></div>
+                      <h4>حركات الصرف</h4><p>سجل صرف القطع للموظفين والأقسام</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-slate" data-g="stock" onclick="rhRun(['inventory_history'],'سجل حركة المخزون')">
+                      <div class="rh-ic"><i class="fas fa-clock-rotate-left"></i></div>
+                      <h4>سجل حركة المخزون</h4><p>الإضافة والسحب وتعديل الكميات</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-cyan" data-g="stock" onclick="rhRun(['alt_devices','alt_models'],'تقرير الأجهزة البديلة')">
+                      <div class="rh-ic"><i class="fas fa-desktop"></i></div>
+                      <h4>الأجهزة البديلة</h4><p>الأنواع والموديلات والحالة والسيريال</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-rose" data-g="stock" onclick="rhRun(['assignments'],'تقرير تسليم واسترجاع الأجهزة')">
+                      <div class="rh-ic"><i class="fas fa-handshake"></i></div>
+                      <h4>التسليم والاسترجاع</h4><p>من استلم، وماذا، ومتى، وحالة الإرجاع</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-indigo" data-g="stock" onclick="rhRun(['computer_items'],'تقرير المواد الحاسوبية')">
+                      <div class="rh-ic"><i class="fas fa-microchip"></i></div>
+                      <h4>المواد الحاسوبية</h4><p>جرد المواد والأجهزة المسجلة</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-violet" data-g="stock" onclick="rhRun(['summary','permanent_replacements'],'تقرير البديل الدائم')">
+                      <div class="rh-ic"><i class="fas fa-arrows-rotate"></i></div>
+                      <h4>البديل الدائم</h4><p>استبدال المواد المعطلة نهائياً ومواصفات البديل</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+
+                    <!-- إدارية ووثائق -->
+                    <div class="rh-card c-green" data-g="admin" onclick="rhRun(['documents'],'تقرير الوثائق والملاحظات')">
+                      <div class="rh-ic"><i class="fas fa-file-lines"></i></div>
+                      <h4>الوثائق والملاحظات</h4><p>كل الوثائق المسجلة بالنظام</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-amber" data-g="admin" onclick="rhRun(['tenders'],'تقرير عطاء الصيانة')">
+                      <div class="rh-ic"><i class="fas fa-file-contract"></i></div>
+                      <h4>عطاء الصيانة</h4><p>بنود العطاء ومتابعة التنفيذ</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-sky" data-g="admin" onclick="rhRun(['departments'],'تقرير الأقسام')">
+                      <div class="rh-ic"><i class="fas fa-sitemap"></i></div>
+                      <h4>الأقسام</h4><p>قائمة أقسام المؤسسة وبياناتها</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-slate" data-g="admin" onclick="rhRun(['users'],'تقرير مستخدمي النظام')">
+                      <div class="rh-ic"><i class="fas fa-users-gear"></i></div>
+                      <h4>مستخدمو النظام</h4><p>الحسابات والصلاحيات والأدوار</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+
+                    <!-- تقارير سريعة -->
+                    <div class="rh-card c-rose" data-g="quick" onclick="rhRun(['summary','requests','byStatus'],'تقرير آخر 7 أيام',7)">
+                      <div class="rh-ic"><i class="fas fa-bolt"></i></div>
+                      <h4>تقرير آخر 7 أيام</h4><p>ملخص سريع لحركة الأسبوع</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-teal" data-g="quick" onclick="rhRun(['summary','requests','byDept','byStatus','timeline'],'التقرير الشهري',30)">
+                      <div class="rh-ic"><i class="fas fa-calendar-days"></i></div>
+                      <h4>التقرير الشهري</h4><p>آخر 30 يوماً بكل المؤشرات</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-cyan" data-g="quick" onclick="rhRun(['summary','requests','byDept','byStatus','timeline','inventory','transactions'],'التقرير الربعي',90)">
+                      <div class="rh-ic"><i class="fas fa-calendar-week"></i></div>
+                      <h4>التقرير الربعي</h4><p>آخر 3 أشهر: الطلبات والمخزون</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-indigo" data-g="quick" onclick="rhRun(['summary'],'الملخص التنفيذي')">
+                      <div class="rh-ic"><i class="fas fa-star"></i></div>
+                      <h4>الملخص التنفيذي</h4><p>صفحة واحدة بأهم المؤشرات والقراءة التحليلية</p>
+                      <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
+                    </div>
+
+                    <!-- الرسوم البيانية -->
+                    <div class="rh-card c-violet rh-chart" data-g="chart" onclick="rhChart('status','توزيع حالات الطلبات')">
+                      <div class="rh-ic"><i class="fas fa-chart-pie"></i></div>
+                      <h4>توزيع حالات الطلبات</h4><p>عرض موسّع + تحميل صورة</p>
+                      <span class="rh-go">عرض الرسم <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-sky rh-chart" data-g="chart" onclick="rhChart('dept','الطلبات حسب القسم')">
+                      <div class="rh-ic"><i class="fas fa-building"></i></div>
+                      <h4>الطلبات حسب القسم</h4><p>عرض موسّع + تحميل صورة</p>
+                      <span class="rh-go">عرض الرسم <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-green rh-chart" data-g="chart" onclick="rhChart('monthly','الاتجاه الزمني للطلبات')">
+                      <div class="rh-ic"><i class="fas fa-chart-line"></i></div>
+                      <h4>الاتجاه الزمني</h4><p>عرض موسّع + تحميل صورة</p>
+                      <span class="rh-go">عرض الرسم <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-amber rh-chart" data-g="chart" onclick="rhChart('inventory','مستويات المخزون')">
+                      <div class="rh-ic"><i class="fas fa-box"></i></div>
+                      <h4>مستويات المخزون</h4><p>عرض موسّع + تحميل صورة</p>
+                      <span class="rh-go">عرض الرسم <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-rose rh-chart" data-g="chart" onclick="rhChart('employees','أكثر الموظفين طلباً')">
+                      <div class="rh-ic"><i class="fas fa-users"></i></div>
+                      <h4>أكثر الموظفين طلباً</h4><p>عرض موسّع + تحميل صورة</p>
+                      <span class="rh-go">عرض الرسم <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-cyan rh-chart" data-g="chart" onclick="rhChart('altDevices','توزيع الأجهزة البديلة')">
+                      <div class="rh-ic"><i class="fas fa-laptop"></i></div>
+                      <h4>الأجهزة البديلة</h4><p>عرض موسّع + تحميل صورة</p>
+                      <span class="rh-go">عرض الرسم <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-indigo rh-chart" data-g="chart" onclick="rhChart('prCats','الاستبدال حسب نوع المادة')">
+                      <div class="rh-ic"><i class="fas fa-shapes"></i></div>
+                      <h4>البديل الدائم حسب النوع</h4><p>عرض موسّع + تحميل صورة</p>
+                      <span class="rh-go">عرض الرسم <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-teal rh-chart" data-g="chart" onclick="rhChart('prDepts','الاستبدال الدائم حسب الأقسام')">
+                      <div class="rh-ic"><i class="fas fa-sitemap"></i></div>
+                      <h4>البديل الدائم حسب الأقسام</h4><p>عرض موسّع + تحميل صورة</p>
+                      <span class="rh-go">عرض الرسم <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-slate rh-chart" data-g="chart" onclick="rhChart('pmCoverage','تغطية ساحات الصيانة الدورية')">
+                      <div class="rh-ic"><i class="fas fa-calendar-check"></i></div>
+                      <h4>تغطية الصيانة الدورية</h4><p>عرض موسّع + تحميل صورة</p>
+                      <span class="rh-go">عرض الرسم <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                    <div class="rh-card c-violet rh-chart" data-g="chart" onclick="exportReportsToPDF()">
+                      <div class="rh-ic"><i class="fas fa-file-pdf"></i></div>
+                      <h4>حِزمة الرسوم PDF</h4><p>حفظ كل لوحات ورسوم هذه الصفحة بملف PDF</p>
+                      <span class="rh-go">حفظ PDF <i class="fas fa-arrow-left"></i></span>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- ===== Interactive filter bar ===== -->
@@ -22982,6 +23215,64 @@ html body .page-section > .page-header.is-loading .page-actions .btn{ pointer-ev
     setLoading(h, true);
     setTimeout(function(){ setLoading(h, false); }, MIN_MS);
   }, true);
+})();
+</script>
+
+
+<script>
+/* ============ REPORTS HUB — بطاقات تقارير النظام ============ */
+(function(){
+  function q(id){ return document.getElementById(id); }
+  function setv(id,v){ var el=q(id); if(el) el.value=v; }
+
+  window.rhFilter=function(g,btn){
+    document.querySelectorAll('.rh-tab').forEach(function(b){ b.classList.remove('active'); });
+    if(btn) btn.classList.add('active');
+    document.querySelectorAll('#rhGrid .rh-card').forEach(function(c){
+      c.hidden = !(g==='all' || c.getAttribute('data-g')===g);
+    });
+  };
+
+  window.rhRun=async function(ids,title,days){
+    if(typeof rsOpen!=='function'){
+      if(typeof showToast==='function') showToast('error','خطأ','مركز التقارير غير متاح');
+      return;
+    }
+    if(typeof showToast==='function') showToast('info','جاري التحضير','يتم تجهيز التقرير…');
+    try{ await rsOpen(); }catch(e){}
+    // تحديد أقسام التقرير
+    document.querySelectorAll('#rsCards .rs-pick').forEach(function(el){
+      el.classList.toggle('on', ids.indexOf(el.dataset.id)>-1);
+    });
+    if(title) setv('rsTitle',title);
+    // نقل فلاتر صفحة التقارير
+    var f=q('repFrom'), t=q('repTo'), d=q('repDept'), s=q('repStatus'), sq=q('repSearch');
+    if(f&&f.value) setv('rsFrom',f.value);
+    if(t&&t.value) setv('rsTo',t.value);
+    if(sq&&sq.value) setv('rsQ',sq.value);
+    if(d&&d.value){ var dd=q('rsDept'); if(dd){ try{ dd.value=d.value; }catch(e){} } }
+    if(s&&s.value){ var ss=q('rsStatus'); if(ss){ try{ ss.value=s.value; }catch(e){} } }
+    if(days){
+      var a=new Date(); a.setDate(a.getDate()-days);
+      setv('rsFrom',a.toISOString().split('T')[0]);
+      setv('rsTo',new Date().toISOString().split('T')[0]);
+    }
+    if(typeof rsGenerate==='function') rsGenerate();
+  };
+
+  window.rhChart=function(key,title){
+    var card=document.querySelector('#page-reports .rep-card[data-chart="'+key+'"]');
+    if(card && typeof repFullscreen==='function'){
+      if(!(window.charts&&window.charts[key])){
+        card.scrollIntoView({behavior:'smooth',block:'center'});
+        setTimeout(function(){ try{ repFullscreen(key); }catch(e){} },500);
+        return;
+      }
+      try{ repFullscreen(key); return; }catch(e){}
+    }
+    if(card) card.scrollIntoView({behavior:'smooth',block:'center'});
+    else if(typeof showToast==='function') showToast('warning','تنبيه','الرسم غير متاح حالياً');
+  };
 })();
 </script>
 
