@@ -6,6 +6,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -13160,7 +13161,18 @@ function exportReportsCSV() {
     if (typeof showToast === 'function') showToast('success', 'تم التصدير', `تم تصدير ${repFiltered.length} سجل`);
 }
 
-function printReportsPage() { window.print(); }
+function repDocTitle() {
+    const el = document.querySelector('#page-reports .page-title');
+    return (el && el.textContent.trim()) || 'التقارير والرسوم البيانية';
+}
+
+function printReportsPage() {
+    if (window.MMSDoc) MMSDoc.startPrintFrame({ title: repDocTitle() });
+    setTimeout(() => {
+        window.print();
+        setTimeout(() => { if (window.MMSDoc) MMSDoc.endPrintFrame(); }, 800);
+    }, 120);
+}
 
 async function exportReportsToPDF() {
     const element = document.getElementById('page-reports');
@@ -13169,13 +13181,17 @@ async function exportReportsToPDF() {
         margin: [10, 10, 10, 10],
         filename: 'التقارير_والرسوم_البيانية_' + new Date().toISOString().split('T')[0] + '.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+        pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.stat-card', '.rep-card', '.mms-doc-head', '.mms-doc-foot'] }
     };
     showToast('info', 'جاري التصدير', 'جاري إنشاء ملف PDF...');
+    const cleanup = window.MMSDoc ? MMSDoc.attachTo(element, { title: repDocTitle() }) : () => {};
     html2pdf().set(opt).from(element).save().then(() => {
+        cleanup();
         showToast('success', 'تم التصدير', 'تم حفظ ملف PDF بنجاح');
     }).catch(err => {
+        cleanup();
         showToast('error', 'خطأ', 'فشل تصدير PDF: ' + err.message);
     });
 }
@@ -15442,7 +15458,7 @@ table.rs-t tbody tr{page-break-inside:avoid}
 @media (max-width:640px){.rs-kpis{grid-template-columns:repeat(2,1fr)}.rs-page{padding:18px}}
 
 @media print{
-  body.rs-print-mode > *:not(#rsOverlay){display:none!important}
+  body.rs-print-mode > *:not(#rsOverlay):not(.mms-run){display:none!important}
   body.rs-print-mode{background:#fff!important}
   body.rs-print-mode #rsOverlay{position:static!important;display:block!important;padding:0!important;background:#fff!important;overflow:visible!important;backdrop-filter:none!important}
   body.rs-print-mode .rs-win{max-width:none!important;box-shadow:none!important;border-radius:0!important}
@@ -15630,9 +15646,11 @@ table.rs-t tbody tr{page-break-inside:avoid}
     var cu=null; try{ cu=(typeof currentUser!=='undefined'&&currentUser)||window.currentUser||null; }catch(e){ cu=window.currentUser||null; }
     var who=(cu&&(cu.full_name||cu.fullName||cu.username))||'—';
 
-    out+='<div class="rs-hd"><div class="rs-logo"><i class="fas fa-screwdriver-wrench"></i></div>'+
-      '<div><h1>'+esc(title)+'</h1><div class="sub">نظام إدارة طلبات الصيانة · تقرير رسمي مُولَّد آلياً</div></div>'+
-      '<div class="meta">تاريخ الإصدار: '+fd(new Date())+'<br>الفترة: '+esc(period)+'<br>أُعدّ بواسطة: '+esc(who)+'</div></div>';
+    out+=(window.MMSDoc
+      ? MMSDoc.header({title:title,dept:f.dept,period:period,by:who})
+      : '<div class="rs-hd"><div class="rs-logo"><i class="fas fa-screwdriver-wrench"></i></div>'+
+        '<div><h1>'+esc(title)+'</h1><div class="sub">نظام إدارة طلبات الصيانة · تقرير رسمي مُولَّد آلياً</div></div>'+
+        '<div class="meta">تاريخ الإصدار: '+fd(new Date())+'<br>الفترة: '+esc(period)+'<br>أُعدّ بواسطة: '+esc(who)+'</div></div>');
     out+='<div class="rs-band"><span class="rs-tag"><i class="fas fa-calendar"></i> '+esc(period)+'</span>'+
       (f.dept?'<span class="rs-tag">القسم: '+esc(f.dept)+'</span>':'<span class="rs-tag">كل الأقسام</span>')+
       (f.status?'<span class="rs-tag">الحالة: '+esc(ST[f.status]||f.status)+'</span>':'')+
@@ -15713,9 +15731,8 @@ table.rs-t tbody tr{page-break-inside:avoid}
       out+=table(COLS[s.tbl]||autoCols(rows),rows,lim);
     });
 
-    out+='<div class="rs-ft"><div>تقرير مُولَّد آلياً من نظام إدارة الصيانة · '+new Date().toLocaleString('ar-EG')+'</div>'+
-      '<div>© 2026 تطوير وتصميم: أحمد رحيل</div>'+
-      '<div class="sign"><b>التوقيع والاعتماد</b><div class="line"></div></div></div>';
+    out+=(window.MMSDoc?MMSDoc.footer({dept:f.dept}):'')+
+      '<div class="rs-ft"><div class="sign"><b>التوقيع والاعتماد</b><div class="line"></div></div></div>';
     return '<div class="rs-page" id="rsDoc">'+out+'</div>';
   }
 
@@ -15834,8 +15851,10 @@ table.rs-t tbody tr{page-break-inside:avoid}
   };
 
   window.rsPrint=function(){
+    var t=document.querySelector('#rsDoc h1');
+    if(window.MMSDoc) MMSDoc.startPrintFrame({title:t?t.textContent:'تقرير نظام إدارة الصيانة',dept:LAST.f&&LAST.f.dept});
     document.body.classList.add('rs-print-mode');
-    setTimeout(function(){ window.print(); setTimeout(function(){document.body.classList.remove('rs-print-mode');},600); },120);
+    setTimeout(function(){ window.print(); setTimeout(function(){document.body.classList.remove('rs-print-mode'); if(window.MMSDoc)MMSDoc.endPrintFrame();},600); },120);
   };
   window.rsPDF=function(){
     var el=document.getElementById('rsDoc'); if(!el)return;
@@ -15843,7 +15862,7 @@ table.rs-t tbody tr{page-break-inside:avoid}
     if(typeof showToast==='function')showToast('info','جاري التصدير','يتم إنشاء ملف PDF…');
     html2pdf().set({ margin:[8,8,10,8], filename:'تقرير_نظام_الصيانة_'+new Date().toISOString().split('T')[0]+'.pdf',
       image:{type:'jpeg',quality:.98}, html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
-      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy'],avoid:['tr','.rs-kpi','.rs-h2']} })
+      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy'],avoid:['tr','.rs-kpi','.rs-h2','.mms-doc-head','.mms-doc-foot']} })
       .from(el).save().then(function(){ if(typeof showToast==='function')showToast('success','تم','تم حفظ ملف PDF'); });
   };
   window.rsWord=function(){
@@ -23273,6 +23292,367 @@ html body .page-section > .page-header.is-loading .page-actions .btn{ pointer-ev
     if(card) card.scrollIntoView({behavior:'smooth',block:'center'});
     else if(typeof showToast==='function') showToast('warning','تنبيه','الرسم غير متاح حالياً');
   };
+})();
+</script>
+
+
+<!-- ============ رأس وتذييل موحّد وقابل للتخصيص للتقارير (PDF / طباعة) ============ -->
+<style id="mmsDocBrandStyles">
+:root{--mms-accent:#4f46e5;--mms-accent-d:#312e81;--mms-accent-l:#eef2ff}
+.mms-doc-head{display:flex;align-items:center;gap:14px;padding:14px 18px;margin:0 0 14px;border:1px solid #e2e8f0;border-bottom:3px solid var(--mms-accent);border-radius:14px;background:linear-gradient(135deg,#f8fafc,var(--mms-accent-l));font-family:Tajawal,sans-serif;direction:rtl;color:#0f172a}
+.mms-doc-head.mms-solid{background:var(--mms-accent-l)}
+.mms-doc-head.mms-plain{background:#fff}
+.mms-doc-head.mms-center{flex-direction:column;text-align:center;gap:8px}
+.mms-doc-head.mms-center .mms-meta{margin:0;text-align:center}
+.mms-doc-head .mms-logo{width:54px;height:54px;flex:none;border-radius:15px;background:linear-gradient(135deg,var(--mms-accent-d),var(--mms-accent) 60%,#0ea5e9);color:#fff;display:grid;place-items:center;font-size:23px;font-weight:900;overflow:hidden;box-shadow:0 6px 16px rgba(15,23,42,.18)}
+.mms-doc-head .mms-logo img{width:100%;height:100%;object-fit:contain;background:#fff}
+.mms-doc-head .mms-logo.mms-txt{font-size:15px;letter-spacing:.5px}
+.mms-doc-head .mms-ttl{min-width:0}
+.mms-doc-head .mms-ttl .mms-org{font-size:12.5px;font-weight:800;color:var(--mms-accent-d);margin-bottom:2px}
+.mms-doc-head .mms-ttl h1{margin:0;font-size:20px;font-weight:900;color:#1e1b4b;letter-spacing:-.3px}
+.mms-doc-head .mms-ttl .mms-sys{font-size:12px;font-weight:700;color:var(--mms-accent);margin-top:2px}
+.mms-doc-head .mms-ttl .mms-dept{font-size:12px;font-weight:700;color:#334155;margin-top:3px}
+.mms-doc-head .mms-meta{margin-inline-start:auto;text-align:left;font-size:11px;font-weight:600;color:#475569;line-height:1.9;white-space:nowrap}
+.mms-doc-head .mms-meta b{color:#1e1b4b}
+.mms-doc-foot{margin-top:18px;padding:10px 16px;border:1px solid #e2e8f0;border-top:3px solid var(--mms-accent);border-radius:14px;background:#f8fafc;display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-family:Tajawal,sans-serif;direction:rtl;font-size:10.5px;font-weight:600;color:#64748b}
+.mms-doc-foot .mms-brand{font-size:11.5px;font-weight:800;color:var(--mms-accent)}
+.mms-doc-foot .mms-mid{margin-inline-start:auto;text-align:center}
+.mms-doc-foot .mms-dev strong{color:#1e1b4b}
+.mms-doc-sign{display:flex;gap:40px;justify-content:flex-start;margin-top:16px;font-family:Tajawal,sans-serif;direction:rtl;font-size:11px;font-weight:700;color:#334155}
+.mms-doc-sign div{min-width:170px;border-top:1px dashed #94a3b8;padding-top:6px;text-align:center}
+.mms-run{display:none}
+@media print{
+  body.rs-print-mode > .mms-run,
+  .mms-run{display:block!important;position:fixed;inset-inline:0;font-family:Tajawal,sans-serif;direction:rtl;z-index:2147483647;background:#fff}
+  .mms-run-head{top:0;border-bottom:2px solid var(--mms-accent);padding:2mm 4mm;display:flex;align-items:center;gap:8px}
+  .mms-run-head .mms-logo{width:9mm;height:9mm;border-radius:3mm;background:linear-gradient(135deg,var(--mms-accent-d),var(--mms-accent) 60%,#0ea5e9);color:#fff;display:grid;place-items:center;font-size:4mm;flex:none;overflow:hidden}
+  .mms-run-head .mms-logo img{width:100%;height:100%;object-fit:contain;background:#fff}
+  .mms-run-head .t{font-size:3.4mm;font-weight:900;color:#1e1b4b}
+  .mms-run-head .d{font-size:2.7mm;font-weight:700;color:#475569}
+  .mms-run-head .m{margin-inline-start:auto;font-size:2.6mm;font-weight:600;color:#475569;text-align:left}
+  .mms-run-foot{bottom:0;border-top:2px solid var(--mms-accent);padding:1.6mm 4mm;display:flex;gap:6px;font-size:2.5mm;font-weight:600;color:#64748b}
+  .mms-run-foot .s{margin-inline-start:auto}
+  body.mms-printing{padding-top:16mm!important;padding-bottom:12mm!important}
+  #mmsCustomizer{display:none!important}
+  @page{size:A4;margin:14mm 10mm}
+}
+/* ===== نافذة التخصيص ===== */
+#mmsCustomizer{position:fixed;inset:0;z-index:99999;display:none;direction:rtl;font-family:Tajawal,sans-serif}
+#mmsCustomizer.open{display:block}
+#mmsCustomizer .mms-ov{position:absolute;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(3px)}
+#mmsCustomizer .mms-win{position:relative;margin:3vh auto;width:min(1080px,95vw);max-height:94vh;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(2,6,23,.4);display:flex;flex-direction:column;overflow:hidden}
+#mmsCustomizer .mms-hd{display:flex;align-items:center;gap:10px;padding:14px 18px;background:linear-gradient(135deg,var(--mms-accent-d),var(--mms-accent));color:#fff}
+#mmsCustomizer .mms-hd h3{margin:0;font-size:17px;font-weight:900}
+#mmsCustomizer .mms-hd small{opacity:.85;font-size:11.5px;display:block;font-weight:600}
+#mmsCustomizer .mms-x{margin-inline-start:auto;background:rgba(255,255,255,.18);border:0;color:#fff;width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:16px}
+#mmsCustomizer .mms-bd{display:grid;grid-template-columns:1.05fr 1fr;gap:0;overflow:hidden;flex:1}
+@media(max-width:900px){#mmsCustomizer .mms-bd{grid-template-columns:1fr}}
+#mmsCustomizer .mms-form{padding:16px 18px;overflow:auto;background:#f8fafc}
+#mmsCustomizer .mms-prev{padding:16px;overflow:auto;border-inline-start:1px solid #e2e8f0}
+#mmsCustomizer fieldset{border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px 14px;margin:0 0 12px;background:#fff}
+#mmsCustomizer legend{font-size:12.5px;font-weight:900;color:var(--mms-accent-d);padding:0 6px}
+#mmsCustomizer label{display:block;font-size:11.5px;font-weight:700;color:#475569;margin:8px 0 4px}
+#mmsCustomizer input[type=text],#mmsCustomizer input[type=url],#mmsCustomizer select,#mmsCustomizer textarea{width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:9px;font-family:inherit;font-size:12.5px;background:#fff;color:#0f172a}
+#mmsCustomizer .mms-g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#mmsCustomizer .mms-chk{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:6px}
+#mmsCustomizer .mms-chk label{display:flex;align-items:center;gap:6px;margin:0;font-size:12px;font-weight:700;color:#334155;background:#f1f5f9;padding:6px 10px;border-radius:8px;cursor:pointer}
+#mmsCustomizer .mms-presets{display:flex;flex-wrap:wrap;gap:8px}
+#mmsCustomizer .mms-presets button{border:1px solid #e2e8f0;background:#fff;border-radius:10px;padding:6px 10px;font-size:11.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit}
+#mmsCustomizer .mms-dot{width:14px;height:14px;border-radius:5px}
+#mmsCustomizer .mms-xf{display:flex;gap:6px;margin-bottom:6px}
+#mmsCustomizer .mms-xf input{flex:1}
+#mmsCustomizer .mms-xf button{border:0;background:#fee2e2;color:#b91c1c;border-radius:8px;width:34px;cursor:pointer;font-size:13px}
+#mmsCustomizer .mms-ft{display:flex;flex-wrap:wrap;gap:8px;padding:12px 18px;border-top:1px solid #e2e8f0;background:#fff}
+#mmsCustomizer .mms-ft button{border:0;border-radius:10px;padding:9px 14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px}
+#mmsCustomizer .b-save{background:var(--mms-accent);color:#fff}
+#mmsCustomizer .b-test{background:#0ea5e9;color:#fff}
+#mmsCustomizer .b-reset{background:#f1f5f9;color:#334155}
+#mmsCustomizer .b-close{background:#f1f5f9;color:#334155;margin-inline-start:auto}
+#mmsCustomizer .mms-hint{font-size:11px;color:#64748b;font-weight:600;margin-top:4px}
+#mmsCustomizer .mms-prev h4{margin:0 0 10px;font-size:12.5px;font-weight:900;color:#475569}
+</style>
+<script>
+(function(){
+  var KEY='mmsDocCfg_v1';
+  var esc=function(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+  var DEF={
+    org:'', sys:'نظام إدارة طلبات الصيانة',
+    subtitle:'تقرير رسمي مُولَّد آلياً',
+    dept:'كل الأقسام',
+    logoMode:'icon', logoIcon:'fa-screwdriver-wrench', logoText:'MMS', logoImg:'',
+    accent:'#4f46e5', align:'right', bg:'gradient',
+    showDate:true, showTime:true, showPeriod:true, showUser:true, showDept:true,
+    showFooter:true, showSign:false, showRunning:true,
+    footerNote:'© 2026 جميع الحقوق محفوظة · تطوير وتصميم: أحمد رحيل',
+    signLabels:'إعداد,مراجعة,اعتماد',
+    extra:[]
+  };
+  function load(){
+    var c={}; try{ c=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ c={}; }
+    var o={}; Object.keys(DEF).forEach(function(k){ o[k]=(c[k]===undefined?DEF[k]:c[k]); });
+    if(!Array.isArray(o.extra)) o.extra=[];
+    return o;
+  }
+  var cfg=load();
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(cfg)); }catch(e){} applyVars(); }
+  function shade(hex,p){
+    try{ var n=parseInt(hex.slice(1),16),r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+      r=Math.round(r+(p<0?r*p:(255-r)*p)); g=Math.round(g+(p<0?g*p:(255-g)*p)); b=Math.round(b+(p<0?b*p:(255-b)*p));
+      return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+    }catch(e){ return hex; }
+  }
+  function applyVars(){
+    var s=document.documentElement.style;
+    s.setProperty('--mms-accent',cfg.accent);
+    s.setProperty('--mms-accent-d',shade(cfg.accent,-.45));
+    s.setProperty('--mms-accent-l',shade(cfg.accent,.88));
+  }
+  function fdate(){ try{ return new Date().toLocaleDateString('ar-EG',{dateStyle:'long'}); }catch(e){ return new Date().toLocaleDateString(); } }
+  function ftime(){ try{ return new Date().toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } }
+  function now(){ return cfg.showTime? (fdate()+' - '+ftime()) : fdate(); }
+  function user(){
+    var u=null; try{ u=(typeof currentUser!=='undefined'&&currentUser)||window.currentUser||null; }catch(e){ u=window.currentUser||null; }
+    return (u&&(u.full_name||u.fullName||u.username))||'—';
+  }
+  function dept(explicit){
+    if(explicit) return explicit;
+    var el=document.getElementById('repDept')||document.getElementById('rsDept');
+    var v=el&&el.value?el.value:'';
+    if(v) return v;
+    var u=null; try{ u=(typeof currentUser!=='undefined'&&currentUser)||window.currentUser||null; }catch(e){}
+    return (u&&(u.department||u.dept))||cfg.dept||'كل الأقسام';
+  }
+  function logoHTML(){
+    if(cfg.logoMode==='image'&&cfg.logoImg) return '<div class="mms-logo"><img src="'+esc(cfg.logoImg)+'" alt="logo"></div>';
+    if(cfg.logoMode==='text') return '<div class="mms-logo mms-txt">'+esc(cfg.logoText||'MMS')+'</div>';
+    return '<div class="mms-logo"><i class="fas '+esc(cfg.logoIcon||'fa-screwdriver-wrench')+'"></i></div>';
+  }
+  function metaHTML(o){
+    var p=[];
+    if(cfg.showDate) p.push('تاريخ التوليد: <b>'+esc(now())+'</b>');
+    if(cfg.showPeriod&&o.period) p.push('الفترة: <b>'+esc(o.period)+'</b>');
+    if(cfg.showUser) p.push('أُعدّ بواسطة: <b>'+esc(o.by||user())+'</b>');
+    (cfg.extra||[]).forEach(function(x){ if(x&&x.label) p.push(esc(x.label)+': <b>'+esc(x.value||'')+'</b>'); });
+    return p.length?'<div class="mms-meta">'+p.join('<br>')+'</div>':'';
+  }
+  function signHTML(){
+    if(!cfg.showSign) return '';
+    var l=String(cfg.signLabels||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+    if(!l.length) return '';
+    return '<div class="mms-doc-sign">'+l.map(function(s){return '<div>'+esc(s)+'</div>';}).join('')+'</div>';
+  }
+
+  var MMSDoc={
+    get SYSTEM(){ return cfg.sys; },
+    get cfg(){ return cfg; },
+    now:now, dept:dept,
+    header:function(o){
+      o=o||{};
+      var t=o.title||'تقرير النظام', d=dept(o.dept);
+      var cls='mms-doc-head'+(cfg.align==='center'?' mms-center':'')+(cfg.bg==='solid'?' mms-solid':(cfg.bg==='none'?' mms-plain':''));
+      return '<div class="'+cls+'">'+logoHTML()+
+        '<div class="mms-ttl">'+(cfg.org?'<div class="mms-org">'+esc(cfg.org)+'</div>':'')+
+          '<h1>'+esc(t)+'</h1>'+
+          '<div class="mms-sys">'+esc(cfg.sys)+(cfg.subtitle?' · '+esc(cfg.subtitle):'')+'</div>'+
+          (cfg.showDept?'<div class="mms-dept"><i class="fas fa-sitemap"></i> القسم: '+esc(d)+'</div>':'')+
+        '</div>'+metaHTML(o)+'</div>';
+    },
+    footer:function(o){
+      o=o||{};
+      if(!cfg.showFooter) return signHTML();
+      return signHTML()+'<div class="mms-doc-foot">'+
+        '<div class="mms-brand">'+(cfg.logoMode==='icon'?'<i class="fas '+esc(cfg.logoIcon)+'"></i> ':'')+esc(cfg.org||cfg.sys)+'</div>'+
+        (cfg.showDept?'<div>القسم: '+esc(dept(o.dept))+'</div>':'')+
+        (cfg.showDate?'<div>تاريخ التوليد: '+esc(now())+'</div>':'')+
+        (cfg.footerNote?'<div class="mms-mid mms-dev">'+cfg.footerNote.replace(/[<>]/g,'')+'</div>':'')+
+        '</div>';
+    },
+    startPrintFrame:function(o){
+      o=o||{}; MMSDoc.endPrintFrame();
+      if(!cfg.showRunning){ document.body.classList.add('mms-printing'); return; }
+      var d=dept(o.dept), t=o.title||'تقرير النظام';
+      var h=document.createElement('div');
+      h.className='mms-run mms-run-head'; h.id='mmsRunHead';
+      h.innerHTML=logoHTML()+
+        '<div><div class="t">'+esc(t)+'</div><div class="d">'+esc(cfg.org||cfg.sys)+(cfg.showDept?' · القسم: '+esc(d):'')+'</div></div>'+
+        (cfg.showDate?'<div class="m">تاريخ التوليد: '+esc(now())+'</div>':'');
+      var f=document.createElement('div');
+      f.className='mms-run mms-run-foot'; f.id='mmsRunFoot';
+      f.innerHTML='<div>'+esc(cfg.sys)+(cfg.showDept?' · القسم: '+esc(d):'')+'</div>'+
+        '<div class="s">'+esc(cfg.footerNote||'')+(cfg.showDate?' · '+esc(now()):'')+'</div>';
+      document.body.appendChild(h); document.body.appendChild(f);
+      document.body.classList.add('mms-printing');
+    },
+    endPrintFrame:function(){
+      ['mmsRunHead','mmsRunFoot'].forEach(function(id){ var e=document.getElementById(id); if(e)e.remove(); });
+      document.body.classList.remove('mms-printing');
+    },
+    attachTo:function(el,o){
+      if(!el) return function(){};
+      var h=document.createElement('div'); h.innerHTML=MMSDoc.header(o); h=h.firstChild;
+      var fw=document.createElement('div'); fw.innerHTML=MMSDoc.footer(o); fw.className='mms-foot-wrap';
+      el.insertBefore(h,el.firstChild); el.appendChild(fw);
+      return function(){ try{h.remove();fw.remove();}catch(e){} };
+    },
+    openCustomizer:function(){ openUI(); },
+    reset:function(){ cfg=JSON.parse(JSON.stringify(DEF)); save(); }
+  };
+  window.MMSDoc=MMSDoc;
+  applyVars();
+
+  /* ================= واجهة التخصيص ================= */
+  var PRESETS={
+    indigo:{accent:'#4f46e5'}, teal:{accent:'#0d9488'}, amber:{accent:'#d97706'},
+    slate:{accent:'#334155'}, rose:{accent:'#be123c'}, green:{accent:'#15803d'}
+  };
+  function buildUI(){
+    if(document.getElementById('mmsCustomizer')) return;
+    var w=document.createElement('div'); w.id='mmsCustomizer';
+    w.innerHTML=
+    '<div class="mms-ov" data-close="1"></div>'+
+    '<div class="mms-win">'+
+      '<div class="mms-hd"><i class="fas fa-sliders"></i><div><h3>تخصيص الرأس والتذييل</h3><small>يُطبَّق على كل التقارير المصدّرة (PDF) والطباعة</small></div><button class="mms-x" data-close="1"><i class="fas fa-times"></i></button></div>'+
+      '<div class="mms-bd">'+
+        '<div class="mms-form">'+
+          '<fieldset><legend><i class="fas fa-building"></i> بيانات الجهة</legend>'+
+            '<div class="mms-g2"><div><label>اسم الجهة / المؤسسة</label><input type="text" id="mmsF_org" placeholder="مثال: مستشفى المدينة"></div>'+
+            '<div><label>اسم النظام</label><input type="text" id="mmsF_sys"></div></div>'+
+            '<div class="mms-g2"><div><label>سطر وصفي أسفل الاسم</label><input type="text" id="mmsF_subtitle"></div>'+
+            '<div><label>القسم الافتراضي</label><input type="text" id="mmsF_dept"></div></div>'+
+          '</fieldset>'+
+          '<fieldset><legend><i class="fas fa-image"></i> الشعار</legend>'+
+            '<div class="mms-g2"><div><label>نوع الشعار</label><select id="mmsF_logoMode"><option value="icon">أيقونة</option><option value="text">حروف/اختصار</option><option value="image">صورة</option></select></div>'+
+            '<div><label>أيقونة (Font Awesome)</label><input type="text" id="mmsF_logoIcon" placeholder="fa-screwdriver-wrench"></div></div>'+
+            '<div class="mms-g2"><div><label>نص الشعار</label><input type="text" id="mmsF_logoText" placeholder="MMS"></div>'+
+            '<div><label>رابط صورة الشعار</label><input type="url" id="mmsF_logoImg" placeholder="https://..."></div></div>'+
+            '<label>أو ارفع صورة من جهازك</label><input type="file" id="mmsF_logoFile" accept="image/*">'+
+            '<div class="mms-hint">تُحفظ الصورة داخل المتصفح ليعمل الشعار في PDF بدون إنترنت.</div>'+
+          '</fieldset>'+
+          '<fieldset><legend><i class="fas fa-palette"></i> الشكل والألوان</legend>'+
+            '<div class="mms-g2"><div><label>اللون الأساسي</label><input type="color" id="mmsF_accent" style="width:100%;height:38px;border:1px solid #cbd5e1;border-radius:9px;background:#fff"></div>'+
+            '<div><label>محاذاة الرأس</label><select id="mmsF_align"><option value="right">جانبي (يمين)</option><option value="center">في الوسط</option></select></div></div>'+
+            '<label>خلفية الرأس</label><select id="mmsF_bg"><option value="gradient">تدرّج لوني</option><option value="solid">لون خفيف</option><option value="none">أبيض</option></select>'+
+            '<label>قوالب سريعة</label><div class="mms-presets" id="mmsPresets"></div>'+
+          '</fieldset>'+
+          '<fieldset><legend><i class="fas fa-eye"></i> العناصر الظاهرة</legend><div class="mms-chk">'+
+            '<label><input type="checkbox" id="mmsF_showDate"> تاريخ التوليد</label>'+
+            '<label><input type="checkbox" id="mmsF_showTime"> الوقت مع التاريخ</label>'+
+            '<label><input type="checkbox" id="mmsF_showPeriod"> فترة التقرير</label>'+
+            '<label><input type="checkbox" id="mmsF_showUser"> مُعدّ التقرير</label>'+
+            '<label><input type="checkbox" id="mmsF_showDept"> اسم القسم</label>'+
+            '<label><input type="checkbox" id="mmsF_showFooter"> التذييل</label>'+
+            '<label><input type="checkbox" id="mmsF_showRunning"> رأس/تذييل على كل صفحة</label>'+
+            '<label><input type="checkbox" id="mmsF_showSign"> خطوط التوقيع</label>'+
+          '</div>'+
+            '<label>نص التذييل</label><input type="text" id="mmsF_footerNote">'+
+            '<label>عناوين التوقيع (مفصولة بفاصلة)</label><input type="text" id="mmsF_signLabels">'+
+          '</fieldset>'+
+          '<fieldset><legend><i class="fas fa-list-ul"></i> حقول إضافية في الرأس</legend>'+
+            '<div id="mmsExtraList"></div>'+
+            '<button type="button" id="mmsAddExtra" style="border:1px dashed var(--mms-accent);background:#fff;color:var(--mms-accent);border-radius:9px;padding:7px 12px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit"><i class="fas fa-plus"></i> إضافة حقل</button>'+
+            '<div class="mms-hint">مثال: رقم المرجع، رقم النسخة، درجة السرية…</div>'+
+          '</fieldset>'+
+        '</div>'+
+        '<div class="mms-prev"><h4><i class="fas fa-eye"></i> معاينة مباشرة</h4><div id="mmsPrevBox"></div></div>'+
+      '</div>'+
+      '<div class="mms-ft">'+
+        '<button class="b-save" id="mmsSave"><i class="fas fa-check"></i> حفظ التخصيص</button>'+
+        '<button class="b-test" id="mmsTest"><i class="fas fa-print"></i> طباعة تجريبية</button>'+
+        '<button class="b-reset" id="mmsReset"><i class="fas fa-rotate-left"></i> استعادة الافتراضي</button>'+
+        '<button class="b-close" data-close="1"><i class="fas fa-times"></i> إغلاق</button>'+
+      '</div>'+
+    '</div>';
+    document.body.appendChild(w);
+
+    w.addEventListener('click',function(e){ if(e.target.closest('[data-close]')) close(); });
+
+    var pre=w.querySelector('#mmsPresets');
+    Object.keys(PRESETS).forEach(function(k){
+      var b=document.createElement('button'); b.type='button';
+      b.innerHTML='<span class="mms-dot" style="background:'+PRESETS[k].accent+'"></span>'+k;
+      b.onclick=function(){ cfg.accent=PRESETS[k].accent; fill(); applyVars(); preview(); };
+      pre.appendChild(b);
+    });
+
+    ['org','sys','subtitle','dept','logoMode','logoIcon','logoText','logoImg','accent','align','bg','footerNote','signLabels'].forEach(function(k){
+      var el=w.querySelector('#mmsF_'+k);
+      el.addEventListener('input',function(){ cfg[k]=el.value; applyVars(); preview(); });
+      el.addEventListener('change',function(){ cfg[k]=el.value; applyVars(); preview(); });
+    });
+    ['showDate','showTime','showPeriod','showUser','showDept','showFooter','showSign','showRunning'].forEach(function(k){
+      var el=w.querySelector('#mmsF_'+k);
+      el.addEventListener('change',function(){ cfg[k]=el.checked; preview(); });
+    });
+    w.querySelector('#mmsF_logoFile').addEventListener('change',function(){
+      var f=this.files&&this.files[0]; if(!f) return;
+      var r=new FileReader();
+      r.onload=function(){ cfg.logoImg=r.result; cfg.logoMode='image'; fill(); preview(); };
+      r.readAsDataURL(f);
+    });
+    w.querySelector('#mmsAddExtra').onclick=function(){ cfg.extra.push({label:'',value:''}); extras(); preview(); };
+    w.querySelector('#mmsSave').onclick=function(){
+      save(); close();
+      if(typeof showToast==='function') showToast('success','تم الحفظ','تم تطبيق تخصيص الرأس والتذييل على كل التقارير');
+    };
+    w.querySelector('#mmsReset').onclick=function(){ MMSDoc.reset(); fill(); extras(); preview(); };
+    w.querySelector('#mmsTest').onclick=function(){
+      save();
+      MMSDoc.startPrintFrame({title:'طباعة تجريبية للرأس والتذييل'});
+      setTimeout(function(){ window.print(); setTimeout(function(){ MMSDoc.endPrintFrame(); },600); },150);
+    };
+  }
+  function extras(){
+    var box=document.getElementById('mmsExtraList'); if(!box) return;
+    box.innerHTML='';
+    cfg.extra.forEach(function(x,i){
+      var r=document.createElement('div'); r.className='mms-xf';
+      r.innerHTML='<input type="text" placeholder="العنوان" value="'+esc(x.label)+'"><input type="text" placeholder="القيمة" value="'+esc(x.value)+'"><button title="حذف"><i class="fas fa-trash"></i></button>';
+      var ins=r.querySelectorAll('input');
+      ins[0].oninput=function(){ cfg.extra[i].label=this.value; preview(); };
+      ins[1].oninput=function(){ cfg.extra[i].value=this.value; preview(); };
+      r.querySelector('button').onclick=function(){ cfg.extra.splice(i,1); extras(); preview(); };
+      box.appendChild(r);
+    });
+  }
+  function fill(){
+    var w=document.getElementById('mmsCustomizer'); if(!w) return;
+    ['org','sys','subtitle','dept','logoMode','logoIcon','logoText','logoImg','accent','align','bg','footerNote','signLabels'].forEach(function(k){
+      var el=w.querySelector('#mmsF_'+k); if(el) el.value=cfg[k]||'';
+    });
+    ['showDate','showTime','showPeriod','showUser','showDept','showFooter','showSign','showRunning'].forEach(function(k){
+      var el=w.querySelector('#mmsF_'+k); if(el) el.checked=!!cfg[k];
+    });
+  }
+  function preview(){
+    var b=document.getElementById('mmsPrevBox'); if(!b) return;
+    b.innerHTML=MMSDoc.header({title:'تقرير الطلبات الشهري',period:'01/08/2026 - 31/08/2026',dept:cfg.dept||'قسم الصيانة'})+
+      '<div style="border:1px dashed #cbd5e1;border-radius:12px;padding:18px;text-align:center;color:#94a3b8;font-weight:700;font-size:12px;font-family:Tajawal,sans-serif">محتوى التقرير (جداول ورسوم)</div>'+
+      MMSDoc.footer({dept:cfg.dept||'قسم الصيانة'});
+  }
+  function openUI(){ buildUI(); fill(); extras(); applyVars(); preview(); document.getElementById('mmsCustomizer').classList.add('open'); }
+  function close(){ var w=document.getElementById('mmsCustomizer'); if(w) w.classList.remove('open'); }
+
+  /* ===== أزرار الوصول للتخصيص ===== */
+  function injectButtons(){
+    var b1=document.querySelector('#page-reports button[onclick*="printReportsPage"]');
+    if(b1&&b1.parentNode&&!document.getElementById('mmsCustBtn1')){
+      var n=document.createElement('button');
+      n.id='mmsCustBtn1'; n.className=b1.className.replace('btn-primary','btn-secondary');
+      n.type='button'; n.innerHTML='<i class="fas fa-sliders"></i> تخصيص الرأس والتذييل';
+      n.onclick=function(){ MMSDoc.openCustomizer(); };
+      b1.parentNode.insertBefore(n,b1);
+    }
+    var b2=document.querySelector('button.rs-btn.p[onclick*="rsPrint"]');
+    if(b2&&b2.parentNode&&!document.getElementById('mmsCustBtn2')){
+      var m=document.createElement('button');
+      m.id='mmsCustBtn2'; m.className='rs-btn'; m.type='button';
+      m.innerHTML='<i class="fas fa-sliders"></i> تخصيص الرأس';
+      m.onclick=function(){ MMSDoc.openCustomizer(); };
+      b2.parentNode.insertBefore(m,b2);
+    }
+  }
+  function boot(){ injectButtons(); setInterval(injectButtons,2500); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
 })();
 </script>
 
