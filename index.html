@@ -8,6 +8,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -13575,12 +13576,14 @@ function renderSmartTemplateList() {
     }
     box.innerHTML = sfTemplates.map(t => `
         <div class="sf-tpl ${t.id === sfActiveTemplateId ? 'active' : ''}" onclick="selectSmartTemplate('${t.id}')">
-            <div class="sf-tpl-ico"><i class="fas ${t.builtin ? 'fa-file-contract' : 'fa-file-pen'}"></i></div>
+            <div class="sf-tpl-head">
+                <div class="sf-tpl-ico"><i class="fas ${t.builtin ? 'fa-file-contract' : 'fa-file-pen'}"></i></div>
+                <span class="sf-tpl-badge ${t.builtin ? '' : 'custom'}">${t.builtin ? 'جاهز' : 'مخصص'}</span>
+            </div>
             <div class="sf-tpl-txt">
                 <h5>${t.name}</h5>
                 <p>${t.desc || ''}</p>
             </div>
-            <span class="sf-tpl-badge ${t.builtin ? '' : 'custom'}">${t.builtin ? 'جاهز' : 'مخصص'}</span>
             <button class="action-btn edit no-readonly" title="تعديل القالب" onclick="event.stopPropagation();openSmartTemplateModal('${t.id}')"><i class="fas fa-pen"></i></button>
         </div>
     `).join('');
@@ -23921,5 +23924,504 @@ html[data-theme="dark"] .sfx-drop{background:#0f172a;border-color:#334155;color:
 })();
 </script>
 
+<!-- ============ SFV: تصدير Word (.docx) + نظام إصدارات القوالب + إدارة/حذف القوالب ============ -->
+<style id="sfvStyles">
+.sfv-menu-wrap{position:relative;display:inline-flex}
+#page-smart_forms .sf-tpl{position:relative}
+.sfv-btn{border:none;background:#f1f5f9;color:#475569;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:12px;display:inline-flex;align-items:center;justify-content:center;transition:.15s;margin-inline-start:4px}
+.sfv-btn:hover{background:#e0e7ff;color:#3730a3}
+.sfv-btn.danger:hover{background:#fee2e2;color:#b91c1c}
+.sfv-pop{position:absolute;top:34px;inset-inline-end:0;z-index:60;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 12px 32px rgba(15,23,42,.18);min-width:210px;padding:6px;display:none}
+.sfv-pop.open{display:block}
+.sfv-pop button{width:100%;display:flex;align-items:center;gap:8px;background:none;border:none;padding:9px 10px;border-radius:9px;font-size:12.5px;font-weight:700;color:#334155;cursor:pointer;font-family:inherit;text-align:start}
+.sfv-pop button:hover{background:#f1f5f9}
+.sfv-pop button.danger{color:#b91c1c}
+.sfv-pop button.danger:hover{background:#fee2e2}
+.sfv-pop hr{border:none;border-top:1px solid #eef2f7;margin:4px 2px}
+.sfv-overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9999;display:none;align-items:center;justify-content:center;padding:18px}
+.sfv-overlay.open{display:flex}
+.sfv-modal{background:#fff;border-radius:18px;max-width:760px;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(15,23,42,.35)}
+.sfv-modal header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff}
+.sfv-modal header h3{margin:0;font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px}
+.sfv-modal header button{background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:18px}
+.sfv-modal .sfv-body{padding:16px 18px;overflow:auto}
+.sfv-ver{border:1px solid #e2e8f0;border-radius:14px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.sfv-ver .meta{flex:1;min-width:200px}
+.sfv-ver .meta b{display:block;font-size:13.5px;color:#1e293b}
+.sfv-ver .meta span{font-size:12px;color:#64748b}
+.sfv-ver .prev{width:100%;background:#f8fafc;border:1px dashed #e2e8f0;border-radius:10px;padding:8px 10px;font-size:12px;color:#475569;max-height:70px;overflow:hidden;line-height:1.8}
+.sfv-tagcur{background:#dcfce7;color:#166534;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800}
+.sfv-tag{background:#eef2ff;color:#3730a3;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800}
+html[data-theme="dark"] .sfv-modal{background:#0f172a;color:#e2e8f0}
+html[data-theme="dark"] .sfv-pop{background:#111827;border-color:#1f2937}
+html[data-theme="dark"] .sfv-pop button{color:#cbd5e1}
+html[data-theme="dark"] .sfv-pop button:hover{background:#1f2937}
+</style>
+<script>
+(function(){
+  var VER_KEY='sfTemplateVersions_v1', MAX_VER=25;
+  function toast(t,a,b){ try{ showToast(t,a,b); }catch(e){ console.log(a,b); } }
+  function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function fmtDate(iso){ try{ var d=new Date(iso); return d.toLocaleDateString('en-GB')+' — '+d.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}); }catch(e){ return iso; } }
+
+  /* ================= الإصدارات ================= */
+  function readVers(){ try{ return JSON.parse(localStorage.getItem(VER_KEY)||'{}')||{}; }catch(e){ return {}; } }
+  function writeVers(v){ try{ localStorage.setItem(VER_KEY,JSON.stringify(v)); }catch(e){ toast('error','تعذّر حفظ الإصدار','مساحة التخزين ممتلئة — احذف إصدارات قديمة'); } }
+  function getVers(id){ return readVers()[id]||[]; }
+  function pushVersion(id,tpl,note,ts){
+    if(!id||!tpl) return;
+    var all=readVers(), list=all[id]||[];
+    if(list.length && list[list.length-1].body===tpl.body && list[list.length-1].name===tpl.name) return;
+    list.push({ts:ts||new Date().toISOString(),name:tpl.name||'',desc:tpl.desc||'',body:tpl.body||'',note:note||'تعديل',user:(window.currentUser&&(currentUser.name||currentUser.username))||''});
+    if(list.length>MAX_VER) list=list.slice(list.length-MAX_VER);
+    all[id]=list; writeVers(all);
+  }
+  function dropVersions(id){ var all=readVers(); delete all[id]; writeVers(all); }
+  function findTpl(id){ try{ return sfTemplates.find(function(t){return t.id===id;}); }catch(e){ return null; } }
+
+  function upsert(id,patch){
+    var store=readSmartStore().filter(function(t){ return t.id!==id; });
+    var cur=findTpl(id)||{};
+    store.push(Object.assign({id:id,name:cur.name,desc:cur.desc,body:cur.body,uploaded:cur.uploaded,created_at:cur.created_at},patch));
+    persistSmartTemplates(store);
+    loadSmartTemplates(); renderSmartTemplateList(); renderSmartForm();
+  }
+
+  /* ================= تصدير Word (.docx) ================= */
+  function docHtml(id){
+    var tpl=findTpl(id); if(!tpl) return null;
+    var body;
+    if(id===sfActiveTemplateId && document.getElementById('sfPaper') && !document.querySelector('#sfPaper .sf-empty')){
+      var clone=document.getElementById('sfPaper').cloneNode(true);
+      clone.querySelectorAll('.sf-missing').forEach(function(e){ e.replaceWith(document.createTextNode(e.textContent||'')); });
+      body=clone.innerHTML;
+    } else {
+      body=String(tpl.body||'');
+    }
+    var css="body{font-family:'Tajawal','Cairo',Arial,sans-serif;direction:rtl;font-size:15px;line-height:1.9;color:#111;}"+
+      "h1,h2{text-align:center;font-size:20px;font-weight:bold;}h3{font-size:17px;}"+
+      "table{width:100%;border-collapse:collapse;margin:10px 0;}td,th{border:1px solid #999;padding:6px;}th{background:#f1f5f9;}"+
+      "img{max-width:100%;}p{margin:6px 0;}";
+    return {title:(tpl.name||'نموذج'),
+      html:'<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>'+esc(tpl.name||'نموذج')+'</title><style>'+css+'</style></head><body dir="rtl">'+body+'</body></html>'};
+  }
+  function dl(blob,name){
+    var url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){URL.revokeObjectURL(url);},1500);
+  }
+  async function exportDocx(id){
+    var d=docHtml(id);
+    if(!d){ toast('error','تنبيه','لم يتم العثور على القالب'); return; }
+    if(typeof JSZip==='undefined'){
+      dl(new Blob(['\ufeff'+d.html],{type:'application/msword'}), d.title+'.doc');
+      toast('success','تم التصدير','تم التنزيل بصيغة Word (.doc)');
+      return;
+    }
+    try{
+      var zip=new JSZip();
+      zip.file('[Content_Types].xml',
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+        '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
+        '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
+        '<Default Extension="xml" ContentType="application/xml"/>'+
+        '<Default Extension="html" ContentType="text/html"/>'+
+        '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'+
+        '</Types>');
+      zip.folder('_rels').file('.rels',
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+        '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'+
+        '</Relationships>');
+      var w=zip.folder('word');
+      w.folder('_rels').file('document.xml.rels',
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+        '<Relationship Id="htmlChunk" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/aFChunk" Target="chunk.html"/>'+
+        '</Relationships>');
+      w.file('chunk.html', d.html);
+      w.file('document.xml',
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+        '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" '+
+        'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'+
+        '<w:body><w:altChunk r:id="htmlChunk"/>'+
+        '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/>'+
+        '<w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134"/>'+
+        '<w:bidi/></w:sectPr></w:body></w:document>');
+      var blob=await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+      dl(blob, d.title+'.docx');
+      toast('success','تم التصدير','تم تنزيل القالب بصيغة Word (.docx) جاهز للتسليم مع التنسيق');
+    }catch(e){
+      dl(new Blob(['\ufeff'+d.html],{type:'application/msword'}), d.title+'.doc');
+      toast('info','تم التصدير','تعذّر إنشاء docx — تم التنزيل بصيغة .doc');
+    }
+  }
+  window.sfvExportDocx=exportDocx;
+
+  /* ================= الحذف والإعدادات ================= */
+  function deleteTpl(id){
+    var tpl=findTpl(id); if(!tpl) return;
+    if(typeof checkReadOnly==='function' && checkReadOnly()) return;
+    if(!confirm('هل تريد حذف القالب "'+(tpl.name||'')+'"؟ سيتم حذف إصداراته أيضاً.')) return;
+    var isBuiltin=SF_DEFAULT_TEMPLATES.some(function(t){return t.id===id;});
+    var store=readSmartStore().filter(function(t){ return t.id!==id; });
+    if(isBuiltin) store.push({id:id,__deleted:true});
+    persistSmartTemplates(store);
+    dropVersions(id);
+    loadSmartTemplates();
+    if(sfActiveTemplateId===id) sfActiveTemplateId=null;
+    renderSmartTemplateList(); renderSmartForm();
+    toast('success','تم الحذف','تم حذف القالب');
+  }
+  function duplicateTpl(id){
+    var tpl=findTpl(id); if(!tpl) return;
+    var store=readSmartStore();
+    var nid='tpl_'+Date.now();
+    store.push({id:nid,name:(tpl.name||'قالب')+' (نسخة)',desc:tpl.desc||'',body:tpl.body||'',created_at:new Date().toISOString()});
+    persistSmartTemplates(store);
+    loadSmartTemplates(); selectSmartTemplate(nid);
+    toast('success','تم النسخ','تم إنشاء نسخة قابلة للتعديل');
+  }
+  function renameTpl(id){
+    var tpl=findTpl(id); if(!tpl) return;
+    var n=prompt('اسم القالب الجديد:',tpl.name||''); if(n===null) return;
+    n=n.trim(); if(!n) return;
+    pushVersion(id,tpl,'قبل إعادة التسمية');
+    upsert(id,{name:n});
+    toast('success','تم','تم تعديل اسم القالب');
+  }
+
+  /* ================= نافذة الإصدارات ================= */
+  function ensureModal(){
+    if(document.getElementById('sfvVerModal')) return;
+    var ov=document.createElement('div');
+    ov.className='sfv-overlay'; ov.id='sfvVerModal';
+    ov.innerHTML='<div class="sfv-modal">'+
+      '<header><h3><i class="fas fa-clock-rotate-left"></i> سجل إصدارات القالب</h3>'+
+      '<button type="button" data-close>&times;</button></header>'+
+      '<div class="sfv-body" id="sfvVerBody"></div></div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click',function(e){ if(e.target===ov||e.target.hasAttribute('data-close')) ov.classList.remove('open'); });
+  }
+  function openVersions(id){
+    ensureModal();
+    var tpl=findTpl(id); if(!tpl) return;
+    var vers=getVers(id).slice().reverse();
+    var body=document.getElementById('sfvVerBody');
+    var head='<div class="sfv-ver"><div class="meta"><b>'+esc(tpl.name||'')+'</b>'+
+      '<span>النسخة الحالية المستخدمة الآن</span></div><span class="sfv-tagcur">حالية</span>'+
+      '<div class="prev">'+esc((tpl.body||'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').slice(0,220))+'</div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-secondary btn-sm" onclick="sfvSnapshot(\''+id+'\')"><i class="fas fa-camera"></i> حفظ نسخة الآن</button>'+
+      '<button class="btn btn-success btn-sm" onclick="sfvExportDocx(\''+id+'\')"><i class="fas fa-file-word"></i> تصدير Word</button></div></div>';
+    var html = vers.length ? vers.map(function(v,i){
+      var idx=vers.length-i;
+      return '<div class="sfv-ver"><div class="meta"><b>إصدار #'+idx+' — '+esc(v.name||'')+'</b>'+
+        '<span><i class="fas fa-calendar"></i> '+esc(fmtDate(v.ts))+(v.user?' — '+esc(v.user):'')+' — '+esc(v.note||'')+'</span></div>'+
+        '<span class="sfv-tag">سابق</span>'+
+        '<div class="prev">'+esc((v.body||'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').slice(0,220))+'</div>'+
+        '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+        '<button class="btn btn-primary btn-sm" onclick="sfvRestore(\''+id+'\','+(vers.length-1-i)+')"><i class="fas fa-rotate-left"></i> استرجاع هذه النسخة</button>'+
+        '<button class="btn btn-danger btn-sm" onclick="sfvDropOne(\''+id+'\','+(vers.length-1-i)+')"><i class="fas fa-trash"></i> حذف الإصدار</button></div></div>';
+    }).join('') : '<div class="sf-hint" style="padding:14px">لا توجد إصدارات سابقة بعد — يتم إنشاء إصدار تلقائياً عند كل تعديل أو إعادة رفع للقالب.</div>';
+    body.innerHTML=head+html;
+    document.getElementById('sfvVerModal').classList.add('open');
+  }
+  window.sfvOpenVersions=openVersions;
+  window.sfvSnapshot=function(id){ var t=findTpl(id); if(!t) return; pushVersion(id,t,'حفظ يدوي'); openVersions(id); toast('success','تم','تم حفظ نسخة من القالب'); };
+  window.sfvRestore=function(id,idx){
+    var list=getVers(id), v=list[idx], cur=findTpl(id);
+    if(!v||!cur) return;
+    if(!confirm('استرجاع هذه النسخة؟ سيتم حفظ النسخة الحالية كإصدار قبل الاسترجاع.')) return;
+    pushVersion(id,cur,'قبل الاسترجاع');
+    upsert(id,{name:v.name||cur.name,desc:v.desc||cur.desc,body:v.body});
+    sfActiveTemplateId=id; renderSmartTemplateList(); renderSmartForm();
+    openVersions(id);
+    toast('success','تم الاسترجاع','تم إرجاع القالب إلى النسخة المحددة');
+  };
+  window.sfvDropOne=function(id,idx){
+    var all=readVers(), list=all[id]||[];
+    if(!list[idx]) return;
+    if(!confirm('حذف هذا الإصدار نهائياً؟')) return;
+    list.splice(idx,1); all[id]=list; writeVers(all);
+    openVersions(id); toast('success','تم','تم حذف الإصدار');
+  };
+
+  /* ================= أزرار القائمة داخل بطاقة القالب ================= */
+  function closePops(){ document.querySelectorAll('.sfv-pop.open').forEach(function(p){p.classList.remove('open');}); }
+  document.addEventListener('click',function(e){ if(!e.target.closest('.sfv-menu-wrap')) closePops(); });
+
+  function injectButtons(){
+    var list=document.getElementById('sfTemplateList');
+    if(!list) return;
+    list.querySelectorAll('.sf-tpl').forEach(function(card){
+      if(card.querySelector('.sfv-menu-wrap')) return;
+      var oc=card.getAttribute('onclick')||'';
+      var m=oc.match(/selectSmartTemplate\('([^']+)'\)/);
+      if(!m) return;
+      var id=m[1];
+      if(!getVers(id).length){ var t0=findTpl(id); if(t0) pushVersion(id,t0,'النسخة الأصلية',t0.created_at); }
+      var vcount=getVers(id).length;
+
+      var vb=document.createElement('button');
+      vb.type='button'; vb.className='sfv-btn'; vb.title='سجل الإصدارات'+(vcount?(' ('+vcount+')'):'');
+      vb.innerHTML='<i class="fas fa-clock-rotate-left"></i>';
+      vb.onclick=function(e){ e.stopPropagation(); closePops(); openVersions(id); };
+
+      var wrap=document.createElement('span');
+      wrap.className='sfv-menu-wrap';
+      var mb=document.createElement('button');
+      mb.type='button'; mb.className='sfv-btn'; mb.title='خيارات القالب';
+      mb.innerHTML='<i class="fas fa-ellipsis-vertical"></i>';
+      var pop=document.createElement('div');
+      pop.className='sfv-pop';
+      pop.innerHTML='<button type="button" data-a="word"><i class="fas fa-file-word"></i> تصدير إلى Word (.docx)</button>'+
+        '<button type="button" data-a="ver"><i class="fas fa-clock-rotate-left"></i> سجل الإصدارات ('+vcount+')</button>'+
+        '<button type="button" data-a="snap"><i class="fas fa-camera"></i> حفظ نسخة الآن</button>'+
+        '<hr>'+
+        '<button type="button" data-a="edit"><i class="fas fa-pen"></i> تعديل القالب</button>'+
+        '<button type="button" data-a="rename"><i class="fas fa-i-cursor"></i> إعادة التسمية</button>'+
+        '<button type="button" data-a="dup"><i class="fas fa-copy"></i> نسخ القالب</button>'+
+        '<hr>'+
+        '<button type="button" class="danger" data-a="del"><i class="fas fa-trash"></i> حذف القالب</button>';
+      mb.onclick=function(e){ e.stopPropagation(); var was=pop.classList.contains('open'); closePops(); if(!was) pop.classList.add('open'); };
+      pop.addEventListener('click',function(e){
+        var b=e.target.closest('button[data-a]'); if(!b) return;
+        e.stopPropagation(); closePops();
+        var a=b.getAttribute('data-a');
+        if(a==='word') exportDocx(id);
+        else if(a==='ver') openVersions(id);
+        else if(a==='snap'){ var t=findTpl(id); if(t){ pushVersion(id,t,'حفظ يدوي'); injectButtons(); toast('success','تم','تم حفظ نسخة من القالب'); } }
+        else if(a==='edit') openSmartTemplateModal(id);
+        else if(a==='rename') renameTpl(id);
+        else if(a==='dup') duplicateTpl(id);
+        else if(a==='del') deleteTpl(id);
+      });
+      wrap.appendChild(mb); wrap.appendChild(pop);
+      card.appendChild(vb); card.appendChild(wrap);
+    });
+  }
+
+  /* ================= ربط مع الدوال الأصلية ================= */
+  function wrapAll(){
+    if(typeof window.renderSmartTemplateList==='function' && !window.renderSmartTemplateList.__sfv){
+      var orl=window.renderSmartTemplateList;
+      var f1=function(){ var r=orl.apply(this,arguments); try{ injectButtons(); }catch(e){} return r; };
+      f1.__sfv=true; window.renderSmartTemplateList=f1;
+    }
+    if(typeof window.saveSmartTemplate==='function' && !window.saveSmartTemplate.__sfv){
+      var oss=window.saveSmartTemplate;
+      var f2=function(){
+        var id=(document.getElementById('sfTplId')||{}).value||'';
+        var before=id?findTpl(id):null;
+        if(before) pushVersion(id,before,'قبل التعديل');
+        var r=oss.apply(this,arguments);
+        try{ var after=findTpl(sfActiveTemplateId); if(after) pushVersion(sfActiveTemplateId,after,'بعد التعديل'); injectButtons(); }catch(e){}
+        return r;
+      };
+      f2.__sfv=true; window.saveSmartTemplate=f2;
+    }
+    if(typeof window.deleteSmartTemplate==='function' && !window.deleteSmartTemplate.__sfv){
+      var ods=window.deleteSmartTemplate;
+      var f3=function(){ var id=(document.getElementById('sfTplId')||{}).value||''; var r=ods.apply(this,arguments); try{ if(id&&!findTpl(id)) dropVersions(id); }catch(e){} return r; };
+      f3.__sfv=true; window.deleteSmartTemplate=f3;
+    }
+  }
+
+  function addToolbarBtn(){
+    var tb=document.querySelector('#page-smart_forms .sf-toolbar');
+    if(tb&&!document.getElementById('sfvDocxBtn')){
+      var b=document.createElement('button');
+      b.id='sfvDocxBtn'; b.type='button'; b.className='btn btn-success btn-sm';
+      b.innerHTML='<i class="fas fa-file-word"></i> تصدير Word (.docx)';
+      b.onclick=function(){ if(!sfActiveTemplateId){ toast('error','تنبيه','اختر قالبًا أولاً'); return; } exportDocx(sfActiveTemplateId); };
+      var ref=tb.querySelector('button[onclick*="exportSmartFormWord"]');
+      if(ref&&ref.parentNode) ref.parentNode.insertBefore(b,ref.nextSibling); else tb.appendChild(b);
+    }
+  }
+
+  function boot(){
+    wrapAll(); addToolbarBtn(); injectButtons();
+    setInterval(function(){ wrapAll(); addToolbarBtn(); injectButtons(); },2000);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+})();
+</script>
+
 </body>
+
+<!-- ============ CARDS: تحويل قائمة القوالب إلى بطاقات أنيقة ============ -->
+<style id="sfCardStyles">
+/* توسيع العمود الأيسر وجعل التخطيط مرناً */
+#page-smart_forms .sf-layout {
+    grid-template-columns: minmax(360px, 1.1fr) 1.4fr;
+    gap: 22px;
+}
+@media (max-width: 1100px) {
+    #page-smart_forms .sf-layout {
+        grid-template-columns: 1fr;
+    }
+}
+#page-smart_forms .sf-panel-body { padding: 16px; }
+
+/* شبكة بطاقات القوالب */
+.sf-tpl-list {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 14px;
+    max-height: 520px;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+/* بطاقة القالب */
+.sf-tpl {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid #e5e9f0;
+    box-shadow: 0 2px 10px rgba(15,23,42,.05);
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    position: relative;
+    min-height: 160px;
+}
+.sf-tpl:hover {
+    transform: translateY(-4px);
+    border-color: #93c5fd;
+    background: #f8fbff;
+    box-shadow: 0 14px 28px rgba(79,70,229,.13);
+}
+.sf-tpl.active {
+    border-color: #2563eb;
+    background: #eff6ff;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12), 0 14px 28px rgba(79,70,229,.15);
+}
+.sf-tpl.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2563eb, #4f46e5);
+    border-radius: 18px 18px 0 0;
+}
+
+/* رأس البطاقة */
+.sf-tpl-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+.sf-tpl-ico {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(37,99,235,.12);
+    color: #2563eb;
+    font-size: 19px;
+    transition: .2s;
+}
+.sf-tpl:hover .sf-tpl-ico {
+    background: #2563eb;
+    color: #fff;
+    transform: scale(1.05);
+}
+
+/* محتوى البطاقة */
+.sf-tpl-txt {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+}
+.sf-tpl-txt h5 {
+    margin: 0 0 6px;
+    font-size: 15px;
+    font-weight: 800;
+    color: #1f2937;
+    line-height: 1.35;
+}
+.sf-tpl-txt p {
+    margin: 0;
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* شارة القالب */
+.sf-tpl-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #64748b;
+}
+.sf-tpl-badge.custom { background: #ede9fe; color: #6d28d9; }
+
+/* زر التعديل */
+.sf-tpl .action-btn.edit {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: none;
+    background: #f1f5f9;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: .15s;
+    opacity: 0;
+    z-index: 5;
+}
+.sf-tpl:hover .action-btn.edit { opacity: 1; }
+.sf-tpl .action-btn.edit:hover { background: #e0e7ff; color: #3730a3; }
+
+/* أزرار SFV داخل البطاقة */
+#page-smart_forms .sf-tpl .sfv-btn,
+#page-smart_forms .sf-tpl .sfv-menu-wrap {
+    align-self: flex-end;
+    margin-top: auto;
+}
+#page-smart_forms .sf-tpl .sfv-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    font-size: 13px;
+    background: #f1f5f9;
+    color: #475569;
+}
+#page-smart_forms .sf-tpl .sfv-btn:hover { background: #e0e7ff; color: #3730a3; }
+#page-smart_forms .sf-tpl .sfv-pop {
+    top: auto;
+    bottom: calc(100% + 6px);
+    inset-inline-end: 0;
+    inset-inline-start: auto;
+    min-width: 200px;
+}
+
+/* الوضع المظلم */
+html[data-theme="dark"] .sf-tpl { background: #0f172a; border-color: #334155; }
+html[data-theme="dark"] .sf-tpl:hover { background: #1e293b; border-color: #4f46e5; }
+html[data-theme="dark"] .sf-tpl.active { background: #1e293b; border-color: #4f46e5; }
+html[data-theme="dark"] .sf-tpl-txt h5 { color: #e2e8f0; }
+html[data-theme="dark"] .sf-tpl-ico { background: rgba(99,102,241,.2); color: #a5b4fc; }
+html[data-theme="dark"] .sf-tpl:hover .sf-tpl-ico { background: #4f46e5; color: #fff; }
+</style>
 </html>
