@@ -7,6 +7,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -23652,6 +23653,270 @@ html body .page-section > .page-header.is-loading .page-actions .btn{ pointer-ev
     }
   }
   function boot(){ injectButtons(); setInterval(injectButtons,2500); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+})();
+</script>
+
+<!-- ============ SFX: النماذج الذكية — رفع نماذج Word + ترويسة مخصصة + تنسيق أنيق ============ -->
+<style id="sfxStyles">
+#page-smart_forms .page-header{flex-wrap:wrap;gap:12px;margin-bottom:16px}
+#page-smart_forms .page-actions{display:flex;flex-wrap:wrap;gap:8px}
+#page-smart_forms .sf-layout{grid-template-columns:320px 1fr;gap:18px}
+#page-smart_forms .sf-panel{border-radius:18px;border:1px solid #e6ebf2;box-shadow:0 6px 20px rgba(15,23,42,.06)}
+#page-smart_forms .sf-panel-head{background:linear-gradient(135deg,rgba(79,70,229,.10),rgba(14,165,233,.10));border-bottom:1px solid rgba(79,70,229,.18)}
+#page-smart_forms .sf-panel-head i{color:var(--mms-accent,#4f46e5)}
+#page-smart_forms .sf-panel-head h4{color:var(--mms-accent-d,#312e81)}
+#page-smart_forms .sf-tpl{border-radius:14px;transition:.18s}
+#page-smart_forms .sf-tpl:hover{transform:translateY(-1px);border-color:var(--mms-accent,#4f46e5);box-shadow:0 6px 16px rgba(79,70,229,.14)}
+#page-smart_forms .sf-toolbar{background:#fff;border:1px solid #e6ebf2;border-radius:16px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;box-shadow:0 4px 14px rgba(15,23,42,.05);margin-bottom:12px}
+#page-smart_forms .sf-paper-wrap{background:linear-gradient(180deg,#eef2f7,#e7edf5);border-radius:20px;padding:22px}
+#page-smart_forms .sf-paper{border-radius:8px;box-shadow:0 12px 40px rgba(15,23,42,.16)}
+.sfx-upcard{display:flex;flex-direction:column;gap:10px}
+.sfx-drop{border:2px dashed #c7d2fe;border-radius:14px;padding:16px;text-align:center;background:#f8faff;cursor:pointer;transition:.18s;font-size:12.5px;font-weight:700;color:#475569}
+.sfx-drop:hover,.sfx-drop.over{border-color:var(--mms-accent,#4f46e5);background:#eef2ff;color:var(--mms-accent-d,#312e81)}
+.sfx-drop i{display:block;font-size:22px;margin-bottom:6px;color:var(--mms-accent,#4f46e5)}
+.sfx-switch{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:#334155;background:#f1f5f9;border-radius:10px;padding:7px 11px;cursor:pointer}
+.sfx-switch input{accent-color:var(--mms-accent,#4f46e5);width:16px;height:16px}
+#page-smart_forms .sf-tpl-badge.up{background:#dcfce7;color:#166534}
+#sfPaper .mms-doc-head{margin-bottom:22px}
+#sfPaper .mms-foot-wrap{margin-top:22px}
+html[data-theme="dark"] #page-smart_forms .sf-toolbar{background:#111827;border-color:#1f2937}
+html[data-theme="dark"] .sfx-drop{background:#0f172a;border-color:#334155;color:#cbd5e1}
+</style>
+<script>
+(function(){
+  var UP_PREFIX='sfup_';
+  function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function toast(t,a,b){ try{ showToast(t,a,b); }catch(e){ console.log(a,b); } }
+
+  /* ---------- تحويل ملف Word (docx) إلى HTML ---------- */
+  function xmlDoc(str){ return new DOMParser().parseFromString(str,'application/xml'); }
+  function tag(el,n){ return el.getElementsByTagName('w:'+n); }
+  function runHtml(r,media){
+    var out='';
+    var blips=r.getElementsByTagName('a:blip');
+    if(blips.length){
+      var id=blips[0].getAttribute('r:embed')||blips[0].getAttribute('r:link');
+      if(id&&media[id]) out+='<img src="'+media[id]+'" style="max-width:100%">';
+    }
+    var txt='';
+    for(var i=0;i<r.childNodes.length;i++){
+      var c=r.childNodes[i], nm=c.nodeName;
+      if(nm==='w:t') txt+=c.textContent;
+      else if(nm==='w:tab') txt+='&nbsp;&nbsp;&nbsp;&nbsp;';
+      else if(nm==='w:br') txt+='<br>';
+    }
+    if(txt){
+      var pr=r.getElementsByTagName('w:rPr')[0], t=esc(txt).replace(/&amp;nbsp;/g,'&nbsp;').replace(/&lt;br&gt;/g,'<br>');
+      if(pr){
+        if(pr.getElementsByTagName('w:b').length) t='<b>'+t+'</b>';
+        if(pr.getElementsByTagName('w:i').length) t='<i>'+t+'</i>';
+        if(pr.getElementsByTagName('w:u').length) t='<u>'+t+'</u>';
+      }
+      out+=t;
+    }
+    return out;
+  }
+  function paraHtml(p,media){
+    var inner='';
+    for(var i=0;i<p.childNodes.length;i++){
+      var c=p.childNodes[i];
+      if(c.nodeName==='w:r') inner+=runHtml(c,media);
+      else if(c.nodeName==='w:hyperlink'){
+        var rs=c.getElementsByTagName('w:r');
+        for(var j=0;j<rs.length;j++) inner+=runHtml(rs[j],media);
+      }
+    }
+    var style='', pPr=p.getElementsByTagName('w:pPr')[0], al='';
+    if(pPr){
+      var ps=pPr.getElementsByTagName('w:pStyle')[0];
+      if(ps) style=(ps.getAttribute('w:val')||'').toLowerCase();
+      var jc=pPr.getElementsByTagName('w:jc')[0];
+      if(jc) al=(jc.getAttribute('w:val')||'');
+    }
+    if(!inner.trim()) return '<p>&nbsp;</p>';
+    var alStyle = al ? ' style="text-align:'+(al==='both'?'justify':al)+'"' : '';
+    if(/heading1|title/.test(style)) return '<h2'+alStyle+'>'+inner+'</h2>';
+    if(/heading2/.test(style)) return '<h3'+alStyle+'>'+inner+'</h3>';
+    if(/heading3/.test(style)) return '<h4'+alStyle+'>'+inner+'</h4>';
+    if(/listparagraph/.test(style)) return '<li>'+inner+'</li>';
+    return '<p'+alStyle+'>'+inner+'</p>';
+  }
+  function tableHtml(tbl,media){
+    var rows=[], trs=tbl.children;
+    for(var i=0;i<trs.length;i++){
+      if(trs[i].nodeName!=='w:tr') continue;
+      var cells='', tcs=trs[i].children;
+      for(var j=0;j<tcs.length;j++){
+        if(tcs[j].nodeName!=='w:tc') continue;
+        var body='', ps=tcs[j].getElementsByTagName('w:p');
+        for(var k=0;k<ps.length;k++) body+=paraHtml(ps[k],media);
+        cells+='<td>'+body+'</td>';
+      }
+      rows.push('<tr>'+cells+'</tr>');
+    }
+    return '<table>'+rows.join('')+'</table>';
+  }
+  function wrapLists(html){
+    return html.replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g,function(m){ return m; })
+               .replace(/((?:<li>[\s\S]*?<\/li>)+)/g,'<ul>$1</ul>');
+  }
+  async function docxToHtml(file){
+    if(typeof JSZip==='undefined') throw new Error('مكتبة قراءة Word غير متوفرة');
+    var zip=await JSZip.loadAsync(file);
+    var docFile=zip.file('word/document.xml');
+    if(!docFile) throw new Error('ملف Word غير صالح (docx فقط)');
+    var media={};
+    var relFile=zip.file('word/_rels/document.xml.rels');
+    if(relFile){
+      var rels=xmlDoc(await relFile.async('string')).getElementsByTagName('Relationship');
+      for(var i=0;i<rels.length;i++){
+        var target=rels[i].getAttribute('Target')||'';
+        if(!/media\//.test(target)) continue;
+        var path='word/'+target.replace(/^\//,'');
+        var f=zip.file(path)||zip.file(target.replace(/^\//,''));
+        if(!f) continue;
+        var b64=await f.async('base64');
+        var ext=(path.split('.').pop()||'png').toLowerCase();
+        var mime=ext==='jpg'||ext==='jpeg'?'image/jpeg':ext==='gif'?'image/gif':ext==='svg'?'image/svg+xml':'image/png';
+        media[rels[i].getAttribute('Id')]='data:'+mime+';base64,'+b64;
+      }
+    }
+    var body=xmlDoc(await docFile.async('string')).getElementsByTagName('w:body')[0];
+    if(!body) throw new Error('محتوى Word فارغ');
+    var html='';
+    for(var n=0;n<body.children.length;n++){
+      var el=body.children[n];
+      if(el.nodeName==='w:p') html+=paraHtml(el,media);
+      else if(el.nodeName==='w:tbl') html+=tableHtml(el,media);
+    }
+    return wrapLists(html);
+  }
+  function sanitizeHtml(html){
+    var d=document.createElement('div'); d.innerHTML=html;
+    d.querySelectorAll('script,style,meta,link,iframe,object,embed').forEach(function(e){e.remove();});
+    d.querySelectorAll('*').forEach(function(e){
+      [].slice.call(e.attributes).forEach(function(a){
+        if(/^on/i.test(a.name)) e.removeAttribute(a.name);
+      });
+    });
+    return d.innerHTML;
+  }
+
+  /* ---------- حفظ القالب المرفوع بشكل دائم ---------- */
+  function saveUploaded(name,desc,body){
+    var store=[]; try{ store=JSON.parse(localStorage.getItem(SF_STORE_KEY)||'[]')||[]; }catch(e){ store=[]; }
+    var id=UP_PREFIX+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+    store.push({id:id,name:name,desc:desc,body:body,uploaded:true,created_at:new Date().toISOString()});
+    try{ localStorage.setItem(SF_STORE_KEY,JSON.stringify(store)); }
+    catch(e){ toast('error','تعذّر الحفظ','مساحة التخزين ممتلئة — احذف نماذج قديمة أو قلّل الصور داخل الملف'); return null; }
+    return id;
+  }
+
+  async function handleFiles(files){
+    if(!files||!files.length) return;
+    if(typeof checkReadOnly==='function' && checkReadOnly()) return;
+    var added=0, lastId=null;
+    for(var i=0;i<files.length;i++){
+      var f=files[i], nm=(f.name||'نموذج').replace(/\.[^.]+$/,'');
+      try{
+        var html='';
+        if(/\.docx$/i.test(f.name)) html=await docxToHtml(f);
+        else if(/\.(html?|htm)$/i.test(f.name)){
+          var txt=await f.text();
+          var m=txt.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+          html=sanitizeHtml(m?m[1]:txt);
+        }
+        else if(/\.txt$/i.test(f.name)){
+          html=(await f.text()).split(/\n{2,}/).map(function(p){return '<p>'+esc(p).replace(/\n/g,'<br>')+'</p>';}).join('');
+        }
+        else if(/\.doc$/i.test(f.name)){ toast('error','صيغة قديمة','احفظ الملف بصيغة .docx من Word ثم أعد الرفع'); continue; }
+        else { toast('error','صيغة غير مدعومة','المسموح: Word (.docx) أو HTML أو TXT'); continue; }
+        html=sanitizeHtml(html);
+        if(!html.replace(/<[^>]+>|&nbsp;|\s/g,'')){ toast('error','ملف فارغ','لم يتم العثور على نص داخل: '+f.name); continue; }
+        var id=saveUploaded(nm,'نموذج مرفوع من الجهاز — قابل للتعديل',html);
+        if(id){ lastId=id; added++; }
+      }catch(err){ toast('error','فشل الاستيراد',(f.name||'')+': '+(err.message||err)); }
+    }
+    if(added){
+      loadSmartTemplates(); renderSmartTemplateList();
+      if(lastId) selectSmartTemplate(lastId);
+      toast('success','تمت الإضافة',added+' نموذج تمت إضافته وحفظه بشكل دائم — يمكنك تعديله في أي وقت');
+    }
+  }
+
+  /* ---------- الترويسة المخصصة داخل النموذج ---------- */
+  var HEAD_KEY='sfxShowHeader_v1';
+  function headerOn(){ return localStorage.getItem(HEAD_KEY)!=='0'; }
+  function setHeaderOn(v){ localStorage.setItem(HEAD_KEY,v?'1':'0'); }
+
+  function decorate(){
+    var paper=document.getElementById('sfPaper');
+    if(!paper||!window.MMSDoc) return;
+    paper.querySelectorAll('.mms-doc-head,.mms-foot-wrap,.mms-doc-sign').forEach(function(e){e.remove();});
+    if(!headerOn()) return;
+    if(paper.querySelector('.sf-empty')) return;
+    var tpl=null; try{ tpl=sfTemplates.find(function(t){return t.id===sfActiveTemplateId;}); }catch(e){}
+    if(!tpl) return;
+    var h1=paper.querySelector('h2');
+    var title=tpl.name||(h1?h1.textContent:'نموذج');
+    if(h1&&h1.textContent.trim()) h1.remove();
+    MMSDoc.attachTo(paper,{title:title});
+  }
+
+  function wrapRender(){
+    if(typeof window.renderSmartForm!=='function'||window.renderSmartForm.__sfx) return;
+    var orig=window.renderSmartForm;
+    var fn=function(){ var r=orig.apply(this,arguments); try{ decorate(); }catch(e){} return r; };
+    fn.__sfx=true; window.renderSmartForm=fn;
+  }
+
+  /* ---------- بناء الأزرار والواجهة ---------- */
+  function buildUI(){
+    var page=document.getElementById('page-smart_forms');
+    if(!page) return;
+    var actions=page.querySelector('.page-actions');
+    if(actions&&!document.getElementById('sfxUploadBtn')){
+      var lbl=document.createElement('label');
+      lbl.id='sfxUploadBtn'; lbl.className='btn btn-primary btn-sm no-readonly';
+      lbl.style.cssText='cursor:pointer;margin:0;display:inline-flex;align-items:center;gap:6px';
+      lbl.innerHTML='<i class="fas fa-file-arrow-up"></i> ارفق نموذج من جهازي'+
+        '<input type="file" id="sfxFileInput" multiple accept=".docx,.html,.htm,.txt" style="display:none">';
+      actions.insertBefore(lbl,actions.firstChild);
+      lbl.querySelector('input').addEventListener('change',function(e){ handleFiles(e.target.files); e.target.value=''; });
+
+      var hb=document.createElement('button');
+      hb.id='sfxHeadBtn'; hb.type='button'; hb.className='btn btn-secondary btn-sm';
+      hb.innerHTML='<i class="fas fa-sliders"></i> تخصيص رأس النموذج';
+      hb.onclick=function(){ if(window.MMSDoc) MMSDoc.openCustomizer(); };
+      actions.appendChild(hb);
+    }
+    var toolbar=page.querySelector('.sf-toolbar');
+    if(toolbar&&!document.getElementById('sfxHeadSwitch')){
+      var sw=document.createElement('label');
+      sw.className='sfx-switch'; sw.id='sfxHeadSwitch'; sw.title='إظهار/إخفاء رأس وتذييل النموذج';
+      sw.innerHTML='<input type="checkbox" '+(headerOn()?'checked':'')+'> <i class="fas fa-heading"></i> ترويسة رسمية';
+      sw.querySelector('input').addEventListener('change',function(e){ setHeaderOn(e.target.checked); try{ renderSmartForm(); }catch(err){} });
+      toolbar.insertBefore(sw,toolbar.firstChild);
+    }
+    var list=document.getElementById('sfTemplateList');
+    if(list&&list.parentNode&&!document.getElementById('sfxDrop')){
+      var drop=document.createElement('div');
+      drop.id='sfxDrop'; drop.className='sfx-drop';
+      drop.innerHTML='<i class="fas fa-cloud-arrow-up"></i>اسحب ملف Word (.docx) هنا أو اضغط للاختيار<br><span style="font-weight:600;font-size:11px;opacity:.8">يُحفظ تلقائياً مع النماذج ويبقى قابلاً للتعديل</span>';
+      drop.onclick=function(){ document.getElementById('sfxFileInput')?.click(); };
+      ['dragenter','dragover'].forEach(function(ev){ drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.add('over'); }); });
+      ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.remove('over'); }); });
+      drop.addEventListener('drop',function(e){ handleFiles(e.dataTransfer.files); });
+      list.parentNode.appendChild(drop);
+    }
+    wrapRender();
+  }
+
+  function boot(){
+    buildUI();
+    setInterval(buildUI,2000);
+  }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
 })();
 </script>
