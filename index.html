@@ -10,6 +10,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1533,7 +1534,56 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
 #pmOverviewOverlay .ovw-card.no-hit{opacity:.5}
 @media print{#pmOverviewOverlay{position:static;background:#fff;padding:0}}
 </style>
+    <!-- ===== Tender: Live Preview + Special Conditions (added) ===== -->
+    <style>
+        .tc-wrap{display:flex;flex-direction:column;gap:14px;margin-top:14px;}
+        .tc-panel{background:#fff;border:1px solid #e8edf3;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(16,24,40,.06);}
+        .tc-head{display:flex;align-items:center;gap:10px;padding:13px 18px;background:#4f46e50f;border-bottom:1px solid #4f46e522;flex-wrap:wrap;}
+        .tc-head h4{margin:0;font-size:14.5px;font-weight:800;color:#4338ca;}
+        .tc-head .tc-sp{flex:1;}
+        .tc-head.green{background:#0596690f;border-bottom-color:#05966922;}
+        .tc-head.green h4{color:#047857;}
+        .tc-body{padding:16px;}
+        .tc-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+        .tc-badge{background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;border-radius:999px;padding:5px 12px;font-size:12px;font-weight:800;}
+        .tc-badge.gray{background:#f1f5f9;color:#475569;border-color:#e2e8f0;}
+        .tc-frame{width:100%;height:640px;border:1px solid #e2e8f0;border-radius:14px;background:#f8fafc;}
+        .tc-frame.small{height:420px;}
+        .tc-img{width:100%;max-height:640px;object-fit:contain;border:1px solid #e2e8f0;border-radius:14px;background:#f8fafc;}
+        .tc-textview{max-height:520px;overflow:auto;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px;font-size:14px;line-height:2;white-space:pre-wrap;color:#1f2937;}
+        .tc-empty{border:2px dashed #cbd5e1;border-radius:14px;padding:26px 16px;text-align:center;color:#94a3b8;background:#f8fafc;}
+        .tc-empty i{font-size:28px;display:block;margin-bottom:10px;opacity:.7;}
+        .tc-empty h5{margin:0 0 6px;font-size:14px;font-weight:800;color:#64748b;}
+        .tc-empty p{margin:0;font-size:12.5px;}
+        .tc-list{counter-reset:tcitem;display:flex;flex-direction:column;gap:10px;}
+        .tc-item{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid #e8edf3;border-right:4px solid #4f46e5;border-radius:13px;padding:13px 14px;transition:.18s;}
+        .tc-item:hover{box-shadow:0 6px 18px rgba(79,70,229,.10);transform:translateY(-1px);}
+        .tc-num{counter-increment:tcitem;flex:0 0 32px;width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#4f46e5,#818cf8);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+        .tc-num::before{content:counter(tcitem);}
+        .tc-text{flex:1;min-width:0;font-size:14px;line-height:2;color:#1f2937;word-break:break-word;}
+        .tc-item.is-edit{border-right-color:#f59e0b;background:#fffdf7;}
+        .tc-ta{width:100%;min-height:76px;resize:vertical;font-family:inherit;font-size:14px;line-height:1.9;color:#1f2937;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;background:#fff;}
+        .tc-ta:focus{outline:none;border-color:#818cf8;box-shadow:0 0 0 3px #4f46e51f;}
+        .tc-itemacts{display:flex;flex-direction:column;gap:6px;}
+        .tc-mini{width:30px;height:30px;border:1px solid #e2e8f0;background:#fff;border-radius:8px;color:#64748b;cursor:pointer;font-size:12px;transition:.15s;}
+        .tc-mini:hover{background:#f8fafc;color:#4f46e5;border-color:#c7d2fe;}
+        .tc-mini.del:hover{color:#dc2626;border-color:#fecaca;background:#fef2f2;}
+        .tc-note{display:flex;gap:9px;align-items:flex-start;background:#f8fafc;border:1px solid #e8edf3;border-radius:12px;padding:11px 13px;font-size:12.5px;color:#64748b;line-height:1.9;margin-bottom:12px;}
+        .tc-note i{color:#4f46e5;margin-top:3px;}
+        .tc-search{position:relative;flex:1;min-width:200px;}
+        .tc-search input{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:9px 34px 9px 12px;font-family:inherit;font-size:13px;}
+        .tc-search input:focus{outline:none;border-color:#818cf8;}
+        .tc-search i{position:absolute;top:50%;right:12px;transform:translateY(-50%);color:#94a3b8;font-size:12px;}
+        .tc-fs{position:fixed;inset:0;background:rgba(15,23,42,.86);z-index:99999;display:none;flex-direction:column;padding:16px;}
+        .tc-fs.open{display:flex;}
+        .tc-fs .tc-fs-bar{display:flex;align-items:center;gap:10px;color:#fff;margin-bottom:12px;font-weight:800;font-size:14px;}
+        .tc-fs .tc-fs-body{flex:1;background:#fff;border-radius:14px;overflow:hidden;}
+        .tc-fs iframe,.tc-fs img{width:100%;height:100%;border:0;object-fit:contain;background:#fff;}
+        @media print{.tc-panel.no-print-panel,.tc-toolbar,.tc-fs{display:none !important;}}
+        @media(max-width:640px){.tc-frame{height:420px;}}
+    </style>
 </head>
+
 <body>
 
     <div class="bg-particles">
@@ -4518,6 +4568,7 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                     </div>
                 </div>
                 <div id="tenderContent"></div>
+                <div id="tenderExtras"></div>
             </div>
 
             <div class="page-section" id="page-smart_forms">
@@ -24704,6 +24755,427 @@ html[data-theme="dark"] .sfg-mini{background:#111827;border-color:#1f2937;color:
     window.loadSmartForms=async function(){ var r=await _lf.apply(this,arguments); try{ apply(); }catch(e){} return r; };
   }
   document.addEventListener('DOMContentLoaded',function(){ setTimeout(function(){ try{ applyOrder(); apply(); }catch(e){} },800); });
+})();
+</script>
+
+<!-- ===== Tender: Live attachment preview + Special Conditions extractor (added) ===== -->
+<script>
+(function(){
+  'use strict';
+
+  var TC_TABLE = 'tender_conditions';
+  var state = { items:[], editing:false, source:'', loadedFor:null, text:'', rowId:null, filter:'' };
+
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function toast(t,a,b){ try{ showToast(t,a,b); }catch(e){ console.log(a,b); } }
+  function tender(){ return (typeof currentTender!=='undefined') ? currentTender : null; }
+  function att(){ var t=tender(); return t && t.attachment ? t.attachment : null; }
+  function ext(n){ return String(n||'').split('.').pop().toLowerCase(); }
+  function readOnly(){ try{ return typeof checkReadOnly==='function' ? checkReadOnly() : false; }catch(e){ return false; } }
+
+  /* ---------------- storage ---------------- */
+  function lsKey(){ var t=tender(); return 'tender_conditions_'+(t?t.id:'none'); }
+
+  async function loadConditions(){
+    var t=tender(); if(!t) return;
+    state.items=[]; state.rowId=null; state.source='';
+    try{
+      var rows = await SupabaseAPI.request(TC_TABLE,'GET');
+      var row = (rows||[]).filter(function(r){ return String(r.tender_id)===String(t.id); })[0];
+      if(row){
+        state.rowId=row.id;
+        state.items=Array.isArray(row.items)?row.items.slice():(row.items?JSON.parse(row.items):[]);
+        state.source=row.source_filename||'';
+      }
+    }catch(e){
+      console.warn('tender_conditions load failed, using local cache', e);
+      try{
+        var c=JSON.parse(localStorage.getItem(lsKey())||'null');
+        if(c){ state.items=c.items||[]; state.source=c.source||''; }
+      }catch(_){}
+    }
+    state.loadedFor=t.id;
+  }
+
+  async function saveConditions(silent){
+    var t=tender();
+    if(!t){ toast('warning','تنبيه','لا توجد بيانات عطاء لربط الشروط بها'); return false; }
+    var items = state.items.map(function(x,i){ return { n:i+1, text:String(x.text||'').trim() }; })
+                           .filter(function(x){ return x.text; });
+    var payload = { tender_id:t.id, items:items, source_filename:state.source||'', updated_at:new Date().toISOString() };
+    try{
+      localStorage.setItem(lsKey(), JSON.stringify({ items:items, source:state.source||'' }));
+    }catch(_){}
+    try{
+      if(state.rowId){
+        await SupabaseAPI.request(TC_TABLE,'PATCH',payload,state.rowId);
+      }else{
+        payload.created_at=new Date().toISOString();
+        var res = await SupabaseAPI.request(TC_TABLE,'POST',payload);
+        if(Array.isArray(res)&&res[0]) state.rowId=res[0].id;
+      }
+      state.items=items;
+      if(!silent) toast('success','تم الحفظ','تم حفظ الشروط الخاصة على السيرفر وربطها بعطاء الصيانة');
+      return true;
+    }catch(e){
+      console.error(e);
+      state.items=items;
+      toast('error','تعذر الحفظ على السيرفر','تم الاحتفاظ بنسخة محلية. تأكد من تنفيذ جدول tender_conditions في قاعدة البيانات.');
+      return false;
+    }
+  }
+
+  /* ---------------- text extraction ---------------- */
+  function dataUrlToBytes(dataUrl){
+    var i=String(dataUrl).indexOf(',');
+    var b64=String(dataUrl).slice(i+1);
+    var bin=atob(b64), len=bin.length, out=new Uint8Array(len);
+    for(var k=0;k<len;k++) out[k]=bin.charCodeAt(k);
+    return out;
+  }
+
+  function loadPdfJs(){
+    if(window.pdfjsLib){ return Promise.resolve(window.pdfjsLib); }
+    return new Promise(function(res,rej){
+      var s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      s.onload=function(){
+        try{ window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }catch(e){}
+        res(window.pdfjsLib);
+      };
+      s.onerror=function(){ rej(new Error('pdfjs load error')); };
+      document.head.appendChild(s);
+    });
+  }
+
+  async function pdfText(bytes){
+    var lib=await loadPdfJs();
+    var pdf=await lib.getDocument({data:bytes}).promise;
+    var all=[];
+    for(var p=1;p<=pdf.numPages;p++){
+      var page=await pdf.getPage(p);
+      var tcnt=await page.getTextContent();
+      var lastY=null, line=[];
+      tcnt.items.forEach(function(it){
+        var y=it.transform?Math.round(it.transform[5]):0;
+        if(lastY!==null && Math.abs(y-lastY)>3){ all.push(line.join(' ')); line=[]; }
+        line.push(it.str); lastY=y;
+      });
+      if(line.length) all.push(line.join(' '));
+      all.push('');
+    }
+    return all.join('\n');
+  }
+
+  async function docxText(bytes){
+    if(!window.JSZip) throw new Error('JSZip missing');
+    var zip=await JSZip.loadAsync(bytes);
+    var f=zip.file('word/document.xml');
+    if(!f) throw new Error('not a docx');
+    var xml=await f.async('string');
+    // paragraph by paragraph; tables become tab-separated rows (easy to detect & drop later)
+    var out=[];
+    xml.replace(/<w:p[ >][\s\S]*?<\/w:p>|<w:p\/>/g, function(p){
+      var txt=(p.match(/<w:t[^>]*>[\s\S]*?<\/w:t>/g)||[]).map(function(t){
+        return t.replace(/<[^>]+>/g,'');
+      }).join('');
+      txt=txt.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+      out.push(txt);
+      return '';
+    });
+    return out.join('\n');
+  }
+
+  async function attachmentText(a){
+    var e=ext(a.filename);
+    var bytes=dataUrlToBytes(a.data);
+    if(e==='pdf') return await pdfText(bytes);
+    if(e==='docx') return await docxText(bytes);
+    if(e==='txt'||e==='csv'||e==='html'||e==='htm'){
+      var s=new TextDecoder('utf-8').decode(bytes);
+      if(e==='html'||e==='htm'){ var d=document.createElement('div'); d.innerHTML=s; s=d.innerText; }
+      return s;
+    }
+    throw new Error('unsupported');
+  }
+
+  /* ---------------- special-conditions parsing ---------------- */
+  var HW_RE=/(desktops?|notebooks?|laptops?|printers?|monitors?|scanners?|others|all\s*in\s*one|toner|cartridge|حواسيب|حاسوب|حاسبات|طابعة|طابعات|شاشة|شاشات|ماسح ضوئي|لابتوب|نوت بوك|كمبيوتر)/i;
+  var HW_HEAD_RE=/^(desktops?|notebooks?|laptops?|printers?|others|أجهزة\s*حاسوب|حواسيب\s*مكتبية|حواسيب\s*محمولة|طابعات|أخرى)\s*[:\-]?$/i;
+  var MARK_RE=/^(?:\(?\d{1,3}(?:[.\-\/]\d{1,3})*\)?\s*[-.):]?\s+|[•\u2022\u25AA\u25CF\-–*]\s+|(?:أولا|أولاً|ثانيا|ثانياً|ثالثا|ثالثاً|رابعا|رابعاً|خامسا|خامساً|سادسا|سادساً|سابعا|سابعاً|ثامنا|ثامناً|تاسعا|تاسعاً|عاشرا|عاشراً)\s*[:\-.]?\s*)/;
+  var START_RE=/(الشروط\s*الخاص|شروط\s*خاص|الشروط\s*والمواصفات\s*الخاص|الأحكام\s*الخاص)/;
+  var END_RE=/^(الشروط\s*العام|شروط\s*عام|المواصفات\s*الفني|جدول\s*الكميات|كشف\s*الكميات|جداول\s*الكميات|العرض\s*المالي|الملاحق|ملحق\s*رقم|قائمة\s*المواد|جدول\s*المواد)/;
+
+  function looksTabular(s){
+    var digits=(s.match(/\d/g)||[]).length;
+    if(!s.length) return true;
+    if(digits/s.length>0.28) return true;
+    if(/\t/.test(s) && s.length<160) return true;
+    if(/^[A-Za-z0-9\s\-\/.,()#:]+$/.test(s) && s.length<120) return true;
+    return false;
+  }
+  function isHardwareRow(s){
+    if(HW_HEAD_RE.test(s.trim())) return true;
+    if(!HW_RE.test(s)) return false;
+    return looksTabular(s) || s.length<55;
+  }
+
+  function parseConditions(raw){
+    var text=String(raw||'').replace(/\r/g,'').replace(/\u00a0/g,' ');
+    var lines=text.split('\n').map(function(l){ return l.replace(/[ \t]+/g,' ').trim(); });
+
+    // 1) isolate the "الشروط الخاصة" section when present
+    var start=-1;
+    for(var i=0;i<lines.length;i++){
+      if(START_RE.test(lines[i]) && lines[i].length<120){ start=i; break; }
+    }
+    var seg;
+    if(start>=0){
+      seg=[];
+      for(var j=start+1;j<lines.length;j++){
+        if(END_RE.test(lines[j]) && seg.length>2) break;
+        seg.push(lines[j]);
+      }
+      if(seg.filter(function(x){return x;}).length<3) seg=lines.slice();
+    }else{
+      seg=lines.slice();
+    }
+
+    // 2) group into clauses by numbering / bullets
+    var clauses=[], cur='';
+    seg.forEach(function(l){
+      if(!l){ return; }
+      if(/^(صفحة|page)\s*\d+/i.test(l)) return;
+      if(MARK_RE.test(l)){
+        if(cur.trim()) clauses.push(cur.trim());
+        cur=l.replace(MARK_RE,'');
+      }else{
+        cur=cur?(cur+' '+l):l;
+      }
+    });
+    if(cur.trim()) clauses.push(cur.trim());
+
+    if(clauses.length<3){
+      clauses=seg.filter(function(x){ return x; });
+    }
+
+    // 3) clean + drop computer-items tables and noise
+    var seen={}, out=[];
+    clauses.forEach(function(c){
+      c=c.replace(/\s+/g,' ').replace(/^[-–•*.:)\s]+/,'').trim();
+      if(c.length<14) return;
+      if(isHardwareRow(c)) return;
+      if(looksTabular(c) && c.length<140) return;
+      if(/^[\d\s.،,-]+$/.test(c)) return;
+      var key=c.slice(0,60);
+      if(seen[key]) return;
+      seen[key]=1;
+      out.push({ n:out.length+1, text:c });
+    });
+    return out;
+  }
+
+  async function extract(){
+    var a=att();
+    if(!a){ toast('warning','تنبيه','لا يوجد مرفق للعطاء. أرفق نسخة العطاء أولًا.'); return; }
+    var e=ext(a.filename);
+    if(['pdf','docx','txt','csv','html','htm'].indexOf(e)<0){
+      toast('error','غير مدعوم','يمكن استخراج الشروط من ملفات PDF أو DOCX أو TXT فقط.');
+      return;
+    }
+    var btn=document.getElementById('tcExtractBtn');
+    if(btn){ btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> جاري القراءة...'; }
+    try{
+      var text=await attachmentText(a);
+      state.text=text;
+      var items=parseConditions(text);
+      if(!items.length){ toast('warning','لا نتائج','لم يتم العثور على شروط خاصة قابلة للاستخراج في المرفق.'); }
+      else{
+        state.items=items; state.source=a.filename; state.editing=false;
+        toast('success','تم الاستخراج','تم استخراج '+items.length+' بندًا من الشروط الخاصة (تم استثناء جداول المواد الحاسوبية)');
+        await saveConditions(true);
+      }
+      render();
+    }catch(err){
+      console.error(err);
+      toast('error','تعذر القراءة','لم نتمكن من قراءة محتوى المرفق: '+(err.message||err));
+    }finally{
+      if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-wand-magic-sparkles"></i> استخراج الشروط الخاصة'; }
+    }
+  }
+
+  /* ---------------- rendering ---------------- */
+  function previewBody(a){
+    if(!a) return '<div class="tc-empty"><i class="fas fa-file-circle-question"></i><h5>لا يوجد مرفق للعطاء</h5><p>أرفق نسخة العطاء من زر «تعديل بيانات العطاء» لتظهر المعاينة الحية هنا.</p></div>';
+    var e=ext(a.filename);
+    if(e==='pdf') return '<iframe class="tc-frame" src="'+a.data+'#view=FitH" title="معاينة المرفق"></iframe>';
+    if(['jpg','jpeg','png','gif','bmp','webp','svg'].indexOf(e)>=0) return '<img class="tc-img" src="'+a.data+'" alt="'+esc(a.filename)+'">';
+    if(state.text) return '<div class="tc-textview">'+esc(state.text.slice(0,60000))+'</div>';
+    return '<div class="tc-empty"><i class="fas fa-file-lines"></i><h5>لا تتوفر معاينة مباشرة لهذا النوع ('+esc(e||'?')+')</h5><p>اضغط «استخراج الشروط الخاصة» لقراءة محتوى الملف نصيًا، أو نزّل الملف لعرضه.</p></div>';
+  }
+
+  function itemsHtml(){
+    var f=state.filter.trim();
+    var list=state.items;
+    if(!state.editing && f){
+      list=list.filter(function(x){ return String(x.text).indexOf(f)>=0; });
+    }
+    if(!list.length){
+      return '<div class="tc-empty"><i class="fas fa-list-check"></i><h5>لا توجد شروط خاصة محفوظة</h5><p>اضغط «استخراج الشروط الخاصة» لقراءتها من المرفق، أو أضف بندًا يدويًا من وضع التعديل.</p></div>';
+    }
+    return '<div class="tc-list">'+list.map(function(it,idx){
+      var i=state.items.indexOf(it);
+      if(state.editing){
+        return '<div class="tc-item is-edit">'+
+          '<div class="tc-num"></div>'+
+          '<div style="flex:1;min-width:0;"><textarea class="tc-ta" data-i="'+i+'" oninput="tcOnInput(this)">'+esc(it.text)+'</textarea></div>'+
+          '<div class="tc-itemacts">'+
+            '<button class="tc-mini" title="أعلى" onclick="tcMove('+i+',-1)"><i class="fas fa-arrow-up"></i></button>'+
+            '<button class="tc-mini" title="أسفل" onclick="tcMove('+i+',1)"><i class="fas fa-arrow-down"></i></button>'+
+            '<button class="tc-mini del" title="حذف البند" onclick="tcDel('+i+')"><i class="fas fa-trash"></i></button>'+
+          '</div></div>';
+      }
+      return '<div class="tc-item"><div class="tc-num"></div><div class="tc-text">'+esc(it.text)+'</div></div>';
+    }).join('')+'</div>';
+  }
+
+  function render(){
+    var host=document.getElementById('tenderExtras');
+    if(!host) return;
+    var t=tender();
+    if(!t){ host.innerHTML=''; return; }
+    var a=att();
+    var cnt=state.items.length;
+
+    host.innerHTML=
+      '<div class="tc-wrap">'+
+
+      '<div class="tc-panel no-print-panel">'+
+        '<div class="tc-head"><i class="fas fa-eye" style="color:#4f46e5;"></i><h4>معاينة حية لمرفق العطاء</h4>'+
+          '<span class="tc-sp"></span>'+
+          (a?('<span class="tc-badge gray"><i class="fas '+ (typeof getFileIcon==='function'?getFileIcon(a.filename):'fa-file') +'"></i> '+esc(a.filename)+'</span>'+
+              '<button class="btn btn-secondary btn-sm" onclick="tcFullscreen()"><i class="fas fa-expand"></i> ملء الشاشة</button>'+
+              '<button class="btn btn-secondary btn-sm" onclick="tcOpenTab()"><i class="fas fa-arrow-up-right-from-square"></i> فتح بتبويب</button>'+
+              '<button class="btn btn-primary btn-sm" onclick="downloadAttachment(currentTender.attachment.data, currentTender.attachment.filename)"><i class="fas fa-download"></i> تحميل</button>'):'')+
+        '</div>'+
+        '<div class="tc-body" id="tcPreviewBody">'+previewBody(a)+'</div>'+
+      '</div>'+
+
+      '<div class="tc-panel">'+
+        '<div class="tc-head green"><i class="fas fa-list-check" style="color:#059669;"></i><h4>الشروط الخاصة المستخرجة من العطاء</h4>'+
+          '<span class="tc-sp"></span>'+
+          '<span class="tc-badge">'+cnt+' بند</span>'+
+          (state.source?'<span class="tc-badge gray"><i class="fas fa-file-import"></i> '+esc(state.source)+'</span>':'')+
+        '</div>'+
+        '<div class="tc-body">'+
+          '<div class="tc-note"><i class="fas fa-circle-info"></i><div>يتم استخراج بنود <strong>الشروط الخاصة</strong> فقط من المرفق، مع استثناء جداول المواد الحاسوبية (Desktops / Notebooks / Printers / Others). البنود محفوظة على السيرفر ومرتبطة بعطاء الصيانة الحالي، ويمكن تعديل نصوصها وحفظ النسخة المعدّلة.</div></div>'+
+          '<div class="tc-toolbar no-print" style="margin-bottom:14px;">'+
+            '<button class="btn btn-success btn-sm" id="tcExtractBtn" onclick="tcExtract()"><i class="fas fa-wand-magic-sparkles"></i> استخراج الشروط الخاصة</button>'+
+            (state.editing
+              ? '<button class="btn btn-primary btn-sm" onclick="tcSave()"><i class="fas fa-floppy-disk"></i> حفظ النسخة المعدّلة</button>'+
+                '<button class="btn btn-secondary btn-sm" onclick="tcAdd()"><i class="fas fa-plus"></i> إضافة بند</button>'+
+                '<button class="btn btn-secondary btn-sm" onclick="tcCancel()"><i class="fas fa-xmark"></i> إلغاء التعديل</button>'
+              : '<button class="btn btn-warning btn-sm" onclick="tcEditMode()"><i class="fas fa-pen-to-square"></i> وضع التعديل</button>'+
+                '<button class="btn btn-secondary btn-sm" onclick="tcCopy()"><i class="fas fa-copy"></i> نسخ البنود</button>'+
+                '<button class="btn btn-secondary btn-sm" onclick="tcPrint()"><i class="fas fa-print"></i> طباعة</button>')+
+            (state.editing?'':'<div class="tc-search"><i class="fas fa-search"></i><input type="text" placeholder="بحث في الشروط..." value="'+esc(state.filter)+'" oninput="tcFilter(this.value)"></div>')+
+          '</div>'+
+          '<div id="tcItems">'+itemsHtml()+'</div>'+
+        '</div>'+
+      '</div>'+
+
+      '</div>'+
+      '<div class="tc-fs" id="tcFs"><div class="tc-fs-bar"><i class="fas fa-file-contract"></i><span>'+esc(a?a.filename:'')+'</span><span style="flex:1"></span><button class="btn btn-secondary btn-sm" onclick="tcCloseFullscreen()"><i class="fas fa-xmark"></i> إغلاق</button></div><div class="tc-fs-body" id="tcFsBody"></div></div>';
+  }
+
+  function renderItemsOnly(){
+    var el=document.getElementById('tcItems');
+    if(el) el.innerHTML=itemsHtml();
+  }
+
+  /* ---------------- public actions ---------------- */
+  window.tcExtract=function(){ if(readOnly()) return; extract(); };
+  window.tcEditMode=function(){ if(readOnly()) return; state.editing=true; state.filter=''; render(); };
+  window.tcCancel=async function(){ state.editing=false; await loadConditions(); render(); };
+  window.tcAdd=function(){ state.items.push({ n:state.items.length+1, text:'' }); renderItemsOnly(); };
+  window.tcDel=function(i){ if(!confirm('حذف هذا البند؟')) return; state.items.splice(i,1); renderItemsOnly(); };
+  window.tcMove=function(i,d){ var j=i+d; if(j<0||j>=state.items.length) return; var x=state.items[i]; state.items[i]=state.items[j]; state.items[j]=x; renderItemsOnly(); };
+  window.tcOnInput=function(el){ var i=+el.getAttribute('data-i'); if(state.items[i]) state.items[i].text=el.value; };
+  window.tcFilter=function(v){ state.filter=v||''; renderItemsOnly(); };
+  window.tcSave=async function(){
+    if(readOnly()) return;
+    document.querySelectorAll('#tcItems textarea[data-i]').forEach(function(el){
+      var i=+el.getAttribute('data-i'); if(state.items[i]) state.items[i].text=el.value;
+    });
+    await saveConditions(false);
+    state.editing=false;
+    render();
+  };
+  window.tcCopy=function(){
+    var txt=state.items.map(function(x,i){ return (i+1)+'. '+x.text; }).join('\n');
+    if(!txt){ toast('warning','تنبيه','لا توجد بنود للنسخ'); return; }
+    (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(function(){
+      toast('success','تم','تم نسخ الشروط الخاصة');
+    }).catch(function(){
+      var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); toast('success','تم','تم نسخ الشروط الخاصة'); }catch(e){ toast('error','خطأ','تعذر النسخ'); }
+      ta.remove();
+    });
+  };
+  window.tcPrint=function(){
+    var t=tender()||{};
+    if(!state.items.length){ toast('warning','تنبيه','لا توجد بنود للطباعة'); return; }
+    var w=window.open('','_blank');
+    w.document.write('<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>الشروط الخاصة</title>'+
+      '<style>body{font-family:"Tajawal",Arial,sans-serif;padding:34px;color:#1f2937;}h1{font-size:20px;color:#4338ca;margin:0 0 4px;}h2{font-size:14px;color:#64748b;font-weight:600;margin:0 0 22px;}ol{padding-inline-start:22px;}li{font-size:14px;line-height:2.1;margin-bottom:9px;}</style>'+
+      '</head><body><h1>الشروط الخاصة - '+esc(t.tender_name||t.tenderName||'عطاء الصيانة')+'</h1>'+
+      '<h2>رقم العطاء: '+esc(t.tender_number||t.tenderNumber||'-')+' • عدد البنود: '+state.items.length+'</h2><ol>'+
+      state.items.map(function(x){ return '<li>'+esc(x.text)+'</li>'; }).join('')+
+      '</ol></body></html>');
+    w.document.close(); w.focus(); setTimeout(function(){ w.print(); },400);
+  };
+  window.tcOpenTab=function(){
+    var a=att(); if(!a) return;
+    fetch(a.data).then(function(r){ return r.blob(); }).then(function(b){
+      window.open(URL.createObjectURL(b),'_blank');
+    }).catch(function(){ window.open(a.data,'_blank'); });
+  };
+  window.tcFullscreen=function(){
+    var a=att(); if(!a) return;
+    var body=document.getElementById('tcFsBody'), fs=document.getElementById('tcFs');
+    if(!body||!fs) return;
+    var e=ext(a.filename);
+    body.innerHTML = (['jpg','jpeg','png','gif','bmp','webp','svg'].indexOf(e)>=0)
+      ? '<img src="'+a.data+'" alt="'+esc(a.filename)+'">'
+      : '<iframe src="'+a.data+'#view=FitH"></iframe>';
+    fs.classList.add('open');
+  };
+  window.tcCloseFullscreen=function(){
+    var fs=document.getElementById('tcFs'); if(fs){ fs.classList.remove('open'); document.getElementById('tcFsBody').innerHTML=''; }
+  };
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') window.tcCloseFullscreen(); });
+
+  /* ---------------- hook into loadTender ---------------- */
+  async function refresh(){
+    var t=tender();
+    if(!t){ var h=document.getElementById('tenderExtras'); if(h) h.innerHTML=''; return; }
+    if(state.loadedFor!==t.id){ state.text=''; state.editing=false; state.filter=''; await loadConditions(); }
+    render();
+  }
+  window.tcRefreshConditions=refresh;
+
+  function hook(){
+    if(typeof window.loadTender!=='function'){ return setTimeout(hook,400); }
+    if(window.__tcHooked) return;
+    window.__tcHooked=true;
+    var orig=window.loadTender;
+    window.loadTender=async function(){
+      var r=await orig.apply(this,arguments);
+      try{ await refresh(); }catch(e){ console.error(e); }
+      return r;
+    };
+  }
+  hook();
 })();
 </script>
 
