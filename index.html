@@ -25621,7 +25621,31 @@ html[data-theme="dark"] .ntf-bell{ background:rgba(255,255,255,.06) !important }
 html[data-theme="dark"] .ntf-dock,
 html[data-theme="dark"] #page-notifications .ntf-st,
 html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39,.96) }
-@media print{ .ntf-dock, .ntf-bell{ display:none !important } }
+.ntf-acts{ display:flex; flex-wrap:wrap; gap:6px; margin-top:9px }
+.ntf-act{
+  display:inline-flex; align-items:center; gap:5px; height:28px; padding:0 10px; cursor:pointer;
+  border-radius:9px; font-family:inherit; font-size:11px; font-weight:800; line-height:1;
+  border:1px solid color-mix(in oklab,var(--border-color,#dbe2ea) 80%, transparent);
+  background:color-mix(in oklab,var(--card-bg,#fff) 85%, transparent); color:var(--text-dark,#0f172a);
+  transition:.15s;
+}
+.ntf-act i{ font-size:10.5px }
+.ntf-act:hover{ transform:translateY(-1px); border-color:var(--primary,#4f46e5); color:var(--primary,#4f46e5) }
+.ntf-act.pri{ background:linear-gradient(135deg,var(--primary,#4f46e5),#06b6d4); border-color:transparent; color:#fff }
+.ntf-act.pri:hover{ color:#fff; filter:brightness(1.06) }
+.ntf-act.ok{ background:#10b981; border-color:transparent; color:#fff }
+.ntf-act.ok:hover{ color:#fff; filter:brightness(1.06) }
+html[data-theme="dark"] .ntf-act{ background:rgba(255,255,255,.05); color:#e5e7eb }
+
+.ntf-live{ display:flex; align-items:center; gap:7px; font-size:11px; font-weight:700; padding:6px 10px; margin:2px 0 8px;
+  border-radius:10px; background:color-mix(in oklab,#10b981 10%, transparent); color:#0f766e }
+.ntf-live.poll{ background:color-mix(in oklab,#f59e0b 12%, transparent); color:#b45309 }
+.ntf-live-dot{ width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 0 0 rgba(16,185,129,.6); animation:ntfPulse 1.8s infinite }
+.ntf-live.poll .ntf-live-dot{ background:#f59e0b; box-shadow:0 0 0 0 rgba(245,158,11,.6) }
+@keyframes ntfPulse{ 70%{ box-shadow:0 0 0 8px rgba(16,185,129,0) } 100%{ box-shadow:0 0 0 0 rgba(16,185,129,0) } }
+.ntf-bell.ring{ animation:ntfRing .5s ease-in-out 3 }
+@keyframes ntfRing{ 0%,100%{ transform:rotate(0) } 25%{ transform:rotate(14deg) } 75%{ transform:rotate(-14deg) } }
+@media print{ .ntf-dock, .ntf-bell, .ntf-acts, .ntf-live{ display:none !important } }
 @media (max-width:640px){ .ntf-dock.open{ max-height:70vh } .ntf-list{ max-height:46vh } }
 </style>
 
@@ -25694,7 +25718,7 @@ html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39
         push(out, { id:'req-urgent-'+(r.id||r.request_number||title(r)), cat:'critical', sev:'critical', icon:'fa-triangle-exclamation',
           t:'طلب عاجل بانتظار المعالجة: ' + title(r),
           s:(r.department||'قسم غير محدد') + ' — أولوية عالية' + (d!=null ? ' • مفتوح منذ ' + d + ' يوم' : ''),
-          ts:r.created_at || r.createdAt, go:'requests' });
+          ts:r.created_at || r.createdAt, go:'requests', ref:{k:'request', id:(r.id!=null?r.id:null), no:(r.request_number||r.requestNumber||''), st:(r.status||'')} });
       });
 
     /* طلبات متأخرة */
@@ -25704,7 +25728,7 @@ html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39
         push(out, { id:'req-late-'+(r.id||title(r)), cat:'requests', sev:'warning', icon:'fa-hourglass-half',
           t:'تجاوز مدة المعالجة: ' + title(r),
           s:'مفتوح منذ ' + d + ' يوم دون إغلاق — ' + (r.department||'قسم غير محدد'),
-          ts:r.created_at || r.createdAt, go:'requests' });
+          ts:r.created_at || r.createdAt, go:'requests', ref:{k:'request', id:(r.id!=null?r.id:null), no:(r.request_number||r.requestNumber||''), st:(r.status||'')} });
       }
     });
 
@@ -25716,7 +25740,7 @@ html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39
           push(out, { id:'req-stale-'+(r.id||title(r)), cat:'maintenance', sev:'warning', icon:'fa-screwdriver-wrench',
             t:'عمل صيانة بدون تحديث: ' + title(r),
             s:'قيد التنفيذ منذ ' + d + ' يوم دون أي تحديث للحالة',
-            ts:r.updated_at || r.created_at, go:'requests' });
+            ts:r.updated_at || r.created_at, go:'requests', ref:{k:'request', id:(r.id!=null?r.id:null), no:(r.request_number||r.requestNumber||''), st:(r.status||'')} });
         }
       });
 
@@ -25728,7 +25752,7 @@ html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39
           push(out, { id:'req-new-'+(r.id||title(r)), cat:'requests', sev:'info', icon:'fa-file-circle-plus',
             t:'طلب صيانة جديد: ' + title(r),
             s:(r.department||'قسم غير محدد') + ' — بانتظار الإسناد والمراجعة',
-            ts:r.created_at || r.createdAt, go:'requests' });
+            ts:r.created_at || r.createdAt, go:'requests', ref:{k:'request', id:(r.id!=null?r.id:null), no:(r.request_number||r.requestNumber||''), st:(r.status||'')} });
         }
       });
 
@@ -25741,7 +25765,7 @@ html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39
           push(out, { id:'req-done-'+(r.id||title(r)), cat:'requests', sev:'success', icon:'fa-circle-check',
             t:'تم إنجاز الطلب: ' + title(r),
             s:'أُغلق الطلب بنجاح — ' + (r.department||'قسم غير محدد'),
-            ts:r.updated_at || r.created_at, go:'requests' });
+            ts:r.updated_at || r.created_at, go:'requests', ref:{k:'request', id:(r.id!=null?r.id:null), no:(r.request_number||r.requestNumber||''), st:(r.status||'')} });
         }
       });
 
@@ -25752,11 +25776,11 @@ html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39
       var nm = i.name || i.item_name || 'قطعة غيار';
       if(qty <= 0){
         push(out, { id:'inv-out-'+(i.id||nm), cat:'critical', sev:'critical', icon:'fa-box-open',
-          t:'نفاد قطعة غيار: ' + nm, s:'الرصيد صفر — يجب إصدار أمر شراء فوري', ts:i.updated_at||i.created_at, go:'inventory' });
+          t:'نفاد قطعة غيار: ' + nm, s:'الرصيد صفر — يجب إصدار أمر شراء فوري', ts:i.updated_at||i.created_at, go:'inventory', ref:{k:'inventory', id:(i.id!=null?i.id:null), nm:nm} });
       } else if(qty <= min){
         push(out, { id:'inv-low-'+(i.id||nm), cat:'inventory', sev:'warning', icon:'fa-boxes-stacked',
           t:'مخزون منخفض: ' + nm, s:'المتبقي ' + qty + ' وحدة (حد الطلب ' + min + ') — يُنصح بإعادة التزويد',
-          ts:i.updated_at||i.created_at, go:'inventory' });
+          ts:i.updated_at||i.created_at, go:'inventory', ref:{k:'inventory', id:(i.id!=null?i.id:null), nm:nm} });
       }
     });
 
@@ -25804,20 +25828,151 @@ html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39
   function unread(){ return notes.filter(function(n){ return !readSet.has(n.id); }); }
   function countBy(cat){ return notes.filter(function(n){ return cat==='all' || n.cat===cat; }).length; }
 
-  /* ---------------- تحميل البيانات ---------------- */
+  /* ---------------- تحميل البيانات + الرصد اللحظي ---------------- */
+  var knownReq = new Set();
+  var bootstrapped = false;
+  var inflight = false;
+  var liveMode = 'polling';   // 'websocket' | 'polling'
+
+  function beep(){
+    try{
+      var Ctx = window.AudioContext || window.webkitAudioContext; if(!Ctx) return;
+      var ctx = new Ctx(); var o = ctx.createOscillator(); var g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination); o.type='sine'; o.frequency.value=880;
+      g.gain.setValueAtTime(0.0001, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.09, ctx.currentTime+0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.42);
+      o.start(); o.stop(ctx.currentTime+0.45);
+      setTimeout(function(){ try{ ctx.close(); }catch(e){} }, 800);
+    }catch(e){}
+  }
+
+  function announceNew(list){
+    if(!list.length) return;
+    beep();
+    var first = list[0];
+    var nm = first.device_name || first.title || ('طلب #' + (first.request_number || first.id || ''));
+    var msg = list.length === 1
+      ? ('وصل طلب صيانة جديد: ' + nm)
+      : ('وصل ' + list.length + ' طلبات صيانة جديدة — أحدثها: ' + nm);
+    toast('info','إشعار فوري', msg);
+    try{
+      if(window.Notification && Notification.permission === 'granted'){
+        var dn = new Notification('طلب صيانة جديد', { body: msg, tag: 'ntfx-new-request' });
+        dn.onclick = function(){ window.focus(); if(typeof showPage==='function') showPage('notifications'); dn.close(); };
+      }
+    }catch(e){}
+    flashBells();
+  }
+
+  function flashBells(){
+    $$('.ntf-bell').forEach(function(b){
+      b.classList.add('ring');
+      setTimeout(function(){ b.classList.remove('ring'); }, 1800);
+    });
+  }
+
   async function load(){
-    loading = true;
+    if(inflight) return;
+    inflight = true; loading = true;
     try{
       if(window.SupabaseAPI && typeof SupabaseAPI.request === 'function'){
         var rq = await SupabaseAPI.request('requests','GET');
         var iv = await SupabaseAPI.request('inventory','GET');
         raw = { requests: rq || [], inventory: iv || [] };
         lastSync = new Date();
+
+        var fresh = [];
+        (raw.requests || []).forEach(function(r){
+          var k = String(r.id != null ? r.id : (r.request_number || ''));
+          if(!k) return;
+          if(!knownReq.has(k)){ knownReq.add(k); if(bootstrapped) fresh.push(r); }
+        });
+        if(bootstrapped && fresh.length){
+          fresh.sort(function(a,b){ return new Date(b.created_at||0) - new Date(a.created_at||0); });
+          announceNew(fresh);
+        }
+        bootstrapped = true;
       }
     }catch(e){ /* الاحتفاظ بالبيانات السابقة */ }
-    loading = false;
-    build(); renderAll();
+    loading = false; inflight = false;
+    build(); renderAll(); renderLive();
   }
+
+  function renderLive(){
+    var txt = (liveMode === 'websocket' ? 'اتصال لحظي (WebSocket)' : 'تحديث دوري كل 15 ثانية') +
+      ' • آخر مزامنة ' + (lastSync ? lastSync.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '—');
+    $$('.ntf-live').forEach(function(el){
+      el.className = 'ntf-live ' + (liveMode === 'websocket' ? 'on' : 'poll');
+      el.innerHTML = '<span class="ntf-live-dot"></span>' + esc(txt);
+    });
+  }
+
+  /* -------- قناة Supabase Realtime عبر WebSocket مع تراجع تلقائي إلى Polling -------- */
+  var ws = null, wsTimer = null, wsTries = 0, refreshTimer = null;
+  function scheduleRefresh(){ clearTimeout(refreshTimer); refreshTimer = setTimeout(load, 450); }
+
+  function connectRealtime(){
+    var url = window.SUPABASE_URL_REF, key = window.SUPABASE_KEY_REF;
+    if(!url || !key || typeof WebSocket === 'undefined') { liveMode='polling'; renderLive(); return; }
+    try{
+      var endpoint = url.replace(/^http/,'ws') + '/realtime/v1/websocket?apikey=' + encodeURIComponent(key) + '&vsn=1.0.0';
+      ws = new WebSocket(endpoint);
+    }catch(e){ liveMode='polling'; renderLive(); return; }
+
+    var hb = null;
+    ws.onopen = function(){
+      wsTries = 0;
+      ['requests','inventory'].forEach(function(tbl, idx){
+        ws.send(JSON.stringify({
+          topic: 'realtime:ntfx-' + tbl, event: 'phx_join', ref: String(idx+1),
+          payload: { config: { postgres_changes: [{ event: '*', schema: 'public', table: tbl }] } }
+        }));
+      });
+      hb = setInterval(function(){
+        try{ ws.send(JSON.stringify({ topic:'phoenix', event:'heartbeat', payload:{}, ref:'hb' })); }catch(e){}
+      }, 25000);
+    };
+    ws.onmessage = function(ev){
+      var m; try{ m = JSON.parse(ev.data); }catch(e){ return; }
+      if(m.event === 'phx_reply' && m.payload && m.payload.status === 'ok' && String(m.topic||'').indexOf('realtime:ntfx-') === 0){
+        liveMode = 'websocket'; renderLive();
+      }
+      if(m.event === 'postgres_changes' || m.event === 'INSERT' || m.event === 'UPDATE' || m.event === 'DELETE'){
+        scheduleRefresh();
+      }
+    };
+    ws.onerror = function(){ liveMode = 'polling'; renderLive(); };
+    ws.onclose = function(){
+      clearInterval(hb);
+      liveMode = 'polling'; renderLive();
+      wsTries++;
+      if(wsTries <= 5){
+        clearTimeout(wsTimer);
+        wsTimer = setTimeout(connectRealtime, Math.min(30000, 3000 * wsTries));
+      }
+    };
+  }
+
+  function startLive(){
+    connectRealtime();
+    setInterval(function(){
+      if(document.hidden) return;
+      if(liveMode === 'websocket') { if(Date.now() - (lastSync ? lastSync.getTime() : 0) > 60000) load(); return; }
+      load();
+    }, 15000);
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden) load(); });
+  }
+
+  window.ntfEnableDesktopAlerts = function(){
+    try{
+      if(!window.Notification) return toast('warning','غير مدعوم','المتصفح لا يدعم إشعارات سطح المكتب');
+      Notification.requestPermission().then(function(p){
+        toast(p === 'granted' ? 'success' : 'warning', 'إشعارات سطح المكتب',
+          p === 'granted' ? 'سيصلك تنبيه فوري عند وصول طلب جديد' : 'تم رفض الإذن من المتصفح');
+      });
+    }catch(e){}
+  };
 
   /* ---------------- رسم العناصر ---------------- */
   function itemHtml(n, withClose){
@@ -25828,9 +25983,32 @@ html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39
       '<div class="ntf-ic" style="background:' + sev.color + '"><i class="fas ' + n.icon + '"></i></div>' +
       '<div class="ntf-bd"><b>' + esc(n.t) + '</b><span>' + esc(n.s) + '</span>' +
         '<div class="ntf-meta"><span class="ntf-pill sev-' + n.sev + '">' + sev.label + '</span>' +
-        '<span class="ntf-pill">' + fmtRel(n.ts) + '</span></div></div>' +
+        '<span class="ntf-pill">' + fmtRel(n.ts) + '</span></div>' + actionsHtml(n) + '</div>' +
       (withClose ? '<button class="ntf-x" data-x="' + esc(n.id) + '" title="إخفاء الإشعار"><i class="fas fa-xmark"></i></button>' : '') +
     '</div>';
+  }
+
+  /* ---------- أزرار الإجراءات على بطاقة الإشعار ---------- */
+  function actionsHtml(n){
+    var r = n.ref || {};
+    var btns = [];
+    var B = function(act, icon, label, cls){
+      return '<button type="button" class="ntf-act ' + (cls||'') + '" data-nact="' + act + '" data-nid="' + esc(n.id) + '">' +
+        '<i class="fas ' + icon + '"></i> ' + label + '</button>';
+    };
+    if(r.k === 'request' && r.id != null){
+      btns.push(B('open-request','fa-up-right-from-square','فتح الطلب','pri'));
+      btns.push(B('edit-request','fa-pen-to-square','تعديل'));
+      var st = String(r.st||'').toLowerCase();
+      if(st !== 'in_progress' && st !== 'completed') btns.push(B('status-progress','fa-play','بدء التنفيذ'));
+      if(st !== 'completed') btns.push(B('status-complete','fa-circle-check','إنهاء','ok'));
+    } else if(r.k === 'inventory'){
+      btns.push(B('open-inventory','fa-boxes-stacked','فتح المخزون','pri'));
+    } else if(n.go){
+      btns.push(B('goto','fa-arrow-left-long','فتح الصفحة','pri'));
+    }
+    btns.push(B('mark-read','fa-check','تعليم كمقروء'));
+    return '<div class="ntf-acts">' + btns.join('') + '</div>';
   }
 
   function tabsHtml(active){
@@ -25874,6 +26052,7 @@ html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39
             '<button type="button" data-a="refresh"><i class="fas fa-rotate"></i> تحديث</button>' +
             '<button type="button" class="pri" data-a="page"><i class="fas fa-inbox"></i> صفحة الإشعارات</button>' +
           '</div></div>' +
+        '<div class="ntf-live poll"><span class="ntf-live-dot"></span></div>' +
         '<div class="ntf-tabs"></div>' +
         '<div class="ntf-list"></div>' +
         '<div class="ntf-dfoot"><button type="button" data-a="page">عرض كل الإشعارات</button></div>' +
@@ -25882,6 +26061,49 @@ html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39
       wireDock(dock);
     }
     renderAll();
+  }
+
+  /* ---------- تنفيذ إجراءات بطاقات الإشعارات ---------- */
+  function noteById(id){ for(var i=0;i<notes.length;i++){ if(notes[i].id===id) return notes[i]; } return null; }
+  function toast(t,a,b){ if(typeof showToast==='function') showToast(t,a,b); }
+
+  async function setRequestStatus(id, status, label){
+    try{
+      if(typeof checkReadOnly==='function' && checkReadOnly()) return;
+      await SupabaseAPI.request('requests','PATCH',{ status:status, updated_at:new Date().toISOString() }, id);
+      toast('success','تم تحديث الحالة','أصبحت حالة الطلب: ' + label);
+      if(typeof loadRequests==='function') await loadRequests();
+      if(typeof updateDashboard==='function') await updateDashboard();
+      load();
+    }catch(e){ toast('error','تعذر تحديث الحالة', e && e.message ? e.message : 'حاول مرة أخرى'); }
+  }
+
+  function handleAction(btn){
+    var act = btn.dataset.nact;
+    var n = noteById(btn.dataset.nid);
+    if(!n) return true;
+    var r = n.ref || {};
+    readSet.add(n.id); save();
+
+    if(act === 'mark-read'){ renderAll(); return true; }
+    if(act === 'goto'){ closeDocks(); if(n.go && typeof showPage==='function') showPage(n.go); return true; }
+    if(act === 'open-inventory'){ closeDocks(); if(typeof showPage==='function') showPage('inventory'); return true; }
+    if(act === 'open-request'){
+      closeDocks();
+      if(typeof showPage==='function') showPage('requests');
+      setTimeout(function(){ if(typeof viewRequest==='function') viewRequest(r.id); }, 260);
+      return true;
+    }
+    if(act === 'edit-request'){
+      closeDocks();
+      if(typeof showPage==='function') showPage('requests');
+      setTimeout(function(){ if(typeof openRequestModal==='function') openRequestModal(r.id); }, 260);
+      return true;
+    }
+    if(act === 'status-progress'){ setRequestStatus(r.id,'in_progress','قيد التنفيذ'); renderAll(); return true; }
+    if(act === 'status-complete'){ setRequestStatus(r.id,'completed','مكتمل'); renderAll(); return true; }
+    renderAll();
+    return true;
   }
 
   function wireDock(dock){
@@ -25894,6 +26116,8 @@ html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39
         if(a==='page'){ closeDocks(); if(typeof showPage==='function') showPage('notifications'); }
         return;
       }
+      var nact = e.target.closest('[data-nact]');
+      if(nact){ e.stopPropagation(); handleAction(nact); return; }
       var tab = e.target.closest('.ntf-tab');
       if(tab){ dockFilter = tab.dataset.cat; renderDock(); return; }
       var x = e.target.closest('[data-x]');
@@ -25966,6 +26190,7 @@ html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39
         '<h1 class="page-title">الإشعارات والتحذيرات</h1>' +
         '<div class="page-actions no-print">' +
           '<button class="btn btn-secondary btn-sm" onclick="ntfRefresh()"><i class="fas fa-rotate"></i> تحديث</button>' +
+          '<button class="btn btn-secondary btn-sm" onclick="ntfEnableDesktopAlerts()"><i class="fas fa-bell-concierge"></i> تفعيل التنبيه الفوري</button>' +
           '<button class="btn btn-success btn-sm" onclick="ntfMarkAllRead()"><i class="fas fa-check-double"></i> تعليم الكل كمقروء</button>' +
           '<button class="btn btn-primary btn-sm" onclick="ntfClearAll()"><i class="fas fa-broom"></i> إخفاء الكل</button>' +
         '</div>' +
@@ -25975,6 +26200,7 @@ html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39
         '<div class="ntf-dhead"><h4><i class="fas fa-inbox"></i> سجل الإشعارات</h4><span class="ntf-sum" id="ntfPageSum"></span>' +
           '<div class="ntf-dact"><button type="button" id="ntfUnreadBtn"><i class="fas fa-envelope"></i> غير المقروء فقط</button>' +
           '<button type="button" onclick="ntfRestoreAll()"><i class="fas fa-rotate-left"></i> استعادة المخفية</button></div></div>' +
+        '<div class="ntf-live poll"><span class="ntf-live-dot"></span></div>' +
         '<div class="ntf-tabs" id="ntfPageTabs"></div>' +
         '<div class="ntf-list" id="ntfPageList"></div>' +
       '</div>';
@@ -25990,6 +26216,8 @@ html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39
       renderPage();
     });
     sec.querySelector('#ntfPageList').addEventListener('click', function(e){
+      var nact = e.target.closest('[data-nact]');
+      if(nact){ e.stopPropagation(); handleAction(nact); return; }
       var x = e.target.closest('[data-x]');
       if(x){ dropSet.add(x.dataset.x); save(); build(); renderAll(); return; }
       var it = e.target.closest('.ntf-item'); if(!it) return;
@@ -26041,7 +26269,7 @@ html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39
     if(sum) sum.textContent = 'آخر تحديث: ' + (lastSync ? lastSync.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}) : '—');
   }
 
-  function renderAll(){ renderBadges(); renderDock(); renderPage(); }
+  function renderAll(){ renderBadges(); renderDock(); renderPage(); try{ renderLive(); }catch(e){} }
 
   /* ---------------- واجهات عامة ---------------- */
   window.ntfRefresh = function(){ load(); if(typeof showToast==='function') showToast('info','تحديث','يتم تحديث الإشعارات من السيرفر'); };
@@ -26074,7 +26302,7 @@ html[data-theme="dark"] #page-notifications .ntf-panel{ background:rgba(17,24,39
     setTimeout(init, 1200);
     setTimeout(init, 2600);
     setInterval(killOld, 2000);
-    setInterval(function(){ if(!document.hidden) load(); }, 90000);
+    startLive();
     document.addEventListener('click', function(e){
       if(e.target.closest('.ntf-dock') || e.target.closest('.ntf-bell')) return;
       closeDocks();
