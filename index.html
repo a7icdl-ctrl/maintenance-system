@@ -25769,20 +25769,35 @@ html[data-theme="dark"] .ntf-act{ background:rgba(255,255,255,.05); color:#e5e7e
         }
       });
 
-    /* المخزون */
+    /* المخزون — يعتمد حدود إعادة الطلب من صفحة إدارة المخزون (INVX) */
     inv.forEach(function(i){
       var qty = Number(i.qty != null ? i.qty : (i.quantity != null ? i.quantity : 0)) || 0;
-      var min = Number(i.min_qty != null ? i.min_qty : (i.reorder_level != null ? i.reorder_level : 2)) || 0;
+      var maxq = Number(i.max_qty != null ? i.max_qty : (i.maxQty != null ? i.maxQty : 0)) || 0;
+      var min;
+      try { min = (window.INVX && typeof INVX.minFor === 'function') ? Number(INVX.minFor(i)) : NaN; } catch(e){ min = NaN; }
+      if(!isFinite(min)) min = Number(i.min_qty != null ? i.min_qty : (i.reorder_level != null ? i.reorder_level : (maxq ? Math.max(1, Math.ceil(maxq*0.25)) : 2))) || 0;
       var nm = i.name || i.item_name || 'قطعة غيار';
+      var burn = 0, eta = null;
+      try { if(window.INVX && typeof INVX.burnFor === 'function'){ burn = Number(INVX.burnFor(i)) || 0; if(burn > 0) eta = Math.floor(qty / burn); } } catch(e){}
+      var ref = { k:'inventory', id:(i.id!=null?i.id:null), nm:nm, qty:qty, min:min, max:maxq };
       if(qty <= 0){
         push(out, { id:'inv-out-'+(i.id||nm), cat:'critical', sev:'critical', icon:'fa-box-open',
-          t:'نفاد قطعة غيار: ' + nm, s:'الرصيد صفر — يجب إصدار أمر شراء فوري', ts:i.updated_at||i.created_at, go:'inventory', ref:{k:'inventory', id:(i.id!=null?i.id:null), nm:nm} });
+          t:'نفاد قطعة غيار: ' + nm,
+          s:'الرصيد صفر — يجب إصدار أمر شراء فوري' + (burn>0 ? (' • معدل الاستهلاك ' + burn.toFixed(2) + ' وحدة/يوم') : ''),
+          ts:i.updated_at||i.created_at, go:'invx', ref:ref });
       } else if(qty <= min){
         push(out, { id:'inv-low-'+(i.id||nm), cat:'inventory', sev:'warning', icon:'fa-boxes-stacked',
-          t:'مخزون منخفض: ' + nm, s:'المتبقي ' + qty + ' وحدة (حد الطلب ' + min + ') — يُنصح بإعادة التزويد',
-          ts:i.updated_at||i.created_at, go:'inventory', ref:{k:'inventory', id:(i.id!=null?i.id:null), nm:nm} });
+          t:'مخزون منخفض: ' + nm,
+          s:'المتبقي ' + qty + ' وحدة (حد إعادة الطلب ' + min + ')' + (eta!=null ? (' — يكفي نحو ' + eta + ' يوم') : ' — يُنصح بإعادة التزويد'),
+          ts:i.updated_at||i.created_at, go:'invx', ref:ref });
+      } else if(eta != null && eta <= 14){
+        push(out, { id:'inv-eta-'+(i.id||nm), cat:'inventory', sev:'warning', icon:'fa-gauge-high',
+          t:'استهلاك سريع: ' + nm,
+          s:'الرصيد ' + qty + ' وحدة ومعدل الصرف ' + burn.toFixed(2) + ' وحدة/يوم — متوقع النفاد خلال ' + eta + ' يوم',
+          ts:i.updated_at||i.created_at, go:'invx', ref:ref });
       }
     });
+
 
     /* مؤشرات وتحذيرات النظام */
     var total = reqs.length;
@@ -25897,6 +25912,8 @@ html[data-theme="dark"] .ntf-act{ background:rgba(255,255,255,.05); color:#e5e7e
     }catch(e){ /* الاحتفاظ بالبيانات السابقة */ }
     loading = false; inflight = false;
     build(); renderAll(); renderLive();
+    try{ window.dispatchEvent(new CustomEvent('ntfx:data', { detail: { inventory: raw.inventory || [], requests: raw.requests || [] } })); }catch(e){}
+
   }
 
   function renderLive(){
@@ -26003,7 +26020,11 @@ html[data-theme="dark"] .ntf-act{ background:rgba(255,255,255,.05); color:#e5e7e
       if(st !== 'in_progress' && st !== 'completed') btns.push(B('status-progress','fa-play','بدء التنفيذ'));
       if(st !== 'completed') btns.push(B('status-complete','fa-circle-check','إنهاء','ok'));
     } else if(r.k === 'inventory'){
-      btns.push(B('open-inventory','fa-boxes-stacked','فتح المخزون','pri'));
+      btns.push(B('inv-manage','fa-warehouse','إدارة المخزون','pri'));
+      btns.push(B('inv-restock','fa-plus-circle','إضافة رصيد','ok'));
+      btns.push(B('inv-threshold','fa-sliders','حد إعادة الطلب'));
+      btns.push(B('open-inventory','fa-boxes-stacked','بطاقة القطعة'));
+
     } else if(n.go){
       btns.push(B('goto','fa-arrow-left-long','فتح الصفحة','pri'));
     }
@@ -26087,7 +26108,29 @@ html[data-theme="dark"] .ntf-act{ background:rgba(255,255,255,.05); color:#e5e7e
 
     if(act === 'mark-read'){ renderAll(); return true; }
     if(act === 'goto'){ closeDocks(); if(n.go && typeof showPage==='function') showPage(n.go); return true; }
-    if(act === 'open-inventory'){ closeDocks(); if(typeof showPage==='function') showPage('inventory'); return true; }
+    if(act === 'open-inventory'){
+      closeDocks();
+      if(typeof showPage==='function') showPage('inventory');
+      setTimeout(function(){ if(typeof openInvDetails==='function' && r.id!=null) openInvDetails(r.id); }, 320);
+      return true;
+    }
+    if(act === 'inv-manage'){
+      closeDocks();
+      if(typeof showPage==='function') showPage('invx');
+      setTimeout(function(){ if(window.INVX && INVX.focus) INVX.focus(r.id); }, 320);
+      return true;
+    }
+    if(act === 'inv-restock'){
+      closeDocks();
+      if(window.INVX && INVX.restock) INVX.restock(r.id, r.nm);
+      else if(typeof openAddStockModal==='function'){ if(typeof showPage==='function') showPage('inventory'); setTimeout(openAddStockModal, 300); }
+      return true;
+    }
+    if(act === 'inv-threshold'){
+      if(window.INVX && INVX.editThreshold) INVX.editThreshold(r.id, r.nm);
+      return true;
+    }
+
     if(act === 'open-request'){
       closeDocks();
       if(typeof showPage==='function') showPage('requests');
@@ -26325,5 +26368,483 @@ html[data-theme="dark"] .ntf-act{ background:rgba(255,255,255,.05); color:#e5e7e
   else setTimeout(boot, 1100);
 })();
 </script>
+
+<!-- ===== INVX v1: صفحة إدارة المخزون (إضافة/تحليل/تحديث تلقائي) + ربط ببطاقات الإشعارات ===== -->
+<style id="invx-style">
+#page-invx .ix-kpis{ display:grid; grid-template-columns:repeat(auto-fit,minmax(165px,1fr)); gap:12px; margin-bottom:16px }
+#page-invx .ix-kpi{ background:var(--card-bg,#fff); border:1px solid var(--border-color,#e5e9f0); border-radius:16px; padding:14px 15px;
+  display:flex; align-items:center; gap:12px; box-shadow:var(--shadow,0 6px 18px rgba(15,23,42,.06)) }
+#page-invx .ix-kpi i{ width:40px; height:40px; border-radius:13px; display:grid; place-items:center; color:#fff; font-size:15px; flex:0 0 40px }
+#page-invx .ix-kpi b{ display:block; font-size:21px; font-weight:900; line-height:1.1; color:var(--text-dark,#0f172a) }
+#page-invx .ix-kpi span{ font-size:11.5px; font-weight:700; color:var(--text-light,#64748b) }
+#page-invx .ix-card{ background:var(--card-bg,#fff); border:1px solid var(--border-color,#e5e9f0); border-radius:16px; padding:16px; margin-bottom:16px;
+  box-shadow:var(--shadow,0 6px 18px rgba(15,23,42,.06)) }
+#page-invx .ix-card h4{ margin:0 0 12px; font-size:14px; font-weight:900; display:flex; align-items:center; gap:8px; color:var(--text-dark,#0f172a) }
+#page-invx .ix-card h4 i{ color:var(--primary,#4f46e5) }
+#page-invx .ix-form{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; align-items:end }
+#page-invx .ix-f label{ display:block; font-size:11.5px; font-weight:800; color:var(--text-medium,#475569); margin-bottom:5px }
+#page-invx .ix-f input{ width:100%; padding:9px 11px; border:1px solid var(--border-color,#dbe2ea); border-radius:10px; font-size:13px; font-family:inherit;
+  background:var(--input-bg,#fff); color:var(--text-dark,#0f172a) }
+#page-invx .ix-f input:focus{ outline:none; border-color:var(--primary,#4f46e5) }
+#page-invx .ix-toolbar{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px }
+#page-invx .ix-search{ position:relative; flex:1; min-width:200px }
+#page-invx .ix-search input{ width:100%; padding:9px 34px 9px 12px; border:1px solid var(--border-color,#dbe2ea); border-radius:11px; font-size:13px; font-family:inherit;
+  background:var(--input-bg,#fff); color:var(--text-dark,#0f172a) }
+#page-invx .ix-search i{ position:absolute; inset-inline-end:11px; top:50%; transform:translateY(-50%); color:var(--text-light,#94a3b8); font-size:12px }
+#page-invx .ix-chip{ font-size:11.5px; font-weight:800; padding:7px 12px; border-radius:999px; cursor:pointer; border:1px solid var(--border-color,#dbe2ea);
+  background:var(--card-bg,#fff); color:var(--text-medium,#475569) }
+#page-invx .ix-chip.on{ background:var(--primary,#4f46e5); border-color:transparent; color:#fff }
+#page-invx .ix-tblwrap{ overflow:auto; border-radius:12px; border:1px solid var(--border-color,#e5e9f0) }
+#page-invx table.ix-tbl{ width:100%; border-collapse:collapse; font-size:12.6px; min-width:960px }
+#page-invx .ix-tbl th{ background:color-mix(in oklab,var(--primary,#4f46e5) 8%, transparent); color:var(--text-dark,#0f172a); font-weight:900; padding:11px 10px; text-align:right; white-space:nowrap }
+#page-invx .ix-tbl td{ padding:10px; border-top:1px solid var(--border-color,#eef2f7); color:var(--text-medium,#334155); vertical-align:middle }
+#page-invx .ix-tbl tr:hover td{ background:color-mix(in oklab,var(--primary,#4f46e5) 4%, transparent) }
+#page-invx .ix-tbl tr.ix-focus td{ background:color-mix(in oklab,#f59e0b 16%, transparent) }
+#page-invx .ix-name{ font-weight:800; color:var(--text-dark,#0f172a) }
+#page-invx .ix-bar{ height:7px; border-radius:5px; background:#e2e8f0; overflow:hidden; min-width:90px; margin-top:5px }
+#page-invx .ix-bar i{ display:block; height:100%; border-radius:5px }
+#page-invx .ix-badge{ font-size:10.5px; font-weight:900; padding:3px 9px; border-radius:999px; white-space:nowrap }
+#page-invx .ix-badge.ok{ background:rgba(16,185,129,.15); color:#047857 }
+#page-invx .ix-badge.low{ background:rgba(245,158,11,.18); color:#b45309 }
+#page-invx .ix-badge.out{ background:rgba(239,68,68,.15); color:#dc2626 }
+#page-invx .ix-min{ width:66px; padding:5px 7px; border:1px solid var(--border-color,#dbe2ea); border-radius:8px; font-size:12px; text-align:center; font-family:inherit;
+  background:var(--input-bg,#fff); color:var(--text-dark,#0f172a) }
+#page-invx .ix-ops{ display:flex; gap:5px; flex-wrap:wrap }
+#page-invx .ix-op{ border:1px solid var(--border-color,#dbe2ea); background:var(--card-bg,#fff); color:var(--text-medium,#475569);
+  border-radius:9px; padding:5px 9px; font-size:11.3px; font-weight:800; cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:5px }
+#page-invx .ix-op:hover{ border-color:var(--primary,#4f46e5); color:var(--primary,#4f46e5) }
+#page-invx .ix-op.add{ background:linear-gradient(135deg,#10b981,#059669); border-color:transparent; color:#fff }
+#page-invx .ix-op.out{ background:linear-gradient(135deg,#f97316,#ea580c); border-color:transparent; color:#fff }
+#page-invx .ix-op.del:hover{ border-color:#ef4444; color:#ef4444 }
+#page-invx .ix-two{ display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px }
+#page-invx .ix-rank{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px }
+#page-invx .ix-rank li{ display:flex; align-items:center; gap:10px; font-size:12.4px }
+#page-invx .ix-rank .r{ width:24px; height:24px; border-radius:8px; display:grid; place-items:center; font-size:11px; font-weight:900;
+  background:color-mix(in oklab,var(--primary,#4f46e5) 14%, transparent); color:var(--primary,#4f46e5); flex:0 0 24px }
+#page-invx .ix-rank .g{ flex:1; min-width:0 }
+#page-invx .ix-rank .g b{ display:block; font-weight:800; color:var(--text-dark,#0f172a); font-size:12.4px }
+#page-invx .ix-rank .g .ix-bar{ margin-top:4px }
+#page-invx .ix-rank .v{ font-weight:900; color:var(--text-dark,#0f172a); font-size:12.5px; white-space:nowrap }
+#page-invx .ix-empty{ padding:22px; text-align:center; font-size:12.5px; color:var(--text-light,#64748b) }
+#page-invx .ix-hint{ font-size:11.5px; color:var(--text-light,#64748b); font-weight:700; margin-top:8px }
+html[data-theme="dark"] #page-invx .ix-kpi,
+html[data-theme="dark"] #page-invx .ix-card{ background:rgba(17,24,39,.96) }
+html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
+@media print{ #page-invx .ix-toolbar, #page-invx .ix-ops, #page-invx .page-actions{ display:none !important } }
+</style>
+
+<script id="invx-script">
+(function(){
+  'use strict';
+  var LS_MIN = 'invx_min_v1';
+  var mins = {};
+  try { mins = JSON.parse(localStorage.getItem(LS_MIN) || '{}') || {}; } catch(e){ mins = {}; }
+  function saveMins(){ try{ localStorage.setItem(LS_MIN, JSON.stringify(mins)); }catch(e){} }
+
+  var items = [], hist = [], trans = [];
+  var filter = 'all', term = '', focusId = null, booted = false, busy = false;
+  var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); };
+  var num = function(v){ var n = Number(v); return isFinite(n) ? n : 0; };
+  function toast(t,a,b){ if(typeof showToast==='function') showToast(t,a,b); }
+  function nowDate(){ try{ return new Date().toISOString().split('T')[0]; }catch(e){ return ''; } }
+  function userName(){ try{ var u = window.currentUser; return (u && (u.name || u.username)) || 'النظام'; }catch(e){ return 'النظام'; } }
+  function ts(v){ if(!v) return 0; var t = Date.parse(v); if(!isNaN(t)) return t;
+    var m = String(v).match(/(\d{1,4})[-\/](\d{1,2})[-\/](\d{1,4})/);
+    if(m){ var a = m[1].length===4 ? [m[1],m[2],m[3]] : [m[3],m[2],m[1]]; return new Date(+a[0],+a[1]-1,+a[2]).getTime() || 0; }
+    return 0; }
+
+  /* ---------- حدود إعادة الطلب ومعدلات الاستهلاك ---------- */
+  function defMin(it){ var mx = num(it.max_qty || it.maxQty); return mx > 0 ? Math.max(1, Math.ceil(mx * 0.25)) : 2; }
+  function minFor(it){
+    if(!it) return 2;
+    var k = String(it.id != null ? it.id : (it.name||''));
+    if(mins[k] != null && isFinite(Number(mins[k]))) return Number(mins[k]);
+    if(it.min_qty != null && isFinite(Number(it.min_qty))) return Number(it.min_qty);
+    return defMin(it);
+  }
+  var WIN = 30, dayMs = 86400000;
+  function burnFor(it){
+    if(!it) return 0;
+    var id = String(it.id != null ? it.id : ''), nm = it.name || it.item_name || '';
+    var since = Date.now() - WIN*dayMs, outQty = 0;
+    (hist||[]).forEach(function(h){
+      var t = (h.type === 'out' || h.type === 'صرف') ? 'out' : 'in';
+      if(t !== 'out') return;
+      var match = (id && String(h.item_id != null ? h.item_id : h.itemId) === id) || (nm && (h.item_name || h.itemName) === nm);
+      if(!match) return;
+      if(ts(h.date) >= since) outQty += num(h.qty);
+    });
+    if(!outQty){
+      (trans||[]).forEach(function(t){
+        if(nm && (t.item_name || t.itemName) === nm && ts(t.date) >= since) outQty += num(t.qty);
+      });
+    }
+    return outQty > 0 ? (outQty / WIN) : 0;
+  }
+  function statusOf(it){
+    var q = num(it.qty), m = minFor(it);
+    return q <= 0 ? 'out' : (q <= m ? 'low' : 'ok');
+  }
+
+  /* ---------- تحميل البيانات ---------- */
+  async function fetchAll(force){
+    if(!window.SupabaseAPI || typeof SupabaseAPI.request !== 'function') return;
+    try{ items = await SupabaseAPI.request('inventory','GET') || []; }catch(e){}
+    try{ hist  = await SupabaseAPI.request('inventory_history','GET') || []; }catch(e){ hist = hist || []; }
+    try{ trans = await SupabaseAPI.request('transactions','GET') || []; }catch(e){ trans = trans || []; }
+    var seen = {};
+    items = (items||[]).filter(function(i){ var k = String(i.id); if(seen[k]) return false; seen[k]=1; return true; });
+    window.__invItems = items; window.__invHist = hist; window.__invTrans = trans;
+    if(force) render();
+  }
+
+  /* ---------- الصفحة ---------- */
+  function ensurePage(){
+    if(document.getElementById('page-invx')) return;
+    var main = document.querySelector('.main-content'); if(!main) return;
+    var sec = document.createElement('div');
+    sec.className = 'page-section'; sec.id = 'page-invx';
+    sec.innerHTML =
+      '<div class="page-header">' +
+        '<h1 class="page-title">إدارة المخزون وقطع الغيار</h1>' +
+        '<div class="page-actions no-print">' +
+          '<button class="btn btn-secondary btn-sm" onclick="INVX.reload(true)"><i class="fas fa-rotate"></i> تحديث</button>' +
+          '<button class="btn btn-success btn-sm" onclick="INVX.toggleAdd()"><i class="fas fa-plus-circle"></i> قطعة جديدة</button>' +
+          '<button class="btn btn-secondary btn-sm" onclick="INVX.exportCsv()"><i class="fas fa-file-csv"></i> تصدير</button>' +
+          '<button class="btn btn-primary btn-sm" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ix-kpis" id="ixKpis"></div>' +
+      '<div class="ix-card" id="ixAddCard" style="display:none">' +
+        '<h4><i class="fas fa-cart-plus"></i> إضافة قطعة غيار جديدة</h4>' +
+        '<div class="ix-form">' +
+          '<div class="ix-f"><label>اسم القطعة *</label><input type="text" id="ixNewName" placeholder="مثال: خرطوشة حبر HP 85A"></div>' +
+          '<div class="ix-f"><label>الرصيد الابتدائي</label><input type="number" id="ixNewQty" min="0" value="0"></div>' +
+          '<div class="ix-f"><label>السعة القصوى</label><input type="number" id="ixNewMax" min="1" value="20"></div>' +
+          '<div class="ix-f"><label>حد إعادة الطلب</label><input type="number" id="ixNewMin" min="0" value="5"></div>' +
+          '<div class="ix-f"><button class="btn btn-success btn-sm" style="width:100%" onclick="INVX.addItem()"><i class="fas fa-floppy-disk"></i> حفظ القطعة</button></div>' +
+        '</div>' +
+        '<div class="ix-hint">عند الحفظ يُسجَّل الرصيد الابتدائي في سجل الحركة تلقائياً، وتُحدَّث بطاقات الإشعارات فوراً.</div>' +
+      '</div>' +
+      '<div class="ix-card">' +
+        '<h4><i class="fas fa-warehouse"></i> جرد قطع الغيار والتحديث التلقائي</h4>' +
+        '<div class="ix-toolbar no-print">' +
+          '<div class="ix-search"><input type="text" id="ixSearch" placeholder="ابحث باسم القطعة..."><i class="fas fa-search"></i></div>' +
+          '<button class="ix-chip on" data-f="all">الكل</button>' +
+          '<button class="ix-chip" data-f="ok">متوفر</button>' +
+          '<button class="ix-chip" data-f="low">منخفض</button>' +
+          '<button class="ix-chip" data-f="out">نفد</button>' +
+        '</div>' +
+        '<div class="ix-tblwrap"><table class="ix-tbl"><thead><tr>' +
+          '<th>القطعة</th><th>الرصيد</th><th>نسبة التعبئة</th><th>حد إعادة الطلب</th>' +
+          '<th>الاستهلاك/يوم</th><th>أيام حتى النفاد</th><th>الكمية المقترحة</th><th>الحالة</th><th>تحديث سريع</th>' +
+        '</tr></thead><tbody id="ixBody"></tbody></table></div>' +
+        '<div class="ix-empty" id="ixEmpty" style="display:none"><i class="fas fa-box-open"></i> لا توجد نتائج مطابقة</div>' +
+      '</div>' +
+      '<div class="ix-two">' +
+        '<div class="ix-card"><h4><i class="fas fa-chart-simple"></i> الأكثر استهلاكاً خلال 30 يوماً</h4><div id="ixTop"></div></div>' +
+        '<div class="ix-card"><h4><i class="fas fa-truck-fast"></i> أوامر إعادة التزويد المقترحة</h4><div id="ixReorder"></div></div>' +
+      '</div>';
+    main.appendChild(sec);
+
+    sec.addEventListener('click', function(e){
+      var chip = e.target.closest('.ix-chip');
+      if(chip){ filter = chip.dataset.f; sec.querySelectorAll('.ix-chip').forEach(function(c){ c.classList.toggle('on', c === chip); }); render(); return; }
+      var op = e.target.closest('[data-ixop]');
+      if(op){ handleOp(op.dataset.ixop, op.dataset.id); return; }
+    });
+    sec.addEventListener('input', function(e){
+      if(e.target.id === 'ixSearch'){ term = e.target.value.trim().toLowerCase(); render(); }
+    });
+    sec.addEventListener('change', function(e){
+      if(e.target.classList.contains('ix-min')){
+        var v = Math.max(0, Math.round(num(e.target.value)));
+        mins[String(e.target.dataset.id)] = v; saveMins();
+        toast('success','تم الحفظ','تم ضبط حد إعادة الطلب على ' + v + ' وحدة');
+        render(); syncNotifications();
+      }
+    });
+
+    /* عنصر القائمة الجانبية */
+    var nav = document.querySelector('.nav-menu');
+    if(nav && !document.getElementById('ixNavItem')){
+      var a = document.createElement('a');
+      a.className = 'nav-item'; a.id = 'ixNavItem';
+      a.setAttribute('data-title','إدارة المخزون');
+      a.setAttribute('onclick', "showPage('invx')");
+      a.innerHTML = '<i class="fas fa-warehouse"></i><span>إدارة المخزون</span><span class="nav-badge" id="ixNavBadge" style="display:none">0</span>';
+      var invLink = Array.prototype.slice.call(nav.querySelectorAll('.nav-item')).find(function(el){
+        return (el.getAttribute('onclick')||'').indexOf("'inventory'") > -1;
+      });
+      if(invLink && invLink.nextSibling) nav.insertBefore(a, invLink.nextSibling);
+      else if(invLink) nav.appendChild(a); else nav.appendChild(a);
+    }
+  }
+
+  /* ---------- الرسم ---------- */
+  function color(st){ return st === 'out' ? '#ef4444' : (st === 'low' ? '#f59e0b' : '#10b981'); }
+  function bar(pct, st){ return '<div class="ix-bar"><i style="width:' + Math.max(2, Math.min(100, pct)) + '%;background:' + color(st) + '"></i></div>'; }
+
+  function render(){
+    var body = document.getElementById('ixBody'); if(!body) return;
+    var counts = { ok:0, low:0, out:0 }, units = 0, reorderUnits = 0;
+    var rows = items.map(function(it){
+      var q = num(it.qty), mx = num(it.max_qty || it.maxQty) || Math.max(q, 1), mn = minFor(it),
+          st = statusOf(it), burn = burnFor(it), eta = burn > 0 ? Math.floor(q / burn) : null,
+          need = st === 'ok' ? 0 : Math.max(0, mx - q);
+      counts[st]++; units += q; reorderUnits += need;
+      return { it:it, q:q, mx:mx, mn:mn, st:st, burn:burn, eta:eta, need:need, nm:(it.name || it.item_name || '') };
+    });
+
+    /* مؤشرات */
+    var kpis = document.getElementById('ixKpis');
+    if(kpis){
+      var box = function(c,i,v,l){ return '<div class="ix-kpi"><i class="fas ' + i + '" style="background:' + c + '"></i><div><b>' + v + '</b><span>' + l + '</span></div></div>'; };
+      kpis.innerHTML =
+        box('#4f46e5','fa-boxes-stacked', items.length, 'إجمالي الأصناف') +
+        box('#10b981','fa-circle-check', counts.ok, 'أصناف متوفرة') +
+        box('#f59e0b','fa-triangle-exclamation', counts.low, 'مخزون منخفض') +
+        box('#ef4444','fa-box-open', counts.out, 'أصناف نفدت') +
+        box('#0ea5e9','fa-cubes', units, 'إجمالي الوحدات') +
+        box('#8b5cf6','fa-truck-fast', reorderUnits, 'وحدات مطلوبة للتزويد');
+    }
+    var badge = document.getElementById('ixNavBadge');
+    if(badge){ var alerts = counts.low + counts.out; badge.textContent = alerts; badge.style.display = alerts ? '' : 'none'; }
+
+    /* الجدول */
+    var view = rows.filter(function(r){
+      if(filter !== 'all' && r.st !== filter) return false;
+      if(term && r.nm.toLowerCase().indexOf(term) === -1) return false;
+      return true;
+    }).sort(function(a,b){ var w = { out:0, low:1, ok:2 }; return w[a.st] - w[b.st] || b.burn - a.burn; });
+
+    body.innerHTML = view.map(function(r){
+      var lbl = r.st === 'out' ? 'نفد' : (r.st === 'low' ? 'منخفض' : 'متوفر');
+      var id = esc(String(r.it.id));
+      return '<tr data-row="' + id + '" class="' + (String(focusId)===String(r.it.id) ? 'ix-focus' : '') + '">' +
+        '<td><span class="ix-name">' + esc(r.nm) + '</span></td>' +
+        '<td><b style="color:' + color(r.st) + ';font-size:15px">' + r.q + '</b> / ' + r.mx + '</td>' +
+        '<td>' + Math.round(r.mx ? (r.q / r.mx * 100) : 0) + '%' + bar(r.mx ? (r.q / r.mx * 100) : 0, r.st) + '</td>' +
+        '<td><input type="number" min="0" class="ix-min" data-id="' + id + '" value="' + r.mn + '"></td>' +
+        '<td>' + (r.burn > 0 ? r.burn.toFixed(2) : '—') + '</td>' +
+        '<td>' + (r.eta != null ? (r.eta + ' يوم') : '—') + '</td>' +
+        '<td>' + (r.need ? ('<b>' + r.need + '</b> وحدة') : '—') + '</td>' +
+        '<td><span class="ix-badge ' + r.st + '">' + lbl + '</span></td>' +
+        '<td><div class="ix-ops">' +
+          '<button class="ix-op add" data-ixop="in" data-id="' + id + '"><i class="fas fa-plus"></i> إضافة</button>' +
+          '<button class="ix-op out" data-ixop="out" data-id="' + id + '"><i class="fas fa-minus"></i> صرف</button>' +
+          '<button class="ix-op" data-ixop="set" data-id="' + id + '"><i class="fas fa-pen"></i> جرد</button>' +
+          '<button class="ix-op del" data-ixop="del" data-id="' + id + '"><i class="fas fa-trash"></i></button>' +
+        '</div></td>' +
+      '</tr>';
+    }).join('');
+    var empty = document.getElementById('ixEmpty');
+    if(empty) empty.style.display = view.length ? 'none' : 'block';
+
+    /* الأكثر استهلاكاً */
+    var top = document.getElementById('ixTop');
+    if(top){
+      var ranked = rows.filter(function(r){ return r.burn > 0; }).sort(function(a,b){ return b.burn - a.burn; }).slice(0,6);
+      var mxB = ranked.length ? ranked[0].burn : 1;
+      top.innerHTML = ranked.length ? '<ul class="ix-rank">' + ranked.map(function(r,i){
+        return '<li><span class="r">' + (i+1) + '</span><span class="g"><b>' + esc(r.nm) + '</b>' + bar(r.burn / mxB * 100, r.st) + '</span>' +
+          '<span class="v">' + Math.round(r.burn * WIN) + ' وحدة</span></li>';
+      }).join('') + '</ul>' : '<div class="ix-empty">لا توجد حركات صرف خلال آخر 30 يوماً</div>';
+    }
+
+    /* اقتراحات التزويد */
+    var ro = document.getElementById('ixReorder');
+    if(ro){
+      var need = rows.filter(function(r){ return r.need > 0; }).sort(function(a,b){ var w = { out:0, low:1, ok:2 }; return w[a.st]-w[b.st] || b.need-a.need; }).slice(0,8);
+      ro.innerHTML = need.length ? '<ul class="ix-rank">' + need.map(function(r){
+        return '<li><span class="r" style="background:' + color(r.st) + '22;color:' + color(r.st) + '"><i class="fas fa-truck"></i></span>' +
+          '<span class="g"><b>' + esc(r.nm) + '</b><span style="font-size:11.3px;color:var(--text-light,#64748b);font-weight:700">' +
+          'الرصيد ' + r.q + ' • حد الطلب ' + r.mn + (r.eta != null ? (' • يكفي ' + r.eta + ' يوم') : '') + '</span></span>' +
+          '<span class="v"><button class="ix-op add" data-ixop="in" data-id="' + esc(String(r.it.id)) + '">اطلب ' + r.need + '</button></span></li>';
+      }).join('') + '</ul>' : '<div class="ix-empty"><i class="fas fa-circle-check"></i> جميع الأصناف ضمن الحد الآمن</div>';
+    }
+  }
+
+  /* ---------- العمليات ---------- */
+  function byId(id){ return items.find(function(i){ return String(i.id) === String(id); }); }
+
+  function syncNotifications(){
+    try{ if(typeof window.ntfRefresh === 'function') window.ntfRefresh(); }catch(e){}
+  }
+
+  async function writeMove(it, type, qty, oldQty, newQty){
+    try{
+      await SupabaseAPI.request('inventory_history','POST',{
+        item_id: it.id, item_name: it.name, type: type, qty: qty,
+        old_qty: oldQty, new_qty: newQty, date: nowDate(), user: userName()
+      });
+    }catch(e){}
+  }
+
+  async function applyQty(id, newQty, type, moveQty){
+    var it = byId(id); if(!it) return;
+    if(typeof checkReadOnly === 'function' && checkReadOnly()) return;
+    if(busy) return; busy = true;
+    var oldQty = num(it.qty);
+    try{
+      await SupabaseAPI.request('inventory','PATCH',{ qty: newQty }, it.id);
+      it.qty = newQty;
+      await writeMove(it, type, moveQty, oldQty, newQty);
+      toast('success','تم تحديث المخزون', it.name + ': ' + oldQty + ' ← ' + newQty + ' وحدة');
+      render();
+      if(typeof loadInventory === 'function' && document.getElementById('inventoryGrid')) { try{ await loadInventory(); }catch(e){} }
+      await fetchAll(false); render(); syncNotifications();
+    }catch(e){
+      toast('error','تعذر التحديث', (e && e.message) ? e.message : 'حاول مرة أخرى');
+    }
+    busy = false;
+  }
+
+  function handleOp(op, id){
+    var it = byId(id); if(!it) return;
+    var q = num(it.qty);
+    if(op === 'in'){
+      var mx = num(it.max_qty || it.maxQty), sug = mx > q ? (mx - q) : 5;
+      var v = prompt('الكمية المضافة إلى «' + it.name + '» (الرصيد الحالي ' + q + ')', String(sug));
+      if(v == null) return;
+      var n = Math.round(num(v)); if(n <= 0) return toast('warning','قيمة غير صالحة','أدخل كمية أكبر من صفر');
+      applyQty(id, q + n, 'in', n);
+    } else if(op === 'out'){
+      if(q <= 0) return toast('warning','لا يوجد رصيد','هذه القطعة نفدت بالكامل');
+      var v2 = prompt('الكمية المصروفة من «' + it.name + '» (المتاح ' + q + ')', '1');
+      if(v2 == null) return;
+      var n2 = Math.round(num(v2));
+      if(n2 <= 0 || n2 > q) return toast('warning','كمية غير صالحة','الكمية يجب أن تكون بين 1 و ' + q);
+      applyQty(id, q - n2, 'out', n2);
+    } else if(op === 'set'){
+      var v3 = prompt('الرصيد الفعلي بعد الجرد لـ «' + it.name + '»', String(q));
+      if(v3 == null) return;
+      var n3 = Math.round(num(v3)); if(n3 < 0) return;
+      if(n3 === q) return toast('info','لا تغيير','الرصيد مطابق للجرد');
+      applyQty(id, n3, n3 > q ? 'in' : 'out', Math.abs(n3 - q));
+    } else if(op === 'del'){
+      if(typeof checkReadOnly === 'function' && checkReadOnly()) return;
+      if(!confirm('حذف القطعة «' + it.name + '» نهائياً من المخزون؟')) return;
+      SupabaseAPI.request('inventory','DELETE',null,it.id).then(function(){
+        toast('success','تم الحذف','تمت إزالة القطعة من المخزون');
+        return fetchAll(true);
+      }).then(syncNotifications).catch(function(e){ toast('error','تعذر الحذف', (e && e.message) || ''); });
+    }
+  }
+
+  /* ---------- واجهة عامة ---------- */
+  window.INVX = {
+    minFor: minFor,
+    burnFor: burnFor,
+    reload: async function(force){ await fetchAll(true); if(force) toast('info','تحديث','تم تحديث بيانات المخزون'); syncNotifications(); },
+    toggleAdd: function(){
+      var c = document.getElementById('ixAddCard'); if(!c) return;
+      c.style.display = c.style.display === 'none' ? '' : 'none';
+      if(c.style.display === '') { var f = document.getElementById('ixNewName'); if(f) f.focus(); }
+    },
+    addItem: async function(){
+      if(typeof checkReadOnly === 'function' && checkReadOnly()) return;
+      var nameEl = document.getElementById('ixNewName');
+      var name = (nameEl ? nameEl.value : '').trim();
+      if(!name) return toast('warning','بيانات ناقصة','أدخل اسم القطعة');
+      var qty = Math.max(0, Math.round(num((document.getElementById('ixNewQty')||{}).value)));
+      var mx  = Math.max(1, Math.round(num((document.getElementById('ixNewMax')||{}).value) || 10));
+      var mn  = Math.max(0, Math.round(num((document.getElementById('ixNewMin')||{}).value)));
+      if(items.some(function(i){ return (i.name||'').trim() === name; })) return toast('warning','مكرر','هذه القطعة موجودة بالفعل في المخزون');
+      try{
+        var res = await SupabaseAPI.request('inventory','POST',{ name:name, qty:qty, max_qty:mx });
+        var created = Array.isArray(res) ? res[0] : res;
+        var newId = created && created.id != null ? created.id : null;
+        if(newId != null){ mins[String(newId)] = mn; saveMins(); }
+        if(qty > 0 && newId != null) await writeMove({ id:newId, name:name }, 'in', qty, 0, qty);
+        if(nameEl) nameEl.value = '';
+        toast('success','تمت الإضافة','تم إدراج «' + name + '» في المخزون');
+        await fetchAll(true);
+        if(typeof loadInventory === 'function' && document.getElementById('inventoryGrid')) { try{ await loadInventory(); }catch(e){} }
+        syncNotifications();
+      }catch(e){ toast('error','تعذر الحفظ', (e && e.message) ? e.message : 'تحقق من الاتصال'); }
+    },
+    focus: function(id){
+      focusId = id; render();
+      setTimeout(function(){
+        var row = document.querySelector('#ixBody tr[data-row="' + String(id) + '"]');
+        if(row && row.scrollIntoView) row.scrollIntoView({ behavior:'smooth', block:'center' });
+      }, 120);
+      setTimeout(function(){ focusId = null; render(); }, 6000);
+    },
+    restock: function(id, nm){
+      if(typeof showPage === 'function') showPage('invx');
+      setTimeout(function(){
+        var it = byId(id) || items.find(function(i){ return (i.name||'') === nm; });
+        if(!it) return toast('warning','غير موجود','تعذر العثور على القطعة');
+        window.INVX.focus(it.id);
+        handleOp('in', it.id);
+      }, 420);
+    },
+    editThreshold: function(id, nm){
+      var it = byId(id) || items.find(function(i){ return (i.name||'') === nm; });
+      if(!it) return toast('warning','غير موجود','تعذر العثور على القطعة');
+      var v = prompt('حد إعادة الطلب لـ «' + it.name + '»', String(minFor(it)));
+      if(v == null) return;
+      mins[String(it.id)] = Math.max(0, Math.round(num(v))); saveMins();
+      toast('success','تم الحفظ','سيُستخدم الحد الجديد في تحذيرات الإشعارات');
+      render(); syncNotifications();
+    },
+    exportCsv: function(){
+      var head = ['القطعة','الرصيد','السعة','حد إعادة الطلب','الاستهلاك اليومي','أيام حتى النفاد','الحالة'];
+      var lines = [head.join(',')];
+      items.forEach(function(it){
+        var q = num(it.qty), mx = num(it.max_qty||it.maxQty), mn = minFor(it), b = burnFor(it),
+            eta = b > 0 ? Math.floor(q/b) : '', st = statusOf(it);
+        lines.push(['"'+(it.name||'')+'"', q, mx, mn, b ? b.toFixed(2) : 0, eta, st === 'out' ? 'نفد' : (st === 'low' ? 'منخفض' : 'متوفر')].join(','));
+      });
+      var blob = new Blob(['\ufeff' + lines.join('\n')], { type:'text/csv;charset=utf-8;' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = 'inventory-analysis-' + nowDate() + '.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      toast('success','تم التصدير','تم تنزيل تحليل المخزون بصيغة CSV');
+    }
+  };
+
+  /* ---------- التحديث التلقائي ---------- */
+  window.addEventListener('ntfx:data', function(e){
+    var inv = e && e.detail && e.detail.inventory;
+    if(!Array.isArray(inv) || !inv.length) return;
+    var changed = inv.length !== items.length || inv.some(function(i){
+      var cur = byId(i.id); return !cur || num(cur.qty) !== num(i.qty);
+    });
+    items = inv;
+    if(changed){ render(); }
+  });
+
+  function isActive(){ var p = document.getElementById('page-invx'); return p && p.classList.contains('active'); }
+  setInterval(function(){ if(isActive() && !busy) fetchAll(true); }, 25000);
+
+  async function boot(){
+    if(booted) return; booted = true;
+    ensurePage();
+    await fetchAll(true);
+    var _sp = window.showPage;
+    if(typeof _sp === 'function'){
+      window.showPage = function(p){
+        if(p === 'invx'){
+          ensurePage();
+          document.querySelectorAll('.page-section').forEach(function(s){ s.classList.remove('active'); });
+          document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+          var sec = document.getElementById('page-invx'); if(sec) sec.classList.add('active');
+          var nv = document.getElementById('ixNavItem'); if(nv) nv.classList.add('active');
+          fetchAll(true);
+          return;
+        }
+        return _sp.apply(this, arguments);
+      };
+    }
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(boot, 1400); });
+  else setTimeout(boot, 1400);
+})();
+</script>
+
 
 </html>
