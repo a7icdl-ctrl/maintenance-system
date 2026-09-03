@@ -25891,7 +25891,7 @@ html[data-theme="dark"] .ntf-act{ background:rgba(255,255,255,.05); color:#e5e7e
     if(inflight) return;
     inflight = true; loading = true;
     try{
-      if(window.SupabaseAPI && typeof SupabaseAPI.request === 'function'){
+      if(typeof SupabaseAPI !== 'undefined' && SupabaseAPI && typeof SupabaseAPI.request === 'function'){
         var rq = await SupabaseAPI.request('requests','GET');
         var iv = await SupabaseAPI.request('inventory','GET');
         raw = { requests: rq || [], inventory: iv || [] };
@@ -26488,7 +26488,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
 
   /* ---------- تحميل البيانات ---------- */
   async function fetchAll(force){
-    if(!window.SupabaseAPI || typeof SupabaseAPI.request !== 'function') return;
+    if(typeof SupabaseAPI === 'undefined' || !SupabaseAPI || typeof SupabaseAPI.request !== 'function') return;
     try{ items = await SupabaseAPI.request('inventory','GET') || []; }catch(e){}
     try{ hist  = await SupabaseAPI.request('inventory_history','GET') || []; }catch(e){ hist = hist || []; }
     try{ trans = await SupabaseAPI.request('transactions','GET') || []; }catch(e){ trans = trans || []; }
