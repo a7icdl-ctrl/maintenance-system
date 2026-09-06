@@ -13,6 +13,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1886,6 +1887,11 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                     <span>طلبات الصيانة</span>
                     <span class="nav-badge" id="requestsBadge">0</span>
                 </a>
+                <a class="nav-item" data-title="زيارات الشركة" onclick="showPage('visits')">
+                    <i class="fas fa-truck-fast"></i>
+                    <span>زيارات الشركة</span>
+                    <span class="nav-badge" id="visitsBadge">0</span>
+                </a>
                 <a class="nav-item" data-title="قطع الغيار" onclick="showPage('inventory')">
                     <i class="fas fa-boxes"></i>
                     <span>قطع الغيار</span>
@@ -2404,6 +2410,115 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                         <button type="button" class="rq-scrolltop" onclick="this.closest('.rq-card').querySelector('.table-container').scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-arrow-up"></i> أعلى الجدول</button>
                     </div>
                     </div></div>
+                </div>
+            </div>
+
+            <div class="page-section" id="page-visits">
+                <style>
+                #page-visits .cv-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;margin-bottom:14px}
+                #page-visits .cv-title{margin:0;font-size:21px;font-weight:900;color:var(--text-dark,#1e293b);display:flex;align-items:center;gap:9px}
+                #page-visits .cv-title i{color:#0ea5e9}
+                #page-visits .cv-title small{display:block;font-size:11.5px;font-weight:600;color:#94a3b8;margin-top:2px}
+                #page-visits .cv-actions{display:flex;flex-wrap:wrap;gap:8px}
+                #page-visits .cv-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:12px}
+                #page-visits .cv-stat{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:11px 13px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 14px rgba(15,23,42,.04)}
+                #page-visits .cv-stat i{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:10px;background:#e0f2fe;color:#0284c7;font-size:14px}
+                #page-visits .cv-stat.p2 i{background:#eef2ff;color:#4f46e5}
+                #page-visits .cv-stat.p3 i{background:#ecfdf5;color:#059669}
+                #page-visits .cv-stat.p4 i{background:#fef3c7;color:#d97706}
+                #page-visits .cv-stat b{font-size:18px;font-weight:900;line-height:1;color:#0f172a}
+                #page-visits .cv-stat span{font-size:11.5px;color:#64748b;display:block;margin-top:3px}
+                #page-visits .cv-bar{display:grid;grid-template-columns:minmax(0,1.6fr) auto auto auto;gap:8px;align-items:center;margin-bottom:10px}
+                #page-visits .cv-bar input,#page-visits .cv-bar select{padding:9px 12px;border:1px solid #e5e7eb;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b}
+                #page-visits .cv-bar input:focus,#page-visits .cv-bar select:focus{outline:none;border-color:#0ea5e9}
+                #page-visits .cv-card{border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 6px 20px rgba(15,23,42,.05)}
+                #page-visits .cv-table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;background:#fff}
+                #page-visits .cv-table thead th{background:linear-gradient(180deg,#ffffff,#f4f7fb);color:#475569;font-size:11.5px;font-weight:800;text-align:right;padding:10px 10px;border-bottom:1px solid #e5e7eb;white-space:nowrap;position:sticky;top:0;z-index:2}
+                #page-visits .cv-table tbody td{padding:9px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle;font-size:12.8px;color:#334155}
+                #page-visits .cv-table tbody tr.cv-row{cursor:pointer;transition:background .15s}
+                #page-visits .cv-table tbody tr.cv-row:hover td{background:#f0f9ff}
+                #page-visits .cv-table tbody tr.cv-row.open td{background:#e0f2fe}
+                #page-visits .cv-num{font-weight:900;color:#0284c7}
+                #page-visits .cv-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:#f1f5f9;color:#475569}
+                #page-visits .cv-chip.time{background:#ecfeff;color:#0e7490}
+                #page-visits .cv-chip.dur{background:#eef2ff;color:#4338ca}
+                #page-visits .cv-chip.link{background:#dcfce7;color:#15803d;cursor:pointer}
+                #page-visits .cv-chip.link.zero{background:#f1f5f9;color:#94a3b8}
+                #page-visits .cv-acts{display:flex;gap:5px;justify-content:flex-end}
+                #page-visits .cv-acts button{width:28px;height:28px;border:none;border-radius:8px;cursor:pointer;font-size:11.5px;display:grid;place-items:center}
+                #page-visits .cv-acts .v{background:#f0f9ff;color:#0284c7}
+                #page-visits .cv-acts .e{background:#eff6ff;color:#2563eb}
+                #page-visits .cv-acts .d{background:#fef2f2;color:#dc2626}
+                #page-visits .cv-notes{color:#64748b;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
+                #page-visits .cv-sub td{background:#f8fafc!important;padding:0!important;border-bottom:1px solid #e5e7eb}
+                #page-visits .cv-sub-in{padding:12px 16px}
+                #page-visits .cv-sub-h{font-size:12.5px;font-weight:900;color:#0f172a;margin-bottom:9px;display:flex;align-items:center;gap:7px}
+                #page-visits .cv-sub-h i{color:#0ea5e9}
+                #page-visits .cv-link-item{background:#fff;border:1px solid #e2e8f0;border-inline-start:3px solid #0ea5e9;border-radius:10px;padding:9px 12px;margin-bottom:7px}
+                #page-visits .cv-link-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:4px}
+                #page-visits .cv-link-top b{font-size:12.5px;color:#0f172a}
+                #page-visits .cv-link-top span{font-size:11px;color:#64748b}
+                #page-visits .cv-link-txt{font-size:12.5px;color:#334155;line-height:1.7}
+                #page-visits .cv-empty{padding:26px;text-align:center;color:#94a3b8;font-size:13px}
+                #page-visits .cv-mode{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:#fef3c7;color:#92400e;display:none}
+                html[data-theme="dark"] #page-visits .cv-stat,html[data-theme="dark"] #page-visits .cv-card,html[data-theme="dark"] #page-visits .cv-table,html[data-theme="dark"] #page-visits .cv-link-item{background:#0f172a;border-color:rgba(148,163,184,.2)}
+                html[data-theme="dark"] #page-visits .cv-table thead th{background:linear-gradient(180deg,#131c2e,#0f172a);color:#cbd5e1;border-color:rgba(148,163,184,.2)}
+                html[data-theme="dark"] #page-visits .cv-table tbody td{color:#cbd5e1;border-color:rgba(148,163,184,.12)}
+                html[data-theme="dark"] #page-visits .cv-stat b{color:#e2e8f0}
+                html[data-theme="dark"] #page-visits .cv-sub td{background:#0b1220!important}
+                html[data-theme="dark"] #page-visits .cv-bar input,html[data-theme="dark"] #page-visits .cv-bar select{background:#0f172a;border-color:rgba(148,163,184,.2);color:#e2e8f0}
+                @media(max-width:900px){#page-visits .cv-bar{grid-template-columns:1fr 1fr}}
+                @media print{#page-visits .cv-acts,#page-visits .cv-bar,#page-visits .cv-actions{display:none!important}}
+                </style>
+
+                <div class="cv-head">
+                    <div>
+                        <h1 class="cv-title"><i class="fas fa-truck-fast"></i> زيارات الشركة
+                            <span class="cv-mode" id="cvModeBadge">تخزين محلي</span>
+                        </h1>
+                        <small>سجل زيارات مندوبي الشركة وربطها تلقائياً بإجراءات طلبات الصيانة حسب التاريخ</small>
+                    </div>
+                    <div class="cv-actions">
+                        <button class="btn btn-primary btn-sm no-readonly" onclick="openVisitModal()"><i class="fas fa-plus"></i> زيارة جديدة</button>
+                        <button class="btn btn-secondary btn-sm" onclick="loadVisits()"><i class="fas fa-rotate"></i> تحديث</button>
+                        <button class="btn btn-secondary btn-sm" onclick="printVisits()"><i class="fas fa-print"></i> طباعة</button>
+                        <button class="btn btn-secondary btn-sm" onclick="exportVisitsExcel()"><i class="fas fa-file-excel"></i> تصدير</button>
+                    </div>
+                </div>
+
+                <div class="cv-stats" id="cvStats"></div>
+
+                <div class="cv-bar">
+                    <input type="text" id="cvSearch" placeholder="بحث برقم الزيارة أو المندوب أو الفني أو الملاحظات..." oninput="renderVisits()">
+                    <input type="date" id="cvFrom" onchange="renderVisits()" title="من تاريخ">
+                    <input type="date" id="cvTo" onchange="renderVisits()" title="إلى تاريخ">
+                    <select id="cvSort" onchange="renderVisits()">
+                        <option value="date_desc">الأحدث أولاً</option>
+                        <option value="date_asc">الأقدم أولاً</option>
+                        <option value="num">حسب رقم الزيارة</option>
+                        <option value="links">الأكثر إجراءات</option>
+                    </select>
+                </div>
+
+                <div class="cv-card">
+                    <div class="table-container" style="max-height:calc(100dvh - 380px);overflow:auto">
+                        <table class="cv-table" id="visitsTable">
+                            <thead><tr>
+                                <th style="width:40px">#</th>
+                                <th style="width:110px">رقم الزيارة</th>
+                                <th style="width:120px">تاريخ الزيارة</th>
+                                <th style="width:95px">وقت الوصول</th>
+                                <th style="width:95px">وقت الانتهاء</th>
+                                <th style="width:90px">المدة</th>
+                                <th style="width:150px">مندوب الشركة</th>
+                                <th style="width:140px">الفني المتابع</th>
+                                <th style="width:130px">إجراءات مرتبطة</th>
+                                <th>ملاحظات</th>
+                                <th style="width:104px"></th>
+                            </tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -26843,6 +26958,459 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(boot, 1400); });
   else setTimeout(boot, 1400);
+})();
+</script>
+
+
+<!-- ==================== COMPANY VISITS (زيارات الشركة) ==================== -->
+<div class="modal-overlay" id="visitModal">
+    <div class="modal" style="max-width:760px;">
+        <div class="modal-header">
+            <h3 id="visitModalTitle"><i class="fas fa-truck-fast" style="margin-inline-end:8px;opacity:.85"></i> زيارة شركة جديدة</h3>
+            <button type="button" class="modal-close" onclick="closeModal('visitModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>رقم الزيارة</label>
+                    <input type="text" class="form-control" id="cvNumber" placeholder="مثال: V-0001">
+                </div>
+                <div class="form-group">
+                    <label>تاريخ الزيارة</label>
+                    <input type="date" class="form-control" id="cvDate" onchange="cvPreviewLinks()">
+                </div>
+                <div class="form-group">
+                    <label>وقت الوصول</label>
+                    <input type="time" class="form-control" id="cvArrival">
+                </div>
+                <div class="form-group">
+                    <label>وقت الانتهاء</label>
+                    <input type="time" class="form-control" id="cvEnd">
+                </div>
+                <div class="form-group">
+                    <label>اسم مندوب الشركة</label>
+                    <input type="text" class="form-control" id="cvRep" placeholder="اسم المندوب">
+                </div>
+                <div class="form-group">
+                    <label>الفني المتابع</label>
+                    <input type="text" class="form-control" id="cvTech" placeholder="اسم الفني المتابع">
+                </div>
+                <div class="form-group full-width">
+                    <label>ملاحظات</label>
+                    <textarea class="form-control" id="cvNotes" placeholder="ملاحظات حول الزيارة..."></textarea>
+                </div>
+            </div>
+            <div id="cvLinkPreview" style="margin-top:6px"></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('visitModal')">إلغاء</button>
+            <button type="button" class="btn btn-primary" onclick="saveVisit()"><i class="fas fa-save"></i> حفظ الزيارة</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="visitViewModal">
+    <div class="modal" style="max-width:900px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-eye" style="margin-inline-end:8px;opacity:.85"></i> تفاصيل الزيارة</h3>
+            <button type="button" class="modal-close" onclick="closeModal('visitViewModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="visitViewBody"></div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('visitViewModal')">إغلاق</button>
+            <button type="button" class="btn btn-primary" onclick="printVisitCard()"><i class="fas fa-print"></i> طباعة</button>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ===================== زيارات الشركة =====================
+   جدول Supabase المقترح:
+   create table public.company_visits (
+     id int8 generated by default as identity primary key,
+     visit_number text, visit_date date, arrival_time text, end_time text,
+     rep_name text, technician text, notes text,
+     created_at timestamptz default now(), created_by text
+   );
+   في حال عدم توفر الجدول يعمل التبويب تلقائياً بالتخزين المحلي.
+========================================================== */
+(function () {
+    var VISITS = [];
+    var VISIT_REQS = [];
+    var CV_TABLE = 'company_visits';
+    var CV_LOCAL = null;          // null = غير محدد بعد
+    var editingVisitId = null;
+    var openVisitRow = null;
+    var lastViewedVisit = null;
+
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+
+    /* ---------- طبقة التخزين ---------- */
+    function localReq(method, data, id) {
+        var key = 'local_company_visits';
+        var items = [];
+        try { items = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { items = []; }
+        if (method === 'GET') return Promise.resolve(items);
+        if (method === 'POST') { var it = Object.assign({}, data, { id: Date.now() }); items.push(it); localStorage.setItem(key, JSON.stringify(items)); return Promise.resolve([it]); }
+        if (method === 'PATCH') { var i = items.findIndex(function (x) { return String(x.id) === String(id); }); if (i !== -1) { items[i] = Object.assign({}, items[i], data); localStorage.setItem(key, JSON.stringify(items)); } return Promise.resolve([items[i]]); }
+        if (method === 'DELETE') { items = items.filter(function (x) { return String(x.id) !== String(id); }); localStorage.setItem(key, JSON.stringify(items)); return Promise.resolve([]); }
+        return Promise.resolve(items);
+    }
+
+    async function probeTable() {
+        if (CV_LOCAL !== null) return CV_LOCAL;
+        if (typeof USE_LOCAL !== 'undefined' && USE_LOCAL) { CV_LOCAL = true; }
+        else {
+            try {
+                var res = await fetch(SUPABASE_URL + '/rest/v1/' + CV_TABLE + '?select=id&limit=1', {
+                    headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
+                });
+                CV_LOCAL = !res.ok;
+            } catch (e) { CV_LOCAL = true; }
+        }
+        var badge = document.getElementById('cvModeBadge');
+        if (badge) badge.style.display = CV_LOCAL ? 'inline-block' : 'none';
+        return CV_LOCAL;
+    }
+
+    async function cvDB(method, data, id) {
+        var isLocal = await probeTable();
+        if (isLocal) return localReq(method, data, id);
+        return SupabaseAPI.request(CV_TABLE, method, data, id);
+    }
+
+    /* ---------- تطبيع التواريخ ---------- */
+    function toEnDigits(s) {
+        return String(s == null ? '' : s)
+            .replace(/[\u0660-\u0669]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); })
+            .replace(/[\u06F0-\u06F9]/g, function (d) { return String(d.charCodeAt(0) - 0x06F0); })
+            .replace(/[\u200e\u200f\u061c]/g, '');
+    }
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    function normDate(v) {
+        var s = toEnDigits(v).trim();
+        if (!s) return '';
+        var m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if (m) return m[1] + '-' + pad(+m[2]) + '-' + pad(+m[3]);
+        m = s.match(/^(\d{1,4})[\/\-.](\d{1,2})[\/\-.](\d{1,4})/);
+        if (m) {
+            var a = +m[1], b = +m[2], c = +m[3];
+            if (a > 31) return a + '-' + pad(b) + '-' + pad(c);          // yyyy/mm/dd
+            if (c > 31) return c + '-' + pad(b) + '-' + pad(a);          // dd/mm/yyyy
+        }
+        var d = new Date(s);
+        if (!isNaN(d.getTime())) return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+        return '';
+    }
+    function fmtDate(v) {
+        var n = normDate(v);
+        if (!n) return '—';
+        var p = n.split('-');
+        return p[2] + '/' + p[1] + '/' + p[0];
+    }
+    function fmtTime(t) {
+        var s = toEnDigits(t).trim();
+        if (!s) return '—';
+        var m = s.match(/^(\d{1,2}):(\d{2})/);
+        if (!m) return s;
+        var h = +m[1], ap = h < 12 ? 'ص' : 'م', hh = h % 12; if (hh === 0) hh = 12;
+        return hh + ':' + m[2] + ' ' + ap;
+    }
+    function durationOf(v) {
+        var a = toEnDigits(v.arrival_time || '').match(/^(\d{1,2}):(\d{2})/);
+        var b = toEnDigits(v.end_time || '').match(/^(\d{1,2}):(\d{2})/);
+        if (!a || !b) return null;
+        var mins = (+b[1] * 60 + +b[2]) - (+a[1] * 60 + +a[2]);
+        if (mins < 0) mins += 24 * 60;
+        return mins;
+    }
+    function fmtDur(mins) {
+        if (mins == null) return '—';
+        var h = Math.floor(mins / 60), m = mins % 60;
+        return (h ? h + ' س ' : '') + (m ? m + ' د' : (h ? '' : '0 د'));
+    }
+
+    /* ---------- ربط الإجراءات بالتاريخ ---------- */
+    function proceduresOn(dateStr) {
+        var target = normDate(dateStr);
+        var out = [];
+        if (!target) return out;
+        (VISIT_REQS || []).forEach(function (r) {
+            (Array.isArray(r.procedures) ? r.procedures : []).forEach(function (p) {
+                if (normDate(p.date) === target) {
+                    out.push({
+                        req: r, text: p.text || '', date: p.date,
+                        hasAtt: !!p.attachment
+                    });
+                }
+            });
+        });
+        return out;
+    }
+
+    /* ---------- التحميل والعرض ---------- */
+    window.loadVisits = async function () {
+        try { VISITS = (await cvDB('GET')) || []; } catch (e) { CV_LOCAL = true; VISITS = await localReq('GET'); }
+        try { VISIT_REQS = (typeof requests !== 'undefined' && Array.isArray(requests) && requests.length)
+            ? requests : (await SupabaseAPI.request('requests', 'GET')) || []; } catch (e) { VISIT_REQS = []; }
+        var badge = document.getElementById('visitsBadge');
+        if (badge) badge.textContent = VISITS.length;
+        renderVisits();
+    };
+
+    function filtered() {
+        var q = (document.getElementById('cvSearch') || {}).value || '';
+        q = q.trim().toLowerCase();
+        var from = normDate((document.getElementById('cvFrom') || {}).value || '');
+        var to = normDate((document.getElementById('cvTo') || {}).value || '');
+        var sort = (document.getElementById('cvSort') || {}).value || 'date_desc';
+        var list = VISITS.filter(function (v) {
+            var d = normDate(v.visit_date);
+            if (from && (!d || d < from)) return false;
+            if (to && (!d || d > to)) return false;
+            if (!q) return true;
+            return [v.visit_number, v.rep_name, v.technician, v.notes].some(function (x) {
+                return String(x || '').toLowerCase().includes(q);
+            });
+        });
+        list.sort(function (a, b) {
+            if (sort === 'num') return String(a.visit_number || '').localeCompare(String(b.visit_number || ''), 'ar', { numeric: true });
+            if (sort === 'links') return proceduresOn(b.visit_date).length - proceduresOn(a.visit_date).length;
+            var da = normDate(a.visit_date), db = normDate(b.visit_date);
+            return sort === 'date_asc' ? da.localeCompare(db) : db.localeCompare(da);
+        });
+        return list;
+    }
+
+    window.renderVisits = function () {
+        var tbody = document.querySelector('#visitsTable tbody');
+        if (!tbody) return;
+        var list = filtered();
+
+        /* الإحصائيات */
+        var now = new Date(), ym = now.getFullYear() + '-' + pad(now.getMonth() + 1);
+        var thisMonth = VISITS.filter(function (v) { return normDate(v.visit_date).slice(0, 7) === ym; }).length;
+        var totalMins = VISITS.reduce(function (s, v) { return s + (durationOf(v) || 0); }, 0);
+        var linked = VISITS.reduce(function (s, v) { return s + proceduresOn(v.visit_date).length; }, 0);
+        var st = document.getElementById('cvStats');
+        if (st) st.innerHTML =
+            '<div class="cv-stat"><i class="fas fa-truck-fast"></i><div><b>' + VISITS.length + '</b><span>إجمالي الزيارات</span></div></div>' +
+            '<div class="cv-stat p2"><i class="fas fa-calendar-days"></i><div><b>' + thisMonth + '</b><span>زيارات هذا الشهر</span></div></div>' +
+            '<div class="cv-stat p3"><i class="fas fa-hourglass-half"></i><div><b>' + fmtDur(totalMins) + '</b><span>إجمالي مدة الزيارات</span></div></div>' +
+            '<div class="cv-stat p4"><i class="fas fa-link"></i><div><b>' + linked + '</b><span>إجراءات مرتبطة بالزيارات</span></div></div>';
+
+        if (!list.length) {
+            tbody.innerHTML = '<tr><td colspan="11"><div class="cv-empty"><i class="fas fa-inbox"></i> لا توجد زيارات مسجلة</div></td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = list.map(function (v, i) {
+            var links = proceduresOn(v.visit_date);
+            var isOpen = String(openVisitRow) === String(v.id);
+            var row =
+                '<tr class="cv-row ' + (isOpen ? 'open' : '') + '" onclick="toggleVisitLinks(\'' + v.id + '\')">' +
+                '<td>' + (i + 1) + '</td>' +
+                '<td><span class="cv-num">' + esc(v.visit_number || '—') + '</span></td>' +
+                '<td>' + fmtDate(v.visit_date) + '</td>' +
+                '<td><span class="cv-chip time"><i class="fas fa-right-to-bracket"></i> ' + fmtTime(v.arrival_time) + '</span></td>' +
+                '<td><span class="cv-chip time"><i class="fas fa-right-from-bracket"></i> ' + fmtTime(v.end_time) + '</span></td>' +
+                '<td><span class="cv-chip dur">' + fmtDur(durationOf(v)) + '</span></td>' +
+                '<td>' + esc(v.rep_name || '—') + '</td>' +
+                '<td>' + esc(v.technician || '—') + '</td>' +
+                '<td><span class="cv-chip link ' + (links.length ? '' : 'zero') + '"><i class="fas fa-link"></i> ' + links.length + ' إجراء</span></td>' +
+                '<td><span class="cv-notes" title="' + esc(v.notes || '') + '">' + esc(v.notes || '—') + '</span></td>' +
+                '<td><div class="cv-acts">' +
+                '<button class="v" title="عرض" onclick="event.stopPropagation();viewVisit(\'' + v.id + '\')"><i class="fas fa-eye"></i></button>' +
+                '<button class="e" title="تعديل" onclick="event.stopPropagation();openVisitModal(\'' + v.id + '\')"><i class="fas fa-pen"></i></button>' +
+                '<button class="d" title="حذف" onclick="event.stopPropagation();deleteVisit(\'' + v.id + '\')"><i class="fas fa-trash"></i></button>' +
+                '</div></td></tr>';
+            if (isOpen) row += '<tr class="cv-sub"><td colspan="11"><div class="cv-sub-in">' + linksHtml(v, links) + '</div></td></tr>';
+            return row;
+        }).join('');
+    };
+
+    function linksHtml(v, links) {
+        var h = '<div class="cv-sub-h"><i class="fas fa-clipboard-check"></i> إجراءات طلبات الصيانة بتاريخ ' + fmtDate(v.visit_date) + ' (' + links.length + ')</div>';
+        if (!links.length) return h + '<div class="cv-empty" style="padding:12px">لا توجد إجراءات فنية مسجلة بنفس تاريخ الزيارة</div>';
+        return h + links.map(function (l) {
+            var r = l.req;
+            return '<div class="cv-link-item">' +
+                '<div class="cv-link-top">' +
+                '<b>طلب رقم: ' + esc(r.request_number || r.id) + '</b>' +
+                '<span><i class="fas fa-desktop"></i> ' + esc(r.device_name || '—') + '</span>' +
+                '<span><i class="fas fa-user"></i> ' + esc(r.employee_name || '—') + '</span>' +
+                '<span><i class="fas fa-building"></i> ' + esc(r.department || '—') + '</span>' +
+                (l.hasAtt ? '<span style="color:#0ea5e9"><i class="fas fa-paperclip"></i> مرفق</span>' : '') +
+                '</div>' +
+                '<div class="cv-link-txt">' + esc(l.text) + '</div>' +
+                '</div>';
+        }).join('');
+    }
+
+    window.toggleVisitLinks = function (id) {
+        openVisitRow = (String(openVisitRow) === String(id)) ? null : id;
+        renderVisits();
+    };
+
+    /* ---------- النموذج ---------- */
+    window.openVisitModal = function (id) {
+        if (typeof checkReadOnly === 'function' && checkReadOnly()) return;
+        editingVisitId = id || null;
+        var v = id ? VISITS.find(function (x) { return String(x.id) === String(id); }) : null;
+        document.getElementById('visitModalTitle').innerHTML = '<i class="fas fa-truck-fast" style="margin-inline-end:8px;opacity:.85"></i> ' + (v ? 'تعديل الزيارة' : 'زيارة شركة جديدة');
+        document.getElementById('cvNumber').value = v ? (v.visit_number || '') : nextVisitNumber();
+        document.getElementById('cvDate').value = v ? normDate(v.visit_date) : new Date().toISOString().slice(0, 10);
+        document.getElementById('cvArrival').value = v ? (v.arrival_time || '') : '';
+        document.getElementById('cvEnd').value = v ? (v.end_time || '') : '';
+        document.getElementById('cvRep').value = v ? (v.rep_name || '') : '';
+        document.getElementById('cvTech').value = v ? (v.technician || '') : '';
+        document.getElementById('cvNotes').value = v ? (v.notes || '') : '';
+        cvPreviewLinks();
+        if (typeof openModal === 'function') openModal('visitModal');
+        else document.getElementById('visitModal').classList.add('active');
+    };
+
+    function nextVisitNumber() {
+        var max = 0;
+        VISITS.forEach(function (v) {
+            var m = toEnDigits(v.visit_number || '').match(/(\d+)/);
+            if (m && +m[1] > max) max = +m[1];
+        });
+        return 'V-' + String(max + 1).padStart(4, '0');
+    }
+
+    window.cvPreviewLinks = function () {
+        var box = document.getElementById('cvLinkPreview');
+        if (!box) return;
+        var d = document.getElementById('cvDate').value;
+        var links = proceduresOn(d);
+        box.innerHTML = '<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:10px 13px;font-size:12.5px;color:#075985">' +
+            '<i class="fas fa-link"></i> سيتم ربط هذه الزيارة تلقائياً بـ <b>' + links.length + '</b> إجراء فني مسجل بنفس التاريخ.' +
+            (links.length ? '<div style="margin-top:6px;color:#0c4a6e;font-size:12px">' + links.slice(0, 4).map(function (l) { return '• طلب ' + esc(l.req.request_number || l.req.id) + ' — ' + esc(String(l.text).slice(0, 70)); }).join('<br>') + (links.length > 4 ? '<br>…' : '') + '</div>' : '') +
+            '</div>';
+    };
+
+    window.saveVisit = async function () {
+        if (typeof checkReadOnly === 'function' && checkReadOnly()) return;
+        var payload = {
+            visit_number: document.getElementById('cvNumber').value.trim(),
+            visit_date: document.getElementById('cvDate').value,
+            arrival_time: document.getElementById('cvArrival').value,
+            end_time: document.getElementById('cvEnd').value,
+            rep_name: document.getElementById('cvRep').value.trim(),
+            technician: document.getElementById('cvTech').value.trim(),
+            notes: document.getElementById('cvNotes').value.trim()
+        };
+        if (!payload.visit_number || !payload.visit_date) {
+            if (typeof showToast === 'function') showToast('error', 'بيانات ناقصة', 'رقم الزيارة وتاريخ الزيارة مطلوبان');
+            return;
+        }
+        try {
+            if (editingVisitId) await cvDB('PATCH', payload, editingVisitId);
+            else {
+                payload.created_at = new Date().toISOString();
+                payload.created_by = (typeof currentUser !== 'undefined' && currentUser) ? (currentUser.fullName || currentUser.username) : '';
+                await cvDB('POST', payload);
+            }
+            if (typeof closeModal === 'function') closeModal('visitModal');
+            else document.getElementById('visitModal').classList.remove('active');
+            if (typeof showToast === 'function') showToast('success', 'تم', editingVisitId ? 'تم تحديث الزيارة' : 'تم حفظ الزيارة');
+            editingVisitId = null;
+            await loadVisits();
+        } catch (e) {
+            if (typeof showToast === 'function') showToast('error', 'خطأ', 'تعذر حفظ الزيارة');
+        }
+    };
+
+    window.deleteVisit = async function (id) {
+        if (typeof checkReadOnly === 'function' && checkReadOnly()) return;
+        var ok = true;
+        if (typeof rqmConfirm === 'function') ok = await rqmConfirm({ title: 'حذف الزيارة', message: 'سيتم حذف سجل الزيارة نهائياً.' });
+        else ok = confirm('حذف الزيارة؟');
+        if (!ok) return;
+        try { await cvDB('DELETE', null, id); } catch (e) { }
+        if (typeof showToast === 'function') showToast('success', 'تم', 'تم حذف الزيارة');
+        await loadVisits();
+    };
+
+    window.viewVisit = function (id) {
+        var v = VISITS.find(function (x) { return String(x.id) === String(id); });
+        if (!v) return;
+        lastViewedVisit = v;
+        var links = proceduresOn(v.visit_date);
+        document.getElementById('visitViewBody').innerHTML =
+            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px">' +
+            cell('رقم الزيارة', v.visit_number) + cell('تاريخ الزيارة', fmtDate(v.visit_date)) +
+            cell('وقت الوصول', fmtTime(v.arrival_time)) + cell('وقت الانتهاء', fmtTime(v.end_time)) +
+            cell('المدة', fmtDur(durationOf(v))) + cell('مندوب الشركة', v.rep_name) +
+            cell('الفني المتابع', v.technician) +
+            '</div>' +
+            '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:11px 13px;font-size:13px;color:#334155;margin-bottom:14px"><b style="color:#0f172a">ملاحظات:</b> ' + esc(v.notes || '—') + '</div>' +
+            '<div id="cvViewLinks">' + linksHtml(v, links) + '</div>';
+        if (typeof openModal === 'function') openModal('visitViewModal');
+        else document.getElementById('visitViewModal').classList.add('active');
+    };
+    function cell(label, val) {
+        return '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:9px 12px">' +
+            '<div style="font-size:11px;color:#94a3b8;font-weight:700">' + label + '</div>' +
+            '<div style="font-size:13.5px;font-weight:800;color:#0f172a;margin-top:3px">' + esc(val || '—') + '</div></div>';
+    }
+
+    /* ---------- طباعة وتصدير ---------- */
+    window.printVisitCard = function () {
+        if (!lastViewedVisit) return;
+        var v = lastViewedVisit, links = proceduresOn(v.visit_date);
+        var w = window.open('', '_blank');
+        w.document.write('<html dir="rtl"><head><meta charset="utf-8"><title>زيارة ' + esc(v.visit_number || '') + '</title>' +
+            '<style>body{font-family:Tajawal,Arial,sans-serif;padding:24px;color:#0f172a}h1{font-size:20px}table{width:100%;border-collapse:collapse;margin-top:10px}td,th{border:1px solid #cbd5e1;padding:8px;font-size:13px;text-align:right}th{background:#f1f5f9}</style></head><body>' +
+            '<h1>بطاقة زيارة شركة — ' + esc(v.visit_number || '') + '</h1>' +
+            '<table><tr><th>التاريخ</th><td>' + fmtDate(v.visit_date) + '</td><th>المدة</th><td>' + fmtDur(durationOf(v)) + '</td></tr>' +
+            '<tr><th>وقت الوصول</th><td>' + fmtTime(v.arrival_time) + '</td><th>وقت الانتهاء</th><td>' + fmtTime(v.end_time) + '</td></tr>' +
+            '<tr><th>مندوب الشركة</th><td>' + esc(v.rep_name || '—') + '</td><th>الفني المتابع</th><td>' + esc(v.technician || '—') + '</td></tr>' +
+            '<tr><th>ملاحظات</th><td colspan="3">' + esc(v.notes || '—') + '</td></tr></table>' +
+            '<h3 style="margin-top:18px;font-size:15px">الإجراءات الفنية المرتبطة (' + links.length + ')</h3>' +
+            '<table><thead><tr><th>#</th><th>رقم الطلب</th><th>الجهاز</th><th>الموظف</th><th>الإجراء</th></tr></thead><tbody>' +
+            (links.map(function (l, i) { return '<tr><td>' + (i + 1) + '</td><td>' + esc(l.req.request_number || l.req.id) + '</td><td>' + esc(l.req.device_name || '—') + '</td><td>' + esc(l.req.employee_name || '—') + '</td><td>' + esc(l.text) + '</td></tr>'; }).join('') || '<tr><td colspan="5">لا توجد إجراءات</td></tr>') +
+            '</tbody></table><script>setTimeout(function(){window.print()},400)<\/script></body></html>');
+        w.document.close();
+    };
+
+    window.printVisits = function () {
+        var list = filtered();
+        var w = window.open('', '_blank');
+        w.document.write('<html dir="rtl"><head><meta charset="utf-8"><title>زيارات الشركة</title>' +
+            '<style>body{font-family:Tajawal,Arial,sans-serif;padding:22px;color:#0f172a}table{width:100%;border-collapse:collapse}td,th{border:1px solid #cbd5e1;padding:7px;font-size:12.5px;text-align:right}th{background:#f1f5f9}</style></head><body>' +
+            '<h1 style="font-size:20px">سجل زيارات الشركة (' + list.length + ')</h1><table><thead><tr><th>#</th><th>رقم الزيارة</th><th>التاريخ</th><th>الوصول</th><th>الانتهاء</th><th>المدة</th><th>المندوب</th><th>الفني المتابع</th><th>إجراءات مرتبطة</th><th>ملاحظات</th></tr></thead><tbody>' +
+            list.map(function (v, i) {
+                return '<tr><td>' + (i + 1) + '</td><td>' + esc(v.visit_number || '') + '</td><td>' + fmtDate(v.visit_date) + '</td><td>' + fmtTime(v.arrival_time) + '</td><td>' + fmtTime(v.end_time) + '</td><td>' + fmtDur(durationOf(v)) + '</td><td>' + esc(v.rep_name || '') + '</td><td>' + esc(v.technician || '') + '</td><td>' + proceduresOn(v.visit_date).length + '</td><td>' + esc(v.notes || '') + '</td></tr>';
+            }).join('') +
+            '</tbody></table><script>setTimeout(function(){window.print()},400)<\/script></body></html>');
+        w.document.close();
+    };
+
+    window.exportVisitsExcel = function () {
+        var list = filtered();
+        var rows = '<table border="1"><tr><th>رقم الزيارة</th><th>تاريخ الزيارة</th><th>وقت الوصول</th><th>وقت الانتهاء</th><th>المدة</th><th>مندوب الشركة</th><th>الفني المتابع</th><th>إجراءات مرتبطة</th><th>ملاحظات</th></tr>' +
+            list.map(function (v) {
+                return '<tr><td>' + esc(v.visit_number || '') + '</td><td>' + fmtDate(v.visit_date) + '</td><td>' + fmtTime(v.arrival_time) + '</td><td>' + fmtTime(v.end_time) + '</td><td>' + fmtDur(durationOf(v)) + '</td><td>' + esc(v.rep_name || '') + '</td><td>' + esc(v.technician || '') + '</td><td>' + proceduresOn(v.visit_date).length + '</td><td>' + esc(v.notes || '') + '</td></tr>';
+            }).join('') + '</table>';
+        var blob = new Blob(['\ufeff<html dir="rtl"><head><meta charset="utf-8"></head><body>' + rows + '</body></html>'], { type: 'application/vnd.ms-excel' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'company_visits.xls';
+        a.click();
+    };
+
+    /* ---------- ربط الصفحة بالتنقل ---------- */
+    var _showPage = window.showPage;
+    if (typeof _showPage === 'function') {
+        window.showPage = function (page) {
+            var r = _showPage.apply(this, arguments);
+            if (page === 'visits') { Promise.resolve(r).then(function () { loadVisits(); }); }
+            return r;
+        };
+    }
+    document.addEventListener('DOMContentLoaded', function () { setTimeout(function () { probeTable(); }, 1500); });
 })();
 </script>
 
