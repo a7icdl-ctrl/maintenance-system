@@ -2469,6 +2469,35 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                 html[data-theme="dark"] #page-visits .cv-bar input,html[data-theme="dark"] #page-visits .cv-bar select{background:#0f172a;border-color:rgba(148,163,184,.2);color:#e2e8f0}
                 @media(max-width:900px){#page-visits .cv-bar{grid-template-columns:1fr 1fr}}
                 @media print{#page-visits .cv-acts,#page-visits .cv-bar,#page-visits .cv-actions{display:none!important}}
+
+                /* ===== بطاقات طلبات الصيانة داخل تفاصيل الزيارة ===== */
+                .vr-head{font-size:13px;font-weight:900;color:#0f172a;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+                .vr-head i{color:#0ea5e9}
+                .vr-head .vr-count{background:#e0f2fe;color:#0369a1;font-size:11px;font-weight:800;padding:2px 10px;border-radius:999px}
+                .vr-req{background:#fff;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:0 3px 12px rgba(15,23,42,.04)}
+                .vr-req-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:11px 14px;background:linear-gradient(180deg,#f8fafc,#f1f5f9);border-bottom:1px solid #e5e7eb}
+                .vr-req-num{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:900;color:#0284c7;background:#e0f2fe;border:1px solid #bae6fd;border-radius:999px;padding:4px 12px}
+                .vr-meta{display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 14px 4px;font-size:12px;color:#64748b}
+                .vr-meta span{display:inline-flex;align-items:center;gap:5px}
+                .vr-meta i{color:#94a3b8;font-size:11px}
+                .vr-issue{padding:6px 14px 10px;font-size:12.5px;color:#475569;line-height:1.7;border-bottom:1px dashed #e5e7eb}
+                .vr-issue b{color:#0f172a}
+                .vr-procs{padding:10px 14px 12px;display:flex;flex-direction:column;gap:7px}
+                .vr-proc{display:flex;align-items:flex-start;gap:9px;background:#f8fafc;border:1px solid #e2e8f0;border-inline-start:3px solid #0ea5e9;border-radius:10px;padding:8px 11px;font-size:12.5px;color:#334155;line-height:1.7}
+                .vr-proc .n{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:#0ea5e9;color:#fff;font-size:10.5px;font-weight:800;display:grid;place-items:center;margin-top:2px}
+                .vr-proc .t{flex:1}
+                .vr-proc .d{color:#94a3b8;font-size:10.5px;font-weight:700;white-space:nowrap;margin-top:3px}
+                .vr-linked{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;color:#15803d;background:#dcfce7;border:1px solid #86efac;border-radius:999px;padding:2px 10px}
+                .vr-proc .att{color:#0ea5e9;font-size:11px;font-weight:700;white-space:nowrap}
+                .vr-empty{padding:16px;text-align:center;color:#94a3b8;font-size:13px;background:#f8fafc;border:1px dashed #e2e8f0;border-radius:12px}
+                html[data-theme="dark"] .vr-req{background:#0f172a;border-color:rgba(148,163,184,.2)}
+                html[data-theme="dark"] .vr-req-head{background:linear-gradient(180deg,#131c2e,#0f172a);border-color:rgba(148,163,184,.2)}
+                html[data-theme="dark"] .vr-head{color:#e2e8f0}
+                html[data-theme="dark"] .vr-proc{background:#111c30;border-color:rgba(148,163,184,.18);color:#cbd5e1}
+                html[data-theme="dark"] .vr-meta{color:#94a3b8}
+                html[data-theme="dark"] .vr-issue{color:#cbd5e1;border-color:rgba(148,163,184,.2)}
+                html[data-theme="dark"] .vr-issue b{color:#e2e8f0}
+                html[data-theme="dark"] .vr-empty{background:#0b1220;border-color:rgba(148,163,184,.25)}
                 </style>
 
                 <div class="cv-head">
@@ -8749,7 +8778,9 @@ async function bulkSendToMaintenance() {
     let ok = 0;
     for (const req of targets) {
         const procedures = Array.isArray(req.procedures) ? [...req.procedures] : [];
-        procedures.push({ date: stamp, text: `📤 ${note || 'تم إرسال الطلب إلى فريق الصيانة'}` });
+        const sendProc = { date: stamp, text: `📤 ${note || 'تم إرسال الطلب إلى فريق الصيانة'}` };
+        if (typeof window.cvLinkProcedureToVisit === 'function') await window.cvLinkProcedureToVisit(sendProc);
+        procedures.push(sendProc);
         try {
             await SupabaseAPI.request('requests', 'PATCH', { status: 'inprogress', procedures, updated_at: new Date().toISOString() }, req.id);
             ok++;
@@ -8965,10 +8996,13 @@ async function addProcedureFromView(id) {
     const req = all.find(r => r.id === id);
     if (!req) return;
     const procedures = Array.isArray(req.procedures) ? [...req.procedures] : [];
-    procedures.push({ id: Date.now(), date, text });
+    const newProc = { id: Date.now(), date, text };
+    let linkedVisit = null;
+    if (typeof window.cvLinkProcedureToVisit === 'function') linkedVisit = await window.cvLinkProcedureToVisit(newProc);
+    procedures.push(newProc);
 
     await SupabaseAPI.request('requests', 'PATCH', { procedures, updated_at: new Date().toISOString() }, id);
-    showToast('success', 'تم', 'تمت إضافة الإجراء بنجاح');
+    showToast('success', 'تم', linkedVisit ? `تمت إضافة الإجراء وربطه بالزيارة ${linkedVisit.visit_number || ''}` : 'تمت إضافة الإجراء بنجاح');
     const modal = document.getElementById('viewModal');
     if (modal) modal.remove();
     await loadRequests();
@@ -27130,14 +27164,15 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         return (h ? h + ' س ' : '') + (m ? m + ' د' : (h ? '' : '0 د'));
     }
 
-    /* ---------- ربط الإجراءات بالتاريخ ---------- */
-    function proceduresOn(dateStr) {
+    /* ---------- ربط الإجراءات بالزيارات ---------- */
+    function proceduresOn(dateStr, visitId) {
         var target = normDate(dateStr);
         var out = [];
-        if (!target) return out;
         (VISIT_REQS || []).forEach(function (r) {
             (Array.isArray(r.procedures) ? r.procedures : []).forEach(function (p) {
-                if (normDate(p.date) === target) {
+                var byDate = !!target && normDate(p.date) === target;
+                var byId = visitId != null && p.visit_id != null && String(p.visit_id) === String(visitId);
+                if (byDate || byId) {
                     out.push({
                         req: r, text: p.text || '', date: p.date,
                         hasAtt: !!p.attachment
@@ -27147,6 +27182,21 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         });
         return out;
     }
+
+    /* ربط تلقائي: عند إضافة إجراء بتاريخ يطابق زيارة مسجلة يُختم الإجراء بمعرف الزيارة */
+    window.cvLinkProcedureToVisit = async function (proc) {
+        try {
+            var d = normDate(proc && proc.date);
+            if (!d) return null;
+            var visits = (VISITS && VISITS.length) ? VISITS : ((await cvDB('GET')) || []);
+            var v = null;
+            for (var i = 0; i < visits.length; i++) {
+                if (normDate(visits[i].visit_date) === d) { v = visits[i]; break; }
+            }
+            if (v) proc.visit_id = v.id;
+            return v;
+        } catch (e) { return null; }
+    };
 
     /* ---------- التحميل والعرض ---------- */
     window.loadVisits = async function () {
@@ -27175,7 +27225,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         });
         list.sort(function (a, b) {
             if (sort === 'num') return String(a.visit_number || '').localeCompare(String(b.visit_number || ''), 'ar', { numeric: true });
-            if (sort === 'links') return proceduresOn(b.visit_date).length - proceduresOn(a.visit_date).length;
+            if (sort === 'links') return proceduresOn(b.visit_date, b.id).length - proceduresOn(a.visit_date, a.id).length;
             var da = normDate(a.visit_date), db = normDate(b.visit_date);
             return sort === 'date_asc' ? da.localeCompare(db) : db.localeCompare(da);
         });
@@ -27191,7 +27241,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         var now = new Date(), ym = now.getFullYear() + '-' + pad(now.getMonth() + 1);
         var thisMonth = VISITS.filter(function (v) { return normDate(v.visit_date).slice(0, 7) === ym; }).length;
         var totalMins = VISITS.reduce(function (s, v) { return s + (durationOf(v) || 0); }, 0);
-        var linked = VISITS.reduce(function (s, v) { return s + proceduresOn(v.visit_date).length; }, 0);
+        var linked = VISITS.reduce(function (s, v) { return s + proceduresOn(v.visit_date, v.id).length; }, 0);
         var st = document.getElementById('cvStats');
         if (st) st.innerHTML =
             '<div class="cv-stat"><i class="fas fa-truck-fast"></i><div><b>' + VISITS.length + '</b><span>إجمالي الزيارات</span></div></div>' +
@@ -27205,7 +27255,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         }
 
         tbody.innerHTML = list.map(function (v, i) {
-            var links = proceduresOn(v.visit_date);
+            var links = proceduresOn(v.visit_date, v.id);
             var isOpen = String(openVisitRow) === String(v.id);
             var row =
                 '<tr class="cv-row ' + (isOpen ? 'open' : '') + '" onclick="toggleVisitLinks(\'' + v.id + '\')">' +
@@ -27229,20 +27279,55 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         }).join('');
     };
 
+    /* تجميع الإجراءات حسب طلب الصيانة — كل طلب ببطاقة مستقلة مرتبة */
+    function groupByRequest(links) {
+        var map = {}, order = [];
+        links.forEach(function (l) {
+            var r = l.req || {};
+            var key = String(r.id != null ? r.id : (r.request_number || 'x'));
+            if (!map[key]) { map[key] = { req: r, items: [] }; order.push(key); }
+            map[key].items.push(l);
+        });
+        order.sort(function (a, b) {
+            var ra = map[a].req, rb = map[b].req;
+            return String(ra.request_number || '').localeCompare(String(rb.request_number || ''), 'ar', { numeric: true });
+        });
+        return order.map(function (k) { return map[k]; });
+    }
+
+    function statusChip(status) {
+        if (typeof getStatusChip === 'function' && status) { try { return getStatusChip(status, true); } catch (e) { } }
+        var labels = { new: 'جديد', inprogress: 'قيد التنفيذ', pending: 'قيد الانتظار', withdrawn: 'مسحوب', active: 'مشغل', completed: 'مكتمل', cancelled: 'ملغي', duplicate: 'مكرر' };
+        return status ? '<span class="cv-chip">' + esc(labels[status] || status) + '</span>' : '';
+    }
+
     function linksHtml(v, links) {
-        var h = '<div class="cv-sub-h"><i class="fas fa-clipboard-check"></i> إجراءات طلبات الصيانة بتاريخ ' + fmtDate(v.visit_date) + ' (' + links.length + ')</div>';
-        if (!links.length) return h + '<div class="cv-empty" style="padding:12px">لا توجد إجراءات فنية مسجلة بنفس تاريخ الزيارة</div>';
-        return h + links.map(function (l) {
-            var r = l.req;
-            return '<div class="cv-link-item">' +
-                '<div class="cv-link-top">' +
-                '<b>طلب رقم: ' + esc(r.request_number || r.id) + '</b>' +
-                '<span><i class="fas fa-desktop"></i> ' + esc(r.device_name || '—') + '</span>' +
-                '<span><i class="fas fa-user"></i> ' + esc(r.employee_name || '—') + '</span>' +
-                '<span><i class="fas fa-building"></i> ' + esc(r.department || '—') + '</span>' +
-                (l.hasAtt ? '<span style="color:#0ea5e9"><i class="fas fa-paperclip"></i> مرفق</span>' : '') +
+        var groups = groupByRequest(links);
+        var h = '<div class="vr-head"><i class="fas fa-clipboard-check"></i> طلبات الصيانة وإجراءاتها بتاريخ ' + fmtDate(v.visit_date) +
+            ' <span class="vr-count">' + groups.length + ' طلب / ' + links.length + ' إجراء</span></div>';
+        if (!links.length) return h + '<div class="vr-empty"><i class="fas fa-inbox"></i> لا توجد إجراءات فنية مسجلة بنفس تاريخ الزيارة</div>';
+        return h + groups.map(function (g) {
+            var r = g.req;
+            var procs = g.items.map(function (l, i) {
+                return '<div class="vr-proc"><span class="n">' + (i + 1) + '</span>' +
+                    '<span class="t">' + esc(l.text) + '</span>' +
+                    '<span class="d"><i class="fas fa-calendar-day"></i> ' + fmtDate(l.date) + '</span>' +
+                    (l.hasAtt ? '<span class="att"><i class="fas fa-paperclip"></i> مرفق</span>' : '') +
+                    '</div>';
+            }).join('');
+            var issue = r.issue_description || r.issueDescription;
+            return '<div class="vr-req">' +
+                '<div class="vr-req-head">' +
+                '<span class="vr-req-num"><i class="fas fa-wrench"></i> طلب ' + esc(r.request_number || r.requestNumber || r.id) + '</span>' +
+                statusChip(r.status) +
                 '</div>' +
-                '<div class="cv-link-txt">' + esc(l.text) + '</div>' +
+                '<div class="vr-meta">' +
+                '<span><i class="fas fa-desktop"></i> ' + esc(r.device_name || r.deviceName || '—') + '</span>' +
+                '<span><i class="fas fa-user"></i> ' + esc(r.employee_name || r.employeeName || '—') + '</span>' +
+                '<span><i class="fas fa-building"></i> ' + esc(r.department || '—') + '</span>' +
+                '</div>' +
+                (issue ? '<div class="vr-issue"><b>وصف العطل:</b> ' + esc(issue) + '</div>' : '') +
+                '<div class="vr-procs">' + procs + '</div>' +
                 '</div>';
         }).join('');
     }
@@ -27337,7 +27422,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         var v = VISITS.find(function (x) { return String(x.id) === String(id); });
         if (!v) return;
         lastViewedVisit = v;
-        var links = proceduresOn(v.visit_date);
+        var links = proceduresOn(v.visit_date, v.id);
         document.getElementById('visitViewBody').innerHTML =
             '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px">' +
             cell('رقم الزيارة', v.visit_number) + cell('تاريخ الزيارة', fmtDate(v.visit_date)) +
@@ -27359,19 +27444,62 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
     /* ---------- طباعة وتصدير ---------- */
     window.printVisitCard = function () {
         if (!lastViewedVisit) return;
-        var v = lastViewedVisit, links = proceduresOn(v.visit_date);
+        var v = lastViewedVisit, links = proceduresOn(v.visit_date, v.id);
+        var groups = groupByRequest(links);
         var w = window.open('', '_blank');
-        w.document.write('<html dir="rtl"><head><meta charset="utf-8"><title>زيارة ' + esc(v.visit_number || '') + '</title>' +
-            '<style>body{font-family:Tajawal,Arial,sans-serif;padding:24px;color:#0f172a}h1{font-size:20px}table{width:100%;border-collapse:collapse;margin-top:10px}td,th{border:1px solid #cbd5e1;padding:8px;font-size:13px;text-align:right}th{background:#f1f5f9}</style></head><body>' +
-            '<h1>بطاقة زيارة شركة — ' + esc(v.visit_number || '') + '</h1>' +
-            '<table><tr><th>التاريخ</th><td>' + fmtDate(v.visit_date) + '</td><th>المدة</th><td>' + fmtDur(durationOf(v)) + '</td></tr>' +
-            '<tr><th>وقت الوصول</th><td>' + fmtTime(v.arrival_time) + '</td><th>وقت الانتهاء</th><td>' + fmtTime(v.end_time) + '</td></tr>' +
-            '<tr><th>مندوب الشركة</th><td>' + esc(v.rep_name || '—') + '</td><th>الفني المتابع</th><td>' + esc(v.technician || '—') + '</td></tr>' +
-            '<tr><th>ملاحظات</th><td colspan="3">' + esc(v.notes || '—') + '</td></tr></table>' +
-            '<h3 style="margin-top:18px;font-size:15px">الإجراءات الفنية المرتبطة (' + links.length + ')</h3>' +
-            '<table><thead><tr><th>#</th><th>رقم الطلب</th><th>الجهاز</th><th>الموظف</th><th>الإجراء</th></tr></thead><tbody>' +
-            (links.map(function (l, i) { return '<tr><td>' + (i + 1) + '</td><td>' + esc(l.req.request_number || l.req.id) + '</td><td>' + esc(l.req.device_name || '—') + '</td><td>' + esc(l.req.employee_name || '—') + '</td><td>' + esc(l.text) + '</td></tr>'; }).join('') || '<tr><td colspan="5">لا توجد إجراءات</td></tr>') +
-            '</tbody></table><script>setTimeout(function(){window.print()},400)<\/script></body></html>');
+        var css = '@page{margin:12mm}' +
+            '*{box-sizing:border-box}' +
+            'body{font-family:Tajawal,Arial,sans-serif;padding:0;color:#0f172a;font-size:13px}' +
+            '.p-head{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #0ea5e9;padding-bottom:10px;margin-bottom:14px}' +
+            '.p-head h1{font-size:19px;margin:0}' +
+            '.p-head .badge{background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc;border-radius:999px;padding:4px 14px;font-weight:800;font-size:12px}' +
+            '.p-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}' +
+            '.p-cell{border:1px solid #e2e8f0;border-radius:10px;padding:8px 11px;page-break-inside:avoid}' +
+            '.p-cell .l{font-size:10.5px;color:#94a3b8;font-weight:700}' +
+            '.p-cell .val{font-size:13px;font-weight:800;margin-top:2px}' +
+            '.p-notes{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:9px 12px;margin-bottom:14px;page-break-inside:avoid}' +
+            '.p-sec{font-size:14.5px;font-weight:900;margin:16px 0 10px;display:flex;align-items:center;gap:8px}' +
+            '.p-sec .cnt{background:#e0f2fe;color:#0369a1;font-size:11px;padding:2px 10px;border-radius:999px}' +
+            '.p-req{border:1px solid #cbd5e1;border-radius:12px;margin-bottom:12px;overflow:hidden;page-break-inside:avoid}' +
+            '.p-req-h{background:#e0f2fe;color:#075985;font-weight:800;padding:9px 12px;font-size:13px;border-bottom:1px solid #bae6fd}' +
+            '.p-req-h .st{background:#fff;border:1px solid #7dd3fc;border-radius:999px;padding:1px 9px;font-size:10.5px;margin-inline-start:8px}' +
+            '.p-meta{padding:7px 12px;font-size:11.5px;color:#64748b;display:flex;gap:16px;flex-wrap:wrap}' +
+            '.p-issue{padding:5px 12px 9px;font-size:12px;color:#475569;border-bottom:1px dashed #e2e8f0}' +
+            '.p-proc{display:flex;gap:8px;align-items:flex-start;margin:7px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-inline-start:3px solid #0ea5e9;border-radius:8px;padding:7px 10px;font-size:12px;line-height:1.7;page-break-inside:avoid}' +
+            '.p-proc .n{flex:0 0 auto;width:18px;height:18px;border-radius:50%;background:#0ea5e9;color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center}' +
+            '.p-proc .d{color:#94a3b8;font-size:10.5px;white-space:nowrap}' +
+            '.p-empty{padding:14px;text-align:center;color:#94a3b8;border:1px dashed #cbd5e1;border-radius:10px}';
+        w.document.write('<html dir="rtl"><head><meta charset="utf-8"><title>زيارة ' + esc(v.visit_number || '') + '</title><style>' + css + '</style></head><body>' +
+            '<div class="p-head"><h1>بطاقة زيارة شركة</h1><span class="badge">' + esc(v.visit_number || '—') + '</span></div>' +
+            '<div class="p-grid">' +
+            '<div class="p-cell"><div class="l">تاريخ الزيارة</div><div class="val">' + fmtDate(v.visit_date) + '</div></div>' +
+            '<div class="p-cell"><div class="l">وقت الوصول</div><div class="val">' + fmtTime(v.arrival_time) + '</div></div>' +
+            '<div class="p-cell"><div class="l">وقت الانتهاء</div><div class="val">' + fmtTime(v.end_time) + '</div></div>' +
+            '<div class="p-cell"><div class="l">المدة</div><div class="val">' + fmtDur(durationOf(v)) + '</div></div>' +
+            '<div class="p-cell"><div class="l">مندوب الشركة</div><div class="val">' + esc(v.rep_name || '—') + '</div></div>' +
+            '<div class="p-cell"><div class="l">الفني المتابع</div><div class="val">' + esc(v.technician || '—') + '</div></div>' +
+            '</div>' +
+            '<div class="p-notes"><b>ملاحظات:</b> ' + esc(v.notes || '—') + '</div>' +
+            '<div class="p-sec">طلبات الصيانة وإجراءاتها خلال الزيارة <span class="cnt">' + groups.length + ' طلب / ' + links.length + ' إجراء</span></div>' +
+            (groups.length ? groups.map(function (g) {
+                var r = g.req;
+                var issue = r.issue_description || r.issueDescription;
+                var statusLbl = ({ new: 'جديد', inprogress: 'قيد التنفيذ', pending: 'قيد الانتظار', withdrawn: 'مسحوب', active: 'مشغل', completed: 'مكتمل', cancelled: 'ملغي', duplicate: 'مكرر' })[r.status];
+                return '<div class="p-req">' +
+                    '<div class="p-req-h">طلب رقم ' + esc(r.request_number || r.requestNumber || r.id) +
+                    (statusLbl ? '<span class="st">' + esc(statusLbl) + '</span>' : '') + '</div>' +
+                    '<div class="p-meta"><span>الجهاز: ' + esc(r.device_name || r.deviceName || '—') + '</span>' +
+                    '<span>الموظف: ' + esc(r.employee_name || r.employeeName || '—') + '</span>' +
+                    '<span>القسم: ' + esc(r.department || '—') + '</span></div>' +
+                    (issue ? '<div class="p-issue"><b>وصف العطل:</b> ' + esc(issue) + '</div>' : '') +
+                    g.items.map(function (l, i) {
+                        return '<div class="p-proc"><span class="n">' + (i + 1) + '</span>' +
+                            '<span style="flex:1">' + esc(l.text) + (l.hasAtt ? ' <span style="color:#0284c7">📎</span>' : '') + '</span>' +
+                            '<span class="d">' + fmtDate(l.date) + '</span></div>';
+                    }).join('') +
+                    '</div>';
+            }).join('') : '<div class="p-empty">لا توجد إجراءات فنية مسجلة بنفس تاريخ الزيارة</div>') +
+            '<script>setTimeout(function(){window.print()},400)<\/script></body></html>');
         w.document.close();
     };
 
@@ -27382,7 +27510,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
             '<style>body{font-family:Tajawal,Arial,sans-serif;padding:22px;color:#0f172a}table{width:100%;border-collapse:collapse}td,th{border:1px solid #cbd5e1;padding:7px;font-size:12.5px;text-align:right}th{background:#f1f5f9}</style></head><body>' +
             '<h1 style="font-size:20px">سجل زيارات الشركة (' + list.length + ')</h1><table><thead><tr><th>#</th><th>رقم الزيارة</th><th>التاريخ</th><th>الوصول</th><th>الانتهاء</th><th>المدة</th><th>المندوب</th><th>الفني المتابع</th><th>إجراءات مرتبطة</th><th>ملاحظات</th></tr></thead><tbody>' +
             list.map(function (v, i) {
-                return '<tr><td>' + (i + 1) + '</td><td>' + esc(v.visit_number || '') + '</td><td>' + fmtDate(v.visit_date) + '</td><td>' + fmtTime(v.arrival_time) + '</td><td>' + fmtTime(v.end_time) + '</td><td>' + fmtDur(durationOf(v)) + '</td><td>' + esc(v.rep_name || '') + '</td><td>' + esc(v.technician || '') + '</td><td>' + proceduresOn(v.visit_date).length + '</td><td>' + esc(v.notes || '') + '</td></tr>';
+                return '<tr><td>' + (i + 1) + '</td><td>' + esc(v.visit_number || '') + '</td><td>' + fmtDate(v.visit_date) + '</td><td>' + fmtTime(v.arrival_time) + '</td><td>' + fmtTime(v.end_time) + '</td><td>' + fmtDur(durationOf(v)) + '</td><td>' + esc(v.rep_name || '') + '</td><td>' + esc(v.technician || '') + '</td><td>' + proceduresOn(v.visit_date, v.id).length + '</td><td>' + esc(v.notes || '') + '</td></tr>';
             }).join('') +
             '</tbody></table><script>setTimeout(function(){window.print()},400)<\/script></body></html>');
         w.document.close();
@@ -27392,7 +27520,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         var list = filtered();
         var rows = '<table border="1"><tr><th>رقم الزيارة</th><th>تاريخ الزيارة</th><th>وقت الوصول</th><th>وقت الانتهاء</th><th>المدة</th><th>مندوب الشركة</th><th>الفني المتابع</th><th>إجراءات مرتبطة</th><th>ملاحظات</th></tr>' +
             list.map(function (v) {
-                return '<tr><td>' + esc(v.visit_number || '') + '</td><td>' + fmtDate(v.visit_date) + '</td><td>' + fmtTime(v.arrival_time) + '</td><td>' + fmtTime(v.end_time) + '</td><td>' + fmtDur(durationOf(v)) + '</td><td>' + esc(v.rep_name || '') + '</td><td>' + esc(v.technician || '') + '</td><td>' + proceduresOn(v.visit_date).length + '</td><td>' + esc(v.notes || '') + '</td></tr>';
+                return '<tr><td>' + esc(v.visit_number || '') + '</td><td>' + fmtDate(v.visit_date) + '</td><td>' + fmtTime(v.arrival_time) + '</td><td>' + fmtTime(v.end_time) + '</td><td>' + fmtDur(durationOf(v)) + '</td><td>' + esc(v.rep_name || '') + '</td><td>' + esc(v.technician || '') + '</td><td>' + proceduresOn(v.visit_date, v.id).length + '</td><td>' + esc(v.notes || '') + '</td></tr>';
             }).join('') + '</table>';
         var blob = new Blob(['\ufeff<html dir="rtl"><head><meta charset="utf-8"></head><body>' + rows + '</body></html>'], { type: 'application/vnd.ms-excel' });
         var a = document.createElement('a');
