@@ -14,6 +14,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -2428,6 +2429,40 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                 #page-visits .cv-stat.p4 i{background:#fef3c7;color:#d97706}
                 #page-visits .cv-stat b{font-size:18px;font-weight:900;line-height:1;color:#0f172a}
                 #page-visits .cv-stat span{font-size:11.5px;color:#64748b;display:block;margin-top:3px}
+                #page-visits .cv-stats{grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px}
+                #page-visits .cv-stat{position:relative;overflow:hidden;padding:14px 15px;border-radius:16px;border:1px solid #e6ebf2;background:linear-gradient(160deg,#ffffff, #f8fafd);box-shadow:0 6px 18px rgba(15,23,42,.05);transition:transform .18s ease,box-shadow .18s ease}
+                #page-visits .cv-stat::before{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#38bdf8,#0369a1);border-radius:4px 0 0 4px}
+                #page-visits .cv-stat.p2::before{background:linear-gradient(180deg,#818cf8,#4338ca)}
+                #page-visits .cv-stat.p3::before{background:linear-gradient(180deg,#34d399,#047857)}
+                #page-visits .cv-stat.p4::before{background:linear-gradient(180deg,#fbbf24,#b45309)}
+                #page-visits .cv-stat.p5::before{background:linear-gradient(180deg,#f472b6,#be185d)}
+                #page-visits .cv-stat.p5 i{background:#fdf2f8;color:#db2777}
+                #page-visits .cv-stat.p6::before{background:linear-gradient(180deg,#2dd4bf,#0f766e)}
+                #page-visits .cv-stat.p6 i{background:#f0fdfa;color:#0d9488}
+                #page-visits .cv-stat:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(15,23,42,.09)}
+                #page-visits .cv-stat i{width:40px;height:40px;flex:0 0 40px;border-radius:12px;font-size:16px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
+                #page-visits .cv-stat b{font-size:21px}
+                #page-visits .cv-stat .cv-sub{display:block;font-size:10.5px;color:#94a3b8;margin-top:2px;font-weight:600}
+                #page-visits .cv-trend{position:absolute;top:10px;inset-inline-end:10px;font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;display:inline-flex;align-items:center;gap:4px;font-style:normal}
+                #page-visits .cv-trend.up{background:#ecfdf5;color:#059669}
+                #page-visits .cv-trend.down{background:#fef2f2;color:#dc2626}
+                #page-visits .cv-trend.flat{background:#f1f5f9;color:#64748b}
+                #page-visits .cv-chart{grid-column:1/-1;background:linear-gradient(160deg,#ffffff,#f8fafd);border:1px solid #e6ebf2;border-radius:16px;padding:16px 18px 12px;box-shadow:0 6px 18px rgba(15,23,42,.05)}
+                #page-visits .cv-chart-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+                #page-visits .cv-chart-head b{font-size:13.5px;font-weight:900;color:#0f172a;display:flex;align-items:center;gap:8px}
+                #page-visits .cv-chart-head b i{color:#0ea5e9}
+                #page-visits .cv-chart-head span{font-size:11px;color:#94a3b8;font-weight:700}
+                #page-visits .cv-bars{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;align-items:end;height:130px;padding-top:16px}
+                #page-visits .cv-bar-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:5px;position:relative}
+                #page-visits .cv-bar-val{font-size:11px;font-weight:900;color:#0284c7}
+                #page-visits .cv-bar-fill{width:100%;max-width:52px;border-radius:8px 8px 4px 4px;background:linear-gradient(180deg,#7dd3fc,#0284c7);box-shadow:0 4px 10px rgba(2,132,199,.25);transition:height .5s ease}
+                #page-visits .cv-bar-fill.current{background:linear-gradient(180deg,#a5b4fc,#4f46e5);box-shadow:0 4px 12px rgba(79,70,229,.3)}
+                #page-visits .cv-bar-lbl{font-size:10.5px;font-weight:800;color:#64748b;white-space:nowrap}
+                html[data-theme="dark"] #page-visits .cv-stat,html[data-theme="dark"] #page-visits .cv-chart{background:linear-gradient(160deg,#101a2e,#0b1424)!important;border-color:rgba(148,163,184,.18)}
+                html[data-theme="dark"] #page-visits .cv-chart-head b{color:#e2e8f0}
+                html[data-theme="dark"] #page-visits .cv-bar-lbl{color:#94a3b8}
+                html[data-theme="dark"] #page-visits .cv-stat .cv-sub{color:#7d8aa0}
+                html[data-theme="dark"] #page-visits .cv-trend.flat{background:rgba(148,163,184,.15);color:#94a3b8}
                 #page-visits .cv-bar{display:grid;grid-template-columns:minmax(0,1.6fr) auto auto auto;gap:8px;align-items:center;margin-bottom:10px}
                 #page-visits .cv-bar input,#page-visits .cv-bar select{padding:9px 12px;border:1px solid #e5e7eb;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b}
                 #page-visits .cv-bar input:focus,#page-visits .cv-bar select:focus{outline:none;border-color:#0ea5e9}
@@ -27243,11 +27278,66 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         var totalMins = VISITS.reduce(function (s, v) { return s + (durationOf(v) || 0); }, 0);
         var linked = VISITS.reduce(function (s, v) { return s + proceduresOn(v.visit_date, v.id).length; }, 0);
         var st = document.getElementById('cvStats');
-        if (st) st.innerHTML =
-            '<div class="cv-stat"><i class="fas fa-truck-fast"></i><div><b>' + VISITS.length + '</b><span>إجمالي الزيارات</span></div></div>' +
-            '<div class="cv-stat p2"><i class="fas fa-calendar-days"></i><div><b>' + thisMonth + '</b><span>زيارات هذا الشهر</span></div></div>' +
-            '<div class="cv-stat p3"><i class="fas fa-hourglass-half"></i><div><b>' + fmtDur(totalMins) + '</b><span>إجمالي مدة الزيارات</span></div></div>' +
-            '<div class="cv-stat p4"><i class="fas fa-link"></i><div><b>' + linked + '</b><span>إجراءات مرتبطة بالزيارات</span></div></div>';
+        if (st) {
+            /* تجميع شهري */
+            var AR_MONTHS = ['كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران', 'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول'];
+            var mLabel = function (k) { var p = k.split('-'); return AR_MONTHS[+p[1] - 1] + ' ' + p[0]; };
+            var months = {};
+            VISITS.forEach(function (v) {
+                var k = normDate(v.visit_date).slice(0, 7);
+                if (!k) return;
+                if (!months[k]) months[k] = { count: 0, mins: 0, links: 0 };
+                months[k].count++;
+                months[k].mins += (durationOf(v) || 0);
+                months[k].links += proceduresOn(v.visit_date, v.id).length;
+            });
+            var keys = Object.keys(months).sort();
+            var monthsCount = Math.max(keys.length, 1);
+            var avgVisits = Math.round(VISITS.length / monthsCount * 10) / 10;
+            var withDur = VISITS.filter(function (v) { return durationOf(v) != null; }).length;
+            var avgDur = withDur ? Math.round(totalMins / withDur) : null;
+            var avgLinks = VISITS.length ? Math.round(linked / VISITS.length * 10) / 10 : 0;
+
+            /* مقارنة مع الشهر الماضي */
+            var prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            var pkey = prev.getFullYear() + '-' + pad(prev.getMonth() + 1);
+            var prevMonth = months[pkey] ? months[pkey].count : 0;
+            var diff = thisMonth - prevMonth;
+            var trendCls = diff > 0 ? 'up' : (diff < 0 ? 'down' : 'flat');
+            var trendIcon = diff > 0 ? 'fa-arrow-trend-up' : (diff < 0 ? 'fa-arrow-trend-down' : 'fa-minus');
+            var trendTxt = diff === 0 ? 'مثل الشهر الماضي' : ((diff > 0 ? '+' : '\u2212') + Math.abs(diff) + ' عن الشهر الماضي');
+
+            /* أنشط شهر */
+            var bestKey = null;
+            keys.forEach(function (k) { if (!bestKey || months[k].count > months[bestKey].count) bestKey = k; });
+
+            /* رسم آخر 6 شهور */
+            var series = [], maxC = 1;
+            for (var mi = 5; mi >= 0; mi--) {
+                var dd = new Date(now.getFullYear(), now.getMonth() - mi, 1);
+                var kk = dd.getFullYear() + '-' + pad(dd.getMonth() + 1);
+                var cc = months[kk] ? months[kk].count : 0;
+                series.push({ k: kk, c: cc });
+                if (cc > maxC) maxC = cc;
+            }
+            var bars = '';
+            series.forEach(function (s) {
+                var h = s.c ? Math.max(8, Math.round(s.c / maxC * 100)) : 3;
+                bars += '<div class="cv-bar-col" title="' + mLabel(s.k) + ': ' + s.c + ' زيارة">' +
+                    '<span class="cv-bar-val">' + (s.c || '') + '</span>' +
+                    '<div class="cv-bar-fill' + (s.k === ym ? ' current' : '') + '" style="height:' + h + '%' + (s.c ? '' : ';opacity:.25') + '"></div>' +
+                    '<span class="cv-bar-lbl">' + AR_MONTHS[+s.k.split('-')[1] - 1] + '</span></div>';
+            });
+
+            st.innerHTML =
+                '<div class="cv-stat"><i class="fas fa-truck-fast"></i><div><b>' + VISITS.length + '</b><span>إجمالي الزيارات</span><em class="cv-sub">عبر ' + monthsCount + ' ' + (monthsCount === 1 ? 'شهر' : 'شهور') + '</em></div></div>' +
+                '<div class="cv-stat p2"><em class="cv-trend ' + trendCls + '"><i class="fas ' + trendIcon + '"></i>' + trendTxt + '</em><i class="fas fa-calendar-days"></i><div><b>' + thisMonth + '</b><span>زيارات هذا الشهر</span><em class="cv-sub">' + mLabel(ym) + '</em></div></div>' +
+                '<div class="cv-stat p5"><i class="fas fa-chart-line"></i><div><b>' + avgVisits + '</b><span>متوسط الزيارات الشهري</span><em class="cv-sub">زيارة / شهر</em></div></div>' +
+                '<div class="cv-stat p3"><i class="fas fa-hourglass-half"></i><div><b>' + fmtDur(avgDur) + '</b><span>متوسط مدة الزيارة</span><em class="cv-sub">الإجمالي: ' + fmtDur(totalMins) + '</em></div></div>' +
+                '<div class="cv-stat p4"><i class="fas fa-link"></i><div><b>' + avgLinks + '</b><span>متوسط الإجراءات لكل زيارة</span><em class="cv-sub">' + linked + ' إجراء مرتبط إجمالاً</em></div></div>' +
+                '<div class="cv-stat p6"><i class="fas fa-award"></i><div><b style="font-size:15px">' + (bestKey ? mLabel(bestKey) : '—') + '</b><span>أنشط شهر</span><em class="cv-sub">' + (bestKey ? months[bestKey].count + ' زيارة' : 'لا توجد بيانات') + '</em></div></div>' +
+                '<div class="cv-chart"><div class="cv-chart-head"><b><i class="fas fa-chart-column"></i> الزيارات خلال آخر 6 شهور</b><span>المتوسط الشهري: ' + avgVisits + ' زيارة</span></div><div class="cv-bars">' + bars + '</div></div>';
+        }
 
         if (!list.length) {
             tbody.innerHTML = '<tr><td colspan="11"><div class="cv-empty"><i class="fas fa-inbox"></i> لا توجد زيارات مسجلة</div></td></tr>';
