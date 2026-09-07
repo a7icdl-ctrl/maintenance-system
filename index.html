@@ -15,6 +15,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -2453,6 +2454,13 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                 #page-visits .cv-chart-head b i{color:#0ea5e9}
                 #page-visits .cv-chart-head span{font-size:11px;color:#94a3b8;font-weight:700}
                 #page-visits .cv-bars{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;align-items:end;height:130px;padding-top:16px}
+                #page-visits .cv-metrics{display:flex;gap:6px;flex-wrap:wrap}
+                #page-visits .cv-metric{border:1px solid #e2e8f0;background:#fff;color:#64748b;font-family:inherit;font-size:11.5px;font-weight:800;border-radius:999px;padding:5px 12px;cursor:pointer;transition:.15s}
+                #page-visits .cv-metric:hover{border-color:#7dd3fc;color:#0369a1}
+                #page-visits .cv-metric.is-active{background:#0ea5e9;border-color:#0ea5e9;color:#fff}
+                #page-visits .cv-canvas-wrap{position:relative;height:290px}
+                html[data-theme="dark"] #page-visits .cv-metric{background:#0b1220;border-color:rgba(148,163,184,.25);color:#94a3b8}
+                html[data-theme="dark"] #page-visits .cv-metric.is-active{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
                 #page-visits .cv-bar-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:5px;position:relative}
                 #page-visits .cv-bar-val{font-size:11px;font-weight:900;color:#0284c7}
                 #page-visits .cv-bar-fill{width:100%;max-width:52px;border-radius:8px 8px 4px 4px;background:linear-gradient(180deg,#7dd3fc,#0284c7);box-shadow:0 4px 10px rgba(2,132,199,.25);transition:height .5s ease}
@@ -2553,15 +2561,29 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                 <div class="cv-stats" id="cvStats"></div>
 
                 <div class="cv-bar">
-                    <input type="text" id="cvSearch" placeholder="بحث برقم الزيارة أو المندوب أو الفني أو الملاحظات..." oninput="renderVisits()">
-                    <input type="date" id="cvFrom" onchange="renderVisits()" title="من تاريخ">
-                    <input type="date" id="cvTo" onchange="renderVisits()" title="إلى تاريخ">
+                    <input type="text" id="cvSearch" placeholder="بحث برقم الزيارة أو المندوب أو الفني أو الفرع..." oninput="renderVisits()">
+                    <select id="cvPeriod" onchange="cvApplyPeriod()" title="الفترة">
+                        <option value="all">كل الفترات</option>
+                        <option value="month">الشهر الحالي</option>
+                        <option value="last_month">الشهر الماضي</option>
+                        <option value="q">آخر 3 شهور</option>
+                        <option value="h">آخر 6 شهور</option>
+                        <option value="y12">آخر 12 شهراً</option>
+                        <option value="year">هذه السنة</option>
+                        <option value="custom">فترة مخصصة</option>
+                    </select>
+                    <input type="date" id="cvFrom" onchange="cvCustomPeriod()" title="من تاريخ">
+                    <input type="date" id="cvTo" onchange="cvCustomPeriod()" title="إلى تاريخ">
+                    <select id="cvBranchFilter" onchange="renderVisits()" title="الفرع">
+                        <option value="">كل الفروع</option>
+                    </select>
                     <select id="cvSort" onchange="renderVisits()">
                         <option value="date_desc">الأحدث أولاً</option>
                         <option value="date_asc">الأقدم أولاً</option>
                         <option value="num">حسب رقم الزيارة</option>
                         <option value="links">الأكثر إجراءات</option>
                     </select>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="cvResetFilters()" title="مسح الفلاتر"><i class="fas fa-filter-circle-xmark"></i> مسح</button>
                 </div>
 
                 <div class="cv-card">
@@ -27064,6 +27086,11 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
                     <label>الفني المتابع</label>
                     <input type="text" class="form-control" id="cvTech" placeholder="اسم الفني المتابع">
                 </div>
+                <div class="form-group">
+                    <label>الفرع</label>
+                    <input type="text" class="form-control" id="cvBranch" list="cvBranchOptions" placeholder="اسم الفرع">
+                    <datalist id="cvBranchOptions"></datalist>
+                </div>
                 <div class="form-group full-width">
                     <label>ملاحظات</label>
                     <textarea class="form-control" id="cvNotes" placeholder="ملاحظات حول الزيارة..."></textarea>
@@ -27243,18 +27270,92 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         renderVisits();
     };
 
-    function filtered() {
-        var q = (document.getElementById('cvSearch') || {}).value || '';
-        q = q.trim().toLowerCase();
+    var AR_MONTHS = ['كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران', 'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول'];
+    function mLabel(k) { var p = k.split('-'); return AR_MONTHS[+p[1] - 1] + ' ' + p[0]; }
+    var cvChart = null, cvChartMetric = 'count';
+
+    /* ---------- الفلاتر: الفترة والفرع ---------- */
+    function branchOf(v) { return String(v.branch || v.branch_name || '').trim(); }
+
+    window.cvBranchList = function () {
+        var set = {};
+        VISITS.forEach(function (v) { var b = branchOf(v); if (b) set[b] = 1; });
+        return Object.keys(set).sort(function (a, b) { return a.localeCompare(b, 'ar'); });
+    };
+
+    function fillBranchDatalist() {
+        var dl = document.getElementById('cvBranchOptions');
+        if (!dl) return;
+        dl.innerHTML = cvBranchList().map(function (b) { return '<option value="' + esc(b) + '"></option>'; }).join('');
+    }
+    window.fillBranchDatalist = fillBranchDatalist;
+
+    function syncBranchFilter() {
+        var sel = document.getElementById('cvBranchFilter');
+        if (!sel) return;
+        var cur = sel.value;
+        var opts = ['<option value="">كل الفروع</option>']
+            .concat(cvBranchList().map(function (b) { return '<option value="' + esc(b) + '">' + esc(b) + '</option>'; }));
+        var hasNone = VISITS.some(function (v) { return !branchOf(v); });
+        if (hasNone) opts.push('<option value="__none__">بدون فرع</option>');
+        sel.innerHTML = opts.join('');
+        sel.value = cur;
+        if (sel.value !== cur) sel.value = '';
+    }
+
+    /* اختصارات الفترة تملأ حقلي من/إلى */
+    window.cvApplyPeriod = function () {
+        var p = (document.getElementById('cvPeriod') || {}).value || 'all';
+        var fromEl = document.getElementById('cvFrom'), toEl = document.getElementById('cvTo');
+        if (!fromEl || !toEl) return;
+        var now = new Date(), start = null, end = null;
+        var iso = function (d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+        if (p === 'month') { start = new Date(now.getFullYear(), now.getMonth(), 1); end = now; }
+        else if (p === 'last_month') { start = new Date(now.getFullYear(), now.getMonth() - 1, 1); end = new Date(now.getFullYear(), now.getMonth(), 0); }
+        else if (p === 'q') { start = new Date(now.getFullYear(), now.getMonth() - 2, 1); end = now; }
+        else if (p === 'h') { start = new Date(now.getFullYear(), now.getMonth() - 5, 1); end = now; }
+        else if (p === 'year') { start = new Date(now.getFullYear(), 0, 1); end = now; }
+        else if (p === 'y12') { start = new Date(now.getFullYear(), now.getMonth() - 11, 1); end = now; }
+        if (p === 'all') { fromEl.value = ''; toEl.value = ''; }
+        else if (p !== 'custom') { fromEl.value = iso(start); toEl.value = iso(end); }
+        renderVisits();
+    };
+
+    window.cvCustomPeriod = function () {
+        var sel = document.getElementById('cvPeriod');
+        if (sel) sel.value = 'custom';
+        renderVisits();
+    };
+
+    window.cvResetFilters = function () {
+        ['cvSearch', 'cvFrom', 'cvTo'].forEach(function (id) { var e = document.getElementById(id); if (e) e.value = ''; });
+        var p = document.getElementById('cvPeriod'); if (p) p.value = 'all';
+        var b = document.getElementById('cvBranchFilter'); if (b) b.value = '';
+        renderVisits();
+    };
+
+    /* القائمة بعد فلترة الفترة والفرع فقط (تُستخدم للمؤشرات والمخطط) */
+    function scoped() {
         var from = normDate((document.getElementById('cvFrom') || {}).value || '');
         var to = normDate((document.getElementById('cvTo') || {}).value || '');
-        var sort = (document.getElementById('cvSort') || {}).value || 'date_desc';
-        var list = VISITS.filter(function (v) {
+        var br = (document.getElementById('cvBranchFilter') || {}).value || '';
+        return VISITS.filter(function (v) {
             var d = normDate(v.visit_date);
             if (from && (!d || d < from)) return false;
             if (to && (!d || d > to)) return false;
+            if (br === '__none__') { if (branchOf(v)) return false; }
+            else if (br && branchOf(v) !== br) return false;
+            return true;
+        });
+    }
+
+    function filtered() {
+        var q = (document.getElementById('cvSearch') || {}).value || '';
+        q = q.trim().toLowerCase();
+        var sort = (document.getElementById('cvSort') || {}).value || 'date_desc';
+        var list = scoped().filter(function (v) {
             if (!q) return true;
-            return [v.visit_number, v.rep_name, v.technician, v.notes].some(function (x) {
+            return [v.visit_number, v.rep_name, v.technician, v.notes, branchOf(v)].some(function (x) {
                 return String(x || '').toLowerCase().includes(q);
             });
         });
@@ -27267,36 +27368,104 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         return list;
     }
 
+    window.cvSetChartMetric = function (m) {
+        cvChartMetric = m;
+        renderVisits();
+    };
+
+    function monthlyStats(list) {
+        var months = {};
+        list.forEach(function (v) {
+            var k = normDate(v.visit_date).slice(0, 7);
+            if (!k) return;
+            if (!months[k]) months[k] = { count: 0, mins: 0, withDur: 0, links: 0 };
+            months[k].count++;
+            var d = durationOf(v);
+            if (d != null) { months[k].mins += d; months[k].withDur++; }
+            months[k].links += proceduresOn(v.visit_date, v.id).length;
+        });
+        return months;
+    }
+
+    function drawCvChart(months) {
+        var cv = document.getElementById('cvTrendChart');
+        if (!cv || typeof Chart === 'undefined') return;
+        var keys = Object.keys(months).sort();
+        if (!keys.length) {
+            var now = new Date();
+            for (var i = 5; i >= 0; i--) { var d = new Date(now.getFullYear(), now.getMonth() - i, 1); keys.push(d.getFullYear() + '-' + pad(d.getMonth() + 1)); }
+        } else {
+            /* ملء الشهور الفارغة بين أول وآخر شهر */
+            var s = keys[0].split('-'), e = keys[keys.length - 1].split('-'), full = [];
+            var cur = new Date(+s[0], +s[1] - 1, 1), last = new Date(+e[0], +e[1] - 1, 1);
+            while (cur <= last && full.length < 60) { full.push(cur.getFullYear() + '-' + pad(cur.getMonth() + 1)); cur.setMonth(cur.getMonth() + 1); }
+            /* نعرض 6 شهور كحد أدنى ليبقى شكل المخطط متوازناً */
+            var back = new Date(+s[0], +s[1] - 1, 1);
+            while (full.length < 6) { back.setMonth(back.getMonth() - 1); full.unshift(back.getFullYear() + '-' + pad(back.getMonth() + 1)); }
+            keys = full;
+        }
+        var labels = keys.map(mLabel);
+        var counts = keys.map(function (k) { return months[k] ? months[k].count : 0; });
+        var avgDurs = keys.map(function (k) { return months[k] && months[k].withDur ? Math.round(months[k].mins / months[k].withDur) : 0; });
+        var avgLinksArr = keys.map(function (k) { return months[k] && months[k].count ? Math.round(months[k].links / months[k].count * 10) / 10 : 0; });
+
+        var main = cvChartMetric === 'dur' ? avgDurs : (cvChartMetric === 'links' ? avgLinksArr : counts);
+        var mainLabel = cvChartMetric === 'dur' ? 'متوسط مدة الزيارة (دقيقة)' : (cvChartMetric === 'links' ? 'متوسط الإجراءات لكل زيارة' : 'عدد الزيارات');
+        var overall = main.length ? main.reduce(function (a, b) { return a + b; }, 0) / main.length : 0;
+        overall = Math.round(overall * 10) / 10;
+
+        var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        var grid = dark ? 'rgba(148,163,184,.18)' : 'rgba(148,163,184,.25)';
+        var tick = dark ? '#94a3b8' : '#64748b';
+
+        if (cvChart) { try { cvChart.destroy(); } catch (e) { } cvChart = null; }
+        cvChart = new Chart(cv.getContext('2d'), {
+            data: {
+                labels: labels,
+                datasets: [
+                    { type: 'bar', label: mainLabel, data: main, backgroundColor: 'rgba(14,165,233,.55)', borderColor: '#0ea5e9', borderWidth: 1, borderRadius: 8, maxBarThickness: 46, order: 2 },
+                    { type: 'line', label: 'خط الاتجاه (المتوسط العام: ' + overall + ')', data: main.map(function () { return overall; }), borderColor: '#f59e0b', borderDash: [6, 5], borderWidth: 2, pointRadius: 0, tension: 0, order: 1 },
+                    { type: 'line', label: 'متوسط الإجراءات لكل زيارة', data: avgLinksArr, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,.15)', borderWidth: 2, pointRadius: 3, tension: .35, yAxisID: 'y1', order: 0, hidden: cvChartMetric === 'links' }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { labels: { font: { family: 'Tajawal', size: 12 }, color: tick, usePointStyle: true } },
+                    tooltip: { rtl: true, textDirection: 'rtl', bodyFont: { family: 'Tajawal' }, titleFont: { family: 'Tajawal' } }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: tick, font: { family: 'Tajawal', size: 11 } } },
+                    y: { beginAtZero: true, grid: { color: grid }, ticks: { color: tick, font: { family: 'Tajawal', size: 11 }, precision: 0 } },
+                    y1: { position: 'right', beginAtZero: true, grid: { display: false }, ticks: { color: '#22c55e', font: { family: 'Tajawal', size: 11 } } }
+                }
+            }
+        });
+    }
+
     window.renderVisits = function () {
         var tbody = document.querySelector('#visitsTable tbody');
         if (!tbody) return;
+        syncBranchFilter();
+        fillBranchDatalist();
         var list = filtered();
+        var SCOPE = scoped();
 
-        /* الإحصائيات */
+        /* الإحصائيات (حسب الفلاتر المحددة) */
         var now = new Date(), ym = now.getFullYear() + '-' + pad(now.getMonth() + 1);
-        var thisMonth = VISITS.filter(function (v) { return normDate(v.visit_date).slice(0, 7) === ym; }).length;
-        var totalMins = VISITS.reduce(function (s, v) { return s + (durationOf(v) || 0); }, 0);
-        var linked = VISITS.reduce(function (s, v) { return s + proceduresOn(v.visit_date, v.id).length; }, 0);
+        var thisMonth = SCOPE.filter(function (v) { return normDate(v.visit_date).slice(0, 7) === ym; }).length;
+        var totalMins = SCOPE.reduce(function (s, v) { return s + (durationOf(v) || 0); }, 0);
+        var linked = SCOPE.reduce(function (s, v) { return s + proceduresOn(v.visit_date, v.id).length; }, 0);
         var st = document.getElementById('cvStats');
         if (st) {
-            /* تجميع شهري */
-            var AR_MONTHS = ['كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران', 'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول'];
-            var mLabel = function (k) { var p = k.split('-'); return AR_MONTHS[+p[1] - 1] + ' ' + p[0]; };
-            var months = {};
-            VISITS.forEach(function (v) {
-                var k = normDate(v.visit_date).slice(0, 7);
-                if (!k) return;
-                if (!months[k]) months[k] = { count: 0, mins: 0, links: 0 };
-                months[k].count++;
-                months[k].mins += (durationOf(v) || 0);
-                months[k].links += proceduresOn(v.visit_date, v.id).length;
-            });
+            var months = monthlyStats(SCOPE);
             var keys = Object.keys(months).sort();
             var monthsCount = Math.max(keys.length, 1);
-            var avgVisits = Math.round(VISITS.length / monthsCount * 10) / 10;
-            var withDur = VISITS.filter(function (v) { return durationOf(v) != null; }).length;
+            var avgVisits = Math.round(SCOPE.length / monthsCount * 10) / 10;
+            var withDur = SCOPE.filter(function (v) { return durationOf(v) != null; }).length;
             var avgDur = withDur ? Math.round(totalMins / withDur) : null;
-            var avgLinks = VISITS.length ? Math.round(linked / VISITS.length * 10) / 10 : 0;
+            var avgLinks = SCOPE.length ? Math.round(linked / SCOPE.length * 10) / 10 : 0;
 
             /* مقارنة مع الشهر الماضي */
             var prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -27311,32 +27480,22 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
             var bestKey = null;
             keys.forEach(function (k) { if (!bestKey || months[k].count > months[bestKey].count) bestKey = k; });
 
-            /* رسم آخر 6 شهور */
-            var series = [], maxC = 1;
-            for (var mi = 5; mi >= 0; mi--) {
-                var dd = new Date(now.getFullYear(), now.getMonth() - mi, 1);
-                var kk = dd.getFullYear() + '-' + pad(dd.getMonth() + 1);
-                var cc = months[kk] ? months[kk].count : 0;
-                series.push({ k: kk, c: cc });
-                if (cc > maxC) maxC = cc;
-            }
-            var bars = '';
-            series.forEach(function (s) {
-                var h = s.c ? Math.max(8, Math.round(s.c / maxC * 100)) : 3;
-                bars += '<div class="cv-bar-col" title="' + mLabel(s.k) + ': ' + s.c + ' زيارة">' +
-                    '<span class="cv-bar-val">' + (s.c || '') + '</span>' +
-                    '<div class="cv-bar-fill' + (s.k === ym ? ' current' : '') + '" style="height:' + h + '%' + (s.c ? '' : ';opacity:.25') + '"></div>' +
-                    '<span class="cv-bar-lbl">' + AR_MONTHS[+s.k.split('-')[1] - 1] + '</span></div>';
-            });
+            var brSel = (document.getElementById('cvBranchFilter') || {}).value || '';
+            var brTxt = brSel === '__none__' ? 'بدون فرع' : (brSel || 'كل الفروع');
+            var mk = function (m, lbl) { return '<button type="button" class="cv-metric' + (cvChartMetric === m ? ' is-active' : '') + '" onclick="cvSetChartMetric(\'' + m + '\')">' + lbl + '</button>'; };
 
             st.innerHTML =
-                '<div class="cv-stat"><i class="fas fa-truck-fast"></i><div><b>' + VISITS.length + '</b><span>إجمالي الزيارات</span><em class="cv-sub">عبر ' + monthsCount + ' ' + (monthsCount === 1 ? 'شهر' : 'شهور') + '</em></div></div>' +
+                '<div class="cv-stat"><i class="fas fa-truck-fast"></i><div><b>' + SCOPE.length + '</b><span>إجمالي الزيارات</span><em class="cv-sub">' + brTxt + ' • ' + monthsCount + ' ' + (monthsCount === 1 ? 'شهر' : 'شهور') + '</em></div></div>' +
                 '<div class="cv-stat p2"><em class="cv-trend ' + trendCls + '"><i class="fas ' + trendIcon + '"></i>' + trendTxt + '</em><i class="fas fa-calendar-days"></i><div><b>' + thisMonth + '</b><span>زيارات هذا الشهر</span><em class="cv-sub">' + mLabel(ym) + '</em></div></div>' +
                 '<div class="cv-stat p5"><i class="fas fa-chart-line"></i><div><b>' + avgVisits + '</b><span>متوسط الزيارات الشهري</span><em class="cv-sub">زيارة / شهر</em></div></div>' +
                 '<div class="cv-stat p3"><i class="fas fa-hourglass-half"></i><div><b>' + fmtDur(avgDur) + '</b><span>متوسط مدة الزيارة</span><em class="cv-sub">الإجمالي: ' + fmtDur(totalMins) + '</em></div></div>' +
                 '<div class="cv-stat p4"><i class="fas fa-link"></i><div><b>' + avgLinks + '</b><span>متوسط الإجراءات لكل زيارة</span><em class="cv-sub">' + linked + ' إجراء مرتبط إجمالاً</em></div></div>' +
                 '<div class="cv-stat p6"><i class="fas fa-award"></i><div><b style="font-size:15px">' + (bestKey ? mLabel(bestKey) : '—') + '</b><span>أنشط شهر</span><em class="cv-sub">' + (bestKey ? months[bestKey].count + ' زيارة' : 'لا توجد بيانات') + '</em></div></div>' +
-                '<div class="cv-chart"><div class="cv-chart-head"><b><i class="fas fa-chart-column"></i> الزيارات خلال آخر 6 شهور</b><span>المتوسط الشهري: ' + avgVisits + ' زيارة</span></div><div class="cv-bars">' + bars + '</div></div>';
+                '<div class="cv-chart"><div class="cv-chart-head"><b><i class="fas fa-chart-column"></i> اتجاه المؤشرات الشهرية للزيارات</b>' +
+                '<span class="cv-metrics">' + mk('count', 'عدد الزيارات') + mk('dur', 'متوسط المدة') + mk('links', 'متوسط الإجراءات') + '</span></div>' +
+                '<div class="cv-canvas-wrap"><canvas id="cvTrendChart"></canvas></div></div>';
+
+            drawCvChart(months);
         }
 
         if (!list.length) {
@@ -27439,6 +27598,8 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         document.getElementById('cvEnd').value = v ? (v.end_time || '') : '';
         document.getElementById('cvRep').value = v ? (v.rep_name || '') : '';
         document.getElementById('cvTech').value = v ? (v.technician || '') : '';
+        var bIn = document.getElementById('cvBranch');
+        if (bIn) { bIn.value = v ? (v.branch || '') : ''; fillBranchDatalist(); }
         document.getElementById('cvNotes').value = v ? (v.notes || '') : '';
         cvPreviewLinks();
         if (typeof openModal === 'function') openModal('visitModal');
@@ -27474,18 +27635,25 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
             end_time: document.getElementById('cvEnd').value,
             rep_name: document.getElementById('cvRep').value.trim(),
             technician: document.getElementById('cvTech').value.trim(),
+            branch: (document.getElementById('cvBranch') || { value: '' }).value.trim(),
             notes: document.getElementById('cvNotes').value.trim()
         };
         if (!payload.visit_number || !payload.visit_date) {
             if (typeof showToast === 'function') showToast('error', 'بيانات ناقصة', 'رقم الزيارة وتاريخ الزيارة مطلوبان');
             return;
         }
+        async function persist(p) {
+            if (editingVisitId) return cvDB('PATCH', p, editingVisitId);
+            p.created_at = new Date().toISOString();
+            p.created_by = (typeof currentUser !== 'undefined' && currentUser) ? (currentUser.fullName || currentUser.username) : '';
+            return cvDB('POST', p);
+        }
         try {
-            if (editingVisitId) await cvDB('PATCH', payload, editingVisitId);
-            else {
-                payload.created_at = new Date().toISOString();
-                payload.created_by = (typeof currentUser !== 'undefined' && currentUser) ? (currentUser.fullName || currentUser.username) : '';
-                await cvDB('POST', payload);
+            try { await persist(payload); }
+            catch (err) {
+                /* في حال عدم وجود عمود الفرع في قاعدة البيانات نحفظ بدونه */
+                var fallback = Object.assign({}, payload); delete fallback.branch;
+                await persist(fallback);
             }
             if (typeof closeModal === 'function') closeModal('visitModal');
             else document.getElementById('visitModal').classList.remove('active');
@@ -27518,7 +27686,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
             cell('رقم الزيارة', v.visit_number) + cell('تاريخ الزيارة', fmtDate(v.visit_date)) +
             cell('وقت الوصول', fmtTime(v.arrival_time)) + cell('وقت الانتهاء', fmtTime(v.end_time)) +
             cell('المدة', fmtDur(durationOf(v))) + cell('مندوب الشركة', v.rep_name) +
-            cell('الفني المتابع', v.technician) +
+            cell('الفني المتابع', v.technician) + cell('الفرع', v.branch) +
             '</div>' +
             '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:11px 13px;font-size:13px;color:#334155;margin-bottom:14px"><b style="color:#0f172a">ملاحظات:</b> ' + esc(v.notes || '—') + '</div>' +
             '<div id="cvViewLinks">' + linksHtml(v, links) + '</div>';
