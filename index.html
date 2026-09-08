@@ -16,6 +16,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1999,6 +2000,7 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                           <span class="dash-chip"><i class="fas fa-bolt"></i> <span id="chipOpen">0</span> مفتوح</span>
                           <span class="dash-chip good"><i class="fas fa-circle-check"></i> <span id="chipToday">0</span> اليوم</span>
                           <span class="dash-chip bad"><i class="fas fa-triangle-exclamation"></i> <span id="chipCritical">0</span> حرج</span>
+                          <span class="dash-chip"><i class="fas fa-truck-fast"></i> <span id="chipVisits">0</span> زيارة شركة هذا الشهر</span>
                         </div>
                       </div>
                       <div class="health-ring dsh-ring">
@@ -2065,6 +2067,14 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                       <div class="panel-head"><h3><i class="fas fa-bell"></i> تنبيهات تحتاج إجراء</h3><small id="alertsCount">0</small></div>
                       <div class="panel-body"><div class="alert-list" id="dashAlerts"></div></div>
                     </div>
+                    <div class="panel dsh-panel dsh-f">
+                      <div class="panel-head"><h3><i class="fas fa-truck-fast"></i> زيارات الشركة — 6 أشهر</h3><small>عدد الزيارات ومتوسط المدة</small></div>
+                      <div class="panel-body"><div class="chart-wrap"><canvas id="chartVisits"></canvas></div></div>
+                    </div>
+                    <div class="panel dsh-panel dsh-g">
+                      <div class="panel-head"><h3><i class="fas fa-map-location-dot"></i> أكثر الفروع زيارة</h3><small>أعلى 6</small></div>
+                      <div class="panel-body"><div class="rank-list" id="visitBranchRank"></div></div>
+                    </div>
                   </div>
 
                   <!-- Collapsible detail metrics -->
@@ -2085,6 +2095,10 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                       <div class="mini-stat" style="--mc:#f43f5e"><i class="fas fa-hourglass-half"></i><div><div class="ms-v" id="statPermOpen">0</div><div class="ms-l">بدائل دائمة غير منجزة</div></div></div>
                       <div class="mini-stat" style="--mc:#6366f1"><i class="fas fa-file-alt"></i><div><div class="ms-v" id="statDocuments">0</div><div class="ms-l">وثائق وملاحظات</div></div></div>
                       <div class="mini-stat" style="--mc:#0ea5e9"><i class="fas fa-desktop"></i><div><div class="ms-v" id="statComputerItems">0</div><div class="ms-l">مواد حاسوبية</div></div></div>
+                      <div class="mini-stat" style="--mc:#0284c7"><i class="fas fa-truck-fast"></i><div><div class="ms-v" id="statVisitsTotal">0</div><div class="ms-l">زيارات الشركة</div></div></div>
+                      <div class="mini-stat" style="--mc:#4f46e5"><i class="fas fa-calendar-check"></i><div><div class="ms-v" id="statVisitsMonth">0</div><div class="ms-l">زيارات هذا الشهر</div></div></div>
+                      <div class="mini-stat" style="--mc:#0d9488"><i class="fas fa-stopwatch"></i><div><div class="ms-v" id="statVisitsAvgDur">—</div><div class="ms-l">متوسط مدة الزيارة</div></div></div>
+                      <div class="mini-stat" style="--mc:#db2777"><i class="fas fa-code-branch"></i><div><div class="ms-v" id="statVisitsBranches">0</div><div class="ms-l">فروع تمت زيارتها</div></div></div>
                     </div>
                   </details>
                 </section>
@@ -3136,7 +3150,7 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                       <p>اضغط أي بطاقة للحصول على تقرير أنيق جاهز للطباعة أو التصدير (PDF / Word / Excel).</p>
                     </div>
                     <div class="rh-hero-actions">
-                      <button class="rh-btn rh-btn-p" onclick="rhRun(['summary','requests','byDept','byStatus','timeline','inventory','transactions','permanent_replacements'],'التقرير الشامل لنظام إدارة الصيانة')"><i class="fas fa-wand-magic-sparkles"></i> التقرير الشامل</button>
+                      <button class="rh-btn rh-btn-p" onclick="rhRun(['summary','requests','byDept','byStatus','timeline','inventory','transactions','permanent_replacements','company_visits'],'التقرير الشامل لنظام إدارة الصيانة')"><i class="fas fa-wand-magic-sparkles"></i> التقرير الشامل</button>
                       <button class="rh-btn rh-btn-s" onclick="rsOpen()"><i class="fas fa-sliders"></i> تقرير مخصّص</button>
                     </div>
                   </div>
@@ -3212,6 +3226,11 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                     </div>
 
                     <!-- إدارية ووثائق -->
+                    <div class="rh-card c-sky" data-g="req" onclick="rhRun(['summary','company_visits'],'تقرير زيارات شركة الصيانة')">
+                      <div class="rh-ic"><i class="fas fa-truck-fast"></i></div>
+                      <div class="rh-tx"><h4>زيارات الشركة</h4><p>زيارات شركة الصيانة والمندوبين والفروع والمدد</p></div>
+                      <i class="fas fa-chevron-left rh-go"></i>
+                    </div>
                     <div class="rh-card c-green" data-g="admin" onclick="rhRun(['documents'],'تقرير الوثائق والملاحظات')">
                       <div class="rh-ic"><i class="fas fa-file-lines"></i></div>
                       <h4>الوثائق والملاحظات</h4><p>كل الوثائق المسجلة بالنظام</p>
@@ -3239,12 +3258,12 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                       <h4>تقرير آخر 7 أيام</h4><p>ملخص سريع لحركة الأسبوع</p>
                       <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
                     </div>
-                    <div class="rh-card c-teal" data-g="quick" onclick="rhRun(['summary','requests','byDept','byStatus','timeline'],'التقرير الشهري',30)">
+                    <div class="rh-card c-teal" data-g="quick" onclick="rhRun(['summary','requests','byDept','byStatus','timeline','company_visits'],'التقرير الشهري',30)">
                       <div class="rh-ic"><i class="fas fa-calendar-days"></i></div>
                       <h4>التقرير الشهري</h4><p>آخر 30 يوماً بكل المؤشرات</p>
                       <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
                     </div>
-                    <div class="rh-card c-cyan" data-g="quick" onclick="rhRun(['summary','requests','byDept','byStatus','timeline','inventory','transactions'],'التقرير الربعي',90)">
+                    <div class="rh-card c-cyan" data-g="quick" onclick="rhRun(['summary','requests','byDept','byStatus','timeline','inventory','transactions','company_visits'],'التقرير الربعي',90)">
                       <div class="rh-ic"><i class="fas fa-calendar-week"></i></div>
                       <h4>التقرير الربعي</h4><p>آخر 3 أشهر: الطلبات والمخزون</p>
                       <span class="rh-go">إنشاء التقرير <i class="fas fa-arrow-left"></i></span>
@@ -3394,6 +3413,82 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                         <div class="stat-value" id="reportBusiestDept">—</div>
                         <div class="stat-label">أعلى قسم طلباً</div>
                     </div>
+                </div>
+
+                <div class="rep-section-head">
+                    <h2><i class="fas fa-truck-fast" style="color:#0ea5e9"></i> مؤشرات زيارات الشركة</h2>
+                    <span class="line"></span>
+                </div>
+
+                <div class="stats-grid" style="margin-bottom: 16px;">
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #0ea5e9;">
+                        <div class="stat-icon" style="background:rgba(14,165,233,.1);color:#0ea5e9;"><i class="fas fa-truck-fast"></i></div>
+                        <div class="stat-value" id="repVisitsTotal">0</div>
+                        <div class="stat-label">إجمالي الزيارات</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #4f46e5;">
+                        <div class="stat-icon" style="background:rgba(79,70,229,.1);color:#4f46e5;"><i class="fas fa-calendar-check"></i></div>
+                        <div class="stat-value" id="repVisitsMonth">0</div>
+                        <div class="stat-label">زيارات الشهر الحالي</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #0d9488;">
+                        <div class="stat-icon" style="background:rgba(13,148,136,.1);color:#0d9488;"><i class="fas fa-stopwatch"></i></div>
+                        <div class="stat-value" id="repVisitsAvgDur">—</div>
+                        <div class="stat-label">متوسط مدة الزيارة</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #db2777;">
+                        <div class="stat-icon" style="background:rgba(219,39,119,.1);color:#db2777;"><i class="fas fa-code-branch"></i></div>
+                        <div class="stat-value" id="repVisitsBranches">0</div>
+                        <div class="stat-label">فروع تمت زيارتها</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #d97706;">
+                        <div class="stat-icon" style="background:rgba(217,119,6,.1);color:#d97706;"><i class="fas fa-user-tie"></i></div>
+                        <div class="stat-value" id="repVisitsReps">0</div>
+                        <div class="stat-label">عدد المندوبين</div>
+                    </div>
+                    <div class="stat-card rep-kpi" style="border-top:4px solid #059669;">
+                        <div class="stat-icon" style="background:rgba(5,150,105,.1);color:#059669;"><i class="fas fa-clock-rotate-left"></i></div>
+                        <div class="stat-value" id="repVisitsLast" style="font-size:18px">—</div>
+                        <div class="stat-label">آخر زيارة</div>
+                    </div>
+                </div>
+
+                <div class="rep-grid">
+                    <div class="card rep-card">
+                        <div class="card-header rep-head">
+                            <h3><i class="fas fa-chart-column" style="color:#0ea5e9;"></i> زيارات الشركة شهرياً</h3>
+                            <div class="rep-tools no-print">
+                                <button class="rep-icon-btn" title="تحميل صورة" onclick="vzDownload('repVisitsTrendChart','زيارات_الشركة_شهرياً')"><i class="fas fa-download"></i></button>
+                            </div>
+                        </div>
+                        <div class="card-body rep-body"><div class="rep-canvas"><canvas id="repVisitsTrendChart"></canvas></div></div>
+                    </div>
+                    <div class="card rep-card">
+                        <div class="card-header rep-head">
+                            <h3><i class="fas fa-chart-pie" style="color:#4f46e5;"></i> توزيع الزيارات حسب الفرع</h3>
+                            <div class="rep-tools no-print">
+                                <button class="rep-icon-btn" title="تحميل صورة" onclick="vzDownload('repVisitsBranchChart','زيارات_الشركة_حسب_الفرع')"><i class="fas fa-download"></i></button>
+                            </div>
+                        </div>
+                        <div class="card-body rep-body"><div class="rep-canvas"><canvas id="repVisitsBranchChart"></canvas></div></div>
+                    </div>
+                    <div class="card rep-card">
+                        <div class="card-header rep-head">
+                            <h3><i class="fas fa-user-tie" style="color:#d97706;"></i> أداء مندوبي الشركة</h3>
+                        </div>
+                        <div class="card-body rep-body"><div class="rep-canvas"><canvas id="repVisitsRepChart"></canvas></div></div>
+                    </div>
+                    <div class="card rep-card">
+                        <div class="card-header rep-head">
+                            <h3><i class="fas fa-hourglass-half" style="color:#0d9488;"></i> متوسط مدة الزيارة شهرياً (دقيقة)</h3>
+                        </div>
+                        <div class="card-body rep-body"><div class="rep-canvas"><canvas id="repVisitsDurChart"></canvas></div></div>
+                    </div>
+                </div>
+
+                <div class="rep-section-head">
+                    <h2><i class="fas fa-gauge-high" style="color:#4f46e5"></i> مؤشرات ورسوم الطلبات</h2>
+                    <span class="line"></span>
                 </div>
 
                 <div class="rep-grid">
@@ -9687,6 +9782,7 @@ function savePdf(btn){
 }
 <\/script>
 </body>
+
 </html>`;
 
     const w = window.open('', '_blank');
@@ -15796,7 +15892,7 @@ table.rs-t tbody tr{page-break-inside:avoid}
 (function(){
   var ST={new:'جديد',inprogress:'قيد التنفيذ',pending:'معلق',withdrawn:'مسحوب',active:'فعال',completed:'منجز',cancelled:'ملغي',duplicate:'مكرر',available:'متاح',assigned:'مُسلّم',maintenance:'صيانة',damaged:'تالف',returned:'مُرجع'};
   var STC={new:'#3b82f6',inprogress:'#f59e0b',pending:'#8b5cf6',withdrawn:'#64748b',active:'#06b6d4',completed:'#10b981',cancelled:'#ef4444',duplicate:'#a855f7',available:'#10b981',assigned:'#f59e0b',maintenance:'#0ea5e9',damaged:'#ef4444',returned:'#64748b'};
-  var TABLES=['requests','inventory','transactions','inventory_history','alt_devices','alt_models','assignments','computer_items','documents','departments','users','tenders','permanent_replacements'];
+  var TABLES=['requests','inventory','transactions','inventory_history','alt_devices','alt_models','assignments','computer_items','documents','departments','users','tenders','permanent_replacements','company_visits'];
   var DATA={},LOADED=false;
 
   var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
@@ -15824,11 +15920,21 @@ table.rs-t tbody tr{page-break-inside:avoid}
     {id:'documents',t:'الوثائق والملاحظات',      d:'الوثائق المسجلة بالنظام',     ic:'fa-file-lines',    tbl:'documents'},
     {id:'tenders',  t:'عطاء الصيانة',            d:'بنود ومتابعة العطاء',         ic:'fa-file-contract', tbl:'tenders'},
     {id:'departments',t:'الأقسام',               d:'قائمة أقسام المؤسسة',         ic:'fa-sitemap',       tbl:'departments'},
-    {id:'users',    t:'مستخدمو النظام',          d:'الحسابات والصلاحيات',         ic:'fa-users-gear',    tbl:'users'}
+    {id:'users',    t:'مستخدمو النظام',          d:'الحسابات والصلاحيات',         ic:'fa-users-gear',    tbl:'users'},
+    {id:'company_visits',t:'زيارات الشركة',       d:'زيارات شركة الصيانة وتفاصيلها', ic:'fa-truck-fast', tbl:'company_visits'}
   ];
-  var DEFAULT_ON=['summary','requests','byDept','byStatus','timeline','inventory','transactions','permanent_replacements'];
+  var DEFAULT_ON=['summary','requests','byDept','byStatus','timeline','inventory','transactions','permanent_replacements','company_visits'];
 
   var COLS={
+    company_visits:[['رقم الزيارة',function(r){return dash(g(r,'visit_number','visitNumber','id'));}],
+              ['تاريخ الزيارة',function(r){return fd(g(r,'visit_date','created_at'));}],
+              ['وقت الوصول',function(r){return dash(g(r,'arrival_time'));}],
+              ['وقت الانتهاء',function(r){return dash(g(r,'end_time'));}],
+              ['المدة (دقيقة)',function(r){var m=vzDurMins(r);return m==null?'—':num(m);}],
+              ['مندوب الشركة',function(r){return dash(g(r,'rep_name','repName'));}],
+              ['الفني المتابع',function(r){return dash(g(r,'technician'));}],
+              ['الفرع',function(r){return dash(g(r,'branch','branch_name'));}],
+              ['ملاحظات',function(r){return dash(g(r,'notes'));}]],
     requests:[['الرقم',function(r){return dash(g(r,'request_number','requestNumber','id'));}],
               ['الموظف',function(r){return dash(g(r,'employee_name','employeeName'));}],
               ['القسم',function(r){return dash(g(r,'department'));}],
@@ -15912,11 +16018,18 @@ table.rs-t tbody tr{page-break-inside:avoid}
     await Promise.all(TABLES.map(async function(t){
       try{ var r=await SupabaseAPI.request(t,'GET'); out[t]=Array.isArray(r)?r:[]; }catch(e){ out[t]=[]; }
     }));
+    if(!(out.company_visits||[]).length){
+      try{ out.company_visits=JSON.parse(localStorage.getItem('local_company_visits')||'[]')||[]; }catch(e){ out.company_visits=[]; }
+    }
     DATA=out;LOADED=true;return DATA;
   }
 
   /* ---------- الفلترة ---------- */
-  function dateOf(r){ return dt(g(r,'replace_date','created_at','createdAt','date','assign_date','added_at','updated_at')); }
+  function vzDurMins(r){
+    var a=String(g(r,'arrival_time')||'').match(/^(\d{1,2}):(\d{2})/), b=String(g(r,'end_time')||'').match(/^(\d{1,2}):(\d{2})/);
+    if(!a||!b)return null; var m=(+b[1]*60+ +b[2])-(+a[1]*60+ +a[2]); if(m<0)m+=1440; return m;
+  }
+  function dateOf(r){ return dt(g(r,'visit_date','replace_date','created_at','createdAt','date','assign_date','added_at','updated_at')); }
   function filterRows(rows,f){
     return (rows||[]).filter(function(r){
       if(f.from||f.to){ var d=dateOf(r); if(!d)return !(f.from||f.to)?true:false;
@@ -15993,16 +16106,24 @@ table.rs-t tbody tr{page-break-inside:avoid}
       out+=h2(n,'fa-star','الملخص التنفيذي');
       var prAll=filterRows(d.permanent_replacements,f);
       var prDone=prAll.filter(function(r){return !!r.is_done;}).length;
+      var cvAll=filterRows(d.company_visits||[],{from:f.from,to:f.to,q:f.q});
+      var cvDurs=cvAll.map(vzDurMins).filter(function(x){return x!=null;});
+      var cvAvg=cvDurs.length?Math.round(cvDurs.reduce(function(a,b){return a+b;},0)/cvDurs.length):null;
+      var cvBr=countBy(cvAll,function(r){return String(g(r,'branch','branch_name')||'').trim();});
+      var cvTopBr=cvBr[0]?cvBr[0][0]:'—';
       out+=kpis([['إجمالي الطلبات',num(reqAll.length)],['منجزة',num(done),'g'],['قيد التنفيذ',num(prog),'o'],['معلقة',num(pend),'v'],
                  ['نسبة الإنجاز',rate+'%','p'],['متوسط أيام الإنجاز',avg,'c'],['مواد المخزون',num(inv.length)],['نفدت الكمية',num(outSt),'r'],
-                 ['البديل الدائم',num(prAll.length),'v'],['بديل دائم منجز',num(prDone),'g']]);
+                 ['البديل الدائم',num(prAll.length),'v'],['بديل دائم منجز',num(prDone),'g'],
+                 ['زيارات الشركة',num(cvAll.length),'c'],['متوسط مدة الزيارة',(cvAvg==null?'—':num(cvAvg)+' د'),'o'],['فروع تمت زيارتها',num(cvBr.length),'p']]);
       out+='<div class="rs-sumtxt">خلال الفترة <b>'+esc(period)+'</b> سجّل النظام <b>'+num(reqAll.length)+'</b> طلب صيانة، '+
         'أُنجز منها <b>'+num(done)+'</b> طلباً بنسبة إنجاز <b>'+rate+'%</b>، فيما لا يزال <b>'+num(prog+pend+nw)+'</b> طلباً قيد المعالجة '+
         '(<b>'+num(prog)+'</b> قيد التنفيذ، <b>'+num(pend)+'</b> معلق، <b>'+num(nw)+'</b> جديد). '+
         'أكثر الأقسام طلباً للصيانة هو <b>'+esc(top)+'</b>'+(byDept[0]?' بواقع <b>'+num(byDept[0][1])+'</b> طلب':'')+'، '+
         'ومتوسط زمن الإنجاز <b>'+avg+'</b> يوم. أما المخزون فيضم <b>'+num(inv.length)+'</b> صنفاً، منها <b>'+num(outSt)+'</b> صنف نفدت كميته و<b>'+num(low)+'</b> صنف بكمية منخفضة تستدعي إعادة التزويد. '+
         'وفيما يخص إجراء <b>البديل الدائم</b> فقد بلغت عمليات الاستبدال النهائي للمواد المعطلة <b>'+num(prAll.length)+'</b> عملية، أُنجز منها <b>'+num(prDone)+'</b> عملية'+
-        (prAll.length?' بنسبة <b>'+Math.round(prDone/prAll.length*100)+'%</b>':'')+'.</div>';
+        (prAll.length?' بنسبة <b>'+Math.round(prDone/prAll.length*100)+'%</b>':'')+'. '+
+        'كما استقبل النظام <b>'+num(cvAll.length)+'</b> زيارة من شركة الصيانة'+(cvBr.length?' موزعة على <b>'+num(cvBr.length)+'</b> فرعاً وأكثرها في <b>'+esc(cvTopBr)+'</b>':'')+
+        (cvAvg==null?'':'، بمتوسط مدة زيارة <b>'+num(cvAvg)+'</b> دقيقة')+'.</div>';
     }
     if(has('requests')){ n++; out+=h2(n,'fa-screwdriver-wrench','طلبات الصيانة','إجمالي '+num(reqAll.length)+' طلب'); out+=table(COLS.requests,reqAll,lim); }
     if(has('byDept')){
@@ -16037,6 +16158,14 @@ table.rs-t tbody tr{page-break-inside:avoid}
         var phigh=rows.filter(function(r){return r.spec_level==='higher';}).length;
         var prate=rows.length?Math.round(pdone/rows.length*100):0;
         out+=kpis([['عمليات الاستبدال',num(rows.length)],['منجزة',num(pdone),'g'],['غير منجزة',num(rows.length-pdone),'o'],['أعلى مواصفات',num(phigh),'p'],['نسبة الإنجاز',prate+'%','c']]);
+      }
+      if(s.id==='company_visits'){
+        var vd=rows.map(vzDurMins).filter(function(x){return x!=null;});
+        var vavg=vd.length?Math.round(vd.reduce(function(a,b){return a+b;},0)/vd.length):null;
+        var vbr=countBy(rows,function(r){return String(g(r,'branch','branch_name')||'').trim();});
+        var vrp=countBy(rows,function(r){return String(g(r,'rep_name','repName')||'').trim();});
+        out+=kpis([['عدد الزيارات',num(rows.length)],['متوسط المدة',(vavg==null?'—':num(vavg)+' د'),'c'],['فروع',num(vbr.length),'v'],['مندوبون',num(vrp.length),'o'],['إجمالي ساعات الزيارات',(vd.length?num(Math.round(vd.reduce(function(a,b){return a+b;},0)/60)):'—'),'g']]);
+        if(vbr.length) out+=bars(vbr.slice(0,10),rows.length);
       }
       if(s.id==='inventory'){
         var o0=rows.filter(function(i){return (Number(i.qty)||0)===0;}).length;
@@ -18079,10 +18208,12 @@ body.dark-mode .rdrill-tools input,body.dark-mode .rdrill-tools select{ backgrou
 /* ---- analytics mosaic ---- */
 #page-dashboard .dsh-grid { display: grid; gap: var(--dsh-gap); margin-bottom: var(--dsh-gap);
   grid-template-columns: repeat(6, 1fr);
-  grid-template-areas: "a a a a b b" "c c d d e e"; }
+  grid-template-areas: "a a a a b b" "c c d d e e" "f f f f g g"; }
 #page-dashboard .dsh-a { grid-area: a; } #page-dashboard .dsh-b { grid-area: b; }
 #page-dashboard .dsh-c { grid-area: c; } #page-dashboard .dsh-d { grid-area: d; }
 #page-dashboard .dsh-e { grid-area: e; }
+#page-dashboard .dsh-f { grid-area: f; } #page-dashboard .dsh-g { grid-area: g; }
+#page-dashboard .dsh-f .chart-wrap { height: 240px; }
 #page-dashboard .dsh-panel { border-radius: var(--dsh-r); box-shadow: 0 6px 20px rgba(15,23,42,.05);
   transition: box-shadow .25s ease, transform .25s ease; }
 #page-dashboard .dsh-panel:hover { box-shadow: 0 14px 30px rgba(15,23,42,.09); }
@@ -18152,11 +18283,11 @@ html[data-theme="dark"] #page-dashboard .kpi-card { box-shadow: 0 8px 26px rgba(
 
 /* ---- responsive ---- */
 @media (max-width: 1280px) {
-  #page-dashboard .dsh-grid { grid-template-columns: repeat(4,1fr); grid-template-areas: "a a a b" "c c d d" "e e e e"; }
+  #page-dashboard .dsh-grid { grid-template-columns: repeat(4,1fr); grid-template-areas: "a a a b" "c c d d" "e e e e" "f f f g"; }
 }
 @media (max-width: 980px) {
   #page-dashboard .dsh-kpis { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  #page-dashboard .dsh-grid { grid-template-columns: 1fr; grid-template-areas: "a" "b" "c" "d" "e"; }
+  #page-dashboard .dsh-grid { grid-template-columns: 1fr; grid-template-areas: "a" "b" "c" "d" "e" "f" "g"; }
 }
 @media (max-width: 620px) {
   #page-dashboard .dsh-kpis { grid-template-columns: 1fr; }
@@ -18165,7 +18296,7 @@ html[data-theme="dark"] #page-dashboard .kpi-card { box-shadow: 0 8px 26px rgba(
 }
 @media print {
   #page-dashboard .page-header { position: static; box-shadow: none; }
-  #page-dashboard .dsh-grid { grid-template-columns: 1fr 1fr; grid-template-areas: "a a" "b c" "d e"; }
+  #page-dashboard .dsh-grid { grid-template-columns: 1fr 1fr; grid-template-areas: "a a" "b c" "d e" "f f" "g g"; }
   #page-dashboard .table-container { max-height: none; }
   #page-dashboard .dsh-more { break-inside: avoid; }
 }
@@ -27800,5 +27931,230 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
 })();
 </script>
 
+
+<!-- ==================== تحليلات زيارات الشركة (لوحة التحكم + التقارير) ==================== -->
+<script>
+(function () {
+    var VZ_DATA = [], VZ_TS = 0, VZ_CHARTS = {};
+    var AR_M = ['كانون الثاني','شباط','آذار','نيسان','أيار','حزيران','تموز','آب','أيلول','تشرين الأول','تشرين الثاني','كانون الأول'];
+
+    function esc(x){ return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+    function pad(n){ return (n<10?'0':'')+n; }
+    function enDigits(v){ return String(v==null?'':v).replace(/[\u0660-\u0669]/g,function(d){return String(d.charCodeAt(0)-0x0660);}).replace(/[\u06F0-\u06F9]/g,function(d){return String(d.charCodeAt(0)-0x06F0);}).replace(/[\u200e\u200f\u061c]/g,''); }
+    function normDate(v){
+        var t = enDigits(v).trim(); if(!t) return '';
+        var m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if(m) return m[1]+'-'+pad(+m[2])+'-'+pad(+m[3]);
+        m = t.match(/^(\d{1,4})[\/\-.](\d{1,2})[\/\-.](\d{1,4})/);
+        if(m){ var a=+m[1],b=+m[2],c=+m[3]; if(a>31) return a+'-'+pad(b)+'-'+pad(c); if(c>31) return c+'-'+pad(b)+'-'+pad(a); }
+        var d = new Date(t);
+        if(!isNaN(d.getTime())) return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+        return '';
+    }
+    function vDate(v){ return normDate(v.visit_date || v.visitDate || v.created_at || ''); }
+    function branchOf(v){ return String(v.branch || v.branch_name || '').trim() || 'بدون فرع'; }
+    function repOf(v){ return String(v.rep_name || v.repName || '').trim(); }
+    function durMins(v){
+        var a = enDigits(v.arrival_time||'').match(/^(\d{1,2}):(\d{2})/), b = enDigits(v.end_time||'').match(/^(\d{1,2}):(\d{2})/);
+        if(!a||!b) return null;
+        var m = (+b[1]*60 + +b[2]) - (+a[1]*60 + +a[2]); if(m<0) m += 1440; return m;
+    }
+    function fmtDur(m){ if(m==null) return '—'; var h=Math.floor(m/60), r=m%60; return (h?h+' س ':'')+(r?r+' د':(h?'':'0 د')); }
+    function fmtDate(d){ if(!d) return '—'; var p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+    function css(name, fb){ try{ var v=getComputedStyle(document.documentElement).getPropertyValue(name).trim(); return v||fb; }catch(e){ return fb; } }
+
+    async function load(force){
+        if(!force && VZ_DATA.length && (Date.now()-VZ_TS) < 60000) return VZ_DATA;
+        var rows = [];
+        try{
+            if(typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL){
+                var res = await fetch(SUPABASE_URL+'/rest/v1/company_visits?select=*', { headers:{ apikey:SUPABASE_KEY, Authorization:'Bearer '+SUPABASE_KEY } });
+                if(res.ok) rows = await res.json();
+            }
+        }catch(e){ rows = []; }
+        if(!rows || !rows.length){
+            try{ rows = JSON.parse(localStorage.getItem('local_company_visits')||'[]')||[]; }catch(e){ rows = []; }
+        }
+        VZ_DATA = Array.isArray(rows)?rows:[]; VZ_TS = Date.now();
+        return VZ_DATA;
+    }
+
+    function monthsSeries(list, n){
+        var out = [], now = new Date();
+        for(var i=n-1;i>=0;i--){
+            var d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+            var key = d.getFullYear()+'-'+pad(d.getMonth()+1);
+            var rows = list.filter(function(v){ return vDate(v).slice(0,7) === key; });
+            var durs = rows.map(durMins).filter(function(x){ return x!=null; });
+            out.push({ key:key, label:AR_M[d.getMonth()]+' '+String(d.getFullYear()).slice(2),
+                count:rows.length,
+                avg: durs.length ? Math.round(durs.reduce(function(a,b){return a+b;},0)/durs.length) : 0 });
+        }
+        return out;
+    }
+    function countBy(list, fn){
+        var m={}; list.forEach(function(v){ var k=(fn(v)||'').trim(); if(k) m[k]=(m[k]||0)+1; });
+        return Object.keys(m).map(function(k){ return [k,m[k]]; }).sort(function(a,b){ return b[1]-a[1]; });
+    }
+    function stats(list){
+        var durs = list.map(durMins).filter(function(x){ return x!=null; });
+        var mk = (new Date()).getFullYear()+'-'+pad((new Date()).getMonth()+1);
+        var dates = list.map(vDate).filter(Boolean).sort();
+        return {
+            total: list.length,
+            month: list.filter(function(v){ return vDate(v).slice(0,7)===mk; }).length,
+            avg: durs.length ? Math.round(durs.reduce(function(a,b){return a+b;},0)/durs.length) : null,
+            branches: countBy(list, branchOf).length,
+            reps: countBy(list, repOf).length,
+            last: dates.length ? dates[dates.length-1] : ''
+        };
+    }
+    function setTxt(id, v){ var e=document.getElementById(id); if(e) e.textContent = v; }
+
+    function mkChart(id, cfg){
+        if(typeof Chart === 'undefined') return;
+        var cv = document.getElementById(id); if(!cv) return;
+        try{ if(VZ_CHARTS[id]) VZ_CHARTS[id].destroy(); }catch(e){}
+        VZ_CHARTS[id] = new Chart(cv, cfg);
+    }
+    var PALETTE = ['#0ea5e9','#4f46e5','#10b981','#f59e0b','#ec4899','#0d9488','#8b5cf6','#ef4444','#64748b','#22c55e'];
+
+    /* ---------- لوحة التحكم ---------- */
+    async function dashboard(){
+        var list = await load();
+        var st = stats(list);
+        setTxt('chipVisits', st.month);
+        setTxt('statVisitsTotal', st.total);
+        setTxt('statVisitsMonth', st.month);
+        setTxt('statVisitsAvgDur', fmtDur(st.avg));
+        setTxt('statVisitsBranches', st.branches);
+
+        var tc = css('--text-medium','#475569'), gc = css('--border-color','#e2e8f0');
+        var ms = monthsSeries(list, 6);
+        mkChart('chartVisits', {
+            type:'bar',
+            data:{ labels: ms.map(function(m){return m.label;}), datasets:[
+                { label:'عدد الزيارات', data: ms.map(function(m){return m.count;}), backgroundColor:'rgba(14,165,233,.75)', borderRadius:8, borderSkipped:false, yAxisID:'y' },
+                { label:'متوسط المدة (دقيقة)', type:'line', data: ms.map(function(m){return m.avg;}), borderColor:'#4f46e5', backgroundColor:'#4f46e5', tension:.4, borderWidth:3, pointRadius:3, yAxisID:'y1' }
+            ]},
+            options:{ responsive:true, maintainAspectRatio:false,
+                plugins:{ legend:{ position:'bottom', labels:{ color:tc, usePointStyle:true, padding:14, font:{size:11} } } },
+                scales:{ x:{ ticks:{ color:tc, font:{size:10} }, grid:{ display:false } },
+                    y:{ beginAtZero:true, ticks:{ color:tc, precision:0 }, grid:{ color:gc } },
+                    y1:{ position:'left', beginAtZero:true, ticks:{ color:tc, precision:0 }, grid:{ display:false } } } }
+        });
+
+        var host = document.getElementById('visitBranchRank');
+        if(host){
+            var pairs = countBy(list, branchOf).slice(0,6);
+            if(!pairs.length){ host.innerHTML = '<div style="font-size:12px;color:#94a3b8;padding:8px">لا توجد زيارات مسجلة بعد.</div>'; }
+            else{
+                var max = pairs[0][1] || 1;
+                host.innerHTML = pairs.map(function(p, i){
+                    return '<div class="rank-row"><div class="rr-top"><span>'+(i+1)+'. '+esc(p[0])+'</span><span>'+p[1]+'</span></div>'+
+                        '<div class="rank-bar"><i style="width:'+Math.round(p[1]/max*100)+'%;background:linear-gradient(90deg,#38bdf8,#0369a1)"></i></div></div>';
+                }).join('');
+            }
+        }
+    }
+
+    /* ---------- صفحة التقارير ---------- */
+    async function reports(){
+        var page = document.getElementById('page-reports');
+        if(!page || !page.classList.contains('active')) return;
+        var list = await load();
+        var from = normDate((document.getElementById('repFrom')||{}).value||'');
+        var to = normDate((document.getElementById('repTo')||{}).value||'');
+        var q = ((document.getElementById('repSearch')||{}).value||'').trim().toLowerCase();
+        var scoped = list.filter(function(v){
+            var d = vDate(v);
+            if(from && (!d || d < from)) return false;
+            if(to && (!d || d > to)) return false;
+            if(q){
+                var hay = [v.visit_number, v.rep_name, v.technician, branchOf(v), v.notes, d].filter(Boolean).join(' ').toLowerCase();
+                if(hay.indexOf(q) === -1) return false;
+            }
+            return true;
+        });
+        var st = stats(scoped);
+        setTxt('repVisitsTotal', st.total);
+        setTxt('repVisitsMonth', st.month);
+        setTxt('repVisitsAvgDur', fmtDur(st.avg));
+        setTxt('repVisitsBranches', st.branches);
+        setTxt('repVisitsReps', st.reps);
+        setTxt('repVisitsLast', st.last ? fmtDate(st.last) : '—');
+
+        var tc = css('--text-medium','#475569'), gc = css('--border-color','#e2e8f0');
+        var ms = monthsSeries(scoped, 12);
+        mkChart('repVisitsTrendChart', {
+            type:'bar',
+            data:{ labels: ms.map(function(m){return m.label;}), datasets:[{ label:'زيارات', data: ms.map(function(m){return m.count;}), backgroundColor:'rgba(14,165,233,.8)', borderRadius:8, borderSkipped:false }] },
+            options:{ responsive:true, maintainAspectRatio:false,
+                plugins:{ legend:{ display:false } },
+                scales:{ x:{ ticks:{ color:tc, font:{size:10} }, grid:{ display:false } }, y:{ beginAtZero:true, ticks:{ color:tc, precision:0 }, grid:{ color:gc } } } }
+        });
+        var br = countBy(scoped, branchOf).slice(0,8);
+        mkChart('repVisitsBranchChart', {
+            type:'doughnut',
+            data:{ labels: br.map(function(p){return p[0];}), datasets:[{ data: br.map(function(p){return p[1];}), backgroundColor: PALETTE, borderWidth:0, hoverOffset:10 }] },
+            options:{ responsive:true, maintainAspectRatio:false, cutout:'58%',
+                plugins:{ legend:{ position:'bottom', labels:{ color:tc, usePointStyle:true, boxWidth:8, padding:10, font:{size:11} } } } }
+        });
+        var rp = countBy(scoped, repOf).slice(0,8);
+        mkChart('repVisitsRepChart', {
+            type:'bar',
+            data:{ labels: rp.map(function(p){return p[0];}), datasets:[{ label:'زيارات', data: rp.map(function(p){return p[1];}), backgroundColor:'rgba(217,119,6,.8)', borderRadius:8, borderSkipped:false }] },
+            options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+                plugins:{ legend:{ display:false } },
+                scales:{ x:{ beginAtZero:true, ticks:{ color:tc, precision:0 }, grid:{ color:gc } }, y:{ ticks:{ color:tc, font:{size:11} }, grid:{ display:false } } } }
+        });
+        mkChart('repVisitsDurChart', {
+            type:'line',
+            data:{ labels: ms.map(function(m){return m.label;}), datasets:[{ label:'متوسط المدة (دقيقة)', data: ms.map(function(m){return m.avg;}), borderColor:'#0d9488', backgroundColor:'rgba(13,148,136,.15)', fill:true, tension:.4, borderWidth:3, pointRadius:3 }] },
+            options:{ responsive:true, maintainAspectRatio:false,
+                plugins:{ legend:{ display:false } },
+                scales:{ x:{ ticks:{ color:tc, font:{size:10} }, grid:{ display:false } }, y:{ beginAtZero:true, ticks:{ color:tc, precision:0 }, grid:{ color:gc } } } }
+        });
+    }
+
+    window.vzDownload = function(canvasId, name){
+        var cv = document.getElementById(canvasId); if(!cv) return;
+        var a = document.createElement('a'); a.href = cv.toDataURL('image/png', 1); a.download = (name||'chart')+'.png'; a.click();
+    };
+    window.VisitsAnalytics = { load:load, refreshDashboard:dashboard, refreshReports:reports, stats:function(){ return stats(VZ_DATA); }, data:function(){ return VZ_DATA.slice(); } };
+
+    /* ---------- الربط مع دوال النظام ---------- */
+    function wrap(name, after){
+        var fn = window[name];
+        if(typeof fn !== 'function') return false;
+        window[name] = function(){
+            var r = fn.apply(this, arguments);
+            Promise.resolve(r).then(function(){ setTimeout(after, 60); }).catch(function(){ setTimeout(after, 60); });
+            return r;
+        };
+        return true;
+    }
+    function hook(){
+        wrap('updateDashboard', function(){ dashboard(); });
+        wrap('applyRepFilters', function(){ reports(); });
+        wrap('loadReportsCharts', function(){ load(true).then(reports); });
+        wrap('loadVisits', function(){ load(true).then(function(){ dashboard(); reports(); }); });
+        var sp = window.showPage;
+        if(typeof sp === 'function'){
+            window.showPage = function(page){
+                var r = sp.apply(this, arguments);
+                Promise.resolve(r).then(function(){
+                    if(page === 'dashboard') dashboard();
+                    if(page === 'reports') load(true).then(reports);
+                }).catch(function(){});
+                return r;
+            };
+        }
+    }
+    document.addEventListener('DOMContentLoaded', function(){
+        setTimeout(function(){ hook(); dashboard(); }, 1800);
+    });
+})();
+</script>
 
 </html>
