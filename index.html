@@ -17,6 +17,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -2071,10 +2072,6 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                       <div class="panel-head"><h3><i class="fas fa-truck-fast"></i> زيارات الشركة — 6 أشهر</h3><small>عدد الزيارات ومتوسط المدة</small></div>
                       <div class="panel-body"><div class="chart-wrap"><canvas id="chartVisits"></canvas></div></div>
                     </div>
-                    <div class="panel dsh-panel dsh-g">
-                      <div class="panel-head"><h3><i class="fas fa-map-location-dot"></i> أكثر الفروع زيارة</h3><small>أعلى 6</small></div>
-                      <div class="panel-body"><div class="rank-list" id="visitBranchRank"></div></div>
-                    </div>
                   </div>
 
                   <!-- Collapsible detail metrics -->
@@ -2098,7 +2095,6 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                       <div class="mini-stat" style="--mc:#0284c7"><i class="fas fa-truck-fast"></i><div><div class="ms-v" id="statVisitsTotal">0</div><div class="ms-l">زيارات الشركة</div></div></div>
                       <div class="mini-stat" style="--mc:#4f46e5"><i class="fas fa-calendar-check"></i><div><div class="ms-v" id="statVisitsMonth">0</div><div class="ms-l">زيارات هذا الشهر</div></div></div>
                       <div class="mini-stat" style="--mc:#0d9488"><i class="fas fa-stopwatch"></i><div><div class="ms-v" id="statVisitsAvgDur">—</div><div class="ms-l">متوسط مدة الزيارة</div></div></div>
-                      <div class="mini-stat" style="--mc:#db2777"><i class="fas fa-code-branch"></i><div><div class="ms-v" id="statVisitsBranches">0</div><div class="ms-l">فروع تمت زيارتها</div></div></div>
                     </div>
                   </details>
                 </section>
@@ -2435,7 +2431,9 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                 #page-visits .cv-title{margin:0;font-size:21px;font-weight:900;color:var(--text-dark,#1e293b);display:flex;align-items:center;gap:9px}
                 #page-visits .cv-title i{color:#0ea5e9}
                 #page-visits .cv-title small{display:block;font-size:11.5px;font-weight:600;color:#94a3b8;margin-top:2px}
-                #page-visits .cv-actions{display:flex;flex-wrap:wrap;gap:8px}
+                #page-visits .cv-actions{display:flex;flex-wrap:wrap;gap:7px;padding:8px;border-radius:14px;background:linear-gradient(180deg,#ffffff,#f5f8fd);border:1px solid #e8edf5;box-shadow:0 6px 18px rgba(15,23,42,.06)}
+                #page-visits .cv-actions .btn{width:auto;height:34px;padding:0 13px;border-radius:10px;font-size:11.5px}
+                html[data-theme="dark"] #page-visits .cv-actions{background:linear-gradient(180deg,#131c2e,#0f172a);border-color:rgba(148,163,184,.18)}
                 #page-visits .cv-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:12px}
                 #page-visits .cv-stat{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:11px 13px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 14px rgba(15,23,42,.04)}
                 #page-visits .cv-stat i{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:10px;background:#e0f2fe;color:#0284c7;font-size:14px}
@@ -2525,6 +2523,7 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                 html[data-theme="dark"] #page-visits .cv-sub td{background:#0b1220!important}
                 html[data-theme="dark"] #page-visits .cv-bar input,html[data-theme="dark"] #page-visits .cv-bar select{background:#0f172a;border-color:rgba(148,163,184,.2);color:#e2e8f0}
                 @media(max-width:900px){#page-visits .cv-bar{grid-template-columns:1fr 1fr}}
+                @media(max-width:760px){#page-visits .cv-head{grid-template-columns:1fr}#page-visits .cv-actions{width:100%}#page-visits .cv-actions .btn{flex:1 1 138px}}
                 @media print{#page-visits .cv-acts,#page-visits .cv-bar,#page-visits .cv-actions{display:none!important}}
 
                 /* ===== بطاقات طلبات الصيانة داخل تفاصيل الزيارة ===== */
@@ -2565,17 +2564,17 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                         <small>سجل زيارات مندوبي الشركة وربطها تلقائياً بإجراءات طلبات الصيانة حسب التاريخ</small>
                     </div>
                     <div class="cv-actions">
-                        <button class="btn btn-primary btn-sm no-readonly" onclick="openVisitModal()"><i class="fas fa-plus"></i> زيارة جديدة</button>
-                        <button class="btn btn-secondary btn-sm" onclick="loadVisits()"><i class="fas fa-rotate"></i> تحديث</button>
-                        <button class="btn btn-secondary btn-sm" onclick="printVisits()"><i class="fas fa-print"></i> طباعة</button>
-                        <button class="btn btn-secondary btn-sm" onclick="exportVisitsExcel()"><i class="fas fa-file-excel"></i> تصدير</button>
+                        <button class="btn btn-success btn-sm no-readonly" onclick="openVisitModal()"><i class="fas fa-plus"></i> زيارة جديدة</button>
+                        <button class="btn btn-info btn-sm" onclick="loadVisits()"><i class="fas fa-rotate"></i> تحديث</button>
+                        <button class="btn btn-primary btn-sm" onclick="printVisits()"><i class="fas fa-print"></i> طباعة</button>
+                        <button class="btn btn-warning btn-sm" onclick="exportVisitsExcel()"><i class="fas fa-file-excel"></i> تصدير</button>
                     </div>
                 </div>
 
                 <div class="cv-stats" id="cvStats"></div>
 
                 <div class="cv-bar">
-                    <input type="text" id="cvSearch" placeholder="بحث برقم الزيارة أو المندوب أو الفني أو الفرع..." oninput="renderVisits()">
+                    <input type="text" id="cvSearch" placeholder="بحث برقم الزيارة أو المندوب أو الفني..." oninput="renderVisits()">
                     <select id="cvPeriod" onchange="cvApplyPeriod()" title="الفترة">
                         <option value="all">كل الفترات</option>
                         <option value="month">الشهر الحالي</option>
@@ -2588,9 +2587,6 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                     </select>
                     <input type="date" id="cvFrom" onchange="cvCustomPeriod()" title="من تاريخ">
                     <input type="date" id="cvTo" onchange="cvCustomPeriod()" title="إلى تاريخ">
-                    <select id="cvBranchFilter" onchange="renderVisits()" title="الفرع">
-                        <option value="">كل الفروع</option>
-                    </select>
                     <select id="cvSort" onchange="renderVisits()">
                         <option value="date_desc">الأحدث أولاً</option>
                         <option value="date_asc">الأقدم أولاً</option>
@@ -3228,7 +3224,7 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                     <!-- إدارية ووثائق -->
                     <div class="rh-card c-sky" data-g="req" onclick="rhRun(['summary','company_visits'],'تقرير زيارات شركة الصيانة')">
                       <div class="rh-ic"><i class="fas fa-truck-fast"></i></div>
-                      <div class="rh-tx"><h4>زيارات الشركة</h4><p>زيارات شركة الصيانة والمندوبين والفروع والمدد</p></div>
+                      <div class="rh-tx"><h4>زيارات الشركة</h4><p>زيارات شركة الصيانة والمندوبين والمدد</p></div>
                       <i class="fas fa-chevron-left rh-go"></i>
                     </div>
                     <div class="rh-card c-green" data-g="admin" onclick="rhRun(['documents'],'تقرير الوثائق والملاحظات')">
@@ -3436,11 +3432,6 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                         <div class="stat-value" id="repVisitsAvgDur">—</div>
                         <div class="stat-label">متوسط مدة الزيارة</div>
                     </div>
-                    <div class="stat-card rep-kpi" style="border-top:4px solid #db2777;">
-                        <div class="stat-icon" style="background:rgba(219,39,119,.1);color:#db2777;"><i class="fas fa-code-branch"></i></div>
-                        <div class="stat-value" id="repVisitsBranches">0</div>
-                        <div class="stat-label">فروع تمت زيارتها</div>
-                    </div>
                     <div class="stat-card rep-kpi" style="border-top:4px solid #d97706;">
                         <div class="stat-icon" style="background:rgba(217,119,6,.1);color:#d97706;"><i class="fas fa-user-tie"></i></div>
                         <div class="stat-value" id="repVisitsReps">0</div>
@@ -3462,15 +3453,6 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                             </div>
                         </div>
                         <div class="card-body rep-body"><div class="rep-canvas"><canvas id="repVisitsTrendChart"></canvas></div></div>
-                    </div>
-                    <div class="card rep-card">
-                        <div class="card-header rep-head">
-                            <h3><i class="fas fa-chart-pie" style="color:#4f46e5;"></i> توزيع الزيارات حسب الفرع</h3>
-                            <div class="rep-tools no-print">
-                                <button class="rep-icon-btn" title="تحميل صورة" onclick="vzDownload('repVisitsBranchChart','زيارات_الشركة_حسب_الفرع')"><i class="fas fa-download"></i></button>
-                            </div>
-                        </div>
-                        <div class="card-body rep-body"><div class="rep-canvas"><canvas id="repVisitsBranchChart"></canvas></div></div>
                     </div>
                     <div class="card rep-card">
                         <div class="card-header rep-head">
@@ -15933,7 +15915,6 @@ table.rs-t tbody tr{page-break-inside:avoid}
               ['المدة (دقيقة)',function(r){var m=vzDurMins(r);return m==null?'—':num(m);}],
               ['مندوب الشركة',function(r){return dash(g(r,'rep_name','repName'));}],
               ['الفني المتابع',function(r){return dash(g(r,'technician'));}],
-              ['الفرع',function(r){return dash(g(r,'branch','branch_name'));}],
               ['ملاحظات',function(r){return dash(g(r,'notes'));}]],
     requests:[['الرقم',function(r){return dash(g(r,'request_number','requestNumber','id'));}],
               ['الموظف',function(r){return dash(g(r,'employee_name','employeeName'));}],
@@ -16109,12 +16090,10 @@ table.rs-t tbody tr{page-break-inside:avoid}
       var cvAll=filterRows(d.company_visits||[],{from:f.from,to:f.to,q:f.q});
       var cvDurs=cvAll.map(vzDurMins).filter(function(x){return x!=null;});
       var cvAvg=cvDurs.length?Math.round(cvDurs.reduce(function(a,b){return a+b;},0)/cvDurs.length):null;
-      var cvBr=countBy(cvAll,function(r){return String(g(r,'branch','branch_name')||'').trim();});
-      var cvTopBr=cvBr[0]?cvBr[0][0]:'—';
       out+=kpis([['إجمالي الطلبات',num(reqAll.length)],['منجزة',num(done),'g'],['قيد التنفيذ',num(prog),'o'],['معلقة',num(pend),'v'],
                  ['نسبة الإنجاز',rate+'%','p'],['متوسط أيام الإنجاز',avg,'c'],['مواد المخزون',num(inv.length)],['نفدت الكمية',num(outSt),'r'],
                  ['البديل الدائم',num(prAll.length),'v'],['بديل دائم منجز',num(prDone),'g'],
-                 ['زيارات الشركة',num(cvAll.length),'c'],['متوسط مدة الزيارة',(cvAvg==null?'—':num(cvAvg)+' د'),'o'],['فروع تمت زيارتها',num(cvBr.length),'p']]);
+                 ['زيارات الشركة',num(cvAll.length),'c'],['متوسط مدة الزيارة',(cvAvg==null?'—':num(cvAvg)+' د'),'o']]);
       out+='<div class="rs-sumtxt">خلال الفترة <b>'+esc(period)+'</b> سجّل النظام <b>'+num(reqAll.length)+'</b> طلب صيانة، '+
         'أُنجز منها <b>'+num(done)+'</b> طلباً بنسبة إنجاز <b>'+rate+'%</b>، فيما لا يزال <b>'+num(prog+pend+nw)+'</b> طلباً قيد المعالجة '+
         '(<b>'+num(prog)+'</b> قيد التنفيذ، <b>'+num(pend)+'</b> معلق، <b>'+num(nw)+'</b> جديد). '+
@@ -16122,7 +16101,7 @@ table.rs-t tbody tr{page-break-inside:avoid}
         'ومتوسط زمن الإنجاز <b>'+avg+'</b> يوم. أما المخزون فيضم <b>'+num(inv.length)+'</b> صنفاً، منها <b>'+num(outSt)+'</b> صنف نفدت كميته و<b>'+num(low)+'</b> صنف بكمية منخفضة تستدعي إعادة التزويد. '+
         'وفيما يخص إجراء <b>البديل الدائم</b> فقد بلغت عمليات الاستبدال النهائي للمواد المعطلة <b>'+num(prAll.length)+'</b> عملية، أُنجز منها <b>'+num(prDone)+'</b> عملية'+
         (prAll.length?' بنسبة <b>'+Math.round(prDone/prAll.length*100)+'%</b>':'')+'. '+
-        'كما استقبل النظام <b>'+num(cvAll.length)+'</b> زيارة من شركة الصيانة'+(cvBr.length?' موزعة على <b>'+num(cvBr.length)+'</b> فرعاً وأكثرها في <b>'+esc(cvTopBr)+'</b>':'')+
+        'كما استقبل النظام <b>'+num(cvAll.length)+'</b> زيارة من شركة الصيانة'+
         (cvAvg==null?'':'، بمتوسط مدة زيارة <b>'+num(cvAvg)+'</b> دقيقة')+'.</div>';
     }
     if(has('requests')){ n++; out+=h2(n,'fa-screwdriver-wrench','طلبات الصيانة','إجمالي '+num(reqAll.length)+' طلب'); out+=table(COLS.requests,reqAll,lim); }
@@ -16162,10 +16141,8 @@ table.rs-t tbody tr{page-break-inside:avoid}
       if(s.id==='company_visits'){
         var vd=rows.map(vzDurMins).filter(function(x){return x!=null;});
         var vavg=vd.length?Math.round(vd.reduce(function(a,b){return a+b;},0)/vd.length):null;
-        var vbr=countBy(rows,function(r){return String(g(r,'branch','branch_name')||'').trim();});
         var vrp=countBy(rows,function(r){return String(g(r,'rep_name','repName')||'').trim();});
-        out+=kpis([['عدد الزيارات',num(rows.length)],['متوسط المدة',(vavg==null?'—':num(vavg)+' د'),'c'],['فروع',num(vbr.length),'v'],['مندوبون',num(vrp.length),'o'],['إجمالي ساعات الزيارات',(vd.length?num(Math.round(vd.reduce(function(a,b){return a+b;},0)/60)):'—'),'g']]);
-        if(vbr.length) out+=bars(vbr.slice(0,10),rows.length);
+        out+=kpis([['عدد الزيارات',num(rows.length)],['متوسط المدة',(vavg==null?'—':num(vavg)+' د'),'c'],['مندوبون',num(vrp.length),'o'],['إجمالي ساعات الزيارات',(vd.length?num(Math.round(vd.reduce(function(a,b){return a+b;},0)/60)):'—'),'g']]);
       }
       if(s.id==='inventory'){
         var o0=rows.filter(function(i){return (Number(i.qty)||0)===0;}).length;
@@ -27217,11 +27194,6 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
                     <label>الفني المتابع</label>
                     <input type="text" class="form-control" id="cvTech" placeholder="اسم الفني المتابع">
                 </div>
-                <div class="form-group">
-                    <label>الفرع</label>
-                    <input type="text" class="form-control" id="cvBranch" list="cvBranchOptions" placeholder="اسم الفرع">
-                    <datalist id="cvBranchOptions"></datalist>
-                </div>
                 <div class="form-group full-width">
                     <label>ملاحظات</label>
                     <textarea class="form-control" id="cvNotes" placeholder="ملاحظات حول الزيارة..."></textarea>
@@ -27405,34 +27377,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
     function mLabel(k) { var p = k.split('-'); return AR_MONTHS[+p[1] - 1] + ' ' + p[0]; }
     var cvChart = null, cvChartMetric = 'count';
 
-    /* ---------- الفلاتر: الفترة والفرع ---------- */
-    function branchOf(v) { return String(v.branch || v.branch_name || '').trim(); }
-
-    window.cvBranchList = function () {
-        var set = {};
-        VISITS.forEach(function (v) { var b = branchOf(v); if (b) set[b] = 1; });
-        return Object.keys(set).sort(function (a, b) { return a.localeCompare(b, 'ar'); });
-    };
-
-    function fillBranchDatalist() {
-        var dl = document.getElementById('cvBranchOptions');
-        if (!dl) return;
-        dl.innerHTML = cvBranchList().map(function (b) { return '<option value="' + esc(b) + '"></option>'; }).join('');
-    }
-    window.fillBranchDatalist = fillBranchDatalist;
-
-    function syncBranchFilter() {
-        var sel = document.getElementById('cvBranchFilter');
-        if (!sel) return;
-        var cur = sel.value;
-        var opts = ['<option value="">كل الفروع</option>']
-            .concat(cvBranchList().map(function (b) { return '<option value="' + esc(b) + '">' + esc(b) + '</option>'; }));
-        var hasNone = VISITS.some(function (v) { return !branchOf(v); });
-        if (hasNone) opts.push('<option value="__none__">بدون فرع</option>');
-        sel.innerHTML = opts.join('');
-        sel.value = cur;
-        if (sel.value !== cur) sel.value = '';
-    }
+    /* ---------- فلاتر الفترة ---------- */
 
     /* اختصارات الفترة تملأ حقلي من/إلى */
     window.cvApplyPeriod = function () {
@@ -27461,21 +27406,17 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
     window.cvResetFilters = function () {
         ['cvSearch', 'cvFrom', 'cvTo'].forEach(function (id) { var e = document.getElementById(id); if (e) e.value = ''; });
         var p = document.getElementById('cvPeriod'); if (p) p.value = 'all';
-        var b = document.getElementById('cvBranchFilter'); if (b) b.value = '';
         renderVisits();
     };
 
-    /* القائمة بعد فلترة الفترة والفرع فقط (تُستخدم للمؤشرات والمخطط) */
+    /* القائمة بعد فلترة الفترة فقط (تُستخدم للمؤشرات والمخطط) */
     function scoped() {
         var from = normDate((document.getElementById('cvFrom') || {}).value || '');
         var to = normDate((document.getElementById('cvTo') || {}).value || '');
-        var br = (document.getElementById('cvBranchFilter') || {}).value || '';
         return VISITS.filter(function (v) {
             var d = normDate(v.visit_date);
             if (from && (!d || d < from)) return false;
             if (to && (!d || d > to)) return false;
-            if (br === '__none__') { if (branchOf(v)) return false; }
-            else if (br && branchOf(v) !== br) return false;
             return true;
         });
     }
@@ -27486,7 +27427,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         var sort = (document.getElementById('cvSort') || {}).value || 'date_desc';
         var list = scoped().filter(function (v) {
             if (!q) return true;
-            return [v.visit_number, v.rep_name, v.technician, v.notes, branchOf(v)].some(function (x) {
+            return [v.visit_number, v.rep_name, v.technician, v.notes].some(function (x) {
                 return String(x || '').toLowerCase().includes(q);
             });
         });
@@ -27578,8 +27519,6 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
     window.renderVisits = function () {
         var tbody = document.querySelector('#visitsTable tbody');
         if (!tbody) return;
-        syncBranchFilter();
-        fillBranchDatalist();
         var list = filtered();
         var SCOPE = scoped();
 
@@ -27611,12 +27550,10 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
             var bestKey = null;
             keys.forEach(function (k) { if (!bestKey || months[k].count > months[bestKey].count) bestKey = k; });
 
-            var brSel = (document.getElementById('cvBranchFilter') || {}).value || '';
-            var brTxt = brSel === '__none__' ? 'بدون فرع' : (brSel || 'كل الفروع');
             var mk = function (m, lbl) { return '<button type="button" class="cv-metric' + (cvChartMetric === m ? ' is-active' : '') + '" onclick="cvSetChartMetric(\'' + m + '\')">' + lbl + '</button>'; };
 
             st.innerHTML =
-                '<div class="cv-stat"><i class="fas fa-truck-fast"></i><div><b>' + SCOPE.length + '</b><span>إجمالي الزيارات</span><em class="cv-sub">' + brTxt + ' • ' + monthsCount + ' ' + (monthsCount === 1 ? 'شهر' : 'شهور') + '</em></div></div>' +
+                '<div class="cv-stat"><i class="fas fa-truck-fast"></i><div><b>' + SCOPE.length + '</b><span>إجمالي الزيارات</span><em class="cv-sub">' + monthsCount + ' ' + (monthsCount === 1 ? 'شهر' : 'شهور') + '</em></div></div>' +
                 '<div class="cv-stat p2"><em class="cv-trend ' + trendCls + '"><i class="fas ' + trendIcon + '"></i>' + trendTxt + '</em><i class="fas fa-calendar-days"></i><div><b>' + thisMonth + '</b><span>زيارات هذا الشهر</span><em class="cv-sub">' + mLabel(ym) + '</em></div></div>' +
                 '<div class="cv-stat p5"><i class="fas fa-chart-line"></i><div><b>' + avgVisits + '</b><span>متوسط الزيارات الشهري</span><em class="cv-sub">زيارة / شهر</em></div></div>' +
                 '<div class="cv-stat p3"><i class="fas fa-hourglass-half"></i><div><b>' + fmtDur(avgDur) + '</b><span>متوسط مدة الزيارة</span><em class="cv-sub">الإجمالي: ' + fmtDur(totalMins) + '</em></div></div>' +
@@ -27729,8 +27666,6 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         document.getElementById('cvEnd').value = v ? (v.end_time || '') : '';
         document.getElementById('cvRep').value = v ? (v.rep_name || '') : '';
         document.getElementById('cvTech').value = v ? (v.technician || '') : '';
-        var bIn = document.getElementById('cvBranch');
-        if (bIn) { bIn.value = v ? (v.branch || '') : ''; fillBranchDatalist(); }
         document.getElementById('cvNotes').value = v ? (v.notes || '') : '';
         cvPreviewLinks();
         if (typeof openModal === 'function') openModal('visitModal');
@@ -27766,7 +27701,6 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
             end_time: document.getElementById('cvEnd').value,
             rep_name: document.getElementById('cvRep').value.trim(),
             technician: document.getElementById('cvTech').value.trim(),
-            branch: (document.getElementById('cvBranch') || { value: '' }).value.trim(),
             notes: document.getElementById('cvNotes').value.trim()
         };
         if (!payload.visit_number || !payload.visit_date) {
@@ -27780,12 +27714,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
             return cvDB('POST', p);
         }
         try {
-            try { await persist(payload); }
-            catch (err) {
-                /* في حال عدم وجود عمود الفرع في قاعدة البيانات نحفظ بدونه */
-                var fallback = Object.assign({}, payload); delete fallback.branch;
-                await persist(fallback);
-            }
+            await persist(payload);
             if (typeof closeModal === 'function') closeModal('visitModal');
             else document.getElementById('visitModal').classList.remove('active');
             if (typeof showToast === 'function') showToast('success', 'تم', editingVisitId ? 'تم تحديث الزيارة' : 'تم حفظ الزيارة');
@@ -27817,7 +27746,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
             cell('رقم الزيارة', v.visit_number) + cell('تاريخ الزيارة', fmtDate(v.visit_date)) +
             cell('وقت الوصول', fmtTime(v.arrival_time)) + cell('وقت الانتهاء', fmtTime(v.end_time)) +
             cell('المدة', fmtDur(durationOf(v))) + cell('مندوب الشركة', v.rep_name) +
-            cell('الفني المتابع', v.technician) + cell('الفرع', v.branch) +
+            cell('الفني المتابع', v.technician) +
             '</div>' +
             '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:11px 13px;font-size:13px;color:#334155;margin-bottom:14px"><b style="color:#0f172a">ملاحظات:</b> ' + esc(v.notes || '—') + '</div>' +
             '<div id="cvViewLinks">' + linksHtml(v, links) + '</div>';
@@ -27952,7 +27881,6 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         return '';
     }
     function vDate(v){ return normDate(v.visit_date || v.visitDate || v.created_at || ''); }
-    function branchOf(v){ return String(v.branch || v.branch_name || '').trim() || 'بدون فرع'; }
     function repOf(v){ return String(v.rep_name || v.repName || '').trim(); }
     function durMins(v){
         var a = enDigits(v.arrival_time||'').match(/^(\d{1,2}):(\d{2})/), b = enDigits(v.end_time||'').match(/^(\d{1,2}):(\d{2})/);
@@ -28004,7 +27932,6 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
             total: list.length,
             month: list.filter(function(v){ return vDate(v).slice(0,7)===mk; }).length,
             avg: durs.length ? Math.round(durs.reduce(function(a,b){return a+b;},0)/durs.length) : null,
-            branches: countBy(list, branchOf).length,
             reps: countBy(list, repOf).length,
             last: dates.length ? dates[dates.length-1] : ''
         };
@@ -28027,7 +27954,6 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         setTxt('statVisitsTotal', st.total);
         setTxt('statVisitsMonth', st.month);
         setTxt('statVisitsAvgDur', fmtDur(st.avg));
-        setTxt('statVisitsBranches', st.branches);
 
         var tc = css('--text-medium','#475569'), gc = css('--border-color','#e2e8f0');
         var ms = monthsSeries(list, 6);
@@ -28043,19 +27969,6 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
                     y:{ beginAtZero:true, ticks:{ color:tc, precision:0 }, grid:{ color:gc } },
                     y1:{ position:'left', beginAtZero:true, ticks:{ color:tc, precision:0 }, grid:{ display:false } } } }
         });
-
-        var host = document.getElementById('visitBranchRank');
-        if(host){
-            var pairs = countBy(list, branchOf).slice(0,6);
-            if(!pairs.length){ host.innerHTML = '<div style="font-size:12px;color:#94a3b8;padding:8px">لا توجد زيارات مسجلة بعد.</div>'; }
-            else{
-                var max = pairs[0][1] || 1;
-                host.innerHTML = pairs.map(function(p, i){
-                    return '<div class="rank-row"><div class="rr-top"><span>'+(i+1)+'. '+esc(p[0])+'</span><span>'+p[1]+'</span></div>'+
-                        '<div class="rank-bar"><i style="width:'+Math.round(p[1]/max*100)+'%;background:linear-gradient(90deg,#38bdf8,#0369a1)"></i></div></div>';
-                }).join('');
-            }
-        }
     }
 
     /* ---------- صفحة التقارير ---------- */
@@ -28071,7 +27984,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
             if(from && (!d || d < from)) return false;
             if(to && (!d || d > to)) return false;
             if(q){
-                var hay = [v.visit_number, v.rep_name, v.technician, branchOf(v), v.notes, d].filter(Boolean).join(' ').toLowerCase();
+                var hay = [v.visit_number, v.rep_name, v.technician, v.notes, d].filter(Boolean).join(' ').toLowerCase();
                 if(hay.indexOf(q) === -1) return false;
             }
             return true;
@@ -28080,7 +27993,6 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         setTxt('repVisitsTotal', st.total);
         setTxt('repVisitsMonth', st.month);
         setTxt('repVisitsAvgDur', fmtDur(st.avg));
-        setTxt('repVisitsBranches', st.branches);
         setTxt('repVisitsReps', st.reps);
         setTxt('repVisitsLast', st.last ? fmtDate(st.last) : '—');
 
@@ -28092,13 +28004,6 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
             options:{ responsive:true, maintainAspectRatio:false,
                 plugins:{ legend:{ display:false } },
                 scales:{ x:{ ticks:{ color:tc, font:{size:10} }, grid:{ display:false } }, y:{ beginAtZero:true, ticks:{ color:tc, precision:0 }, grid:{ color:gc } } } }
-        });
-        var br = countBy(scoped, branchOf).slice(0,8);
-        mkChart('repVisitsBranchChart', {
-            type:'doughnut',
-            data:{ labels: br.map(function(p){return p[0];}), datasets:[{ data: br.map(function(p){return p[1];}), backgroundColor: PALETTE, borderWidth:0, hoverOffset:10 }] },
-            options:{ responsive:true, maintainAspectRatio:false, cutout:'58%',
-                plugins:{ legend:{ position:'bottom', labels:{ color:tc, usePointStyle:true, boxWidth:8, padding:10, font:{size:11} } } } }
         });
         var rp = countBy(scoped, repOf).slice(0,8);
         mkChart('repVisitsRepChart', {
