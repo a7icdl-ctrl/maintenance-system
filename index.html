@@ -20,6 +20,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -28789,6 +28790,372 @@ body.ip-focus #page-dashboard .dsh-f{display:none!important}
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════
+     NEW VISION LAYER — طبقة الرؤية الجديدة للوحة التحكم
+     شرح مبسط لكل مؤشر + مركز قيادة سريع
+     ══════════════════════════════════════════════════════════════ -->
+<style>
+/* ===== نافذة الشرح ===== */
+.nvx-bd{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:18px;
+  background:rgba(2,6,23,.55);backdrop-filter:blur(7px)}
+.nvx-bd.on{display:flex;animation:nvxFade .16s ease}
+@keyframes nvxFade{from{opacity:0}to{opacity:1}}
+.nvx-modal{width:min(520px,94vw);max-height:86vh;overflow:auto;border-radius:22px;background:var(--card-bg,#fff);
+  box-shadow:0 34px 80px rgba(2,6,23,.45);animation:nvxUp .22s cubic-bezier(.2,.9,.25,1)}
+@keyframes nvxUp{from{transform:translateY(16px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+.nvx-hd{display:flex;align-items:center;gap:12px;padding:18px 20px;color:#fff;
+  background:linear-gradient(135deg,var(--nvc,#4f46e5),color-mix(in srgb,var(--nvc,#4f46e5) 55%,#0f172a))}
+.nvx-hd i.nvx-ic{width:42px;height:42px;flex:0 0 42px;border-radius:14px;display:grid;place-items:center;font-size:17px;
+  background:rgba(255,255,255,.18)}
+.nvx-hd h4{margin:0;font-size:16px;font-weight:900}
+.nvx-hd small{display:block;margin-top:3px;font-size:11.5px;opacity:.85;font-weight:700}
+.nvx-hd button{margin-inline-start:auto;border:0;background:rgba(255,255,255,.16);color:#fff;width:32px;height:32px;
+  border-radius:10px;cursor:pointer;font-size:14px}
+.nvx-bd .nvx-bdy{padding:18px 20px 20px}
+.nvx-val{font-size:34px;font-weight:900;color:var(--nvc,#4f46e5);line-height:1;margin-bottom:14px}
+.nvx-blk{margin-bottom:14px;padding:12px 14px;border-radius:14px;background:color-mix(in srgb,var(--nvc,#4f46e5) 7%,transparent);
+  border:1px solid color-mix(in srgb,var(--nvc,#4f46e5) 18%,transparent)}
+.nvx-blk h6{margin:0 0 5px;font-size:12px;font-weight:900;color:var(--text-dark,#0f172a);display:flex;align-items:center;gap:6px}
+.nvx-blk p{margin:0;font-size:12.5px;line-height:1.9;color:var(--text-medium,#475569);font-weight:600}
+.nvx-blk ul{margin:4px 0 0;padding-inline-start:18px}
+.nvx-blk li{font-size:12.5px;line-height:1.9;color:var(--text-medium,#475569);font-weight:600}
+.nvx-foot{display:flex;gap:9px;flex-wrap:wrap}
+.nvx-foot button{flex:1;min-width:130px;border:0;border-radius:13px;padding:11px 14px;font-family:inherit;font-size:12.5px;
+  font-weight:900;cursor:pointer;color:#fff;background:var(--nvc,#4f46e5);transition:.2s}
+.nvx-foot button.g{background:transparent;color:var(--text-medium,#64748b);border:1px solid var(--border-color,#e2e8f0)}
+.nvx-foot button:hover{transform:translateY(-2px);opacity:.94}
+
+/* ===== شارة الاستفسار على البطاقات ===== */
+.ip-ins,.ip-sla-col,.nvx-clickable{cursor:pointer}
+.ip-ins::after,.ip-sla-col::after{content:"\f059";font-family:"Font Awesome 6 Free";font-weight:900;font-size:11px;
+  position:absolute;top:9px;inset-inline-end:11px;color:var(--text-light,#cbd5e1);opacity:.55;transition:.2s}
+.ip-sla-col{position:relative}
+.ip-ins:hover::after,.ip-sla-col:hover::after{opacity:1;color:var(--ic,var(--sc,#4f46e5))}
+
+/* ===== مركز القيادة ===== */
+.nvx-hero{display:grid;grid-template-columns:250px 1fr;gap:14px;margin-bottom:16px}
+.nvx-card{background:var(--card-bg,#fff);border:1px solid var(--border-color,#e2e8f0);border-radius:20px;
+  box-shadow:0 6px 22px rgba(15,23,42,.05);padding:16px}
+.nvx-gauge{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px}
+.nvx-ring{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;position:relative;
+  background:conic-gradient(var(--gc,#10b981) calc(var(--gp,0)*1%),color-mix(in srgb,var(--gc,#10b981) 13%,transparent) 0)}
+.nvx-ring::after{content:"";position:absolute;inset:13px;border-radius:50%;background:var(--card-bg,#fff)}
+.nvx-ring div{position:relative;z-index:1}
+.nvx-ring b{display:block;font-size:32px;font-weight:900;color:var(--gc,#10b981);line-height:1}
+.nvx-ring span{display:block;font-size:10.5px;font-weight:800;color:var(--text-light,#94a3b8);margin-top:2px}
+.nvx-gauge h5{margin:0;font-size:13px;font-weight:900;color:var(--text-dark,#0f172a)}
+.nvx-gauge p{margin:0;font-size:11px;font-weight:700;color:var(--text-medium,#64748b);line-height:1.7}
+.nvx-right{display:flex;flex-direction:column;gap:12px}
+.nvx-digest{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:10px}
+.nvx-kpi{border-radius:15px;padding:11px 12px;border:1px solid var(--border-color,#e2e8f0);cursor:pointer;transition:.22s;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--kc,#4f46e5) 9%,transparent),transparent)}
+.nvx-kpi:hover{transform:translateY(-3px);border-color:var(--kc);box-shadow:0 10px 22px color-mix(in srgb,var(--kc) 20%,transparent)}
+.nvx-kpi b{display:block;font-size:24px;font-weight:900;color:var(--kc,#4f46e5);line-height:1}
+.nvx-kpi span{display:block;margin-top:5px;font-size:11.5px;font-weight:800;color:var(--text-dark,#0f172a)}
+.nvx-kpi small{display:block;margin-top:2px;font-size:10px;font-weight:700;color:var(--text-light,#94a3b8)}
+.nvx-acts{display:flex;flex-wrap:wrap;gap:8px}
+.nvx-acts button{border:1px solid var(--border-color,#e2e8f0);background:var(--card-bg,#fff);border-radius:13px;
+  padding:9px 13px;font-family:inherit;font-size:11.5px;font-weight:800;color:var(--text-dark,#0f172a);cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;transition:.2s}
+.nvx-acts button i{color:var(--primary-color,#4f46e5)}
+.nvx-acts button:hover{transform:translateY(-2px);border-color:var(--primary-color,#4f46e5);
+  box-shadow:0 8px 18px rgba(79,70,229,.15)}
+.nvx-todo{display:flex;flex-direction:column;gap:7px;margin-top:2px}
+.nvx-t{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:12px;font-size:12px;font-weight:800;
+  border:1px dashed color-mix(in srgb,var(--tc,#4f46e5) 40%,transparent);color:var(--text-dark,#0f172a);
+  background:color-mix(in srgb,var(--tc,#4f46e5) 6%,transparent)}
+.nvx-t i{color:var(--tc,#4f46e5)}
+.nvx-t span{margin-inline-start:auto;font-size:10.5px;font-weight:900;color:var(--tc,#4f46e5)}
+.nvx-toast{position:fixed;inset-block-end:26px;inset-inline-end:26px;z-index:100001;background:#0f172a;color:#fff;
+  padding:12px 18px;border-radius:14px;font-size:12.5px;font-weight:800;box-shadow:0 16px 34px rgba(2,6,23,.35);
+  opacity:0;transform:translateY(12px);transition:.25s}
+.nvx-toast.on{opacity:1;transform:none}
+@media(max-width:900px){.nvx-hero{grid-template-columns:1fr}}
+@media print{.nvx-bd,.nvx-toast{display:none!important}}
+</style>
+
+<script>
+/* eslint-disable */
+(function(){
+  'use strict';
+  var NVX={}; window.NewVision=NVX;
+  var $=function(id){return document.getElementById(id);};
+  var esc=function(s){return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});};
+  var F=function(r,a,b){return r[a]!=null?r[a]:r[b];};
+  var daysSince=function(d){if(!d)return 0;var t=new Date(d);if(isNaN(t))return 0;return Math.max(0,Math.floor((Date.now()-t.getTime())/86400000));};
+  var S={};
+
+  /* ============ 1) قاموس الشروح المبسطة ============ */
+  var DOC={
+    trend:{c:'#4f46e5',i:'fa-arrow-trend-up',t:'حركة الأسبوع',
+      what:'عدد طلبات الصيانة الجديدة التي وصلت خلال آخر 7 أيام، ومقارنتها بالأسبوع الذي قبله.',
+      how:'نجمع طلبات آخر 7 أيام، ثم طلبات الأسبوع السابق، والنسبة = (الفرق ÷ الأسبوع السابق) × 100. الأعمدة الصغيرة تمثل آخر 8 أسابيع.',
+      read:['ارتفاع كبير (+15% فأكثر): ضغط غير معتاد، راجع سببه.','ثبات: الوضع طبيعي.','انخفاض: تحسّن في جودة الأجهزة أو الصيانة الوقائية.'],
+      do:'إذا ارتفع الرقم أسبوعين متتاليين، ابحث عن قسم أو نوع عطل يتكرر وعالج السبب الجذري.'},
+    dept:{c:'#0ea5e9',i:'fa-building-circle-exclamation',t:'القسم الأكثر ضغطاً',
+      what:'القسم الذي سجّل أكبر عدد من طلبات الصيانة منذ بداية التسجيل.',
+      how:'نحصي كل الطلبات لكل قسم ونعرض صاحب أعلى عدد.',
+      read:['رقم مرتفع جداً مقارنة ببقية الأقسام يعني مشكلة متكررة أو أجهزة قديمة.'],
+      do:'جدول زيارة صيانة وقائية للقسم، أو ادرس استبدال الأجهزة الأكثر تعطلاً فيه.'},
+    stuck:{c:'#ef4444',i:'fa-hourglass-end',t:'الطلبات المتجمدة',
+      what:'طلبات ما زالت مفتوحة وتجاوز عمرها 14 يوماً دون إغلاق.',
+      how:'لكل طلب غير منجز/ملغى نحسب الفرق بين تاريخ اليوم وتاريخ الإنشاء، ونعدّ ما تجاوز 14 يوماً.',
+      read:['صفر: ممتاز.','1–5: مقبول لكنه يحتاج متابعة.','أكثر من 5: خلل في المتابعة أو نقص قطع غيار.'],
+      do:'افتح كل طلب متجمد، سجّل سبب التأخير (قطعة غير متوفرة / بانتظار موافقة)، وصعّد ما يلزم.'},
+    stock:{c:'#f97316',i:'fa-boxes-stacked',t:'حالة المخزون',
+      what:'المواد التي نفدت تماماً (كمية = 0) أو قاربت على النفاد (3 قطع أو أقل).',
+      how:'نقرأ كميات المخزن: صفر = نافد، من 1 إلى 3 = قارب على النفاد.',
+      read:['أي مادة نافدة تعني احتمال توقف إصلاح مرتبط بها.'],
+      do:'جهّز طلب شراء مسبق للمواد النافدة قبل أن تتحول إلى تأخير في الطلبات.'},
+    avg:{c:'#8b5cf6',i:'fa-stopwatch-20',t:'متوسط زمن الإغلاق',
+      what:'متوسط عدد الأيام التي يستغرقها الطلب حتى يُنجز.',
+      how:'نجمع أعمار كل الطلبات المنجزة ونقسمها على عددها.',
+      read:['أقل من 7 أيام: أداء جيد.','7–14: يحتاج تحسين.','أكثر من 14: بطء واضح في الدورة.'],
+      do:'قارن المتوسط بين الفنيين والأقسام لمعرفة أين يضيع الوقت.'},
+    compliance:{c:'#10b981',i:'fa-gauge-high',t:'نسبة الالتزام',
+      what:'نسبة الطلبات المفتوحة التي ما زالت ضمن المدة المستهدفة (7 أيام أو أقل) من إجمالي الطلبات المفتوحة.',
+      how:'نسبة الالتزام = (عدد الطلبات المفتوحة التي عمرها ≤ 7 أيام ÷ إجمالي الطلبات المفتوحة) × 100.',
+      read:['90% فأكثر: أداء ممتاز.','75–89%: مقبول مع متابعة.','أقل من 75%: تراكم يحتاج تدخلاً فورياً.'],
+      do:'ارفع النسبة بإغلاق الطلبات الأقدم أولاً — كل طلب قديم تُغلقه يرفع النسبة مباشرة.'},
+    sla_ok:{c:'#10b981',i:'fa-circle-check',t:'ضمن الوقت (0 – 2 يوم)',
+      what:'الطلبات المفتوحة التي لم يمضِ عليها أكثر من يومين.',
+      how:'الفرق بين تاريخ اليوم وتاريخ إنشاء الطلب ≤ 2 يوم.',
+      read:['كلما زادت حصتها كان تدفق العمل صحياً.'],
+      do:'حافظ عليها بمعالجة الطلبات الجديدة في نفس يوم وصولها.'},
+    sla_watch:{c:'#f59e0b',i:'fa-eye',t:'تحت المراقبة (3 – 7 أيام)',
+      what:'طلبات مفتوحة بدأت تتقدم في العمر لكنها ما زالت ضمن الحد المقبول.',
+      how:'عمر الطلب بين 3 و7 أيام.',
+      read:['هذه هي منطقة الإنذار المبكر — منها تتكوّن التأخيرات لاحقاً.'],
+      do:'أغلق ما تستطيع منها هذا الأسبوع قبل أن تنتقل لخانة المتأخر.'},
+    sla_late:{c:'#f97316',i:'fa-triangle-exclamation',t:'متأخر (8 – 14 يوم)',
+      what:'طلبات تجاوزت المدة المستهدفة ولم تُغلق بعد.',
+      how:'عمر الطلب بين 8 و14 يوماً.',
+      read:['وجود عدد كبير هنا يعني اختناقاً في التنفيذ أو نقص موارد.'],
+      do:'حدّد سبب التأخير لكل طلب وأعد توزيع المهام على الفنيين.'},
+    sla_breach:{c:'#ef4444',i:'fa-circle-xmark',t:'خرق الاتفاقية (أكثر من 14 يوم)',
+      what:'طلبات تجاوزت ضعف المدة المستهدفة — أخطر فئة.',
+      how:'عمر الطلب أكبر من 14 يوماً.',
+      read:['أي رقم هنا يستحق تفسيراً مكتوباً للإدارة.'],
+      do:'صعّدها اليوم: قرار إصلاح، استبدال، أو إغلاق مع توثيق السبب.'}
+  };
+
+  /* ============ 2) نافذة الشرح ============ */
+  function ensureModal(){
+    if($('nvxBd'))return;
+    var el=document.createElement('div');
+    el.id='nvxBd'; el.className='nvx-bd';
+    el.innerHTML='<div class="nvx-modal" id="nvxModal" onclick="event.stopPropagation()"></div>';
+    el.onclick=NVX.close;
+    document.body.appendChild(el);
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')NVX.close();});
+  }
+  NVX.close=function(){var b=$('nvxBd'); if(b)b.classList.remove('on');};
+  NVX.explain=function(key,value){
+    var d=DOC[key]; if(!d)return;
+    ensureModal();
+    $('nvxModal').style.setProperty('--nvc',d.c);
+    $('nvxModal').innerHTML=
+      '<div class="nvx-hd"><i class="fas '+d.i+' nvx-ic"></i><div><h4>'+esc(d.t)+'</h4>'+
+      '<small>شرح مبسّط للمؤشر وكيفية التعامل معه</small></div>'+
+      '<button onclick="NewVision.close()"><i class="fas fa-xmark"></i></button></div>'+
+      '<div class="nvx-bdy">'+
+      (value?'<div class="nvx-val">'+esc(value)+'</div>':'')+
+      '<div class="nvx-blk"><h6><i class="fas fa-circle-info"></i> ما هذا المؤشر؟</h6><p>'+d.what+'</p></div>'+
+      '<div class="nvx-blk"><h6><i class="fas fa-calculator"></i> كيف يُحسب؟</h6><p>'+d.how+'</p></div>'+
+      '<div class="nvx-blk"><h6><i class="fas fa-eye"></i> كيف أقرأ الرقم؟</h6><ul>'+
+        d.read.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></div>'+
+      '<div class="nvx-blk"><h6><i class="fas fa-bolt"></i> ماذا أفعل الآن؟</h6><p>'+d.do+'</p></div>'+
+      '<div class="nvx-foot">'+
+        '<button onclick="NewVision.close();try{showPage(\'requests\')}catch(e){}">عرض الطلبات المرتبطة</button>'+
+        '<button class="g" onclick="NewVision.close()">إغلاق</button>'+
+      '</div></div>';
+    $('nvxBd').classList.add('on');
+  };
+
+  /* تحديد نوع المؤشر من بطاقة الرؤى */
+  function insightKey(card){
+    var ic=card.querySelector('i.ip-ic');
+    var cls=ic?ic.className:'';
+    if(/fa-arrow-trend/.test(cls))return 'trend';
+    if(/fa-building-circle/.test(cls))return 'dept';
+    if(/fa-hourglass-end|fa-shield-heart/.test(cls))return 'stuck';
+    if(/fa-boxes-stacked/.test(cls))return 'stock';
+    if(/fa-stopwatch/.test(cls))return 'avg';
+    return null;
+  }
+  function slaKey(col){
+    var t=(col.querySelector('.l')||{}).textContent||'';
+    if(t.indexOf('ضمن')>-1)return 'sla_ok';
+    if(t.indexOf('المراقبة')>-1)return 'sla_watch';
+    if(t.indexOf('متأخر')>-1)return 'sla_late';
+    return 'sla_breach';
+  }
+
+  /* التقاط النقر على البطاقات (يسبق onclick الأصلي) */
+  document.addEventListener('click',function(e){
+    var ins=e.target.closest?e.target.closest('.ip-ins'):null;
+    if(ins){var k=insightKey(ins);
+      if(k){e.preventDefault();e.stopPropagation();
+        NVX.explain(k,(ins.querySelector('h5')||{}).textContent||'');}
+      return;}
+    var col=e.target.closest?e.target.closest('.ip-sla-col'):null;
+    if(col){e.preventDefault();e.stopPropagation();
+      var n=(col.querySelector('b')||{}).textContent||'';
+      NVX.explain(slaKey(col),n+' طلب');}
+  },true);
+
+  /* ============ 3) مركز القيادة ============ */
+  function mountHero(){
+    var page=$('page-dashboard'); if(!page||$('nvxHero'))return false;
+    var anchor=page.querySelector('.ip-sec')||page.querySelector('.dsh-grid');
+    if(!anchor)return false;
+    anchor.insertAdjacentHTML('beforebegin',
+      '<section class="nvx-hero" id="nvxHero">'+
+      '  <div class="nvx-card nvx-gauge nvx-clickable" onclick="NewVision.explain(\'compliance\', (document.getElementById(\'nvxGaugeVal\')||{}).textContent)">'+
+      '    <div class="nvx-ring" id="nvxRing"><div><b id="nvxGaugeVal">0%</b><span>نسبة الالتزام</span></div></div>'+
+      '    <h5 id="nvxGaugeTitle">جاري الحساب…</h5>'+
+      '    <p id="nvxGaugeSub">اضغط لمعرفة معنى النسبة وطريقة رفعها</p>'+
+      '  </div>'+
+      '  <div class="nvx-right">'+
+      '    <div class="nvx-card">'+
+      '      <div class="nvx-digest" id="nvxDigest"></div>'+
+      '      <div class="nvx-acts" style="margin-top:12px" id="nvxActs">'+
+      '        <button onclick="NewVision.refresh()"><i class="fas fa-rotate"></i> تحديث الأرقام</button>'+
+      '        <button onclick="try{DashboardIdeas.openPalette()}catch(e){}"><i class="fas fa-bolt"></i> بحث سريع (Ctrl+K)</button>'+
+      '        <button onclick="try{showPage(\'add_request\')}catch(e){try{showPage(\'requests\')}catch(_){}}"><i class="fas fa-plus"></i> طلب صيانة جديد</button>'+
+      '        <button onclick="try{showPage(\'reports\')}catch(e){}"><i class="fas fa-file-pdf"></i> التقارير</button>'+
+      '        <button onclick="try{showPage(\'inventory\')}catch(e){}"><i class="fas fa-boxes-stacked"></i> المخزن</button>'+
+      '        <button onclick="NewVision.copyDigest()"><i class="fas fa-copy"></i> نسخ ملخص اليوم</button>'+
+      '        <button onclick="window.print()"><i class="fas fa-print"></i> طباعة اللوحة</button>'+
+      '      </div>'+
+      '    </div>'+
+      '    <div class="nvx-card">'+
+      '      <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">'+
+      '        <i class="fas fa-list-check" style="color:var(--primary-color,#4f46e5)"></i>'+
+      '        <b style="font-size:13px;font-weight:900">مهام اليوم المقترحة</b>'+
+      '        <small style="margin-inline-start:auto;font-size:10.5px;color:var(--text-light,#94a3b8);font-weight:700">مولّدة آلياً من بيانات النظام</small>'+
+      '      </div>'+
+      '      <div class="nvx-todo" id="nvxTodo"></div>'+
+      '    </div>'+
+      '  </div>'+
+      '</section>');
+    return true;
+  }
+
+  NVX.toast=function(msg){
+    var t=$('nvxToast');
+    if(!t){t=document.createElement('div');t.id='nvxToast';t.className='nvx-toast';document.body.appendChild(t);}
+    t.textContent=msg;t.classList.add('on');
+    clearTimeout(NVX._tt);NVX._tt=setTimeout(function(){t.classList.remove('on');},2600);
+  };
+
+  NVX.copyDigest=function(){
+    var d=S.digest||'';
+    if(!d)return NVX.toast('لا توجد بيانات بعد');
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(d).then(function(){NVX.toast('تم نسخ ملخص اليوم ✔');},function(){NVX.toast('تعذّر النسخ');});
+    }else{NVX.toast('النسخ غير مدعوم في هذا المتصفح');}
+  };
+
+  NVX.refresh=function(){
+    if(typeof window.updateDashboard==='function'){window.updateDashboard();NVX.toast('تم تحديث الأرقام');}
+    else NVX.render();
+  };
+
+  NVX.render=async function(){
+    if(!mountHero()&&!$('nvxHero'))return;
+    var requests=[],inventory=[];
+    try{requests=(await SupabaseAPI.request('requests','GET'))||[];}catch(e){return;}
+    try{inventory=(await SupabaseAPI.request('inventory','GET'))||[];}catch(e){inventory=[];}
+
+    var hidden=['completed','cancelled','duplicate'];
+    var open=requests.filter(function(r){return hidden.indexOf(r.status)===-1;});
+    var ages=open.map(function(r){return daysSince(F(r,'created_at','createdAt'));});
+    var tot=ages.length||1;
+    var okN=ages.filter(function(d){return d<=7;}).length;
+    var comp=Math.round(okN/tot*100);
+    var stuck=ages.filter(function(d){return d>14;}).length;
+    var today=requests.filter(function(r){return daysSince(F(r,'created_at','createdAt'))===0;}).length;
+    var week=requests.filter(function(r){return daysSince(F(r,'created_at','createdAt'))<7;}).length;
+    var doneAll=requests.filter(function(r){return r.status==='completed';}).length;
+    var outStock=inventory.filter(function(i){return (i.qty||0)===0;}).length;
+    var lowStock=inventory.filter(function(i){return (i.qty||0)>0&&(i.qty||0)<=3;}).length;
+
+    /* الدائرة */
+    var gc=comp>=90?'#10b981':comp>=75?'#f59e0b':'#ef4444';
+    var ring=$('nvxRing');
+    ring.style.setProperty('--gp',comp);ring.style.setProperty('--gc',gc);
+    $('nvxGaugeVal').textContent=comp+'%';
+    $('nvxGaugeTitle').textContent=comp>=90?'أداء ممتاز':comp>=75?'أداء مقبول':'يحتاج تدخلاً فورياً';
+    $('nvxGaugeSub').textContent=okN+' من '+(ages.length)+' طلب مفتوح ضمن 7 أيام — اضغط للشرح';
+
+    /* الأرقام السريعة */
+    $('nvxDigest').innerHTML=
+      kpi('#4f46e5',today,'طلبات اليوم','وصلت خلال 24 ساعة','requests')+
+      kpi('#0ea5e9',open.length,'مفتوح حالياً','قيد المعالجة','requests')+
+      kpi(stuck?'#ef4444':'#10b981',stuck,'متجمد +14 يوم','يحتاج تصعيد','requests')+
+      kpi('#8b5cf6',week,'هذا الأسبوع','آخر 7 أيام','requests')+
+      kpi('#10b981',doneAll,'منجز إجمالاً','مغلق بنجاح','requests')+
+      kpi((outStock||lowStock)?'#f97316':'#10b981',outStock+lowStock,'تنبيهات مخزن','نافد أو قارب','inventory');
+
+    /* مهام اليوم */
+    var todo=[];
+    if(stuck)todo.push(['#ef4444','fa-triangle-exclamation','صعّد '+stuck+' طلباً متجمداً أكثر من أسبوعين','requests']);
+    var watch=ages.filter(function(d){return d>2&&d<=7;}).length;
+    if(watch)todo.push(['#f59e0b','fa-eye','أغلق '+watch+' طلباً تحت المراقبة قبل تأخرها','requests']);
+    if(outStock)todo.push(['#f97316','fa-cart-plus','جهّز طلب شراء لـ '+outStock+' مادة نافدة','inventory']);
+    else if(lowStock)todo.push(['#f97316','fa-boxes-stacked',lowStock+' مادة قاربت على النفاد — راجع المخزن','inventory']);
+    if(today)todo.push(['#4f46e5','fa-inbox','استلم وصنّف '+today+' طلباً وصل اليوم','requests']);
+    if(comp<75)todo.push(['#ef4444','fa-gauge-high','نسبة الالتزام '+comp+'% — ابدأ بالطلبات الأقدم','requests']);
+    if(!todo.length)todo.push(['#10b981','fa-mug-hot','لا توجد مهام عاجلة اليوم — كل شيء تحت السيطرة','dashboard']);
+    $('nvxTodo').innerHTML=todo.slice(0,5).map(function(t){
+      return '<div class="nvx-t" style="--tc:'+t[0]+';cursor:pointer" onclick="try{showPage(\''+t[3]+'\')}catch(e){}">'+
+        '<i class="fas '+t[1]+'"></i>'+esc(t[2])+'<span>افتح ›</span></div>';
+    }).join('');
+
+    /* نص الملخص للنسخ */
+    S.digest='ملخص لوحة التحكم — '+new Date().toLocaleDateString('ar-EG')+'\n'+
+      '• طلبات اليوم: '+today+'\n'+
+      '• مفتوح حالياً: '+open.length+'\n'+
+      '• متجمد أكثر من 14 يوم: '+stuck+'\n'+
+      '• طلبات آخر 7 أيام: '+week+'\n'+
+      '• منجز إجمالاً: '+doneAll+'\n'+
+      '• نسبة الالتزام (≤7 أيام): '+comp+'%\n'+
+      '• تنبيهات المخزن: '+(outStock+lowStock)+' (نافد: '+outStock+'، قارب: '+lowStock+')';
+  };
+
+  function kpi(c,v,l,s,page){
+    return '<div class="nvx-kpi" style="--kc:'+c+'" onclick="try{showPage(\''+page+'\')}catch(e){}">'+
+      '<b>'+v+'</b><span>'+l+'</span><small>'+s+'</small></div>';
+  }
+
+  /* ============ 4) الربط ============ */
+  function hook(){
+    if(typeof window.updateDashboard!=='function'||window.updateDashboard.__nvx)return false;
+    var orig=window.updateDashboard;
+    var wrapped=async function(){
+      var res=await orig.apply(this,arguments);
+      try{await NVX.render();}catch(e){console.warn('[newvision]',e);}
+      return res;
+    };
+    wrapped.__nvx=true; window.updateDashboard=wrapped;
+    return true;
+  }
+  function boot(){
+    ensureModal();
+    var tries=0;
+    var t=setInterval(function(){
+      tries++; hook();
+      var p=$('page-dashboard');
+      if(p&&p.classList.contains('active')&&typeof SupabaseAPI!=='undefined'){mountHero();NVX.render().catch(function(){});}
+      if(tries>40)clearInterval(t);
+    },1200);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
   else boot();
 })();
 </script>
