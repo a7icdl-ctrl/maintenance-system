@@ -19,6 +19,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -28358,6 +28359,438 @@ async function stkApply() {
     closeModal('stocktakeModal');
     if (window.showToast) showToast('success', 'تم اعتماد الجرد', 'تم تحديث ' + rows.length + ' مادة حسب العد اليدوي');
 }
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════
+     DASHBOARD IDEAS PACK — إضافات ذكية على لوحة التحكم
+     وحدة مستقلة تماماً: لا تعدّل أي كود قائم، تعمل فوقه فقط.
+     ══════════════════════════════════════════════════════════ -->
+<style id="ideas-pack-skin">
+:root{ --ip-r:18px; }
+.ip-sec{margin:14px 0}
+.ip-card{background:var(--card-bg,#fff);border:1px solid var(--border-color,#e2e8f0);border-radius:var(--ip-r);
+  box-shadow:0 6px 22px rgba(15,23,42,.06);overflow:hidden}
+.ip-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;
+  border-bottom:1px solid var(--border-color,#e2e8f0)}
+.ip-head h3{margin:0;font-size:14.5px;font-weight:900;display:flex;align-items:center;gap:8px;color:var(--text-dark,#0f172a)}
+.ip-head small{font-size:11.5px;color:var(--text-light,#94a3b8);font-weight:700}
+.ip-body{padding:14px 16px}
+
+/* ===== 1) شريط الرؤى الذكية ===== */
+.ip-insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.ip-ins{position:relative;display:flex;gap:11px;align-items:flex-start;padding:13px 14px;border-radius:15px;
+  background:var(--card-bg,#fff);border:1px solid var(--border-color,#e2e8f0);
+  box-shadow:0 5px 18px rgba(15,23,42,.05);overflow:hidden;transition:.25s}
+.ip-ins:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(15,23,42,.1)}
+.ip-ins::before{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;background:var(--ic,#4f46e5)}
+.ip-ins i.ip-ic{width:34px;height:34px;flex:0 0 34px;border-radius:11px;display:grid;place-items:center;font-size:14px;
+  color:var(--ic,#4f46e5);background:color-mix(in srgb,var(--ic,#4f46e5) 14%,transparent)}
+.ip-ins h5{margin:0 0 3px;font-size:13px;font-weight:900;color:var(--text-dark,#0f172a)}
+.ip-ins p{margin:0;font-size:11.5px;line-height:1.7;color:var(--text-medium,#64748b);font-weight:600}
+.ip-spark{display:flex;align-items:flex-end;gap:2px;height:26px;margin-top:7px}
+.ip-spark span{flex:1;border-radius:3px 3px 0 0;background:var(--ic,#4f46e5);opacity:.35;min-height:3px}
+.ip-spark span:last-child{opacity:1}
+
+/* ===== 2) لوحة الالتزام بالـ SLA ===== */
+.ip-sla{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.ip-sla-col{border:1px solid var(--border-color,#e2e8f0);border-radius:15px;padding:12px;cursor:pointer;transition:.25s;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--sc) 9%,transparent),transparent)}
+.ip-sla-col:hover{transform:translateY(-3px);border-color:var(--sc);box-shadow:0 10px 24px color-mix(in srgb,var(--sc) 22%,transparent)}
+.ip-sla-col b{display:block;font-size:30px;font-weight:900;color:var(--sc);line-height:1}
+.ip-sla-col .l{display:block;margin-top:6px;font-size:12px;font-weight:800;color:var(--text-dark,#0f172a)}
+.ip-sla-col .s{display:block;margin-top:3px;font-size:10.5px;color:var(--text-light,#94a3b8);font-weight:700}
+.ip-bar{height:6px;border-radius:99px;background:color-mix(in srgb,var(--sc) 16%,transparent);margin-top:9px;overflow:hidden}
+.ip-bar i{display:block;height:100%;border-radius:99px;background:var(--sc);transition:width .8s cubic-bezier(.2,.9,.25,1)}
+
+/* ===== 3) قائمة الأولويات الذكية ===== */
+.ip-prio{display:flex;flex-direction:column;gap:9px}
+.ip-p{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:14px;border:1px solid var(--border-color,#e2e8f0);
+  background:var(--card-bg,#fff);transition:.2s}
+.ip-p:hover{border-color:var(--pc);transform:translateX(-4px)}
+.ip-score{width:44px;height:44px;flex:0 0 44px;border-radius:13px;display:grid;place-items:center;font-weight:900;font-size:15px;
+  color:#fff;background:linear-gradient(135deg,var(--pc),color-mix(in srgb,var(--pc) 55%,#0f172a))}
+.ip-p .t{flex:1;min-width:0}
+.ip-p .t h5{margin:0 0 3px;font-size:12.5px;font-weight:900;color:var(--text-dark,#0f172a);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ip-p .t p{margin:0;font-size:11px;color:var(--text-medium,#64748b);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ip-tag{font-size:10px;font-weight:900;padding:4px 9px;border-radius:99px;white-space:nowrap;
+  color:var(--pc);background:color-mix(in srgb,var(--pc) 13%,transparent)}
+
+/* ===== 4) خريطة النشاط الحرارية ===== */
+.ip-heat{display:flex;flex-direction:row-reverse;gap:4px;overflow-x:auto;padding-bottom:6px}
+.ip-hw{display:flex;flex-direction:column;gap:4px}
+.ip-hd{width:15px;height:15px;border-radius:4px;background:var(--hm0,#eef2f7);transition:.2s}
+.ip-hd:hover{outline:2px solid var(--primary-color,#4f46e5);outline-offset:1px}
+.ip-legend{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:10.5px;color:var(--text-light,#94a3b8);font-weight:700}
+.ip-legend i{width:13px;height:13px;border-radius:4px;display:inline-block}
+
+/* ===== 5) لوحة الأوامر السريعة ===== */
+.ip-cmd-bd{position:fixed;inset:0;background:rgba(2,6,23,.55);backdrop-filter:blur(6px);z-index:99999;display:none;
+  align-items:flex-start;justify-content:center;padding-top:11vh}
+.ip-cmd-bd.on{display:flex;animation:ipFade .18s ease}
+@keyframes ipFade{from{opacity:0}to{opacity:1}}
+.ip-cmd{width:min(660px,92vw);background:var(--card-bg,#fff);border-radius:20px;overflow:hidden;
+  box-shadow:0 30px 70px rgba(2,6,23,.4);animation:ipUp .22s cubic-bezier(.2,.9,.25,1)}
+@keyframes ipUp{from{transform:translateY(-18px);opacity:0}to{transform:none;opacity:1}}
+.ip-cmd input{width:100%;border:0;outline:0;padding:18px 20px;font-family:inherit;font-size:16px;font-weight:700;
+  background:transparent;color:var(--text-dark,#0f172a);border-bottom:1px solid var(--border-color,#e2e8f0)}
+.ip-cmd-list{max-height:52vh;overflow:auto;padding:8px}
+.ip-ci{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:12px;cursor:pointer}
+.ip-ci:hover,.ip-ci.sel{background:color-mix(in srgb,var(--primary-color,#4f46e5) 10%,transparent)}
+.ip-ci i{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:13px;
+  color:var(--primary-color,#4f46e5);background:color-mix(in srgb,var(--primary-color,#4f46e5) 13%,transparent)}
+.ip-ci b{display:block;font-size:13px;font-weight:900;color:var(--text-dark,#0f172a)}
+.ip-ci span{display:block;font-size:11px;color:var(--text-medium,#64748b);font-weight:600}
+.ip-cmd-foot{padding:9px 16px;border-top:1px solid var(--border-color,#e2e8f0);font-size:10.5px;
+  color:var(--text-light,#94a3b8);font-weight:700;display:flex;gap:14px}
+.ip-kbd{border:1px solid var(--border-color,#e2e8f0);border-radius:6px;padding:1px 6px;font-family:monospace}
+
+/* ===== 6) زر عائم + شريط أدوات ===== */
+.ip-fab{position:fixed;inset-inline-start:22px;bottom:22px;z-index:9998;display:flex;flex-direction:column;gap:9px}
+.ip-fab button{width:48px;height:48px;border:0;border-radius:16px;cursor:pointer;color:#fff;font-size:17px;
+  background:linear-gradient(135deg,#4f46e5,#0ea5e9);box-shadow:0 12px 26px rgba(79,70,229,.4);transition:.22s}
+.ip-fab button:hover{transform:translateY(-3px) scale(1.05)}
+.ip-live{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:800;color:var(--text-medium,#64748b)}
+.ip-dot{width:8px;height:8px;border-radius:99px;background:#10b981;box-shadow:0 0 0 0 rgba(16,185,129,.6);animation:ipPulse 1.8s infinite}
+@keyframes ipPulse{70%{box-shadow:0 0 0 9px rgba(16,185,129,0)}100%{box-shadow:0 0 0 0 rgba(16,185,129,0)}}
+.ip-switch{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:800;color:var(--text-medium,#64748b);cursor:pointer}
+.ip-switch input{accent-color:var(--primary-color,#4f46e5);width:15px;height:15px}
+
+/* وضع التركيز: إخفاء التفاصيل الثانوية */
+body.ip-focus #page-dashboard .dsh-more,
+body.ip-focus #page-dashboard .dsh-d,
+body.ip-focus #page-dashboard .dsh-f{display:none!important}
+
+@media print{.ip-fab,.ip-cmd-bd{display:none!important}}
+</style>
+
+<script>
+/* eslint-disable */
+(function () {
+  'use strict';
+  var IP = {};
+  window.DashboardIdeas = IP;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return (s == null ? '' : String(s)).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); };
+  var daysSince = function (d) { if (!d) return 0; var t = new Date(d); if (isNaN(t)) return 0; return Math.max(0, Math.floor((Date.now() - t.getTime()) / 86400000)); };
+  var F = function (r, a, b) { return r[a] != null ? r[a] : r[b]; };
+
+  /* ---------- 1) حقن الواجهة داخل صفحة لوحة التحكم ---------- */
+  function mount() {
+    var page = $('page-dashboard');
+    if (!page || $('ipInsights')) return false;
+    var grid = page.querySelector('.dsh-grid');
+    if (!grid) return false;
+
+    grid.insertAdjacentHTML('beforebegin',
+      '<section class="ip-sec">' +
+      '  <div class="ip-head" style="border:0;padding:0 2px 10px">' +
+      '    <h3><i class="fas fa-wand-magic-sparkles"></i> رؤى ذكية فورية</h3>' +
+      '    <div style="display:flex;gap:14px;align-items:center">' +
+      '      <span class="ip-live"><span class="ip-dot"></span> آخر تحديث <b id="ipStamp">—</b></span>' +
+      '      <label class="ip-switch"><input type="checkbox" id="ipAuto"> تحديث تلقائي كل دقيقة</label>' +
+      '      <label class="ip-switch"><input type="checkbox" id="ipFocus"> وضع التركيز</label>' +
+      '    </div>' +
+      '  </div>' +
+      '  <div class="ip-insights" id="ipInsights"></div>' +
+      '</section>' +
+      '<section class="ip-sec ip-card">' +
+      '  <div class="ip-head"><h3><i class="fas fa-gauge-high"></i> لوحة الالتزام بزمن الإنجاز (SLA)</h3><small id="ipSlaNote">توزيع الطلبات المفتوحة حسب العمر</small></div>' +
+      '  <div class="ip-body"><div class="ip-sla" id="ipSla"></div></div>' +
+      '</section>');
+
+    grid.insertAdjacentHTML('afterend',
+      '<section class="ip-sec" style="display:grid;grid-template-columns:1.15fr .85fr;gap:14px" id="ipDuo">' +
+      '  <div class="ip-card">' +
+      '    <div class="ip-head"><h3><i class="fas fa-ranking-star"></i> الأولويات الذكية — ابدأ من هنا</h3><small>ترتيب آلي حسب العمر والحالة والتكرار</small></div>' +
+      '    <div class="ip-body"><div class="ip-prio" id="ipPrio"></div></div>' +
+      '  </div>' +
+      '  <div class="ip-card">' +
+      '    <div class="ip-head"><h3><i class="fas fa-fire"></i> خريطة النشاط — 12 أسبوع</h3><small id="ipHeatNote">كثافة الطلبات اليومية</small></div>' +
+      '    <div class="ip-body"><div class="ip-heat" id="ipHeat"></div>' +
+      '      <div class="ip-legend">أقل <i style="background:var(--hm0,#eef2f7)"></i><i style="background:#c7d2fe"></i><i style="background:#818cf8"></i><i style="background:#4f46e5"></i><i style="background:#312e81"></i> أكثر</div>' +
+      '      <div id="ipPeak" style="margin-top:10px;font-size:11.5px;font-weight:700;color:var(--text-medium,#64748b)"></div>' +
+      '    </div>' +
+      '  </div>' +
+      '</section>');
+
+    if (window.matchMedia('(max-width:1100px)').matches) $('ipDuo').style.gridTemplateColumns = '1fr';
+
+    $('ipFocus').checked = localStorage.getItem('ipFocus') === '1';
+    document.body.classList.toggle('ip-focus', $('ipFocus').checked);
+    $('ipFocus').onchange = function () {
+      document.body.classList.toggle('ip-focus', this.checked);
+      localStorage.setItem('ipFocus', this.checked ? '1' : '0');
+    };
+    $('ipAuto').checked = localStorage.getItem('ipAuto') === '1';
+    $('ipAuto').onchange = function () { localStorage.setItem('ipAuto', this.checked ? '1' : '0'); setAuto(this.checked); };
+    setAuto($('ipAuto').checked);
+    return true;
+  }
+
+  var autoTimer = null;
+  function setAuto(on) {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    if (!on) return;
+    autoTimer = setInterval(function () {
+      var p = $('page-dashboard');
+      if (p && p.classList.contains('active') && typeof window.updateDashboard === 'function' && !document.hidden) window.updateDashboard();
+    }, 60000);
+  }
+
+  /* ---------- 2) الرسم ---------- */
+  IP.render = async function () {
+    if (!mount() && !$('ipInsights')) return;
+    var requests = [], inventory = [];
+    try { requests = (await SupabaseAPI.request('requests', 'GET')) || []; } catch (e) { return; }
+    try { inventory = (await SupabaseAPI.request('inventory', 'GET')) || []; } catch (e) { inventory = []; }
+
+    var hidden = ['completed', 'cancelled', 'duplicate'];
+    var open = requests.filter(function (r) { return hidden.indexOf(r.status) === -1; });
+
+    /* ===== SLA ===== */
+    var buckets = [
+      { l: 'ضمن الوقت', s: '0 – 2 يوم', c: '#10b981', f: function (d) { return d <= 2; } },
+      { l: 'تحت المراقبة', s: '3 – 7 أيام', c: '#f59e0b', f: function (d) { return d > 2 && d <= 7; } },
+      { l: 'متأخر', s: '8 – 14 يوم', c: '#f97316', f: function (d) { return d > 7 && d <= 14; } },
+      { l: 'خرق الاتفاقية', s: 'أكثر من 14 يوم', c: '#ef4444', f: function (d) { return d > 14; } }
+    ];
+    var ages = open.map(function (r) { return daysSince(F(r, 'created_at', 'createdAt')); });
+    var tot = ages.length || 1;
+    $('ipSla').innerHTML = buckets.map(function (b) {
+      var n = ages.filter(b.f).length, p = Math.round(n / tot * 100);
+      return '<div class="ip-sla-col" style="--sc:' + b.c + '" onclick="DashboardIdeas.goRequests()">' +
+        '<b>' + n + '</b><span class="l">' + b.l + '</span><span class="s">' + b.s + ' • ' + p + '% من المفتوح</span>' +
+        '<div class="ip-bar"><i style="width:' + p + '%"></i></div></div>';
+    }).join('');
+    var ok = ages.filter(function (d) { return d <= 7; }).length;
+    $('ipSlaNote').textContent = 'الالتزام العام: ' + Math.round(ok / tot * 100) + '% من الطلبات المفتوحة ضمن 7 أيام';
+
+    /* ===== الأولويات الذكية ===== */
+    var deptCount = {};
+    requests.forEach(function (r) { var d = (r.department || '').trim(); if (d) deptCount[d] = (deptCount[d] || 0) + 1; });
+    var wStatus = { pending: 14, new: 10, inprogress: 6, withdrawn: 8, active: 5 };
+    var scored = open.map(function (r) {
+      var d = daysSince(F(r, 'created_at', 'createdAt'));
+      var sc = d * 4 + (wStatus[r.status] || 5) + Math.min(20, (deptCount[(r.department || '').trim()] || 0) * 1.5);
+      var txt = (F(r, 'issue_description', 'issueDescription') || '').toString();
+      if (/عطل تام|لا يعمل|متوقف|توقف|احتراق|عاجل|طارئ/.test(txt)) sc += 18;
+      return { r: r, d: d, s: Math.round(sc), txt: txt };
+    }).sort(function (a, b) { return b.s - a.s; }).slice(0, 6);
+    var maxS = scored.length ? scored[0].s : 1;
+    $('ipPrio').innerHTML = scored.length ? scored.map(function (x) {
+      var pc = x.s > maxS * .75 ? '#ef4444' : x.s > maxS * .5 ? '#f97316' : '#4f46e5';
+      var pct = Math.min(99, Math.round(x.s / maxS * 100));
+      return '<div class="ip-p" style="--pc:' + pc + '">' +
+        '<div class="ip-score">' + pct + '</div>' +
+        '<div class="t"><h5>' + esc(F(x.r, 'employee_name', 'employeeName') || '—') + ' • ' + esc(x.r.department || '—') + '</h5>' +
+        '<p>' + esc(x.txt || 'بدون وصف') + '</p></div>' +
+        '<span class="ip-tag">' + x.d + ' يوم</span></div>';
+    }).join('') : '<div style="text-align:center;padding:22px;color:var(--text-light,#94a3b8);font-weight:700">لا توجد طلبات مفتوحة 🎉</div>';
+
+    /* ===== خريطة النشاط ===== */
+    var counts = {}, hours = {}, dows = [0, 0, 0, 0, 0, 0, 0];
+    requests.forEach(function (r) {
+      var raw = F(r, 'created_at', 'createdAt'); if (!raw) return;
+      var t = new Date(raw); if (isNaN(t)) return;
+      var k = t.getFullYear() + '-' + t.getMonth() + '-' + t.getDate();
+      counts[k] = (counts[k] || 0) + 1;
+      hours[t.getHours()] = (hours[t.getHours()] || 0) + 1;
+      dows[t.getDay()]++;
+    });
+    var max = Math.max.apply(null, [1].concat(Object.keys(counts).map(function (k) { return counts[k]; })));
+    var palette = ['var(--hm0,#eef2f7)', '#c7d2fe', '#818cf8', '#4f46e5', '#312e81'];
+    var html = '', cur = new Date(); cur.setHours(0, 0, 0, 0);
+    cur.setDate(cur.getDate() - cur.getDay());
+    for (var w = 0; w < 12; w++) {
+      html += '<div class="ip-hw">';
+      for (var dd = 0; dd < 7; dd++) {
+        var day = new Date(cur); day.setDate(cur.getDate() - w * 7 + dd);
+        var n = counts[day.getFullYear() + '-' + day.getMonth() + '-' + day.getDate()] || 0;
+        var lvl = n === 0 ? 0 : Math.min(4, Math.ceil(n / max * 4));
+        html += '<div class="ip-hd" style="background:' + palette[lvl] + '" title="' + day.toLocaleDateString('ar-EG') + ' — ' + n + ' طلب"></div>';
+      }
+      html += '</div>';
+    }
+    $('ipHeat').innerHTML = html;
+    var dayNames = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    var peakDow = dows.indexOf(Math.max.apply(null, dows));
+    var peakHour = Object.keys(hours).sort(function (a, b) { return hours[b] - hours[a]; })[0];
+    $('ipPeak').innerHTML = '<i class="fas fa-lightbulb" style="color:#f59e0b"></i> ذروة الطلبات يوم <b>' + dayNames[peakDow] + '</b>' +
+      (peakHour != null ? ' وحول الساعة <b>' + peakHour + ':00</b>' : '') + ' — خطّط توزيع الفنيين وفقاً لذلك.';
+
+    /* ===== الرؤى الذكية ===== */
+    var now = new Date();
+    var inRange = function (from, to) {
+      return requests.filter(function (r) {
+        var t = new Date(F(r, 'created_at', 'createdAt')); if (isNaN(t)) return false;
+        var d = (now - t) / 86400000; return d >= from && d < to;
+      });
+    };
+    var w1 = inRange(0, 7).length, w2 = inRange(7, 14).length;
+    var trend = w2 ? Math.round((w1 - w2) / w2 * 100) : (w1 ? 100 : 0);
+    var doneDurs = requests.filter(function (r) { return r.status === 'completed'; })
+      .map(function (r) { return daysSince(F(r, 'created_at', 'createdAt')); });
+    var topDept = Object.keys(deptCount).sort(function (a, b) { return deptCount[b] - deptCount[a]; })[0];
+    var stuck = open.filter(function (r) { return daysSince(F(r, 'created_at', 'createdAt')) > 14; }).length;
+    var lowStock = inventory.filter(function (i) { return (i.qty || 0) > 0 && (i.qty || 0) <= 3; }).length;
+    var outStock = inventory.filter(function (i) { return (i.qty || 0) === 0; }).length;
+
+    var sparkWeeks = [];
+    for (var i = 7; i >= 0; i--) sparkWeeks.push(inRange(i * 7, (i + 1) * 7).length);
+    var smax = Math.max.apply(null, [1].concat(sparkWeeks));
+    var spark = '<div class="ip-spark">' + sparkWeeks.map(function (v) {
+      return '<span style="height:' + Math.max(8, Math.round(v / smax * 100)) + '%"></span>';
+    }).join('') + '</div>';
+
+    var ins = [];
+    ins.push({
+      c: trend > 15 ? '#ef4444' : trend < -15 ? '#10b981' : '#4f46e5',
+      i: trend >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down',
+      t: 'حركة الأسبوع: ' + w1 + ' طلب',
+      p: (trend === 0 ? 'مستقر مقارنة بالأسبوع الماضي (' + w2 + ').'
+        : (trend > 0 ? 'ارتفاع ' : 'انخفاض ') + Math.abs(trend) + '% مقارنة بالأسبوع الماضي (' + w2 + ').') ,
+      x: spark
+    });
+    if (topDept) ins.push({
+      c: '#0ea5e9', i: 'fa-building-circle-exclamation', t: 'القسم الأكثر ضغطاً: ' + topDept,
+      p: deptCount[topDept] + ' طلب مسجّل — يستحق زيارة صيانة وقائية مجدولة.'
+    });
+    ins.push({
+      c: stuck ? '#ef4444' : '#10b981', i: stuck ? 'fa-hourglass-end' : 'fa-shield-heart',
+      t: stuck ? stuck + ' طلب متجمد أكثر من أسبوعين' : 'لا توجد طلبات متجمدة',
+      p: stuck ? 'راجع أسباب التعليق أو صعّدها للإدارة اليوم.' : 'كل الطلبات المفتوحة ضمن نطاق زمني مقبول.'
+    });
+    ins.push({
+      c: (outStock || lowStock) ? '#f97316' : '#10b981', i: 'fa-boxes-stacked',
+      t: outStock ? outStock + ' مادة نفدت من المخزن' : (lowStock ? lowStock + ' مادة قاربت على النفاد' : 'المخزون بحالة جيدة'),
+      p: (outStock + lowStock) ? 'جهّز طلب شراء مسبق لتفادي تعطّل الإصلاحات.' : 'لا يوجد خطر انقطاع قطع الغيار حالياً.'
+    });
+    ins.push({
+      c: '#8b5cf6', i: 'fa-stopwatch-20', t: 'متوسط زمن الإغلاق: ' + (doneDurs.length ? Math.round(doneDurs.reduce(function (a, b) { return a + b; }, 0) / doneDurs.length) : 0) + ' يوم',
+      p: 'محسوب على ' + doneDurs.length + ' طلب منجز — استهدف أقل من 7 أيام.'
+    });
+
+    $('ipInsights').innerHTML = ins.map(function (o) {
+      return '<div class="ip-ins" style="--ic:' + o.c + '"><i class="fas ' + o.i + ' ip-ic"></i>' +
+        '<div style="flex:1;min-width:0"><h5>' + o.t + '</h5><p>' + o.p + '</p>' + (o.x || '') + '</div></div>';
+    }).join('');
+
+    $('ipStamp').textContent = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+    IP._requests = requests;
+  };
+
+  IP.goRequests = function () { if (typeof showPage === 'function') showPage('requests'); };
+
+  /* ---------- 3) لوحة الأوامر السريعة Ctrl + K ---------- */
+  var PAGES = [
+    ['dashboard', 'لوحة التحكم', 'fa-chart-line'], ['requests', 'طلبات الصيانة', 'fa-clipboard-list'],
+    ['visits', 'زيارات الشركة', 'fa-truck-fast'], ['inventory', 'المخزون', 'fa-boxes-stacked'],
+    ['alternatives', 'الأجهزة البديلة', 'fa-laptop'], ['computer_items', 'المواد الحاسوبية', 'fa-desktop'],
+    ['permanent_replacement', 'الاستبدال الدائم', 'fa-right-left'], ['documents', 'الوثائق', 'fa-file-alt'],
+    ['reports', 'التقارير', 'fa-file-pdf'], ['advanced_search', 'البحث المتقدم', 'fa-magnifying-glass'],
+    ['departments', 'الأقسام', 'fa-building'], ['periodic', 'الصيانة الدورية', 'fa-calendar-check'],
+    ['admin', 'الإدارة', 'fa-user-shield']
+  ];
+
+  function buildPalette() {
+    if ($('ipCmdBd')) return;
+    var el = document.createElement('div');
+    el.id = 'ipCmdBd'; el.className = 'ip-cmd-bd';
+    el.innerHTML = '<div class="ip-cmd" onclick="event.stopPropagation()">' +
+      '<input id="ipCmdInput" placeholder="ابحث عن صفحة، موظف، قسم، أو رقم حاسوب…" autocomplete="off">' +
+      '<div class="ip-cmd-list" id="ipCmdList"></div>' +
+      '<div class="ip-cmd-foot"><span><span class="ip-kbd">Ctrl</span> + <span class="ip-kbd">K</span> فتح/إغلاق</span>' +
+      '<span><span class="ip-kbd">↑ ↓</span> تنقل</span><span><span class="ip-kbd">Enter</span> اختيار</span></div></div>';
+    el.onclick = closePalette;
+    document.body.appendChild(el);
+
+    var fab = document.createElement('div');
+    fab.className = 'ip-fab';
+    fab.innerHTML = '<button title="بحث سريع (Ctrl+K)" onclick="DashboardIdeas.openPalette()"><i class="fas fa-bolt"></i></button>' +
+      '<button title="العودة للأعلى" onclick="window.scrollTo({top:0,behavior:\'smooth\'})"><i class="fas fa-arrow-up"></i></button>';
+    document.body.appendChild(fab);
+
+    $('ipCmdInput').addEventListener('input', function () { fillPalette(this.value); });
+    document.addEventListener('keydown', function (e) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); IP.openPalette(); return; }
+      if (!$('ipCmdBd').classList.contains('on')) return;
+      var items = Array.prototype.slice.call(document.querySelectorAll('.ip-ci'));
+      var idx = items.findIndex(function (x) { return x.classList.contains('sel'); });
+      if (e.key === 'Escape') closePalette();
+      else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault(); if (!items.length) return;
+        var n = e.key === 'ArrowDown' ? (idx + 1) % items.length : (idx - 1 + items.length) % items.length;
+        items.forEach(function (x) { x.classList.remove('sel'); });
+        items[n].classList.add('sel'); items[n].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter' && items[idx < 0 ? 0 : idx]) { items[idx < 0 ? 0 : idx].click(); }
+    });
+  }
+
+  function fillPalette(q) {
+    q = (q || '').trim().toLowerCase();
+    var out = [];
+    PAGES.filter(function (p) { return !q || p[1].toLowerCase().indexOf(q) > -1; })
+      .slice(0, 6).forEach(function (p) {
+        out.push({ i: p[2], b: p[1], s: 'الانتقال إلى الصفحة', go: 'showPage(\'' + p[0] + '\')' });
+      });
+    if (q.length >= 2 && IP._requests) {
+      IP._requests.filter(function (r) {
+        return [F(r, 'employee_name', 'employeeName'), r.department, F(r, 'computer_number', 'computerNumber'), F(r, 'issue_description', 'issueDescription')]
+          .join(' ').toLowerCase().indexOf(q) > -1;
+      }).slice(0, 8).forEach(function (r) {
+        out.push({
+          i: 'fa-clipboard-list',
+          b: esc(F(r, 'employee_name', 'employeeName') || '—') + ' • حاسوب ' + esc(F(r, 'computer_number', 'computerNumber') || '—'),
+          s: esc((r.department || '—') + ' — ' + ((F(r, 'issue_description', 'issueDescription') || '').slice(0, 60))),
+          go: 'showPage(\'requests\')'
+        });
+      });
+    }
+    $('ipCmdList').innerHTML = out.length ? out.map(function (o, n) {
+      return '<div class="ip-ci' + (n === 0 ? ' sel' : '') + '" onclick="DashboardIdeas.run(\'' + o.go.replace(/'/g, "\\'") + '\')">' +
+        '<i class="fas ' + o.i + '"></i><div><b>' + o.b + '</b><span>' + o.s + '</span></div></div>';
+    }).join('') : '<div style="padding:22px;text-align:center;color:var(--text-light,#94a3b8);font-weight:700">لا توجد نتائج مطابقة</div>';
+  }
+
+  IP.run = function (code) { closePalette(); try { eval(code); } catch (e) { } };
+  IP.openPalette = function () {
+    buildPalette();
+    var bd = $('ipCmdBd');
+    if (bd.classList.contains('on')) return closePalette();
+    bd.classList.add('on'); fillPalette(''); var inp = $('ipCmdInput'); inp.value = ''; setTimeout(function () { inp.focus(); }, 60);
+  };
+  function closePalette() { var b = $('ipCmdBd'); if (b) b.classList.remove('on'); }
+
+  /* ---------- 4) الربط بدون تعديل الكود الأصلي ---------- */
+  function hook() {
+    if (typeof window.updateDashboard !== 'function' || window.updateDashboard.__ip) return false;
+    var orig = window.updateDashboard;
+    var wrapped = async function () {
+      var res = await orig.apply(this, arguments);
+      try { await IP.render(); } catch (e) { console.warn('[ideas]', e); }
+      return res;
+    };
+    wrapped.__ip = true;
+    window.updateDashboard = wrapped;
+    return true;
+  }
+
+  function boot() {
+    buildPalette();
+    var tries = 0;
+    var t = setInterval(function () {
+      tries++;
+      hook();
+      var p = $('page-dashboard');
+      if (p && p.classList.contains('active') && typeof SupabaseAPI !== 'undefined') { mount(); IP.render().catch(function () { }); }
+      if (tries > 40) clearInterval(t);
+    }, 1200);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
 </script>
 
 </html>
