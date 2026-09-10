@@ -18,6 +18,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -2630,6 +2631,9 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                         </button>
                         <button class="btn btn-primary btn-sm" onclick="printInventory()">
                             <i class="fas fa-print"></i> طباعة
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="openStocktake()">
+                            <i class="fas fa-clipboard-check"></i> جرد المخزون يدوياً
                         </button>
                     </div>
                 </div>
@@ -28060,6 +28064,300 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         setTimeout(function(){ hook(); dashboard(); }, 1800);
     });
 })();
+</script>
+
+<!-- ===================== جرد المخزون اليدوي ===================== -->
+<style>
+#stocktakeModal .modal { max-width: 1200px; width: 97%; }
+#stocktakeModal .modal-body { padding: 18px; }
+.stk-bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.stk-search { position:relative; flex:1; min-width:220px; }
+.stk-search i { position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#94a3b8; font-size:13px; }
+.stk-search input { width:100%; padding:10px 34px 10px 12px; border:1px solid #e2e8f0; border-radius:12px; font-family:'Tajawal',sans-serif; font-size:13px; background:#f8fafc; outline:none; transition:.2s; }
+.stk-search input:focus { border-color:#4f46e5; background:#fff; box-shadow:0 0 0 3px rgba(79,70,229,.12); }
+.stk-chips { display:flex; gap:8px; flex-wrap:wrap; }
+.stk-chip { display:flex; align-items:center; gap:6px; padding:7px 12px; border-radius:999px; font-size:12px; font-weight:700; background:#f1f5f9; color:#475569; }
+.stk-chip b { font-size:13px; }
+.stk-chip.ok { background:rgba(16,185,129,.12); color:#059669; }
+.stk-chip.warn { background:rgba(245,158,11,.14); color:#b45309; }
+.stk-chip.bad { background:rgba(239,68,68,.12); color:#dc2626; }
+.stk-chip.info { background:rgba(79,70,229,.12); color:#4338ca; }
+.stk-table-wrap { border:1px solid #e2e8f0; border-radius:14px; overflow:auto; max-height:60vh; }
+table.stk-table { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; }
+table.stk-table thead th { position:sticky; top:0; z-index:2; background:linear-gradient(135deg,#eef2ff,#e0e7ff); color:#312e81; font-weight:800; font-size:12px; padding:12px 10px; text-align:center; border-bottom:2px solid #c7d2fe; white-space:nowrap; }
+table.stk-table tbody td { padding:9px 10px; text-align:center; border-bottom:1px solid #eef2f7; color:#334155; }
+table.stk-table tbody tr:nth-child(even) { background:#fbfcfe; }
+table.stk-table tbody tr:hover { background:#f5f7ff; }
+table.stk-table td.stk-name { text-align:right; font-weight:700; color:#1e293b; }
+.stk-num { font-weight:800; }
+.stk-num.g { color:#059669; } .stk-num.o { color:#b45309; } .stk-num.r { color:#dc2626; } .stk-num.b { color:#4338ca; }
+.stk-input { width:82px; padding:7px 8px; border:1px solid #cbd5e1; border-radius:9px; text-align:center; font-family:'Tajawal',sans-serif; font-weight:700; font-size:13px; outline:none; background:#fff; }
+.stk-input:focus { border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,.12); }
+.stk-note { width:100%; min-width:140px; padding:7px 8px; border:1px solid #e2e8f0; border-radius:9px; font-family:'Tajawal',sans-serif; font-size:12px; outline:none; }
+.stk-note:focus { border-color:#4f46e5; }
+.stk-diff { font-weight:800; font-size:12px; padding:4px 10px; border-radius:999px; display:inline-block; min-width:52px; }
+.stk-diff.zero { background:#f1f5f9; color:#64748b; }
+.stk-diff.plus { background:rgba(16,185,129,.14); color:#059669; }
+.stk-diff.minus { background:rgba(239,68,68,.12); color:#dc2626; }
+.stk-diff.empty { background:transparent; color:#cbd5e1; }
+.stk-badge { font-size:11px; font-weight:800; padding:4px 10px; border-radius:999px; }
+.stk-badge.in { background:rgba(16,185,129,.14); color:#059669; }
+.stk-badge.low { background:rgba(245,158,11,.16); color:#b45309; }
+.stk-badge.out { background:rgba(239,68,68,.13); color:#dc2626; }
+.stk-foot { display:flex; flex-wrap:wrap; gap:8px; justify-content:space-between; align-items:center; margin-top:12px; font-size:12px; color:#64748b; }
+html[data-theme="dark"] .stk-table-wrap { border-color:rgba(255,255,255,.08); }
+html[data-theme="dark"] table.stk-table thead th { background:#1e293b; color:#c7d2fe; border-bottom-color:#334155; }
+html[data-theme="dark"] table.stk-table tbody td { color:#cbd5e1; border-bottom-color:rgba(255,255,255,.06); }
+html[data-theme="dark"] table.stk-table tbody tr:nth-child(even) { background:rgba(255,255,255,.02); }
+html[data-theme="dark"] table.stk-table td.stk-name { color:#f1f5f9; }
+html[data-theme="dark"] .stk-input, html[data-theme="dark"] .stk-note { background:#0f172a; border-color:#334155; color:#e2e8f0; }
+html[data-theme="dark"] .stk-search input { background:#0f172a; border-color:#334155; color:#e2e8f0; }
+</style>
+
+<div class="modal-overlay" id="stocktakeModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3><i class="fas fa-clipboard-check"></i> جرد المخزون يدوياً</h3>
+      <button type="button" class="modal-close" onclick="closeModal('stocktakeModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="stk-bar no-print">
+        <div class="stk-search">
+          <i class="fas fa-search"></i>
+          <input type="text" id="stkSearch" placeholder="ابحث عن مادة..." oninput="stkFilter()">
+        </div>
+        <div class="stk-chips">
+          <span class="stk-chip info"><i class="fas fa-layer-group"></i> المواد <b id="stkTotal">0</b></span>
+          <span class="stk-chip ok"><i class="fas fa-check"></i> مطابق <b id="stkMatch">0</b></span>
+          <span class="stk-chip warn"><i class="fas fa-pen"></i> تم عدّه <b id="stkCounted">0</b></span>
+          <span class="stk-chip bad"><i class="fas fa-triangle-exclamation"></i> فروقات <b id="stkDiffCount">0</b></span>
+        </div>
+      </div>
+      <div class="stk-table-wrap">
+        <table class="stk-table" id="stkTable">
+          <thead>
+            <tr>
+              <th style="width:46px">#</th>
+              <th style="min-width:200px">المادة</th>
+              <th>الكمية الأصلية</th>
+              <th>الكمية المتوفرة</th>
+              <th>الكمية المطلوبة</th>
+              <th>العد اليدوي</th>
+              <th>الفرق</th>
+              <th>الحالة</th>
+              <th style="min-width:170px">ملاحظات</th>
+            </tr>
+          </thead>
+          <tbody id="stkBody"></tbody>
+        </table>
+      </div>
+      <div class="stk-foot no-print">
+        <span><i class="fas fa-circle-info"></i> اكتب العدد الفعلي في خانة «العد اليدوي» — يتم حفظ المدخلات تلقائياً على هذا الجهاز.</span>
+        <span id="stkStamp"></span>
+      </div>
+    </div>
+    <div class="modal-footer no-print">
+      <button type="button" class="btn btn-secondary" onclick="closeModal('stocktakeModal')">إغلاق</button>
+      <button type="button" class="btn btn-warning" onclick="stkClear()"><i class="fas fa-eraser"></i> مسح العد</button>
+      <button type="button" class="btn btn-success" onclick="stkExport()"><i class="fas fa-file-excel"></i> تصدير Excel</button>
+      <button type="button" class="btn btn-primary" onclick="stkPrint()"><i class="fas fa-print"></i> طباعة</button>
+      <button type="button" class="btn btn-danger no-readonly" onclick="stkApply()"><i class="fas fa-save"></i> اعتماد العد الفعلي</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== جرد المخزون اليدوي — Manual stocktake ===== */
+var STK_KEY = 'manual_stocktake_v1';
+var stkItems = [];
+
+function stkLoadSaved() { try { return JSON.parse(localStorage.getItem(STK_KEY) || '{}'); } catch (e) { return {}; } }
+function stkSaveEntry(id, field, value) {
+    var d = stkLoadSaved();
+    d[id] = d[id] || {};
+    d[id][field] = value;
+    d._at = new Date().toISOString();
+    localStorage.setItem(STK_KEY, JSON.stringify(d));
+    stkStamp();
+}
+function stkStamp() {
+    var d = stkLoadSaved(), el = document.getElementById('stkStamp');
+    if (el) el.textContent = d._at ? ('آخر تعديل: ' + new Date(d._at).toLocaleString('ar-EG')) : '';
+}
+function stkEsc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+
+async function openStocktake() {
+    openModal('stocktakeModal');
+    var body = document.getElementById('stkBody');
+    body.innerHTML = '<tr><td colspan="9" style="padding:30px"><i class="fas fa-spinner fa-spin"></i> جاري تحميل المواد...</td></tr>';
+    try {
+        var inv = await SupabaseAPI.request('inventory', 'GET');
+        stkItems = (inv || []).slice().sort(function (a, b) { return String(a.name).localeCompare(String(b.name), 'ar'); });
+        stkRender();
+    } catch (e) {
+        body.innerHTML = '<tr><td colspan="9" style="padding:30px;color:#dc2626">تعذر تحميل المواد</td></tr>';
+    }
+}
+
+function stkRow(item, i, saved) {
+    var orig = Number(item.max_qty || item.maxQty || 0);
+    var avail = Number(item.qty || 0);
+    var need = Math.max(orig - avail, 0);
+    var s = saved[item.id] || {};
+    var manual = (s.manual === undefined || s.manual === null) ? '' : s.manual;
+    var note = s.note || '';
+    var st = avail === 0 ? ['out', 'نفذت'] : avail <= 3 ? ['low', 'منخفض'] : ['in', 'متوفر'];
+    return '<tr data-id="' + item.id + '" data-name="' + stkEsc(item.name) + '">' +
+        '<td>' + (i + 1) + '</td>' +
+        '<td class="stk-name">' + stkEsc(item.name) + '</td>' +
+        '<td class="stk-num b">' + orig + '</td>' +
+        '<td class="stk-num ' + (avail === 0 ? 'r' : avail <= 3 ? 'o' : 'g') + '">' + avail + '</td>' +
+        '<td class="stk-num o">' + need + '</td>' +
+        '<td><input type="number" min="0" class="stk-input" value="' + stkEsc(manual) + '" data-avail="' + avail + '" oninput="stkOnCount(this)" placeholder="—"></td>' +
+        '<td class="stk-diff-cell"><span class="stk-diff empty">—</span></td>' +
+        '<td><span class="stk-badge ' + st[0] + '">' + st[1] + '</span></td>' +
+        '<td><input type="text" class="stk-note" value="' + stkEsc(note) + '" placeholder="ملاحظة..." oninput="stkOnNote(this)"></td>' +
+        '</tr>';
+}
+
+function stkRender() {
+    var saved = stkLoadSaved();
+    document.getElementById('stkBody').innerHTML = stkItems.length
+        ? stkItems.map(function (it, i) { return stkRow(it, i, saved); }).join('')
+        : '<tr><td colspan="9" style="padding:30px;color:#94a3b8">لا توجد مواد في المخزون</td></tr>';
+    document.querySelectorAll('#stkBody .stk-input').forEach(function (inp) { stkPaintDiff(inp); });
+    stkStats(); stkStamp(); stkFilter();
+}
+
+function stkPaintDiff(inp) {
+    var tr = inp.closest('tr'), cell = tr.querySelector('.stk-diff-cell');
+    var avail = Number(inp.dataset.avail || 0);
+    if (inp.value === '') { cell.innerHTML = '<span class="stk-diff empty">—</span>'; return; }
+    var d = Number(inp.value) - avail;
+    var cls = d === 0 ? 'zero' : d > 0 ? 'plus' : 'minus';
+    cell.innerHTML = '<span class="stk-diff ' + cls + '">' + (d > 0 ? '+' : '') + d + '</span>';
+}
+
+function stkOnCount(inp) {
+    stkPaintDiff(inp);
+    stkSaveEntry(inp.closest('tr').dataset.id, 'manual', inp.value);
+    stkStats();
+}
+function stkOnNote(inp) { stkSaveEntry(inp.closest('tr').dataset.id, 'note', inp.value); }
+
+function stkStats() {
+    var rows = Array.prototype.slice.call(document.querySelectorAll('#stkBody tr[data-id]'));
+    var counted = 0, diff = 0, match = 0;
+    rows.forEach(function (tr) {
+        var inp = tr.querySelector('.stk-input');
+        if (!inp || inp.value === '') return;
+        counted++;
+        if (Number(inp.value) === Number(inp.dataset.avail)) match++; else diff++;
+    });
+    document.getElementById('stkTotal').textContent = rows.length;
+    document.getElementById('stkCounted').textContent = counted;
+    document.getElementById('stkMatch').textContent = match;
+    document.getElementById('stkDiffCount').textContent = diff;
+}
+
+function stkFilter() {
+    var q = (document.getElementById('stkSearch').value || '').trim().toLowerCase();
+    document.querySelectorAll('#stkBody tr[data-id]').forEach(function (tr) {
+        tr.style.display = !q || tr.dataset.name.toLowerCase().indexOf(q) > -1 ? '' : 'none';
+    });
+}
+
+function stkClear() {
+    if (!confirm('سيتم مسح جميع مدخلات العد اليدوي والملاحظات. هل تريد المتابعة؟')) return;
+    localStorage.removeItem(STK_KEY);
+    stkRender();
+    if (window.showToast) showToast('success', 'تم المسح', 'تم مسح مدخلات الجرد اليدوي');
+}
+
+function stkData() {
+    return Array.prototype.slice.call(document.querySelectorAll('#stkBody tr[data-id]')).map(function (tr, i) {
+        var tds = tr.querySelectorAll('td');
+        var inp = tr.querySelector('.stk-input');
+        var manual = inp.value;
+        var avail = Number(inp.dataset.avail || 0);
+        return {
+            i: i + 1, id: tr.dataset.id, name: tr.dataset.name,
+            orig: tds[2].textContent.trim(), avail: avail, need: tds[4].textContent.trim(),
+            manual: manual === '' ? '' : Number(manual),
+            diff: manual === '' ? '' : (Number(manual) - avail),
+            status: tds[7].textContent.trim(),
+            note: tr.querySelector('.stk-note').value || ''
+        };
+    });
+}
+
+function stkExport() {
+    var rows = stkData();
+    var html = '<html dir="rtl"><head><meta charset="utf-8"></head><body>' +
+        '<h3 style="font-family:Tajawal">جرد المخزون اليدوي - ' + new Date().toLocaleDateString('ar-EG') + '</h3>' +
+        '<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;font-family:Tajawal">' +
+        '<tr style="background:#e0e7ff"><th>#</th><th>المادة</th><th>الكمية الأصلية</th><th>الكمية المتوفرة</th><th>الكمية المطلوبة</th><th>العد اليدوي</th><th>الفرق</th><th>الحالة</th><th>ملاحظات</th></tr>' +
+        rows.map(function (r) {
+            return '<tr><td>' + r.i + '</td><td>' + stkEsc(r.name) + '</td><td>' + r.orig + '</td><td>' + r.avail + '</td><td>' + r.need + '</td><td>' + r.manual + '</td><td>' + r.diff + '</td><td>' + r.status + '</td><td>' + stkEsc(r.note) + '</td></tr>';
+        }).join('') + '</table></body></html>';
+    var blob = new Blob(['\ufeff' + html], { type: 'application/vnd.ms-excel' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'جرد_المخزون_' + new Date().toISOString().slice(0, 10) + '.xls';
+    a.click();
+    if (window.showToast) showToast('success', 'تم التصدير', 'تم تنزيل ملف الجرد');
+}
+
+function stkPrint() {
+    var rows = stkData();
+    var w = window.open('', '_blank');
+    w.document.write('<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>جرد المخزون اليدوي</title>' +
+        '<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet"><style>' +
+        '*{margin:0;padding:0;box-sizing:border-box}body{font-family:Tajawal,sans-serif;padding:22px;color:#1e293b}' +
+        '.h{text-align:center;border-bottom:3px solid #4f46e5;padding-bottom:12px;margin-bottom:16px}' +
+        '.h h1{color:#4f46e5;font-size:21px}.h p{color:#64748b;font-size:12px;margin-top:5px}' +
+        'table{width:100%;border-collapse:collapse}th{background:#eef2ff;color:#312e81;font-size:12px;padding:9px;border:1px solid #c7d2fe}' +
+        'td{padding:8px;border:1px solid #e2e8f0;font-size:12px;text-align:center}td.n{text-align:right;font-weight:700}' +
+        '.blank{display:inline-block;min-width:60px;border-bottom:1px dashed #94a3b8;height:14px}' +
+        '.sign{margin-top:34px;display:flex;justify-content:space-around;font-size:12px;color:#475569}' +
+        '.sign div{text-align:center}.sign span{display:block;margin-top:32px;border-top:1px solid #94a3b8;padding-top:5px;min-width:150px}' +
+        '@media print{body{padding:10px}}</style></head><body>' +
+        '<div class="h"><h1>نموذج جرد المخزون اليدوي</h1><p>عدد المواد: ' + rows.length + ' &nbsp;|&nbsp; تاريخ الجرد: ' + new Date().toLocaleDateString('ar-EG') + '</p></div>' +
+        '<table><thead><tr><th>#</th><th>المادة</th><th>الكمية الأصلية</th><th>الكمية المتوفرة</th><th>الكمية المطلوبة</th><th>العد اليدوي</th><th>الفرق</th><th>ملاحظات</th></tr></thead><tbody>' +
+        rows.map(function (r) {
+            return '<tr><td>' + r.i + '</td><td class="n">' + stkEsc(r.name) + '</td><td>' + r.orig + '</td><td>' + r.avail + '</td><td>' + r.need + '</td><td>' +
+                (r.manual === '' ? '<span class="blank"></span>' : r.manual) + '</td><td>' +
+                (r.diff === '' ? '<span class="blank"></span>' : (r.diff > 0 ? '+' + r.diff : r.diff)) + '</td><td>' +
+                (r.note ? stkEsc(r.note) : '<span class="blank"></span>') + '</td></tr>';
+        }).join('') +
+        '</tbody></table><div class="sign"><div>القائم بالجرد<span></span></div><div>المدقق<span></span></div><div>المدير<span></span></div></div>' +
+        '<script>setTimeout(function(){window.print()},500)<\/script></body></html>');
+    w.document.close();
+}
+
+async function stkApply() {
+    if (window.checkReadOnly && checkReadOnly()) return;
+    var rows = stkData().filter(function (r) { return r.manual !== '' && r.diff !== 0; });
+    if (!rows.length) { if (window.showToast) showToast('warning', 'لا يوجد فروقات', 'لا توجد كميات مختلفة عن المتوفر'); return; }
+    if (!confirm('سيتم تحديث الكمية المتوفرة لـ ' + rows.length + ' مادة حسب العد اليدوي. متابعة؟')) return;
+    for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        try {
+            await SupabaseAPI.request('inventory', 'PATCH', { qty: Number(r.manual) }, r.id);
+            await SupabaseAPI.request('inventory_history', 'POST', {
+                item_id: r.id, item_name: r.name, type: r.diff > 0 ? 'in' : 'out',
+                qty: Math.abs(r.diff), old_qty: r.avail, new_qty: Number(r.manual),
+                date: new Date().toISOString().slice(0, 10),
+                user: (window.currentUser && (currentUser.full_name || currentUser.fullName)) || 'System'
+            });
+        } catch (e) { }
+    }
+    localStorage.removeItem(STK_KEY);
+    if (window.loadInventory) await loadInventory();
+    if (window.updateDashboard) await updateDashboard();
+    closeModal('stocktakeModal');
+    if (window.showToast) showToast('success', 'تم اعتماد الجرد', 'تم تحديث ' + rows.length + ' مادة حسب العد اليدوي');
+}
 </script>
 
 </html>
