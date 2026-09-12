@@ -28875,6 +28875,12 @@ body.ip-focus #page-dashboard .dsh-f{display:none!important}
   opacity:0;transform:translateY(12px);transition:.25s}
 .nvx-toast.on{opacity:1;transform:none}
 @media(max-width:900px){.nvx-hero{grid-template-columns:1fr}}
+table.nvx-live{width:100%;border-collapse:collapse;margin-top:4px;font-size:12px}
+table.nvx-live td{padding:7px 9px;border-bottom:1px dashed var(--border-color,#e2e8f0);font-weight:800;color:var(--text-dark,#0f172a)}
+table.nvx-live td:last-child{text-align:end;color:var(--nvc,#4f46e5);font-weight:900;white-space:nowrap}
+table.nvx-live tr:last-child td{border-bottom:0}
+.nvx-sync{margin:8px 0 0;font-size:10.5px;font-weight:700;color:var(--text-light,#94a3b8)}
+.nvx-fresh{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;color:var(--text-light,#94a3b8)}
 @media print{.nvx-bd,.nvx-toast{display:none!important}}
 </style>
 
@@ -28953,9 +28959,26 @@ body.ip-focus #page-dashboard .dsh-f{display:none!important}
     document.body.appendChild(el);
     document.addEventListener('keydown',function(e){if(e.key==='Escape')NVX.close();});
   }
-  NVX.close=function(){var b=$('nvxBd'); if(b)b.classList.remove('on');};
+  NVX.close=function(){S.openKey=null;var b=$('nvxBd'); if(b)b.classList.remove('on');};
+  function liveBlock(key,fallback){
+    var st=(S.stats||{})[key];
+    var val=st?st.v:(fallback||'');
+    var out=val?'<div class="nvx-val">'+esc(val)+'</div>':'';
+    if(st&&st.rows&&st.rows.length){
+      out+='<div class="nvx-blk"><h6><i class="fas fa-database"></i> الأرقام الفعلية الآن</h6>'+
+        '<table class="nvx-live">'+st.rows.map(function(r){
+          return '<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>';}).join('')+'</table>'+
+        '<p class="nvx-sync">المصدر: '+esc(S.source||'بيانات النظام')+' • آخر مزامنة: '+
+        (S.sync?S.sync.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}):'—')+'</p></div>';
+    }else{
+      out+='<div class="nvx-blk"><p class="nvx-sync">جاري قراءة الأرقام من مخزن البيانات… افتح لوحة التحكم ثم أعد المحاولة.</p></div>';
+    }
+    return out;
+  }
+
   NVX.explain=function(key,value){
     var d=DOC[key]; if(!d)return;
+    S.openKey=key;
     ensureModal();
     $('nvxModal').style.setProperty('--nvc',d.c);
     $('nvxModal').innerHTML=
@@ -28963,7 +28986,7 @@ body.ip-focus #page-dashboard .dsh-f{display:none!important}
       '<small>شرح مبسّط للمؤشر وكيفية التعامل معه</small></div>'+
       '<button onclick="NewVision.close()"><i class="fas fa-xmark"></i></button></div>'+
       '<div class="nvx-bdy">'+
-      (value?'<div class="nvx-val">'+esc(value)+'</div>':'')+
+      liveBlock(key,value)+
       '<div class="nvx-blk"><h6><i class="fas fa-circle-info"></i> ما هذا المؤشر؟</h6><p>'+d.what+'</p></div>'+
       '<div class="nvx-blk"><h6><i class="fas fa-calculator"></i> كيف يُحسب؟</h6><p>'+d.how+'</p></div>'+
       '<div class="nvx-blk"><h6><i class="fas fa-eye"></i> كيف أقرأ الرقم؟</h6><ul>'+
@@ -29085,6 +29108,61 @@ body.ip-focus #page-dashboard .dsh-f{display:none!important}
     var outStock=inventory.filter(function(i){return (i.qty||0)===0;}).length;
     var lowStock=inventory.filter(function(i){return (i.qty||0)>0&&(i.qty||0)<=3;}).length;
 
+    /* ===== لقطة حسابية حقيقية لكل مؤشر (تُستخدم في نافذة الشرح) ===== */
+    var inRange=function(from,to){return requests.filter(function(r){
+      var t=new Date(F(r,'created_at','createdAt')); if(isNaN(t))return false;
+      var dd=(Date.now()-t.getTime())/86400000; return dd>=from&&dd<to;});};
+    var w1=inRange(0,7).length, w2=inRange(7,14).length;
+    var trend=w2?Math.round((w1-w2)/w2*100):(w1?100:0);
+    var deptCount={}; requests.forEach(function(r){var d=(r.department||'').trim(); if(d)deptCount[d]=(deptCount[d]||0)+1;});
+    var topDept=Object.keys(deptCount).sort(function(a,b){return deptCount[b]-deptCount[a];})[0]||'';
+    var doneDurs=requests.filter(function(r){return r.status==='completed';})
+      .map(function(r){return daysSince(F(r,'created_at','createdAt'));});
+    var avgClose=doneDurs.length?Math.round(doneDurs.reduce(function(a,b){return a+b;},0)/doneDurs.length):0;
+    var slaOk=ages.filter(function(d){return d<=2;}).length;
+    var slaWatch=ages.filter(function(d){return d>2&&d<=7;}).length;
+    var slaLate=ages.filter(function(d){return d>7&&d<=14;}).length;
+    var slaBreach=ages.filter(function(d){return d>14;}).length;
+    var openN=ages.length;
+    var pct=function(n){return openN?Math.round(n/openN*100):0;};
+    S.sync=new Date();
+    S.stats={
+      compliance:{v:comp+'%',rows:[
+        ['الطلبات المفتوحة الآن',openN+' طلب'],
+        ['منها عمرها ≤ 7 أيام',okN+' طلب'],
+        ['الحساب',okN+' ÷ '+(openN||0)+' × 100 = '+comp+'%'],
+        ['المتأخرة (أكثر من 7 أيام)',(openN-okN)+' طلب']]},
+      trend:{v:w1+' طلب هذا الأسبوع',rows:[
+        ['آخر 7 أيام',w1+' طلب'],
+        ['الأسبوع السابق',w2+' طلب'],
+        ['الحساب',w2?('('+w1+' − '+w2+') ÷ '+w2+' × 100 = '+trend+'%'):('لا يوجد أساس للمقارنة')],
+        ['النتيجة',(trend>0?'ارتفاع ':trend<0?'انخفاض ':'ثبات ')+(trend?Math.abs(trend)+'%':'')]]},
+      dept:{v:topDept?(topDept+' — '+deptCount[topDept]+' طلب'):'لا توجد بيانات أقسام',rows:(function(){
+        return Object.keys(deptCount).sort(function(a,b){return deptCount[b]-deptCount[a];})
+          .slice(0,5).map(function(k){return [k,deptCount[k]+' طلب'];});})()},
+      stuck:{v:slaBreach+' طلب متجمد',rows:[
+        ['الطلبات المفتوحة',openN+' طلب'],
+        ['عمرها أكثر من 14 يوم',slaBreach+' طلب'],
+        ['نسبتها من المفتوح',pct(slaBreach)+'%'],
+        ['أقدم طلب مفتوح',(openN?Math.max.apply(null,ages):0)+' يوم']]},
+      stock:{v:(outStock+lowStock)+' تنبيه مخزن',rows:[
+        ['إجمالي مواد المخزن',inventory.length+' مادة'],
+        ['نافدة (كمية = 0)',outStock+' مادة'],
+        ['قاربت على النفاد (1 – 3)',lowStock+' مادة'],
+        ['سليمة',Math.max(0,inventory.length-outStock-lowStock)+' مادة']]},
+      avg:{v:avgClose+' يوم',rows:[
+        ['الطلبات المنجزة',doneDurs.length+' طلب'],
+        ['مجموع الأيام',doneDurs.reduce(function(a,b){return a+b;},0)+' يوم'],
+        ['الحساب',doneDurs.length?(doneDurs.reduce(function(a,b){return a+b;},0)+' ÷ '+doneDurs.length+' = '+avgClose+' يوم'):'لا توجد طلبات منجزة'],
+        ['المستهدف','أقل من 7 أيام']]},
+      sla_ok:{v:slaOk+' طلب',rows:[['ضمن 0 – 2 يوم',slaOk+' طلب'],['من إجمالي المفتوح',openN+' طلب'],['النسبة',pct(slaOk)+'%']]},
+      sla_watch:{v:slaWatch+' طلب',rows:[['بين 3 و 7 أيام',slaWatch+' طلب'],['من إجمالي المفتوح',openN+' طلب'],['النسبة',pct(slaWatch)+'%']]},
+      sla_late:{v:slaLate+' طلب',rows:[['بين 8 و 14 يوم',slaLate+' طلب'],['من إجمالي المفتوح',openN+' طلب'],['النسبة',pct(slaLate)+'%']]},
+      sla_breach:{v:slaBreach+' طلب',rows:[['أكثر من 14 يوم',slaBreach+' طلب'],['من إجمالي المفتوح',openN+' طلب'],['النسبة',pct(slaBreach)+'%']]}
+    };
+    S.source='الطلبات: '+requests.length+' سجل • المخزن: '+inventory.length+' سجل';
+    if($('nvxBd')&&$('nvxBd').classList.contains('on')&&S.openKey)NVX.explain(S.openKey);
+
     /* الدائرة */
     var gc=comp>=90?'#10b981':comp>=75?'#f59e0b':'#ef4444';
     var ring=$('nvxRing');
@@ -29134,6 +29212,53 @@ body.ip-focus #page-dashboard .dsh-f{display:none!important}
   }
 
   /* ============ 4) الربط ============ */
+  /* إعادة الحساب عند أي تغيير في مخزن البيانات */
+  NVX.reflow=function(){
+    clearTimeout(NVX._rf);
+    NVX._rf=setTimeout(function(){
+      NVX.render().catch(function(){});
+      try{if(window.DashboardIdeas&&DashboardIdeas.render)DashboardIdeas.render();}catch(e){}
+    },500);
+  };
+  function bindStore(){
+    if(typeof SupabaseAPI==='undefined'||!SupabaseAPI||typeof SupabaseAPI.request!=='function')return false;
+    if(SupabaseAPI.request.__nvx)return true;
+    var orig=SupabaseAPI.request.bind(SupabaseAPI);
+    var watched=['requests','inventory','inventory_history'];
+    var wrapped=async function(table,method,data,id){
+      var res=await orig(table,method,data,id);
+      try{
+        if(method&&method!=='GET'&&watched.indexOf(table)>-1)NVX.reflow();
+      }catch(e){}
+      return res;
+    };
+    wrapped.__nvx=true; SupabaseAPI.request=wrapped;
+    return true;
+  }
+  function bindRealtime(){
+    if(NVX._rt)return;
+    try{
+      if(typeof supabase==='undefined'||!supabase||!supabase.channel)return;
+      NVX._rt=supabase.channel('nvx-dashboard')
+        .on('postgres_changes',{event:'*',schema:'public',table:'requests'},NVX.reflow)
+        .on('postgres_changes',{event:'*',schema:'public',table:'inventory'},NVX.reflow)
+        .subscribe();
+    }catch(e){}
+  }
+  function bindAuto(){
+    if(NVX._auto)return; NVX._auto=true;
+    document.addEventListener('visibilitychange',function(){
+      if(!document.hidden)NVX.reflow();
+    });
+    window.addEventListener('storage',function(e){
+      if(e&&e.key&&/^local_(requests|inventory)/.test(e.key))NVX.reflow();
+    });
+    setInterval(function(){
+      var p=$('page-dashboard');
+      if(p&&p.classList.contains('active')&&!document.hidden)NVX.reflow();
+    },120000);
+  }
+
   function hook(){
     if(typeof window.updateDashboard!=='function'||window.updateDashboard.__nvx)return false;
     var orig=window.updateDashboard;
@@ -29149,10 +29274,10 @@ body.ip-focus #page-dashboard .dsh-f{display:none!important}
     ensureModal();
     var tries=0;
     var t=setInterval(function(){
-      tries++; hook();
+      tries++; hook(); bindStore(); bindRealtime(); bindAuto();
       var p=$('page-dashboard');
       if(p&&p.classList.contains('active')&&typeof SupabaseAPI!=='undefined'){mountHero();NVX.render().catch(function(){});}
-      if(tries>40)clearInterval(t);
+      if(tries>200)clearInterval(t);
     },1200);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
