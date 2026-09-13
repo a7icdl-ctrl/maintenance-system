@@ -21,6 +21,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -23554,7 +23555,7 @@ html body .page-section > .page-header.is-loading::after{
   animation: uh-bar 1.1s linear infinite;
 }
 @keyframes uh-bar{ 0%{ transform: translateX(-100%) } 100%{ transform: translateX(100%) } }
-html body .page-section > .page-header.is-loading .page-actions .btn{ pointer-events:none; opacity:.75; }
+html body .page-section > .page-header.is-loading .page-actions .btn{ pointer-events:auto; opacity:1; }
 
 /* ---------- التجاوب مع الشاشات الصغيرة ---------- */
 @media (max-width: 900px){
@@ -23626,6 +23627,16 @@ html body .page-section > .page-header.is-loading .page-actions .btn{ pointer-ev
       }, wait);
     }
     if(on && h.__uhCount === 1) h.__uhStart = Date.now();
+
+    /* حماية: إن بقي المؤشر عالقاً (طلب شبكة لم ينتهِ) نُصفّره تلقائياً */
+    clearTimeout(h.__uhGuard);
+    if(h.__uhCount > 0){
+      h.__uhGuard = setTimeout(function(){
+        h.__uhCount = 0;
+        h.classList.remove('is-loading');
+        if(l) l.lastElementChild.textContent = 'جارٍ التنفيذ…';
+      }, 12000);
+    }
   }
 
   // API عامة
