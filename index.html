@@ -23,6 +23,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -2384,7 +2385,8 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                         <option value="withdrawn">مسحوب</option>
                         <option value="active">مشغل</option>
                     </select>
-                    <button type="button" class="bulk-btn b-print" onclick="bulkPrintRequests()"><i class="fas fa-print"></i> طباعة المحدد</button>
+                    <button type="button" class="bulk-btn b-print" onclick="bulkPrintRequests(false)" title="طباعة أو حفظ الطلبات المحددة كقائمة PDF"><i class="fas fa-print"></i> طباعة المحدد</button>
+                    <button type="button" class="bulk-btn b-print" onclick="bulkPrintRequests(true)" title="طباعة أو حفظ تفاصيل الطلبات المحددة وإجراءاتها PDF"><i class="fas fa-file-lines"></i> طباعة المحدد بالتفاصيل</button>
                     <button type="button" class="bulk-btn b-delete" onclick="bulkDeleteRequests()"><i class="fas fa-trash"></i> حذف المحدد</button>
                     <button type="button" class="bulk-btn b-clear" onclick="clearRequestSelection()"><i class="fas fa-xmark"></i> إلغاء التحديد</button>
                 </div>
@@ -8940,12 +8942,72 @@ async function bulkSendToMaintenance() {
     showUndoBar(`تم إرسال ${ok} طلب إلى فريق الصيانة`, async () => { await restoreRequestSnapshots(snapshots); markChangeLogUndone(logId2); });
 }
 
-async function bulkPrintRequests() {
+async function bulkPrintRequests(withDetails = false) {
     const ids = getSelectedRequestIds();
     if (!ids) return;
-    for (const id of ids) {
-        try { await printRequest(id); } catch (e) { console.error(e); }
+    let all = [];
+    try {
+        all = await SupabaseAPI.request('requests', 'GET') || [];
+    } catch (e) {
+        showToast('error', 'خطأ', 'تعذر تحميل الطلبات المحددة');
+        return;
     }
+    const selected = ids.map(id => all.find(r => r.id === id)).filter(Boolean);
+    if (!selected.length) {
+        showToast('warning', 'لا توجد بيانات', 'تعذر العثور على الطلبات المحددة');
+        return;
+    }
+    openSelectedRequestsReport(selected, withDetails);
+}
+
+function openSelectedRequestsReport(requests, withDetails) {
+    const esc = typeof _drEsc === 'function' ? _drEsc : (v => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'));
+    const sorted = requests.slice().sort((a, b) => (parseInt(b.request_number || b.requestNumber || b.id || 0) || 0) - (parseInt(a.request_number || a.requestNumber || a.id || 0) || 0));
+    const printedAt = new Date().toLocaleString('ar-SA-u-ca-gregory-nu-latn');
+    const filename = withDetails ? 'طلبات-الصيانة-المحددة-بالتفاصيل.pdf' : 'طلبات-الصيانة-المحددة.pdf';
+    const title = withDetails ? 'تفاصيل طلبات الصيانة المحددة' : 'قائمة طلبات الصيانة المحددة';
+    const tableRows = sorted.map((r, i) => `<tr>
+        <td>${i + 1}</td>
+        <td class="num">#${esc(r.request_number || r.requestNumber || '-')}</td>
+        <td>${esc(r.computer_number || r.computerNumber || '-')}</td>
+        <td>${esc(r.device_name || r.deviceName || '-')}</td>
+        <td>${esc(r.employee_name || r.employeeName || '-')}</td>
+        <td>${esc(r.department || '-')}</td>
+        <td class="issue">${esc(r.issue_description || r.issueDescription || '-')}</td>
+        <td><span class="status s-${esc(r.status || '')}">${esc(getStatusLabel(r.status))}</span></td>
+        <td class="date">${esc(formatDate(r.created_at || r.createdAt))}</td>
+    </tr>`).join('');
+    const details = withDetails ? sorted.map(r => {
+        const procedures = Array.isArray(r.procedures) ? r.procedures : [];
+        const proceduresHtml = procedures.length ? `<ol>${procedures.map(p => `<li><b>${esc(p.date || '-')}</b><div>${esc(p.text || '-')}</div>${p.attachment ? `<small>مرفق: ${esc(p.attachment.description || p.attachment.filename || '')}</small>` : ''}</li>`).join('')}</ol>` : '<p class="empty">لا توجد إجراءات مسجلة على هذا الطلب</p>';
+        return `<section class="request-detail">
+            <div class="detail-head"><strong>طلب رقم #${esc(r.request_number || r.requestNumber || '-')}</strong><span class="status s-${esc(r.status || '')}">${esc(getStatusLabel(r.status))}</span></div>
+            <div class="detail-grid">
+                <div><b>الرقم الحاسوبي:</b> ${esc(r.computer_number || r.computerNumber || '-')}</div><div><b>الجهاز:</b> ${esc(r.device_name || r.deviceName || '-')}</div>
+                <div><b>الموظف:</b> ${esc(r.employee_name || r.employeeName || '-')}</div><div><b>القسم:</b> ${esc(r.department || '-')}</div>
+                <div><b>تاريخ الطلب:</b> ${esc(formatDate(r.created_at || r.createdAt))}</div><div><b>عدد الإجراءات:</b> ${procedures.length}</div>
+            </div>
+            <h3>وصف المشكلة</h3><p class="description">${esc(r.issue_description || r.issueDescription || 'لا يوجد وصف')}</p>
+            <h3>الإجراءات الفنية</h3>${proceduresHtml}
+        </section>`;
+    }).join('') : '';
+    const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eef2f7;color:#172033;font-family:'Tajawal',Tahoma,sans-serif;line-height:1.55}.toolbar{position:sticky;top:0;z-index:5;display:flex;gap:8px;justify-content:center;padding:10px;background:#172033}.toolbar button{border:0;border-radius:7px;padding:9px 17px;color:#fff;font:700 13px 'Tajawal';cursor:pointer}.print{background:#2563eb}.pdf{background:#dc2626}.close{background:#64748b}#report{width:277mm;min-height:190mm;margin:14px auto;background:#fff;padding:10mm;box-shadow:0 8px 30px #0002}.report-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #334155;padding-bottom:9px;margin-bottom:11px}.report-head h1{margin:0;font-size:22px;color:#172033}.report-head p{margin:0;color:#64748b;font-size:11px}.summary{font-size:12px;font-weight:700;color:#475569;margin-bottom:8px}table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px}thead{display:table-header-group}th{background:#334155;color:#fff;padding:6px 4px;border:1px solid #273449;text-align:center}td{padding:5px 4px;border:1px solid #cbd5e1;vertical-align:middle;text-align:center;overflow-wrap:anywhere}tbody tr:nth-child(even){background:#f8fafc}th:nth-child(1){width:4%}th:nth-child(2){width:10%}th:nth-child(3){width:10%}th:nth-child(4){width:11%}th:nth-child(5){width:12%}th:nth-child(6){width:11%}th:nth-child(7){width:22%}th:nth-child(8){width:10%}th:nth-child(9){width:10%}.issue{text-align:right}.num,.date{direction:ltr}.status{display:inline-block;border-radius:99px;padding:2px 7px;font-size:9px;font-weight:800;white-space:nowrap;background:#e2e8f0;color:#334155}.s-new{background:#dbeafe;color:#1d4ed8}.s-inprogress{background:#fef3c7;color:#a16207}.s-pending{background:#fee2e2;color:#b91c1c}.s-completed{background:#dcfce7;color:#15803d}.s-cancelled{background:#e2e8f0;color:#475569}.s-duplicate{background:#ede9fe;color:#6d28d9}.s-withdrawn{background:#ffedd5;color:#c2410c}.s-active{background:#cffafe;color:#0e7490}.details-title{margin:18px 0 8px;font-size:16px;border-bottom:2px solid #cbd5e1;padding-bottom:5px}.request-detail{border:1px solid #94a3b8;border-radius:6px;padding:10px;margin:0 0 10px;break-inside:avoid;page-break-inside:avoid}.detail-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #cbd5e1;padding-bottom:6px;margin-bottom:7px;color:#1e3a8a}.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 12px;font-size:11px}.request-detail h3{font-size:11px;color:#1d4ed8;margin:8px 0 3px}.description{margin:0;background:#f8fafc;border:1px solid #e2e8f0;padding:6px;white-space:pre-wrap;font-size:11px}.request-detail ol{margin:0;padding-right:20px;font-size:10.5px}.request-detail li{margin-bottom:5px;border-bottom:1px dashed #e2e8f0;padding-bottom:4px}.request-detail li div{white-space:pre-wrap}.request-detail small,.empty{color:#64748b;font-size:10px}.footer{text-align:center;color:#64748b;border-top:1px solid #cbd5e1;margin-top:12px;padding-top:7px;font-size:10px}
+@page{size:A4 landscape;margin:7mm}@media print{body{background:#fff}.toolbar{display:none!important}#report{width:auto;min-height:0;margin:0;padding:0;box-shadow:none}tr,.request-detail{break-inside:avoid;page-break-inside:avoid}}
+</style></head><body><div class="toolbar"><button class="print" onclick="window.print()">طباعة</button><button class="pdf" id="pdfBtn" onclick="saveSelectedPdf()">حفظ PDF</button><button class="close" onclick="window.close()">إغلاق</button></div><main id="report"><header class="report-head"><h1>${title}</h1><p>تاريخ الإصدار: ${printedAt}</p></header><div class="summary">عدد الطلبات المحددة: ${sorted.length}</div><table><thead><tr><th>#</th><th>رقم الطلب</th><th>الرقم الحاسوبي</th><th>الجهاز</th><th>الموظف</th><th>القسم</th><th>وصف المشكلة</th><th>الحالة</th><th>تاريخ الطلب</th></tr></thead><tbody>${tableRows}</tbody></table>${withDetails ? `<h2 class="details-title">تفاصيل الطلبات والإجراءات</h2>${details}` : ''}<footer class="footer">نظام إدارة الصيانة — تم إعداد التقرير من الطلبات المحددة</footer></main>
+<script>function saveSelectedPdf(){var b=document.getElementById('pdfBtn'),old=b.textContent;b.disabled=true;b.textContent='جاري التحضير...';var ready=document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve();ready.then(function(){return html2pdf().set({margin:5,filename:'${filename}',image:{type:'jpeg',quality:.98},html2canvas:{scale:2,useCORS:true,scrollY:0,windowWidth:1120,letterRendering:true},jsPDF:{unit:'mm',format:'a4',orientation:'landscape'},pagebreak:{mode:['css','legacy']}}).from(document.getElementById('report')).save()}).then(function(){b.disabled=false;b.textContent=old}).catch(function(){b.disabled=false;b.textContent=old;window.print()})}<\/script></body></html>`;
+    const w = window.open('', '_blank', 'width=1200,height=850,scrollbars=yes,resizable=yes');
+    if (!w) {
+        showToast('error', 'تعذر فتح التقرير', 'يرجى السماح بالنوافذ المنبثقة ثم المحاولة مرة أخرى');
+        return;
+    }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    showToast('success', 'التقرير جاهز', withDetails ? 'تفاصيل الطلبات المحددة جاهزة للطباعة أو الحفظ PDF' : 'قائمة الطلبات المحددة جاهزة للطباعة أو الحفظ PDF');
 }
 
 async function bulkDeleteRequests() {
