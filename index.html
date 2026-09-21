@@ -5250,6 +5250,328 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                 .dp-view-btn.active{background:#fff;color:#4338ca;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 
                 
+                
+                
+                /* Floating Card for Active Requests */
+                .dp-yard-req-badge.clickable, .dp-dept-req-pill.clickable {
+                    cursor: pointer;
+                    user-select: none;
+                    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                .dp-yard-req-badge.clickable:hover {
+                    transform: scale(1.06);
+                    filter: brightness(0.96);
+                    box-shadow: 0 2px 6px rgba(0,0,0,.12);
+                }
+                .dp-dept-req-pill.clickable:hover {
+                    transform: scale(1.08);
+                    box-shadow: 0 2px 5px rgba(0,0,0,.1);
+                }
+                .dp-dept-req-pill.clickable.active:hover {
+                    background: #fde047;
+                    color: #78350f;
+                }
+
+                .dp-float-modal-overlay {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(15, 23, 42, 0.5);
+                    backdrop-filter: blur(4px);
+                    z-index: 10050;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 16px;
+                    opacity: 0;
+                    visibility: hidden;
+                    transition: opacity .2s ease, visibility .2s ease;
+                }
+                .dp-float-modal-overlay.show {
+                    opacity: 1;
+                    visibility: visible;
+                }
+                .dp-float-card {
+                    background: #ffffff;
+                    width: 100%;
+                    max-width: 520px;
+                    max-height: 85vh;
+                    border-radius: 16px;
+                    box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0,0,0,0.06);
+                    display: flex;
+                    flex-direction: column;
+                    overflow: hidden;
+                    transform: translateY(14px) scale(0.97);
+                    transition: transform .22s cubic-bezier(0.16, 1, 0.3, 1);
+                    animation: dpCardPop .25s ease forwards;
+                    direction: rtl;
+                    font-family: inherit;
+                }
+                .dp-float-modal-overlay.show .dp-float-card {
+                    transform: translateY(0) scale(1);
+                }
+                @keyframes dpCardPop {
+                    from { opacity: 0; transform: translateY(14px) scale(0.97); }
+                    to { opacity: 1; transform: translateY(0) scale(1); }
+                }
+
+                .dp-float-head {
+                    padding: 14px 18px;
+                    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                    border-bottom: 1px solid #e2e8f0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 12px;
+                }
+                .dp-float-title-wrap {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    min-width: 0;
+                }
+                .dp-float-icon {
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 10px;
+                    background: #eef2ff;
+                    color: #4f46e5;
+                    display: grid;
+                    place-items: center;
+                    font-size: 15px;
+                    flex-shrink: 0;
+                    box-shadow: 0 1px 2px rgba(79, 70, 229, 0.1);
+                }
+                .dp-float-title {
+                    font-size: 15px;
+                    font-weight: 900;
+                    color: #1e293b;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                .dp-float-sub {
+                    font-size: 11.5px;
+                    color: #64748b;
+                    margin-top: 2px;
+                }
+                .dp-float-count-pill {
+                    font-size: 11.5px;
+                    font-weight: 800;
+                    padding: 3px 9px;
+                    border-radius: 999px;
+                    background: #fef3c7;
+                    color: #92400e;
+                    border: 1px solid #fde68a;
+                    white-space: nowrap;
+                }
+                .dp-float-close-btn {
+                    border: none;
+                    background: #ffffff;
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 8px;
+                    color: #64748b;
+                    font-size: 20px;
+                    line-height: 1;
+                    cursor: pointer;
+                    display: grid;
+                    place-items: center;
+                    border: 1px solid #e2e8f0;
+                    transition: all .15s ease;
+                }
+                .dp-float-close-btn:hover {
+                    background: #fee2e2;
+                    color: #dc2626;
+                    border-color: #fecaca;
+                }
+
+                .dp-float-notice {
+                    padding: 8px 18px;
+                    background: #eff6ff;
+                    border-bottom: 1px solid #dbeafe;
+                    font-size: 11.5px;
+                    color: #1e40af;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+                .dp-float-list {
+                    padding: 14px 18px;
+                    overflow-y: auto;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    max-height: 60vh;
+                }
+                .dp-float-list::-webkit-scrollbar {
+                    width: 6px;
+                }
+                .dp-float-list::-webkit-scrollbar-thumb {
+                    background: #cbd5e1;
+                    border-radius: 999px;
+                }
+                .dp-float-item {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 11px;
+                    padding: 12px 14px;
+                    transition: all .15s ease;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+                }
+                .dp-float-item:hover {
+                    border-color: #cbd5e1;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+                    background: #fbfcfe;
+                }
+                .dp-float-item-head {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 8px;
+                    margin-bottom: 8px;
+                }
+                .dp-float-item-num {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                    font-size: 13px;
+                    font-weight: 900;
+                    color: #2563eb;
+                    cursor: pointer;
+                    padding: 2px 6px;
+                    border-radius: 6px;
+                    background: #eff6ff;
+                    transition: background .15s;
+                }
+                .dp-float-item-num:hover {
+                    background: #dbeafe;
+                }
+                .dp-float-item-body {
+                    margin-bottom: 8px;
+                }
+                
+                .dp-float-details-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 8px 12px;
+                    margin: 8px 0;
+                    background: #f8fafc;
+                    padding: 9px 11px;
+                    border-radius: 8px;
+                    border: 1px solid #f1f5f9;
+                }
+                .dp-float-field {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                    font-size: 11.5px;
+                }
+                .dp-float-field.dp-field-full {
+                    grid-column: 1 / -1;
+                }
+                .dp-field-lbl {
+                    color: #64748b;
+                    font-size: 10.5px;
+                    font-weight: 700;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                }
+                .dp-field-lbl i {
+                    color: #94a3b8;
+                    font-size: 10px;
+                }
+                .dp-field-val {
+                    color: #1e293b;
+                    font-weight: 700;
+                    font-size: 12px;
+                    word-break: break-word;
+                }
+                .dp-field-val.dp-val-highlight {
+                    color: #0f172a;
+                    font-weight: 800;
+                }
+                .dp-float-item-dept {
+                    color: #6366f1;
+                    font-size: 11px;
+                    font-weight: 700;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                }
+
+                .dp-float-item-desc {
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #1e293b;
+                    line-height: 1.4;
+                }
+                .dp-float-item-notes {
+                    font-size: 11.5px;
+                    color: #64748b;
+                    margin-top: 4px;
+                }
+                .dp-float-item-foot {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding-top: 8px;
+                    border-top: 1px solid #f1f5f9;
+                    font-size: 11px;
+                }
+                .dp-float-item-date {
+                    color: #94a3b8;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                }
+                .dp-float-action-btn {
+                    border: none;
+                    background: #f8fafc;
+                    color: #475569;
+                    font-size: 11px;
+                    font-weight: 800;
+                    font-family: inherit;
+                    padding: 4px 10px;
+                    border-radius: 6px;
+                    border: 1px solid #e2e8f0;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 5px;
+                    transition: all .15s;
+                }
+                .dp-float-action-btn:hover {
+                    background: #4f46e5;
+                    color: #ffffff;
+                    border-color: #4f46e5;
+                }
+                .dp-float-prio {
+                    font-size: 10px;
+                    font-weight: 800;
+                    padding: 1px 6px;
+                    border-radius: 4px;
+                    background: #fee2e2;
+                    color: #b91c1c;
+                }
+                .dp-float-empty {
+                    text-align: center;
+                    padding: 32px 16px;
+                    color: #64748b;
+                }
+                .dp-float-empty i {
+                    font-size: 36px;
+                    color: #10b981;
+                    margin-bottom: 8px;
+                    display: block;
+                }
+
+                /* Active Requests Visual Key / Legend */
+                .dp-req-legend{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-inline-start:3.5px solid #0284c7;border-radius:9px;padding:7px 12px;margin-bottom:14px;font-size:12px;color:#475569}
+                .dp-legend-item{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+                .dp-legend-item i{font-size:13px}
+                .dp-legend-tag{display:inline-flex;align-items:center;padding:1px 7px;border-radius:5px;background:#ffffff;color:#64748b;font-size:11px;font-weight:700;border:1px solid #e2e8f0;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+
                 /* Active Requests Badges in Cards */
                 .dp-yard-req-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;margin-inline-start:4px;transition:all .15s}
                 .dp-yard-req-badge.has-active{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;box-shadow:0 1px 3px rgba(194,65,12,.1)}
@@ -5339,6 +5661,22 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                             <button type="button" class="dp-view-btn" data-view="cards" onclick="setDeptView('cards')" title="عرض بطاقات الساحات"><i class="fas fa-layer-group"></i> بطاقات الساحات</button>
                             <button type="button" class="dp-view-btn" data-view="table" onclick="setDeptView('table')" title="عرض جدول الأقسام"><i class="fas fa-table-list"></i> الجدول</button>
                         </div>
+                    </div>
+                </div>
+
+                
+                <!-- مفتاح بصري توضيحي لحالة العدادات -->
+                <div class="dp-req-legend no-print">
+                    <div class="dp-legend-item">
+                        <i class="fas fa-circle-info" style="color:#0284c7"></i>
+                        <span><strong>مفتاح العدادات:</strong> تحتسب فقط <strong>الطلبات النشطة</strong> (قيد المتابعة والتنفيذ).</span>
+                    </div>
+                    <div class="dp-legend-item" style="color:#64748b;font-size:11.5px">
+                        <i class="fas fa-filter-circle-xmark" style="color:#94a3b8"></i>
+                        <span>مستبعد تلقائياً:</span>
+                        <span class="dp-legend-tag"><i class="fas fa-circle-check" style="color:#10b981;margin-inline-end:3px;font-size:10px"></i> المكتمل</span>
+                        <span class="dp-legend-tag"><i class="fas fa-ban" style="color:#ef4444;margin-inline-end:3px;font-size:10px"></i> الملغي</span>
+                        <span class="dp-legend-tag"><i class="fas fa-clone" style="color:#f59e0b;margin-inline-end:3px;font-size:10px"></i> المكرر</span>
                     </div>
                 </div>
 
@@ -7692,9 +8030,11 @@ let DEPT_CACHE = [];
 function dpEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 let DEPT_ACTIVE_REQ_COUNTS = {};
+let DEPT_ACTIVE_REQS_BY_DEPT = {};
 
 function updateDeptActiveRequests(reqs) {
     DEPT_ACTIVE_REQ_COUNTS = {};
+    DEPT_ACTIVE_REQS_BY_DEPT = {};
     const excluded = ['completed', 'cancelled', 'duplicate', 'مكتمل', 'ملغي', 'مكرر'];
     (reqs || []).forEach(r => {
         if (!r) return;
@@ -7703,6 +8043,8 @@ function updateDeptActiveRequests(reqs) {
             const dept = (r.department || '').trim();
             if (dept) {
                 DEPT_ACTIVE_REQ_COUNTS[dept] = (DEPT_ACTIVE_REQ_COUNTS[dept] || 0) + 1;
+                if (!DEPT_ACTIVE_REQS_BY_DEPT[dept]) DEPT_ACTIVE_REQS_BY_DEPT[dept] = [];
+                DEPT_ACTIVE_REQS_BY_DEPT[dept].push(r);
             }
         }
     });
@@ -7742,6 +8084,177 @@ function setDeptView(view) {
     }
 }
 
+// Floating Card Logic for Active Requests
+function openActiveRequestsCard(title, subtitle, reqList) {
+    let modal = document.getElementById('dpReqsFloatModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'dpReqsFloatModal';
+        modal.className = 'dp-float-modal-overlay no-print';
+        modal.onclick = function(e) {
+            if (e.target === modal) closeActiveRequestsFloatingCard();
+        };
+        document.body.appendChild(modal);
+    }
+
+    const count = (reqList || []).length;
+    let itemsHtml = '';
+    if (!count) {
+        itemsHtml = `
+            <div class="dp-float-empty">
+                <i class="fas fa-clipboard-check"></i>
+                <p style="margin:0;font-weight:700">لا توجد طلبات صيانة نشطة حالياً</p>
+                <span style="font-size:11.5px;color:#94a3b8">جميع الطلبات مكتملة أو ملغية أو مكررة</span>
+            </div>
+        `;
+    } else {
+        itemsHtml = reqList.map(r => {
+            const reqNum = r.request_number || r.requestNumber || r.id;
+            const statusHtml = typeof getStatusChip === 'function' ? getStatusChip(r.status, true) : `<span class="status-chip chip-inprogress chip-sm">${dpEsc(r.status || 'نشط')}</span>`;
+            
+            const device = r.computer_type || r.computerType || r.device_type || r.equipment || '';
+            const deviceNum = r.computer_number || r.computerNumber || '';
+            const employee = r.employee_name || r.employeeName || r.employee || r.user_name || '';
+            const issue = r.issue || r.title || r.fault || r.description || '';
+            const notes = r.notes || '';
+            
+            const dateStr = r.created_at || r.createdAt || r.date || '';
+            let dateDisplay = '';
+            if (dateStr) {
+                try {
+                    const d = new Date(dateStr);
+                    dateDisplay = isNaN(d) ? dateStr : d.toLocaleDateString('ar-EG', { month: 'short', day: 'numeric', year: 'numeric' });
+                } catch(e) { dateDisplay = dateStr; }
+            }
+            
+            const prio = r.priority ? `<span class="dp-float-prio">${dpEsc(r.priority)}</span>` : '';
+
+            return `
+                <div class="dp-float-item">
+                    <div class="dp-float-item-head">
+                        <div class="dp-float-item-num">
+                            <i class="fas fa-hashtag"></i>
+                            <span>${dpEsc(String(reqNum))}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:6px">
+                            ${prio}
+                            ${statusHtml}
+                        </div>
+                    </div>
+                    
+                    <div class="dp-float-details-grid">
+                        ${device ? `
+                            <div class="dp-float-field">
+                                <span class="dp-field-lbl"><i class="fas fa-desktop"></i> الجهاز:</span>
+                                <span class="dp-field-val">${dpEsc(device)}${deviceNum ? ` (#${dpEsc(deviceNum)})` : ''}</span>
+                            </div>
+                        ` : ''}
+                        
+                        ${employee ? `
+                            <div class="dp-float-field">
+                                <span class="dp-field-lbl"><i class="fas fa-user"></i> الموظف:</span>
+                                <span class="dp-field-val">${dpEsc(employee)}</span>
+                            </div>
+                        ` : ''}
+                        
+                        ${issue ? `
+                            <div class="dp-float-field dp-field-full">
+                                <span class="dp-field-lbl"><i class="fas fa-wrench"></i> العطل / المشكلة:</span>
+                                <span class="dp-field-val dp-val-highlight">${dpEsc(issue)}</span>
+                            </div>
+                        ` : ''}
+                        
+                        ${notes && notes !== issue ? `
+                            <div class="dp-float-field dp-field-full">
+                                <span class="dp-field-lbl"><i class="far fa-note-sticky"></i> ملاحظات:</span>
+                                <span class="dp-field-val">${dpEsc(notes)}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="dp-float-item-foot">
+                        <span class="dp-float-item-date"><i class="far fa-clock"></i> ${dpEsc(dateDisplay || 'تاريخ غير محدد')}</span>
+                        ${r.department ? `<span class="dp-float-item-dept"><i class="fas fa-building"></i> ${dpEsc(r.department)}</span>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    modal.innerHTML = `
+        <div class="dp-float-card" onclick="event.stopPropagation()">
+            <div class="dp-float-head">
+                <div class="dp-float-title-wrap">
+                    <div class="dp-float-icon"><i class="fas fa-clipboard-list"></i></div>
+                    <div>
+                        <div class="dp-float-title">${dpEsc(title)}</div>
+                        <div class="dp-float-sub">${dpEsc(subtitle)}</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                    <span class="dp-float-count-pill">${count} ${count === 1 ? 'طلب نشط' : 'طلبات نشطة'}</span>
+                    <button type="button" class="dp-float-close-btn" onclick="closeActiveRequestsFloatingCard()" title="إغلاق">&times;</button>
+                </div>
+            </div>
+            <div class="dp-float-notice">
+                <i class="fas fa-circle-info"></i> عرض بيانات الطلبات النشطة فقط (المكتمل والملغي والمكرر مستبعد)
+            </div>
+            <div class="dp-float-list">
+                ${itemsHtml}
+            </div>
+        </div>
+    `;
+
+    modal.classList.add('show');
+}
+function closeActiveRequestsFloatingCard() {
+    const modal = document.getElementById('dpReqsFloatModal');
+    if (modal) modal.classList.remove('show');
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeActiveRequestsFloatingCard();
+});
+
+function showDeptRequestsCard(deptName, ev) {
+    if (ev) ev.stopPropagation();
+    const reqList = DEPT_ACTIVE_REQS_BY_DEPT[deptName] || [];
+    openActiveRequestsCard(
+        `قسم ${deptName}`,
+        'قائمة طلبات الصيانة النشطة المسجلة لهذا القسم',
+        reqList
+    );
+}
+
+function showYardRequestsCard(yardName, ev) {
+    if (ev) ev.stopPropagation();
+    let deptsInYard = [];
+    if (yardName === 'غير محددة') {
+        deptsInYard = DEPT_CACHE.filter(d => !(d.notes || '').trim()).map(d => d.name);
+    } else {
+        deptsInYard = DEPT_CACHE.filter(d => (d.notes || '').trim() === yardName).map(d => d.name);
+    }
+    let allReqs = [];
+    deptsInYard.forEach(name => {
+        const list = DEPT_ACTIVE_REQS_BY_DEPT[name] || [];
+        allReqs = allReqs.concat(list);
+    });
+    // Remove duplicates if any by ID
+    const seen = new Set();
+    allReqs = allReqs.filter(r => {
+        if (!r || seen.has(r.id)) return false;
+        seen.add(r.id);
+        return true;
+    });
+
+    const displayTitle = yardName === 'غير محددة' ? 'أقسام بدون ساحة' : `ساحة ${yardName}`;
+    openActiveRequestsCard(
+        displayTitle,
+        `إجمالي الطلبات النشطة لجميع أقسام ${displayTitle}`,
+        allReqs
+    );
+}
+
 function renderDeptTable() {
     const tbody = document.querySelector('#departmentsTable tbody');
     const cardsContainer = document.getElementById('dpYardsGrid');
@@ -7755,7 +8268,7 @@ function renderDeptTable() {
     if (stats) stats.innerHTML =
         `<div class="dp-stat"><i class="fas fa-building"></i><div><b>${all.length}</b><span>إجمالي الأقسام</span></div></div>`+
         `<div class="dp-stat"><i class="fas fa-map-location-dot"></i><div><b>${yards.size}</b><span>عدد الساحات</span></div></div>`+
-        `<div class="dp-stat"><i class="fas fa-screwdriver-wrench"></i><div><b>${totalActiveReqs}</b><span>طلبات صيانة نشطة</span></div></div>`+
+        `<div class="dp-stat" style="cursor:pointer" onclick="showYardRequestsCard('الكل', event)" title="عرض جميع الطلبات النشطة"><i class="fas fa-screwdriver-wrench"></i><div><b>${totalActiveReqs}</b><span>طلبات صيانة نشطة</span></div></div>`+
         `<div class="dp-stat"><i class="fas fa-circle-question"></i><div><b>${all.filter(d=>!(d.notes||'').trim()).length}</b><span>بدون ساحة</span></div></div>`;
 
     const rows = all
@@ -7784,7 +8297,7 @@ function renderDeptTable() {
                 <td class="dp-id">#${d.id}</td>
                 <td class="dp-name">
                     ${dpEsc(d.name)}
-                    ${dReqCount > 0 ? `<span class="dp-dept-req-pill active" style="margin-inline-start:6px" title="${dReqCount} طلب نشط"><i class="fas fa-tools"></i> ${dReqCount}</span>` : ''}
+                    ${dReqCount > 0 ? `<span class="dp-dept-req-pill active clickable" onclick="showDeptRequestsCard('${dpEsc(d.name)}', event)" style="margin-inline-start:6px" title="اضغط لعرض ${dReqCount} طلب نشط"><i class="fas fa-tools"></i> ${dReqCount}</span>` : ''}
                 </td>
                 <td>${(d.notes||'').trim() ? `<span class="dp-yard">${dpEsc(d.notes.trim())}</span>` : '<span class="dp-yard none">غير محددة</span>'}</td>
                 <td class="no-print">
@@ -7828,7 +8341,7 @@ function renderDeptTable() {
                         <div class="dp-yc-title" title="${dpEsc(yardName)}">
                             <i class="fas ${isUnset ? 'fa-circle-question' : 'fa-map-location-dot'}"></i>
                             <span class="dp-yc-name-text">${isUnset ? 'أقسام بدون ساحة' : dpEsc(yardName)}</span>
-                            <span class="dp-yard-req-badge ${yardActiveTotal > 0 ? 'has-active' : 'is-zero'}" title="مجموع طلبات الصيانة النشطة لهذه الساحة">
+                            <span class="dp-yard-req-badge clickable ${yardActiveTotal > 0 ? 'has-active' : 'is-zero'}" onclick="showYardRequestsCard('${dpEsc(yardName)}', event)" title="اضغط لعرض ${yardActiveTotal} طلب نشط للساحة">
                                 <i class="fas ${yardActiveTotal > 0 ? 'fa-screwdriver-wrench' : 'fa-check'}"></i>
                                 <b>${yardActiveTotal}</b> نشط
                             </span>
@@ -7844,7 +8357,7 @@ function renderDeptTable() {
                                         <i class="fas fa-building"></i>
                                         <span class="dp-dept-name">${dpEsc(d.name)}</span>
                                         <span class="dp-dept-tag">#${d.id}</span>
-                                        <span class="dp-dept-req-pill ${activeCount > 0 ? 'active' : 'zero'}" title="${activeCount > 0 ? activeCount + ' طلب صيانة نشط' : 'لا توجد طلبات نشطة'}">
+                                        <span class="dp-dept-req-pill clickable ${activeCount > 0 ? 'active' : 'zero'}" onclick="showDeptRequestsCard('${dpEsc(d.name)}', event)" title="${activeCount > 0 ? 'اضغط لعرض ' + activeCount + ' طلب نشط' : 'لا توجد طلبات نشطة'}">
                                             <i class="fas ${activeCount > 0 ? 'fa-tools' : 'fa-circle-check'}"></i>
                                             <b>${activeCount}</b>
                                         </span>
@@ -7862,7 +8375,6 @@ function renderDeptTable() {
         }).join('');
     }
 }
-
 async function openDeptGrouping() {
     if (!DEPT_CACHE.length) DEPT_CACHE = await SupabaseAPI.request('departments', 'GET') || [];
     const groups = {};
