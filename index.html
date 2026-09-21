@@ -27,6 +27,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -5215,12 +5216,12 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                 #page-departments .dp-title{margin:0;font-size:20px;font-weight:900;color:var(--text-dark,#1e293b);display:flex;align-items:center;gap:8px}
                 #page-departments .dp-title i{color:#4f46e5}
                 #page-departments .dp-actions{display:flex;flex-wrap:wrap;gap:8px}
-                #page-departments .dp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:10px}
+                #page-departments .dp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px}
                 #page-departments .dp-stat{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:8px 10px;display:flex;align-items:center;gap:8px}
                 #page-departments .dp-stat i{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:8px;background:#eef2ff;color:#4f46e5;font-size:12px}
                 #page-departments .dp-stat b{font-size:16px;font-weight:900;line-height:1}
                 #page-departments .dp-stat span{font-size:11px;color:#64748b;display:block}
-                #page-departments .dp-bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:8px}
+                #page-departments .dp-bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:12px}
                 #page-departments .dp-search{width:100%;padding:8px 12px;border:1px solid #e5e7eb;border-radius:9px;font-size:13px;font-family:inherit}
                 #page-departments .dp-search:focus{outline:none;border-color:#4f46e5}
                 #page-departments .dp-table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;font-size:13px;background:#fff}
@@ -5239,9 +5240,49 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                 #page-departments .dp-acts button{width:26px;height:26px;border:none;border-radius:7px;cursor:pointer;font-size:11px;display:grid;place-items:center}
                 #page-departments .dp-acts .e{background:#eff6ff;color:#2563eb}
                 #page-departments .dp-acts .d{background:#fef2f2;color:#dc2626}
-                #page-departments .dp-card{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:#fff;max-width:900px}
-                #page-departments .dp-bar,#page-departments .dp-stats{max-width:900px}
-                /* grouping screen */
+                #page-departments .dp-card{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:#fff;margin-bottom:16px}
+
+                /* View switch tabs */
+                .dp-view-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap;background:#f1f5f9;padding:6px 10px;border-radius:11px;border:1px solid #e2e8f0}
+                .dp-view-pills{display:inline-flex;background:#e2e8f0;padding:3px;border-radius:9px;gap:3px}
+                .dp-view-btn{border:none;background:transparent;padding:6px 14px;border-radius:7px;font-size:12.5px;font-weight:800;font-family:inherit;color:#475569;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s ease}
+                .dp-view-btn:hover{color:#1e293b}
+                .dp-view-btn.active{background:#fff;color:#4338ca;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+                /* Section wrappers */
+                .dp-sub-section{margin-bottom:20px}
+                .dp-sub-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #e5e7eb}
+                .dp-sub-header h3{margin:0;font-size:15px;font-weight:900;color:#1e293b;display:flex;align-items:center;gap:7px}
+                .dp-sub-header h3 i{color:#4338ca}
+                .dp-badge-tag{font-size:11.5px;font-weight:800;background:#eef2ff;color:#4338ca;padding:2px 10px;border-radius:999px}
+
+                /* Yard Cards Grid */
+                .dp-yards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:16px}
+                .dp-yard-card{background:#fff;border:1px solid #e2e8f0;border-radius:13px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04);display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
+                .dp-yard-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.06)}
+                .dp-yard-card.is-unset{border-style:dashed;border-color:#cbd5e1;background:#fafafa}
+                .dp-yc-head{padding:10px 14px;background:linear-gradient(135deg,#f8fafc,#edf2f7);border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;gap:8px}
+                .dp-yard-card.is-unset .dp-yc-head{background:#f1f5f9}
+                .dp-yc-title{font-size:13.5px;font-weight:900;color:#1e293b;display:flex;align-items:center;gap:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+                .dp-yc-title i{color:#4f46e5;font-size:13px}
+                .dp-yard-card.is-unset .dp-yc-title i{color:#94a3b8}
+                .dp-yc-count{font-size:11px;font-weight:800;background:#4338ca;color:#fff;padding:2px 8px;border-radius:999px;white-space:nowrap}
+                .dp-yard-card.is-unset .dp-yc-count{background:#64748b}
+                .dp-yc-list{padding:10px 12px;display:flex;flex-direction:column;gap:6px;max-height:360px;overflow-y:auto}
+                .dp-dept-item{background:#f8fafc;border:1px solid #f1f5f9;border-radius:8px;padding:7px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;transition:all .15s}
+                .dp-dept-item:hover{background:#eff6ff;border-color:#dbeafe}
+                .dp-dept-info{display:flex;align-items:center;gap:7px;min-width:0;flex:1}
+                .dp-dept-info i{color:#6366f1;font-size:11px;flex-shrink:0}
+                .dp-dept-name{font-size:12.5px;font-weight:800;color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+                .dp-dept-tag{font-size:10px;font-weight:700;color:#94a3b8;flex-shrink:0}
+                .dp-dept-actions{display:flex;gap:4px;flex-shrink:0}
+                .dp-dept-actions button{width:24px;height:24px;border:none;border-radius:6px;cursor:pointer;font-size:10px;display:grid;place-items:center}
+                .dp-dept-actions .e{background:#e0e7ff;color:#4338ca}
+                .dp-dept-actions .e:hover{background:#c7d2fe}
+                .dp-dept-actions .d{background:#fee2e2;color:#b91c1c}
+                .dp-dept-actions .d:hover{background:#fecaca}
+
+                /* grouping screen modal styles */
                 #dpGroupModal{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:99990;display:none;padding:10px;overflow:auto}
                 #dpGroupModal.open{display:block}
                 #dpGroupModal .g-wrap{max-width:min(1650px,97vw);margin:0 auto;background:#f8fafc;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3)}
@@ -5271,18 +5312,46 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                     </div>
                 </div>
                 <div class="dp-stats" id="dpStats"></div>
-                <div class="dp-bar no-print">
-                    <input class="dp-search" id="dpSearch" type="search" placeholder="بحث باسم القسم أو الساحة..." oninput="renderDeptTable()">
-                    <span style="font-size:11.5px;color:#64748b" id="dpCount"></span>
+
+                <!-- شريط البحث والتحكم في طريقة العرض -->
+                <div class="dp-view-controls no-print">
+                    <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:240px">
+                        <input class="dp-search" id="dpSearch" type="search" placeholder="بحث باسم القسم أو الساحة..." oninput="renderDeptTable()" style="margin:0">
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <span style="font-size:12px;color:#64748b;font-weight:700" id="dpCount"></span>
+                        <div class="dp-view-pills">
+                            <button type="button" class="dp-view-btn active" data-view="both" onclick="setDeptView('both')" title="عرض كلاهما معاً"><i class="fas fa-table-cells-large"></i> الكل</button>
+                            <button type="button" class="dp-view-btn" data-view="cards" onclick="setDeptView('cards')" title="عرض بطاقات الساحات"><i class="fas fa-layer-group"></i> بطاقات الساحات</button>
+                            <button type="button" class="dp-view-btn" data-view="table" onclick="setDeptView('table')" title="عرض جدول الأقسام"><i class="fas fa-table-list"></i> الجدول</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="dp-card">
-                    <div class="table-container">
-                        <table class="dp-table" id="departmentsTable">
-                            <thead>
-                                <tr><th style="width:44px">#</th><th>اسم القسم</th><th>الساحة / الملاحظات</th><th class="no-print" style="width:70px">إجراءات</th></tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+
+                <!-- 1) قسم بطاقات الساحات الأنيقة -->
+                <div class="dp-sub-section" id="dpYardsSection">
+                    <div class="dp-sub-header">
+                        <h3><i class="fas fa-layer-group"></i> بطاقات الأقسام مرتبة حسب الساحات</h3>
+                        <span class="dp-badge-tag" id="dpYardsCountBadge"></span>
+                    </div>
+                    <div class="dp-yards-grid" id="dpYardsGrid"></div>
+                </div>
+
+                <!-- 2) قسم جدول الأقسام الحالي -->
+                <div class="dp-sub-section" id="dpTableSection">
+                    <div class="dp-sub-header">
+                        <h3><i class="fas fa-table-list"></i> جدول جميع الأقسام</h3>
+                        <span class="dp-badge-tag" id="dpTableCountBadge"></span>
+                    </div>
+                    <div class="dp-card">
+                        <div class="table-container">
+                            <table class="dp-table" id="departmentsTable">
+                                <thead>
+                                    <tr><th style="width:44px">#</th><th>اسم القسم</th><th>الساحة / الملاحظات</th><th class="no-print" style="width:70px">إجراءات</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -7613,8 +7682,29 @@ async function loadDepartments() {
     renderDeptTable();
 }
 
+function setDeptView(view) {
+    const cardsSec = document.getElementById('dpYardsSection');
+    const tableSec = document.getElementById('dpTableSection');
+    document.querySelectorAll('.dp-view-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.view === view);
+    });
+    if (cardsSec && tableSec) {
+        if (view === 'cards') {
+            cardsSec.style.display = 'block';
+            tableSec.style.display = 'none';
+        } else if (view === 'table') {
+            cardsSec.style.display = 'none';
+            tableSec.style.display = 'block';
+        } else {
+            cardsSec.style.display = 'block';
+            tableSec.style.display = 'block';
+        }
+    }
+}
+
 function renderDeptTable() {
     const tbody = document.querySelector('#departmentsTable tbody');
+    const cardsContainer = document.getElementById('dpYardsGrid');
     if (!tbody) return;
     const q = (document.getElementById('dpSearch')?.value || '').trim().toLowerCase();
     const all = DEPT_CACHE.slice();
@@ -7632,10 +7722,18 @@ function renderDeptTable() {
     const cnt = document.getElementById('dpCount');
     if (cnt) cnt.textContent = `${rows.length} من ${all.length}`;
 
+    const badgeTable = document.getElementById('dpTableCountBadge');
+    if (badgeTable) badgeTable.textContent = `${rows.length} قسم`;
+
     if (!rows.length) {
         tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:26px;color:#94a3b8;font-size:12.5px"><i class="fas fa-building" style="font-size:22px;display:block;margin-bottom:6px"></i>${all.length ? 'لا نتائج مطابقة للبحث' : 'لا توجد أقسام مسجلة'}</td></tr>`;
+        if (cardsContainer) {
+            cardsContainer.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:36px;background:#fff;border:1px dashed #cbd5e1;border-radius:12px;color:#94a3b8;font-size:13px"><i class="fas fa-building" style="font-size:28px;display:block;margin-bottom:8px;color:#cbd5e1"></i>${all.length ? 'لا توجد نتائج مطابقة للبحث' : 'لا توجد أقسام مسجلة'}</div>`;
+        }
         return;
     }
+
+    // 1. Render Table
     tbody.innerHTML = rows.map(d => `
         <tr>
             <td class="dp-id">#${d.id}</td>
@@ -7649,6 +7747,58 @@ function renderDeptTable() {
             </td>
         </tr>
     `).join('');
+
+    // 2. Render Cards Grouped by Yard
+    if (cardsContainer) {
+        const groups = {};
+        rows.forEach(d => {
+            const y = (d.notes || '').trim() || 'غير محددة';
+            (groups[y] = groups[y] || []).push(d);
+        });
+
+        const yardKeys = Object.keys(groups).sort((a, b) => {
+            if (a === 'غير محددة') return 1;
+            if (b === 'غير محددة') return -1;
+            return groups[b].length - groups[a].length || a.localeCompare(b, 'ar');
+        });
+
+        const badgeYards = document.getElementById('dpYardsCountBadge');
+        if (badgeYards) {
+            const activeYardsCount = yardKeys.filter(k => k !== 'غير محددة').length;
+            badgeYards.textContent = `${activeYardsCount} ساحة (${rows.length} قسم)`;
+        }
+
+        cardsContainer.innerHTML = yardKeys.map(yardName => {
+            const isUnset = yardName === 'غير محددة';
+            const deptList = groups[yardName].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar'));
+            return `
+                <div class="dp-yard-card ${isUnset ? 'is-unset' : ''}">
+                    <div class="dp-yc-head">
+                        <div class="dp-yc-title" title="${dpEsc(yardName)}">
+                            <i class="fas ${isUnset ? 'fa-circle-question' : 'fa-map-location-dot'}"></i>
+                            <span>${isUnset ? 'أقسام بدون ساحة (غير محددة)' : dpEsc(yardName)}</span>
+                        </div>
+                        <span class="dp-yc-count">${deptList.length} ${deptList.length === 1 ? 'قسم' : 'أقسام'}</span>
+                    </div>
+                    <div class="dp-yc-list">
+                        ${deptList.map(d => `
+                            <div class="dp-dept-item">
+                                <div class="dp-dept-info" title="${dpEsc(d.name)}">
+                                    <i class="fas fa-building"></i>
+                                    <span class="dp-dept-name">${dpEsc(d.name)}</span>
+                                    <span class="dp-dept-tag">#${d.id}</span>
+                                </div>
+                                <div class="dp-dept-actions no-print">
+                                    <button class="e no-readonly" onclick="openDepartmentModal(${d.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                                    <button class="d no-readonly" onclick="deleteDepartment(${d.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
 }
 
 async function openDeptGrouping() {
