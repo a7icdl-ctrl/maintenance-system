@@ -25,6 +25,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -2568,18 +2569,22 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                 html[data-theme="dark"] .vr-empty{background:#0b1220;border-color:rgba(148,163,184,.25)}
                 </style>
 
-                <div class="cv-head">
-                    <div>
-                        <h1 class="cv-title"><i class="fas fa-truck-fast"></i> زيارات الشركة
-                            <span class="cv-mode" id="cvModeBadge">تخزين محلي</span>
-                        </h1>
-                        <small>سجل زيارات مندوبي الشركة وربطها تلقائياً بإجراءات طلبات الصيانة حسب التاريخ</small>
-                    </div>
-                    <div class="cv-actions">
-                        <button class="btn btn-success btn-sm no-readonly" onclick="openVisitModal()"><i class="fas fa-plus"></i> زيارة جديدة</button>
-                        <button class="btn btn-info btn-sm" onclick="loadVisits()"><i class="fas fa-rotate"></i> تحديث</button>
-                        <button class="btn btn-primary btn-sm" onclick="printVisits()"><i class="fas fa-print"></i> طباعة</button>
-                        <button class="btn btn-warning btn-sm" onclick="exportVisitsExcel()"><i class="fas fa-file-excel"></i> تصدير</button>
+                <div class="page-header">
+                    <h1 class="page-title"><i class="fas fa-truck-fast"></i> زيارات الشركة</h1>
+                    <div class="page-actions no-print">
+                        <span class="cv-mode" id="cvModeBadge" style="display:none;">تخزين محلي</span>
+                        <button class="btn btn-success btn-sm no-readonly" onclick="openVisitModal()">
+                            <i class="fas fa-plus"></i> زيارة جديدة
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="loadVisits()">
+                            <i class="fas fa-rotate"></i> تحديث
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="printVisits()">
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="exportVisitsExcel()">
+                            <i class="fas fa-file-excel"></i> تصدير
+                        </button>
                     </div>
                 </div>
 
