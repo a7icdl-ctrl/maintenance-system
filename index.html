@@ -5566,6 +5566,149 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                     display: block;
                 }
 
+                /* ==== Responsive floating requests card (mobile & tablet) ==== */
+                @media (max-width: 768px) {
+                    .dp-float-modal-overlay {
+                        padding: 0;
+                        align-items: flex-end;
+                    }
+                    .dp-float-card {
+                        max-width: 100%;
+                        max-height: 88vh;
+                        border-radius: 18px 18px 0 0;
+                        box-shadow: 0 -12px 40px -8px rgba(15, 23, 42, 0.35);
+                        animation: dpCardSlideUp .28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                    }
+                    @keyframes dpCardSlideUp {
+                        from { opacity: 0; transform: translateY(30px) scale(1); }
+                        to { opacity: 1; transform: translateY(0) scale(1); }
+                    }
+                    .dp-float-head {
+                        padding: 12px 14px;
+                        flex-wrap: wrap;
+                        gap: 8px;
+                    }
+                    .dp-float-title-wrap {
+                        flex: 1 1 100%;
+                    }
+                    .dp-float-icon {
+                        width: 32px;
+                        height: 32px;
+                        font-size: 13px;
+                    }
+                    .dp-float-title {
+                        white-space: normal;
+                        font-size: 14px;
+                        line-height: 1.35;
+                    }
+                    .dp-float-sub {
+                        font-size: 11px;
+                    }
+                    .dp-float-head > div:last-child {
+                        flex: 1 1 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                    }
+                    .dp-float-count-pill {
+                        font-size: 11px;
+                        padding: 4px 11px;
+                    }
+                    .dp-float-close-btn {
+                        width: 36px;
+                        height: 36px;
+                        font-size: 22px;
+                        border-radius: 9px;
+                    }
+                    .dp-float-notice {
+                        padding: 8px 14px;
+                        font-size: 11px;
+                        line-height: 1.5;
+                    }
+                    .dp-float-list {
+                        padding: 12px 12px;
+                        gap: 9px;
+                        max-height: calc(88vh - 170px);
+                        -webkit-overflow-scrolling: touch;
+                        overscroll-behavior: contain;
+                    }
+                    .dp-float-item {
+                        padding: 11px 12px;
+                        border-radius: 12px;
+                    }
+                    .dp-float-item-head {
+                        flex-wrap: wrap;
+                        gap: 6px;
+                    }
+                    .dp-float-item-num {
+                        font-size: 12.5px;
+                        padding: 3px 8px;
+                    }
+                    .dp-float-details-grid {
+                        grid-template-columns: 1fr;
+                        gap: 7px;
+                        padding: 9px 10px;
+                    }
+                    .dp-float-field {
+                        font-size: 12px;
+                    }
+                    .dp-field-lbl {
+                        font-size: 11px;
+                    }
+                    .dp-field-val {
+                        font-size: 12.5px;
+                        line-height: 1.5;
+                    }
+                    .dp-float-item-foot {
+                        flex-wrap: wrap;
+                        gap: 6px 10px;
+                        font-size: 11px;
+                    }
+                    .dp-float-empty {
+                        padding: 28px 14px;
+                    }
+                    .dp-float-empty i {
+                        font-size: 32px;
+                    }
+                }
+                @media (max-width: 480px) {
+                    .dp-float-card {
+                        max-height: 92vh;
+                    }
+                    .dp-float-list {
+                        max-height: calc(92vh - 180px);
+                        padding: 10px 10px;
+                    }
+                    .dp-float-title {
+                        font-size: 13.5px;
+                    }
+                    .dp-float-item-num {
+                        font-size: 12px;
+                    }
+                    .dp-float-prio {
+                        font-size: 10.5px;
+                        padding: 2px 8px;
+                    }
+                }
+                @media (min-width: 769px) and (max-width: 1024px) {
+                    .dp-float-card {
+                        max-width: 560px;
+                        max-height: 82vh;
+                    }
+                    .dp-float-head {
+                        padding: 14px 16px;
+                    }
+                    .dp-float-list {
+                        padding: 14px 16px;
+                    }
+                    .dp-float-item {
+                        padding: 12px 14px;
+                    }
+                    .dp-float-details-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                    }
+                }
+
                 /* Active Requests Visual Key / Legend */
                 .dp-req-legend{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-inline-start:3.5px solid #0284c7;border-radius:9px;padding:7px 12px;margin-bottom:14px;font-size:12px;color:#475569}
                 .dp-legend-item{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
