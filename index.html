@@ -28,6 +28,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -7295,11 +7296,12 @@ window.SUPABASE_KEY_REF = SUPABASE_KEY;
 
 // ==================== SUPABASE API HELPER ====================
 const SupabaseAPI = {
-    async request(table, method = 'GET', data = null, id = null) {
+    async request(table, method = 'GET', data = null, id = null, customQuery = null) {
         if (USE_LOCAL) return LocalDB.request(table, method, data, id);
 
         let url = `${SUPABASE_URL}/rest/v1/${table}`;
-        if (id) url += `?id=eq.${id}`;
+        if (customQuery) url += customQuery;
+        else if (id) url += `?id=eq.${id}`;
         else if (method === 'GET') url += '?select=*&order=id.desc';
 
         const options = {
@@ -7308,7 +7310,7 @@ const SupabaseAPI = {
                 'apikey': SUPABASE_KEY,
                 'Authorization': `Bearer ${SUPABASE_KEY}`,
                 'Content-Type': 'application/json',
-                'Prefer': method === 'POST' ? 'return=representation' : 'return=representation'
+                'Prefer': (method === 'PATCH' || method === 'DELETE') ? 'return=minimal' : 'return=representation'
             }
         };
         if (data && (method === 'POST' || method === 'PATCH')) {
@@ -7321,7 +7323,8 @@ const SupabaseAPI = {
                 const errorText = await res.text();
                 throw new Error(`HTTP ${res.status}: ${errorText}`);
             }
-            return await res.json();
+            const resText = await res.text();
+            return resText ? JSON.parse(resText) : null;
         } catch (err) {
             console.error('Supabase error:', err);
             // Don't auto-switch to local mode - let user know the real error
@@ -8729,6 +8732,7 @@ function printRequestMap() {
 // ==================== DOCUMENTS ====================
 let editingDocumentId = null;
 let documentTempAttachments = [];
+let documentAttachmentsChanged = false;
 
 async function loadDocuments() {
     const documents = await SupabaseAPI.request('documents', 'GET');
@@ -8792,14 +8796,15 @@ async function generateDocumentNumber() {
 async function openDocumentModal(documentId) {
     editingDocumentId = documentId || null;
     documentTempAttachments = [];
+    documentAttachmentsChanged = false;
     document.getElementById('documentModalTitle').textContent = documentId ? 'تعديل وثيقة / ملاحظة' : 'إضافة وثيقة / ملاحظة';
     document.getElementById('documentAttachmentsList').innerHTML = '';
     document.getElementById('documentFileName').textContent = 'لم يتم اختيار ملف';
     document.getElementById('documentFileName').style.color = 'var(--text-light)';
 
     if (documentId) {
-        const documents = await SupabaseAPI.request('documents', 'GET');
-        const doc = documents.find(d => d.id === documentId);
+        const docArr = await SupabaseAPI.request('documents', 'GET', null, documentId);
+        const doc = docArr && docArr.length > 0 ? docArr[0] : null;
         if (doc) {
             document.getElementById('documentId').value = doc.id;
             document.getElementById('documentNumber').value = doc.document_number || doc.documentNumber || '';
@@ -8841,6 +8846,7 @@ function handleDocumentFileSelect(input) {
             data: e.target.result
         };
         documentTempAttachments.push(att);
+        documentAttachmentsChanged = true;
         renderDocumentAttachments();
         document.getElementById('documentFileName').textContent = '✅ ' + file.name;
         document.getElementById('documentFileName').style.color = 'var(--success)';
@@ -8908,6 +8914,7 @@ function viewDocumentAttachment(attId) {
 function removeDocumentAttachment(attId) {
     if (!confirm('هل أنت متأكد من إزالة هذا المرفق؟')) return;
     documentTempAttachments = documentTempAttachments.filter(a => a.id !== attId);
+    documentAttachmentsChanged = true;
     renderDocumentAttachments();
     showToast('success', 'تم', 'تم إزالة المرفق');
 }
@@ -8929,14 +8936,17 @@ async function saveDocument() {
         description: document.getElementById('documentDescription').value,
         notes: document.getElementById('documentNotes').value,
         document_date: document.getElementById('documentDate').value,
-        attachments: documentTempAttachments,
         updated_at: new Date().toISOString(),
         created_by: currentUser?.full_name || currentUser?.fullName || 'System'
     };
 
     if (editingDocumentId) {
+        if (documentAttachmentsChanged) {
+            docData.attachments = documentTempAttachments;
+        }
         await SupabaseAPI.request('documents', 'PATCH', docData, editingDocumentId);
     } else {
+        docData.attachments = documentTempAttachments;
         docData.created_at = new Date().toISOString();
         await SupabaseAPI.request('documents', 'POST', docData);
     }
@@ -8949,8 +8959,8 @@ async function saveDocument() {
 
 
 async function previewDocument(id) {
-    const documents = await SupabaseAPI.request('documents', 'GET');
-    const doc = documents.find(d => d.id === id);
+    const docArr = await SupabaseAPI.request('documents', 'GET', null, id);
+    const doc = docArr && docArr.length > 0 ? docArr[0] : null;
     if (!doc) return;
 
     const categoryLabels = {
@@ -9107,8 +9117,8 @@ async function deleteDocument(id) {
 }
 
 async function printDocument(id) {
-    const documents = await SupabaseAPI.request('documents', 'GET');
-    const doc = documents.find(d => d.id === id);
+    const docArr = await SupabaseAPI.request('documents', 'GET', null, id);
+    const doc = docArr && docArr.length > 0 ? docArr[0] : null;
     if (!doc) return;
 
     const categoryLabels = {
@@ -13468,13 +13478,13 @@ function _renderRank(containerId, entries, emptyText) {
 
 async function updateDashboard() {
     if (typeof renderPMReminders === 'function') { try { renderPMReminders(); } catch (e) {} }
-    const requests = await SupabaseAPI.request('requests', 'GET');
-    const inventory = await SupabaseAPI.request('inventory', 'GET');
-    const altModels = await SupabaseAPI.request('alt_models', 'GET');
-    const documents = await SupabaseAPI.request('documents', 'GET');
-    const computerItems = await SupabaseAPI.request('computer_items', 'GET');
+    const requests = await SupabaseAPI.request('requests', 'GET', null, null, '?select=status');
+    const inventory = await SupabaseAPI.request('inventory', 'GET', null, null, '?select=qty');
+    const altModels = await SupabaseAPI.request('alt_models', 'GET', null, null, '?select=status');
+    const documents = await SupabaseAPI.request('documents', 'GET', null, null, '?select=id');
+    const computerItems = await SupabaseAPI.request('computer_items', 'GET', null, null, '?select=id');
     let permReplacements = [];
-    try { permReplacements = (await SupabaseAPI.request('permanent_replacements', 'GET')) || []; } catch (e) { permReplacements = []; }
+    try { permReplacements = (await SupabaseAPI.request('permanent_replacements', 'GET', null, null, '?select=id,is_done')) || []; } catch (e) { permReplacements = []; }
 
     const by = (s) => requests.filter(r => r.status === s).length;
     const setTxt = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
@@ -13692,13 +13702,13 @@ function formatDate(dateStr) {
 }
 
 async function printPage() {
-    const requests = await SupabaseAPI.request('requests', 'GET');
-    const inventory = await SupabaseAPI.request('inventory', 'GET');
-    const altModels = await SupabaseAPI.request('alt_models', 'GET');
-    const documents = await SupabaseAPI.request('documents', 'GET');
-    const computerItems = await SupabaseAPI.request('computer_items', 'GET');
+    const requests = await SupabaseAPI.request('requests', 'GET', null, null, '?select=status');
+    const inventory = await SupabaseAPI.request('inventory', 'GET', null, null, '?select=qty');
+    const altModels = await SupabaseAPI.request('alt_models', 'GET', null, null, '?select=status');
+    const documents = await SupabaseAPI.request('documents', 'GET', null, null, '?select=id');
+    const computerItems = await SupabaseAPI.request('computer_items', 'GET', null, null, '?select=id');
     let permReplacements = [];
-    try { permReplacements = (await SupabaseAPI.request('permanent_replacements', 'GET')) || []; } catch (e) { permReplacements = []; }
+    try { permReplacements = (await SupabaseAPI.request('permanent_replacements', 'GET', null, null, '?select=id,is_done')) || []; } catch (e) { permReplacements = []; }
     const permDone = permReplacements.filter(r => r.is_done).length;
     const permRecent = permReplacements.slice().sort((a, b) => (b.id || 0) - (a.id || 0)).slice(0, 10);
 
@@ -13821,6 +13831,7 @@ async function printPage() {
 // ==================== TENDER (عطاء الصيانة) ====================
 let currentTender = null;
 let tenderTempAttachment = null;
+let tenderAttachmentChanged = false;
 
 async function loadTender() {
     const tenders = await SupabaseAPI.request('tenders', 'GET');
@@ -13937,6 +13948,7 @@ async function loadTender() {
 
 function openTenderModal() {
     tenderTempAttachment = null;
+    tenderAttachmentChanged = false;
     document.getElementById('tenderModalTitle').textContent = currentTender ? 'تعديل بيانات العطاء' : 'إدخال بيانات عطاء الصيانة';
     document.getElementById('tenderAttachmentName').textContent = 'لم يتم اختيار ملف';
     document.getElementById('tenderAttachmentName').style.color = 'var(--text-light)';
@@ -13986,6 +13998,7 @@ function handleTenderAttachment(input) {
             type: file.type,
             data: e.target.result
         };
+        tenderAttachmentChanged = true;
         document.getElementById('tenderAttachmentName').textContent = '✅ ' + file.name;
         document.getElementById('tenderAttachmentName').style.color = 'var(--success)';
         renderTenderAttachmentPreview();
@@ -14020,6 +14033,7 @@ function renderTenderAttachmentPreview() {
 function removeTenderAttachment() {
     if (!confirm('هل أنت متأكد من إزالة المرفق؟')) return;
     tenderTempAttachment = null;
+    tenderAttachmentChanged = true;
     document.getElementById('tenderAttachmentName').textContent = 'لم يتم اختيار ملف';
     document.getElementById('tenderAttachmentName').style.color = 'var(--text-light)';
     renderTenderAttachmentPreview();
@@ -14061,12 +14075,14 @@ async function saveTender() {
         company_rep: document.getElementById('tenderRep').value.trim(),
         company_phone: document.getElementById('tenderPhone').value.trim(),
         company_email: document.getElementById('tenderEmail').value.trim(),
-        attachment: tenderTempAttachment,
         updated_at: new Date().toISOString(),
         created_by: currentUser?.full_name || currentUser?.fullName || 'System'
     };
 
     if (currentTender) {
+        if (tenderAttachmentChanged) {
+            data.attachment = tenderTempAttachment;
+        }
         await SupabaseAPI.request('tenders', 'PATCH', data, currentTender.id);
         showToast('success', 'تم', 'تم تحديث بيانات العطاء بنجاح');
     } else {
@@ -14075,6 +14091,7 @@ async function saveTender() {
             showToast('error', 'خطأ', 'يوجد عطاء مسجل مسبقاً. يمكنك تعديله فقط.');
             return;
         }
+        data.attachment = tenderTempAttachment;
         data.created_at = new Date().toISOString();
         await SupabaseAPI.request('tenders', 'POST', data);
         showToast('success', 'تم', 'تم حفظ بيانات العطاء بنجاح');
@@ -20689,6 +20706,7 @@ let PR_ITEMS = [];
 let PR_DEPTS = [];
 let prEditingId = null;
 let prTempAttachments = [];
+let prAttachmentsChanged = false;
 
 const PR_SQL = `-- =========================================================
 -- جدول: البديل الدائم | permanent_replacements
@@ -21108,6 +21126,7 @@ function prOnItemPick(which){
 async function openPrModal(id){
   prEditingId = id || null;
   prTempAttachments = [];
+  prAttachmentsChanged = false;
   document.getElementById('prForm').reset();
   document.getElementById('prModalTitle').textContent = id ? 'تعديل بديل دائم' : 'إضافة بديل دائم';
 
@@ -21158,6 +21177,7 @@ function prHandleFile(input){
   const reader = new FileReader();
   reader.onload = function(e){
     prTempAttachments.push({ id: Date.now(), filename: file.name, size: file.size, type: file.type, data: e.target.result });
+    prAttachmentsChanged = true;
     prRenderAttachments();
     showToast('success','تم','تم إرفاق الملف');
   };
@@ -21181,7 +21201,7 @@ function prRenderAttachments(){
       </div>
     </div>`).join('');
 }
-function prRemoveAttachment(id){ prTempAttachments = prTempAttachments.filter(a => String(a.id)!==String(id)); prRenderAttachments(); }
+function prRemoveAttachment(id){ prTempAttachments = prTempAttachments.filter(a => String(a.id)!==String(id)); prAttachmentsChanged = true; prRenderAttachments(); }
 function prOpenData(id){
   const a = prTempAttachments.find(x => String(x.id)===String(id));
   if(a) prShowData(a);
@@ -21232,7 +21252,6 @@ async function savePermanentReplacement(){
     replace_date: v('prReplaceDate') || null,
     letter_number: v('prLetterNumber'),
     letter_date: v('prLetterDate') || null,
-    attachments: prTempAttachments,
     is_done: v('prIsDone') === 'true',
     notes: v('prNotes'),
     updated_at: new Date().toISOString(),
@@ -21241,6 +21260,9 @@ async function savePermanentReplacement(){
 
   try{
     if(prEditingId){
+      if(prAttachmentsChanged){
+        payload.attachments = prTempAttachments;
+      }
       await SupabaseAPI.request('permanent_replacements','PATCH',payload,prEditingId);
     } else {
       payload.created_at = new Date().toISOString();
