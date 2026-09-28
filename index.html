@@ -7296,13 +7296,22 @@ window.SUPABASE_KEY_REF = SUPABASE_KEY;
 
 // ==================== SUPABASE API HELPER ====================
 const SupabaseAPI = {
-    async request(table, method = 'GET', data = null, id = null, customQuery = null) {
+    async request(table, method = 'GET', data = null, id = null, customQuery = null, retries = 2) {
         if (USE_LOCAL) return LocalDB.request(table, method, data, id);
 
         let url = `${SUPABASE_URL}/rest/v1/${table}`;
         if (customQuery) url += customQuery;
         else if (id) url += `?id=eq.${id}`;
-        else if (method === 'GET') url += '?select=*&order=id.desc';
+        else if (method === 'GET') {
+            // تحسين الاستعلام لتجنب استدعاء حقول الملفات الضخمة التي تسبب انتهاء مهلة السيرفر (Statement Timeout 57014)
+            if (table === 'requests') {
+                url += '?select=id,request_number,computer_number,device_name,employee_name,department,issue_description,status,created_by,created_at,updated_at&order=id.desc';
+            } else if (table === 'documents') {
+                url += '?select=id,document_number,category,title,description,notes,document_date,created_by,created_at,updated_at&order=id.desc';
+            } else {
+                url += '?select=*&order=id.desc';
+            }
+        }
 
         const options = {
             method,
@@ -7317,20 +7326,38 @@ const SupabaseAPI = {
             options.body = JSON.stringify(data);
         }
 
-        try {
-            const res = await fetch(url, options);
-            if (!res.ok) {
-                const errorText = await res.text();
-                throw new Error(`HTTP ${res.status}: ${errorText}`);
+        let lastErr = null;
+        for (let attempt = 0; attempt <= retries; attempt++) {
+            try {
+                const res = await fetch(url, options);
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    // إذا كان الخطأ 57014 (Statement Timeout)، أعد المحاولة بعد مهلة قصيرة
+                    if (res.status === 500 && errorText.includes('57014') && attempt < retries) {
+                        await new Promise(r => setTimeout(r, 1200 * (attempt + 1)));
+                        continue;
+                    }
+                    throw new Error(`HTTP ${res.status}: ${errorText}`);
+                }
+                const resText = await res.text();
+                return resText ? JSON.parse(resText) : null;
+            } catch (err) {
+                lastErr = err;
+                if (attempt < retries && (err.message.includes('57014') || err.message.includes('Failed to fetch'))) {
+                    await new Promise(r => setTimeout(r, 1200 * (attempt + 1)));
+                    continue;
+                }
+                console.error('Supabase error:', err);
+                if (!window.__suppressToast) {
+                    const userMsg = err.message.includes('57014') 
+                        ? 'استغرق السيرفر وقتاً طويلاً للاستجابة (مهلة الاستعلام). يرجى تقليل حجم المرفقات.' 
+                        : err.message;
+                    showToast('error', 'خطأ في الاتصال بالسيرفر', userMsg);
+                }
+                throw err;
             }
-            const resText = await res.text();
-            return resText ? JSON.parse(resText) : null;
-        } catch (err) {
-            console.error('Supabase error:', err);
-            // Don't auto-switch to local mode - let user know the real error
-            showToast('error', 'خطأ في الاتصال بالسيرفر', err.message);
-            throw err; // Re-throw so the caller knows it failed
         }
+        throw lastErr;
     }
 };
 
@@ -9902,8 +9929,17 @@ async function openRequestModal(requestId) {
     document.getElementById('proceduresList').innerHTML = '';
 
     if (requestId) {
-        const requests = await SupabaseAPI.request('requests', 'GET');
-        const req = requests.find(r => r.id === requestId);
+        let req = null;
+        try {
+            const res = await SupabaseAPI.request('requests', 'GET', null, requestId);
+            req = Array.isArray(res) ? res[0] : res;
+        } catch(e) {
+            console.error(e);
+        }
+        if (!req) {
+            const requests = await SupabaseAPI.request('requests', 'GET');
+            req = requests.find(r => r.id === requestId);
+        }
         if (req) {
             document.getElementById('requestId').value = req.id;
             document.getElementById('requestNumber').value = req.request_number || req.requestNumber;
@@ -9989,6 +10025,9 @@ function handleProcedureAttachmentSelect(input) {
 
     const desc = prompt('وصف الملف (اختياري):', file.name);
 
+    if (file.size > 2 * 1024 * 1024) {
+        showToast('warning', 'حجم الملف كبير', 'يُفضل أن يكون المرفق أقل من 2 ميغابايت لتجنب بطء السيرفر.');
+    }
     const reader = new FileReader();
     reader.onload = function(e) {
         window.pendingProcedureAttachment = {
@@ -11025,8 +11064,17 @@ function getStatusLabel(status) {
 }
 
 async function viewRequest(id) {
-    const requests = await SupabaseAPI.request('requests', 'GET');
-    const req = requests.find(r => r.id === id);
+    let req = null;
+    try {
+        const res = await SupabaseAPI.request('requests', 'GET', null, id);
+        req = Array.isArray(res) ? res[0] : res;
+    } catch(e) {
+        console.error(e);
+    }
+    if (!req) {
+        const requests = await SupabaseAPI.request('requests', 'GET');
+        req = requests.find(r => r.id === id);
+    }
     if (!req) return;
 
     const proceduresHtml = (req.procedures || []).length > 0 
