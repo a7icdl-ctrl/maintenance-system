@@ -29444,35 +29444,35 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
                 <!-- شبكة بيانات الحضور الأساسية (قابلة للتعديل الحي) -->
                 <div class="att-grid">
                     <div class="att-card">
-                        <label><i class="fas fa-building"></i> شركة الصيانة</label>
+                        <label contenteditable="true" title="انقر لتعديل التسمية" style="outline:none;cursor:text"><i class="fas fa-building"></i> شركة الصيانة</label>
                         <input type="text" id="attCompany" value="شركة الصيانة المعتمدة" placeholder="اسم الشركة">
                     </div>
                     <div class="att-card primary">
-                        <label><i class="fas fa-user-tie"></i> اسم مندوب الشركة</label>
+                        <label contenteditable="true" title="انقر لتعديل التسمية" style="outline:none;cursor:text"><i class="fas fa-user-tie"></i> اسم مندوب الشركة</label>
                         <input type="text" id="attRep" placeholder="اسم المندوب">
                     </div>
                     <div class="att-card info">
-                        <label><i class="fas fa-user-shield"></i> الفني / المشرف المرافق</label>
+                        <label contenteditable="true" title="انقر لتعديل التسمية" style="outline:none;cursor:text"><i class="fas fa-user-shield"></i> الفني / المشرف المرافق</label>
                         <input type="text" id="attTech" placeholder="اسم المشرف الداخلي">
                     </div>
                     <div class="att-card">
-                        <label><i class="fas fa-calendar-day"></i> تاريخ الزيارة</label>
+                        <label contenteditable="true" title="انقر لتعديل التسمية" style="outline:none;cursor:text"><i class="fas fa-calendar-day"></i> تاريخ الزيارة</label>
                         <input type="date" id="attDate" onchange="onAttTimeOrDateChange()">
                     </div>
                     <div class="att-card">
-                        <label><i class="fas fa-clock"></i> وقت الحضور الفعلي</label>
+                        <label contenteditable="true" title="انقر لتعديل التسمية" style="outline:none;cursor:text"><i class="fas fa-clock"></i> وقت الحضور الفعلي</label>
                         <input type="time" id="attArrival" onchange="onAttTimeOrDateChange()">
                     </div>
                     <div class="att-card">
-                        <label><i class="fas fa-clock-rotate-left"></i> وقت الانصراف الفعلي</label>
+                        <label contenteditable="true" title="انقر لتعديل التسمية" style="outline:none;cursor:text"><i class="fas fa-clock-rotate-left"></i> وقت الانصراف الفعلي</label>
                         <input type="time" id="attEnd" onchange="onAttTimeOrDateChange()">
                     </div>
                     <div class="att-card warning">
-                        <label><i class="fas fa-stopwatch"></i> إجمالي مدة التواجد</label>
+                        <label contenteditable="true" title="انقر لتعديل التسمية" style="outline:none;cursor:text"><i class="fas fa-stopwatch"></i> إجمالي مدة التواجد</label>
                         <div class="val" id="attDuration" style="font-size:15px;color:#b45309;padding-top:4px">—</div>
                     </div>
                     <div class="att-card">
-                        <label><i class="fas fa-award"></i> تقييم الالتزام بالموعد</label>
+                        <label contenteditable="true" title="انقر لتعديل التسمية" style="outline:none;cursor:text"><i class="fas fa-award"></i> تقييم الالتزام بالموعد</label>
                         <select id="attCommitment" onchange="updateCommitmentBadge()">
                             <option value="ملتزم تماماً بالموعد المحدد">ملتزم تماماً بالموعد المحدد ✓</option>
                             <option value="حضور بتأخير طفيف (أقل من نصف ساعة)">حضور بتأخير طفيف (أقل من نصف ساعة)</option>
@@ -29485,7 +29485,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
 
                 <!-- شارة تقييم الالتزام المباشرة -->
                 <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;background:#f8fafc;padding:10px 14px;border-radius:10px;border:1px dashed #cbd5e1">
-                    <span style="font-size:12px;font-weight:800;color:#475569">حالة تقييم الحضور:</span>
+                    <span contenteditable="true" title="انقر لتعديل التسمية" style="font-size:12px;font-weight:800;color:#475569;outline:none;cursor:text">حالة تقييم الحضور:</span>
                     <span id="attCommitmentBadge" class="att-status-indicator success">
                         <i class="fas fa-check-circle"></i> ملتزم تماماً بالموعد المحدد
                     </span>
@@ -29504,11 +29504,11 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
                         <thead>
                             <tr>
                                 <th style="width:40px;text-align:center">#</th>
-                                <th>رقم الطلب</th>
-                                <th>الرقم الحاسوبي / الجهاز</th>
-                                <th>القسم / الموقع</th>
-                                <th>الإجراء الفني المنفذ</th>
-                                <th style="width:100px;text-align:center">الحالة</th>
+                                <th contenteditable="true" title="انقر لتعديل العنوان" style="outline:none;cursor:text">رقم الطلب</th>
+                                <th contenteditable="true" title="انقر لتعديل العنوان" style="outline:none;cursor:text">الرقم الحاسوبي / الجهاز</th>
+                                <th contenteditable="true" title="انقر لتعديل العنوان" style="outline:none;cursor:text">القسم / الموقع</th>
+                                <th contenteditable="true" title="انقر لتعديل العنوان" style="outline:none;cursor:text">الإجراء الفني المنفذ</th>
+                                <th contenteditable="true" title="انقر لتعديل العنوان" style="width:100px;text-align:center;outline:none;cursor:text">الحالة</th>
                             </tr>
                         </thead>
                         <tbody id="attTasksBody">
@@ -29519,7 +29519,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
 
                 <!-- ملاحظات وتوصيات الزيارة -->
                 <div class="att-notes-box">
-                    <label><i class="fas fa-pen-to-square"></i> ملاحظات الزيارة وتوصيات فني الشركة والمشرف:</label>
+                    <label contenteditable="true" title="انقر لتعديل التسمية" style="outline:none;cursor:text"><i class="fas fa-pen-to-square"></i> ملاحظات الزيارة وتوصيات فني الشركة والمشرف:</label>
                     <textarea id="attNotes" placeholder="سجل أي ملاحظات بخصوص قطع الغيار المطلوبة، التوصيات، أو أسباب التأخير إن وجدت..."></textarea>
                 </div>
 
@@ -30093,7 +30093,8 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         document.getElementById('attDocNumber').innerText = v.visit_number || 'V-0000';
         document.getElementById('attDocDate').innerText = fmtDate(v.visit_date) || '--/--/----';
 
-        document.getElementById('attCompany').value = v.company || 'شركة الصيانة والتجهيزات';
+        var tenderCo = (typeof currentTender !== 'undefined' && currentTender && (currentTender.company_name || currentTender.companyName)) ? (currentTender.company_name || currentTender.companyName) : 'مؤسسة سما عمون لخدمات الكمبيوتر';
+        document.getElementById('attCompany').value = tenderCo || v.company || '';
         document.getElementById('attRep').value = v.rep_name || '';
         document.getElementById('attTech').value = v.technician || 'احمد رحيل';
         document.getElementById('attDate').value = normDate(v.visit_date);
