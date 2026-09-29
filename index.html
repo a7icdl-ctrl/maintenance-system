@@ -3393,7 +3393,13 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                 #page-requests{padding-bottom:44px}
                 @media(max-height:760px){#page-requests .rq-card .table-container{max-height:calc(100dvh - 300px);min-height:260px}}
 
-                </style>
+                
+                /* ===== إصلاح: منع اقتصاص أي نص داخل خلايا الجدولين ===== */
+                #page-requests #requestsTable tbody td,#page-requests #requestsClosedTable tbody td{overflow:visible !important;text-overflow:clip !important}
+                #page-requests #requestsTable td>div,#page-requests #requestsClosedTable td>div{overflow:visible !important;text-overflow:clip !important}
+                /* الأعمدة القصيرة تبقى بلا لفّ ويتوسع الجدول أفقياً بالكامل، ووصف المشكلة يلتف لعدة أسطر */
+                #page-requests #requestsTable td:nth-child(8),#page-requests #requestsClosedTable td:nth-child(8){max-width:none !important}
+</style>
                 <div class="rq-stats no-print" id="rqStats"></div>
                 <div class="page-header">
                     <h1 class="page-title">طلبات الصيانة</h1>
