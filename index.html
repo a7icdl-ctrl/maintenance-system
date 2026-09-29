@@ -29423,17 +29423,21 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
 
             <!-- الكشف الرسمي القابل للطباعة والتعديل -->
             <div class="att-doc" id="attPrintableArea">
+                <div style="display:flex;align-items:center;gap:7px;font-size:12px;color:#3730a3;background:#eef2ff;border:1px dashed #a5b4fc;padding:8px 14px;border-radius:10px;margin-bottom:14px">
+                    <i class="fas fa-pen-to-square" style="color:#4f46e5;font-size:14px"></i>
+                    <span><b>ملاحظة:</b> جميع نصوص الكشف (العنوان، الوصف، المسميات، التوقيع، وخلايا الإجراءات) قابلة للنقر والتعديل المباشر قبل الحفظ والطباعة.</span>
+                </div>
                 <div class="att-doc-header">
                     <div class="att-doc-brand">
                         <i class="fas fa-hospital-user"></i>
                         <div class="att-doc-title">
-                            <h2>سجل حضور وانصراف مندوب الصيانة المعتمد</h2>
-                            <p>قسم تكنولوجيا المعلومات والصيانة — تقرير إثبات وتتبع التواجد الفني</p>
+                            <h2 id="attDocTitleText" contenteditable="true" title="انقر لتعديل العنوان" style="outline:none;cursor:text">سجل حضور وانصراف مندوب الصيانة المعتمد</h2>
+                            <p id="attDocSubText" contenteditable="true" title="انقر لتعديل النص التوضيحي" style="outline:none;cursor:text">قسم تكنولوجيا المعلومات والصيانة — تقرير إثبات وتتبع التواجد الفني</p>
                         </div>
                     </div>
                     <div class="att-doc-badge">
-                        <div class="num" id="attDocNumber">V-0000</div>
-                        <div class="dt" id="attDocDate">--/--/----</div>
+                        <div class="num" id="attDocNumber" contenteditable="true" title="انقر لتعديل رقم الكشف" style="outline:none;cursor:text">V-0000</div>
+                        <div class="dt" id="attDocDate" contenteditable="true" title="انقر لتعديل التاريخ" style="outline:none;cursor:text">--/--/----</div>
                     </div>
                 </div>
 
@@ -29491,7 +29495,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
                 <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
                     <h4 style="margin:0;font-size:13.5px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:7px">
                         <i class="fas fa-list-check" style="color:#4f46e5"></i>
-                        الطلبات والإجراءات الفنية المنجزة أثناء الحضور
+                        <span id="attTasksTitle" contenteditable="true" title="انقر لتعديل عنوان القسم" style="outline:none;cursor:text">الطلبات والإجراءات الفنية المنجزة أثناء الحضور</span>
                     </h4>
                     <span id="attTasksCount" style="font-size:11.5px;font-weight:700;color:#64748b;background:#f1f5f9;padding:2px 8px;border-radius:8px">0 إجراء</span>
                 </div>
@@ -29519,25 +29523,15 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
                     <textarea id="attNotes" placeholder="سجل أي ملاحظات بخصوص قطع الغيار المطلوبة، التوصيات، أو أسباب التأخير إن وجدت..."></textarea>
                 </div>
 
-                <!-- قسم التوقيعات والاعتماد الرسمي -->
-                <div class="att-signs">
-                    <div class="att-sign-box">
-                        <div class="role">مندوب شركة الصيانة</div>
-                        <div class="name" id="attSignRep">—</div>
-                        <div class="line">التوقيع / الختم</div>
-                        <div style="font-size:10.5px;color:#94a3b8">أقر بالحضور والقيام بالمهام أعلاه</div>
-                    </div>
-                    <div class="att-sign-box">
-                        <div class="role">الفني / المشرف الداخلي المتابع</div>
-                        <div class="name" id="attSignTech">—</div>
-                        <div class="line">التوقيع</div>
-                        <div style="font-size:10.5px;color:#94a3b8">تمت المتابعة والتحقق من التواجد</div>
-                    </div>
-                    <div class="att-sign-box">
-                        <div class="role">اعتماد رئيس قسم تكنولوجيا المعلومات</div>
-                        <div class="name">رئيس القسم المعتمد</div>
-                        <div class="line">الختم والاعتماد</div>
-                        <div style="font-size:10.5px;color:#94a3b8">يعتمد للحفظ وصرف المستحقات</div>
+                <!-- قسم التوقيعات (توقيع المشرف الداخلي فقط - قابل للتعديل المباشر) -->
+                <div class="att-signs-wrapper" style="display:flex;justify-content:center;margin-top:24px;padding-top:18px;border-top:1px dashed #cbd5e1">
+                    <div class="att-sign-box-single" style="width:340px;max-width:100%;border:1px solid #cbd5e1;border-radius:14px;padding:18px 22px;background:#ffffff;text-align:center;box-shadow:0 3px 12px rgba(15,23,42,0.04)">
+                        <div class="role" id="attSignRole" contenteditable="true" title="انقر لتعديل المسمى" style="font-size:13.5px;font-weight:800;color:#334155;margin-bottom:8px;outline:none;cursor:text">الفني / المشرف الداخلي المتابع</div>
+                        <div class="name" id="attSignTech" contenteditable="true" title="انقر لتعديل الاسم" style="font-size:16px;font-weight:900;color:#0f172a;min-height:24px;margin-bottom:14px;outline:none;cursor:text">احمد رحيل</div>
+                        <div class="line" style="position:relative;border-bottom:1px solid #94a3b8;margin:18px 0 10px;height:auto;display:block">
+                            <span id="attSignLineLabel" contenteditable="true" title="انقر لتعديل نص التوقيع" style="position:relative;top:-10px;background:#ffffff;padding:0 12px;font-size:11.5px;color:#64748b;font-weight:700;outline:none;cursor:text">التوقيع</span>
+                        </div>
+                        <div id="attSignFooter" contenteditable="true" title="انقر لتعديل النص السفلي" style="font-size:11.5px;color:#64748b;font-weight:600;outline:none;cursor:text">تمت المتابعة والتحقق من التواجد</div>
                     </div>
                 </div>
             </div>
@@ -30101,7 +30095,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
 
         document.getElementById('attCompany').value = v.company || 'شركة الصيانة والتجهيزات';
         document.getElementById('attRep').value = v.rep_name || '';
-        document.getElementById('attTech').value = v.technician || '';
+        document.getElementById('attTech').value = v.technician || 'احمد رحيل';
         document.getElementById('attDate').value = normDate(v.visit_date);
         document.getElementById('attArrival').value = v.arrival_time || '';
         document.getElementById('attEnd').value = v.end_time || '';
@@ -30153,9 +30147,11 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         }
         document.getElementById('attDuration').innerText = durStr;
 
-        // تحديث أسماء التوقيع
-        document.getElementById('attSignRep').innerText = rep || 'مندوب الشركة';
-        document.getElementById('attSignTech').innerText = tech || 'الفني المشرف';
+        // تحديث اسم المشرف في التوقيع
+        var sigTechEl = document.getElementById('attSignTech');
+        if (sigTechEl) {
+            sigTechEl.innerText = tech || 'احمد رحيل';
+        }
         if (d) document.getElementById('attDocDate').innerText = fmtDate(d);
 
         updateCommitmentBadge();
@@ -30203,11 +30199,11 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
 
             return '<tr>' +
                 '<td style="text-align:center;font-weight:800;color:#64748b">' + (idx + 1) + '</td>' +
-                '<td style="font-weight:800;color:#4f46e5">' + esc(r.request_number || r.id || '—') + '</td>' +
-                '<td>' + esc(dev + pcNum) + '</td>' +
-                '<td>' + esc(dept) + '</td>' +
-                '<td style="line-height:1.5">' + esc(procText) + '</td>' +
-                '<td style="text-align:center">' + st + '</td>' +
+                '<td contenteditable="true" title="انقر للتعديل" style="font-weight:800;color:#4f46e5;outline:none;cursor:text">' + esc(r.request_number || r.id || '—') + '</td>' +
+                '<td contenteditable="true" title="انقر للتعديل" style="outline:none;cursor:text">' + esc(dev + pcNum) + '</td>' +
+                '<td contenteditable="true" title="انقر للتعديل" style="outline:none;cursor:text">' + esc(dept) + '</td>' +
+                '<td contenteditable="true" title="انقر للتعديل" style="line-height:1.5;outline:none;cursor:text">' + esc(procText) + '</td>' +
+                '<td contenteditable="true" title="انقر للتعديل" style="text-align:center;outline:none;cursor:text">' + st + '</td>' +
                 '</tr>';
         }).join('');
     }
@@ -30248,11 +30244,15 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
 
     window.printAttendanceSheet = function () {
         var v = VISITS.find(function (x) { return String(x.id) === String(currentAttendanceVisitId); });
-        var docNum = document.getElementById('attDocNumber').innerText;
-        var docDate = document.getElementById('attDocDate').innerText;
+        var docNum = document.getElementById('attDocNumber') ? document.getElementById('attDocNumber').innerText : (v ? v.visit_number : 'V-0000');
+        var docDate = document.getElementById('attDocDate') ? document.getElementById('attDocDate').innerText : (v ? fmtDate(v.visit_date) : '--/--/----');
+        var docTitle = document.getElementById('attDocTitleText') ? document.getElementById('attDocTitleText').innerText : 'كشف إثبات حضور وانصراف مندوب شركة الصيانة';
+        var docSub = document.getElementById('attDocSubText') ? document.getElementById('attDocSubText').innerText : 'قسم تكنولوجيا المعلومات — توثيق الزيارة الفنية وتتبع الالتزام بالموعد';
+        var tasksTitle = document.getElementById('attTasksTitle') ? document.getElementById('attTasksTitle').innerText : 'بيان الأعمال والإجراءات الفنية المنجزة أثناء الحضور:';
+        
         var company = document.getElementById('attCompany').value || 'شركة الصيانة';
         var rep = document.getElementById('attRep').value || 'مندوب الشركة';
-        var tech = document.getElementById('attTech').value || 'الفني المشرف';
+        var tech = document.getElementById('attTech').value || 'احمد رحيل';
         var arr = document.getElementById('attArrival').value || '—';
         var end = document.getElementById('attEnd').value || '—';
         var dur = document.getElementById('attDuration').innerText || '—';
@@ -30260,60 +30260,73 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         var notes = document.getElementById('attNotes').value || 'لا توجد ملاحظات إضافية';
         var tasksHtml = document.getElementById('attTasksBody').innerHTML;
 
+        var signRole = document.getElementById('attSignRole') ? document.getElementById('attSignRole').innerText : 'الفني / المشرف الداخلي المتابع';
+        var signName = document.getElementById('attSignTech') ? document.getElementById('attSignTech').innerText : (tech || 'احمد رحيل');
+        var signLineLabel = document.getElementById('attSignLineLabel') ? document.getElementById('attSignLineLabel').innerText : 'التوقيع';
+        var signFooter = document.getElementById('attSignFooter') ? document.getElementById('attSignFooter').innerText : 'تمت المتابعة والتحقق من التواجد';
+
         var w = window.open('', '_blank');
-        w.document.write('<html dir="rtl"><head><meta charset="utf-8"><title>كشف حضور مندوب الصيانة - ' + docNum + '</title>' +
+        w.document.write('<html dir="rtl"><head><meta charset="utf-8"><title>' + esc(docTitle) + ' - ' + esc(docNum) + '</title>' +
             '<style>' +
-            '@page{size:A4 portrait;margin:15mm}' +
-            'body{font-family:Tajawal,Arial,sans-serif;color:#0f172a;line-height:1.4;margin:0;padding:20px}' +
-            '.sheet{border:2px solid #0f172a;padding:22px;border-radius:10px}' +
+            '@page{size:A4 portrait;margin:12mm}' +
+            'body{font-family:Tajawal,Arial,sans-serif;color:#0f172a;line-height:1.45;margin:0;padding:16px;background:#fff}' +
+            '.sheet{border:2px solid #0f172a;padding:22px;border-radius:12px;background:#fff}' +
             '.header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #0f172a;padding-bottom:14px;margin-bottom:18px}' +
-            '.title h1{margin:0;font-size:19px;font-weight:900}' +
-            '.title p{margin:4px 0 0;font-size:12px;color:#475569}' +
-            '.badge{border:2px solid #0f172a;padding:6px 14px;border-radius:8px;text-align:center}' +
-            '.badge b{font-size:16px;display:block}' +
+            '.title h1{margin:0;font-size:19px;font-weight:900;color:#0f172a}' +
+            '.title p{margin:4px 0 0;font-size:12px;color:#475569;font-weight:600}' +
+            '.badge{border:2px solid #0f172a;padding:6px 14px;border-radius:8px;text-align:center;background:#f8fafc}' +
+            '.badge b{font-size:16px;display:block;color:#0f172a}' +
+            '.badge span{font-size:12px;color:#475569}' +
             '.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}' +
             '.box{border:1px solid #94a3b8;padding:8px 10px;border-radius:6px;background:#f8fafc}' +
             '.box label{display:block;font-size:11px;color:#475569;font-weight:bold;margin-bottom:3px}' +
             '.box span{font-size:13px;font-weight:bold;color:#0f172a}' +
-            '.table-title{font-size:13px;font-weight:bold;margin:14px 0 6px}' +
+            '.table-title{font-size:13px;font-weight:bold;margin:14px 0 6px;color:#0f172a}' +
             'table{width:100%;border-collapse:collapse;margin-bottom:14px}' +
             'th,td{border:1px solid #cbd5e1;padding:7px 9px;font-size:12px;text-align:right}' +
-            'th{background:#f1f5f9;font-weight:bold}' +
-            '.notes{border:1px solid #cbd5e1;padding:10px;border-radius:6px;background:#fff;margin-bottom:24px;font-size:12px}' +
-            '.signs{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;text-align:center;margin-top:28px}' +
-            '.sign{border:1px solid #94a3b8;padding:12px 8px;border-radius:6px}' +
-            '.sign-title{font-size:11.5px;font-weight:bold;margin-bottom:6px}' +
-            '.sign-line{margin-top:38px;border-top:1px dashed #475569;padding-top:4px;font-size:10.5px;color:#64748b}' +
+            'th{background:#f1f5f9;font-weight:bold;color:#1e293b}' +
+            '.notes{border:1px solid #cbd5e1;padding:10px 12px;border-radius:6px;background:#fff;margin-bottom:20px;font-size:12px}' +
+            '.signs{display:flex;justify-content:center;margin-top:24px}' +
+            '.sign{width:330px;max-width:100%;border:1px solid #cbd5e1;padding:16px 20px;border-radius:12px;text-align:center;background:#ffffff;box-shadow:0 2px 6px rgba(0,0,0,0.03)}' +
+            '.sign-role{font-size:13px;font-weight:800;color:#334155;margin-bottom:8px}' +
+            '.sign-name{font-size:16px;font-weight:900;color:#0f172a;margin-bottom:14px}' +
+            '.sign-line{position:relative;border-bottom:1px solid #94a3b8;margin:18px 0 10px;height:auto}' +
+            '.sign-line span{position:relative;top:-10px;background:#ffffff;padding:0 12px;font-size:11.5px;color:#64748b;font-weight:700}' +
+            '.sign-foot{font-size:11.5px;color:#64748b;font-weight:600}' +
+            '[contenteditable="true"]:focus{outline:2px dashed #4f46e5;background:#f5f3ff}' +
             '</style></head><body>' +
             '<div class="sheet">' +
             '<div class="header">' +
             '<div class="title">' +
-            '<h1>كشف إثبات حضور وانصراف مندوب شركة الصيانة</h1>' +
-            '<p>قسم تكنولوجيا المعلومات — توثيق الزيارة الفنية وتتبع الالتزام بالموعد</p>' +
+            '<h1 contenteditable="true">' + esc(docTitle) + '</h1>' +
+            '<p contenteditable="true">' + esc(docSub) + '</p>' +
             '</div>' +
-            '<div class="badge"><b>' + docNum + '</b><span>' + docDate + '</span></div>' +
+            '<div class="badge"><b contenteditable="true">' + esc(docNum) + '</b><span contenteditable="true">' + esc(docDate) + '</span></div>' +
             '</div>' +
             '<div class="grid">' +
-            '<div class="box"><label>شركة الصيانة:</label><span>' + company + '</span></div>' +
-            '<div class="box"><label>مندوب الشركة:</label><span>' + rep + '</span></div>' +
-            '<div class="box"><label>الفني / المشرف الداخلي:</label><span>' + tech + '</span></div>' +
-            '<div class="box"><label>وقت الحضور الفعلي:</label><span>' + arr + '</span></div>' +
-            '<div class="box"><label>وقت الانصراف الفعلي:</label><span>' + end + '</span></div>' +
-            '<div class="box"><label>إجمالي مدة التواجد:</label><span>' + dur + '</span></div>' +
-            '<div class="box" style="grid-column:1/-1"><label>تقييم الالتزام بالموعد:</label><span>' + comm + '</span></div>' +
+            '<div class="box"><label>شركة الصيانة:</label><span contenteditable="true">' + esc(company) + '</span></div>' +
+            '<div class="box"><label>مندوب الشركة:</label><span contenteditable="true">' + esc(rep) + '</span></div>' +
+            '<div class="box"><label>الفني / المشرف الداخلي:</label><span contenteditable="true">' + esc(tech) + '</span></div>' +
+            '<div class="box"><label>وقت الحضور الفعلي:</label><span contenteditable="true">' + esc(arr) + '</span></div>' +
+            '<div class="box"><label>وقت الانصراف الفعلي:</label><span contenteditable="true">' + esc(end) + '</span></div>' +
+            '<div class="box"><label>إجمالي مدة التواجد:</label><span contenteditable="true">' + esc(dur) + '</span></div>' +
+            '<div class="box" style="grid-column:1/-1"><label>تقييم الالتزام بالموعد:</label><span contenteditable="true">' + esc(comm) + '</span></div>' +
             '</div>' +
-            '<div class="table-title">بيان الأعمال والإجراءات الفنية المنجزة أثناء الحضور:</div>' +
+            '<div class="table-title" contenteditable="true">' + esc(tasksTitle) + '</div>' +
             '<table><thead><tr><th style="width:35px;text-align:center">#</th><th>رقم الطلب</th><th>الجهاز</th><th>القسم</th><th>الإجراء المنفذ</th><th style="width:90px;text-align:center">الحالة</th></tr></thead><tbody>' +
             tasksHtml +
             '</tbody></table>' +
-            '<div class="notes"><b>ملاحظات وتوصيات الزيارة:</b> ' + notes + '</div>' +
+            '<div class="notes"><b contenteditable="true">ملاحظات وتوصيات الزيارة:</b> <span contenteditable="true">' + esc(notes) + '</span></div>' +
             '<div class="signs">' +
-            '<div class="sign"><div class="sign-title">مندوب شركة الصيانة</div><div>' + rep + '</div><div class="sign-line">التوقيع / الختم</div></div>' +
-            '<div class="sign"><div class="sign-title">الفني المشرف الداخلي</div><div>' + tech + '</div><div class="sign-line">التوقيع</div></div>' +
-            '<div class="sign"><div class="sign-title">اعتماد رئيس قسم IT</div><div>الاعتماد الرسمي</div><div class="sign-line">التوقيع والختم</div></div>' +
+            '<div class="sign">' +
+            '<div class="sign-role" contenteditable="true">' + esc(signRole) + '</div>' +
+            '<div class="sign-name" contenteditable="true">' + esc(signName) + '</div>' +
+            '<div class="sign-line"><span contenteditable="true">' + esc(signLineLabel) + '</span></div>' +
+            '<div class="sign-foot" contenteditable="true">' + esc(signFooter) + '</div>' +
             '</div>' +
             '</div>' +
-            '<script>setTimeout(function(){window.print()},350)<\/script>' +
+            '</div>' +
+            '<script>setTimeout(function(){window.print()},350);<\/script>' +
             '</body></html>');
         w.document.close();
     };
