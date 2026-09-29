@@ -3234,16 +3234,30 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                 #page-requests #requestsTable tbody tr{transition:background .15s}
                 #page-requests #requestsTable tbody tr:hover td{background:#f8faff}
                 #page-requests #requestsTable tbody tr.row-selected td{background:#eef2ff}
-                #page-requests #requestsTable th:nth-child(1),#page-requests #requestsTable td:nth-child(1){width:38px;text-align:center}
-                #page-requests #requestsTable th:nth-child(2),#page-requests #requestsTable td:nth-child(2){width:132px}
-                #page-requests #requestsTable th:nth-child(3),#page-requests #requestsTable td:nth-child(3){width:104px}
-                #page-requests #requestsTable th:nth-child(4),#page-requests #requestsTable td:nth-child(4){width:120px}
-                #page-requests #requestsTable th:nth-child(5),#page-requests #requestsTable td:nth-child(5){width:130px}
-                #page-requests #requestsTable th:nth-child(6),#page-requests #requestsTable td:nth-child(6){width:118px}
-                #page-requests #requestsTable th:nth-child(7),#page-requests #requestsTable td:nth-child(7){width:auto}
-                #page-requests #requestsTable th:nth-child(8),#page-requests #requestsTable td:nth-child(8){width:112px}
-                #page-requests #requestsTable th:nth-child(9),#page-requests #requestsTable td:nth-child(9){width:104px;color:#64748b}
-                #page-requests #requestsTable th:nth-child(10),#page-requests #requestsTable td:nth-child(10){width:158px}
+                /* ===== أعمدة الجدولين: Auto-fit ===== */
+                #page-requests #requestsTable,#page-requests #requestsClosedTable{table-layout:auto}
+                #page-requests #requestsTable th:nth-child(1),#page-requests #requestsTable td:nth-child(1),
+                #page-requests #requestsClosedTable th:nth-child(1),#page-requests #requestsClosedTable td:nth-child(1){width:38px;text-align:center}
+                #page-requests #requestsTable th:nth-child(2),#page-requests #requestsTable td:nth-child(2),
+                #page-requests #requestsClosedTable th:nth-child(2),#page-requests #requestsClosedTable td:nth-child(2){width:44px;text-align:center}
+                #page-requests #requestsTable th:nth-child(3),#page-requests #requestsTable td:nth-child(3),
+                #page-requests #requestsClosedTable th:nth-child(3),#page-requests #requestsClosedTable td:nth-child(3){width:1%;white-space:nowrap}
+                #page-requests #requestsTable th:nth-child(4),#page-requests #requestsTable td:nth-child(4),
+                #page-requests #requestsClosedTable th:nth-child(4),#page-requests #requestsClosedTable td:nth-child(4){width:1%;white-space:nowrap;text-align:center}
+                #page-requests #requestsTable th:nth-child(5),#page-requests #requestsTable td:nth-child(5),
+                #page-requests #requestsClosedTable th:nth-child(5),#page-requests #requestsClosedTable td:nth-child(5){width:1%;white-space:nowrap}
+                #page-requests #requestsTable th:nth-child(6),#page-requests #requestsTable td:nth-child(6),
+                #page-requests #requestsClosedTable th:nth-child(6),#page-requests #requestsClosedTable td:nth-child(6){width:1%;white-space:nowrap}
+                #page-requests #requestsTable th:nth-child(7),#page-requests #requestsTable td:nth-child(7),
+                #page-requests #requestsClosedTable th:nth-child(7),#page-requests #requestsClosedTable td:nth-child(7){width:1%;white-space:nowrap}
+                #page-requests #requestsTable th:nth-child(8),#page-requests #requestsTable td:nth-child(8),
+                #page-requests #requestsClosedTable th:nth-child(8),#page-requests #requestsClosedTable td:nth-child(8){width:auto;min-width:170px;white-space:normal;word-break:break-word}
+                #page-requests #requestsTable th:nth-child(9),#page-requests #requestsTable td:nth-child(9),
+                #page-requests #requestsClosedTable th:nth-child(9),#page-requests #requestsClosedTable td:nth-child(9){width:1%;white-space:nowrap;text-align:center}
+                #page-requests #requestsTable th:nth-child(10),#page-requests #requestsTable td:nth-child(10),
+                #page-requests #requestsClosedTable th:nth-child(10),#page-requests #requestsClosedTable td:nth-child(10){width:1%;white-space:nowrap;text-align:center;color:#64748b}
+                #page-requests #requestsTable th:nth-child(11),#page-requests #requestsTable td:nth-child(11),
+                #page-requests #requestsClosedTable th:nth-child(11),#page-requests #requestsClosedTable td:nth-child(11){width:1%;white-space:nowrap}
                 #page-requests #requestsTable .rq-num{color:#4f46e5;font-weight:900;font-size:12.5px}
                 #page-requests #requestsTable .action-btns{display:flex;gap:3px;justify-content:flex-start}
                 #page-requests #requestsTable .action-btn{width:25px;height:25px;font-size:11px;display:grid;place-items:center;border-radius:7px}
@@ -3277,16 +3291,7 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                 #page-requests #requestsClosedTable tbody tr{transition:background .15s}
                 #page-requests #requestsClosedTable tbody tr:hover td{background:#f8faff}
                 #page-requests #requestsClosedTable tbody tr.row-selected td{background:#eef2ff}
-                #page-requests #requestsClosedTable th:nth-child(1),#page-requests #requestsClosedTable td:nth-child(1){width:38px;text-align:center}
-                #page-requests #requestsClosedTable th:nth-child(2),#page-requests #requestsClosedTable td:nth-child(2){width:132px}
-                #page-requests #requestsClosedTable th:nth-child(3),#page-requests #requestsClosedTable td:nth-child(3){width:104px}
-                #page-requests #requestsClosedTable th:nth-child(4),#page-requests #requestsClosedTable td:nth-child(4){width:120px}
-                #page-requests #requestsClosedTable th:nth-child(5),#page-requests #requestsClosedTable td:nth-child(5){width:130px}
-                #page-requests #requestsClosedTable th:nth-child(6),#page-requests #requestsClosedTable td:nth-child(6){width:118px}
-                #page-requests #requestsClosedTable th:nth-child(7),#page-requests #requestsClosedTable td:nth-child(7){width:auto}
-                #page-requests #requestsClosedTable th:nth-child(8),#page-requests #requestsClosedTable td:nth-child(8){width:112px}
-                #page-requests #requestsClosedTable th:nth-child(9),#page-requests #requestsClosedTable td:nth-child(9){width:104px;color:#64748b}
-                #page-requests #requestsClosedTable th:nth-child(10),#page-requests #requestsClosedTable td:nth-child(10){width:158px}
+                /* أعمدة الجدول المنتهي مغطاة بالقواعد المشتركة أعلاه */
                 #page-requests #requestsClosedTable .rq-num{color:#4f46e5;font-weight:900;font-size:12.5px}
                 #page-requests #requestsClosedTable .action-btns{display:flex;gap:3px;justify-content:flex-start}
                 #page-requests #requestsClosedTable .action-btn{width:25px;height:25px;font-size:11px;display:grid;place-items:center;border-radius:7px}
@@ -3373,12 +3378,7 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                 @media(max-width:1200px){#page-requests .page-actions{grid-template-columns:none;max-width:none}}
                 @media(max-width:760px){#page-requests .page-actions{grid-template-columns:none;width:100%}#page-requests .page-actions .btn{flex:1 1 138px}}
                 /* عمود رقم الطلب: عرض أوسع وشريحة حالة مصغّرة تظهر كاملة */
-                #page-requests #requestsTable th:nth-child(2),#page-requests #requestsTable td:nth-child(2),
-                #page-requests #requestsClosedTable th:nth-child(2),#page-requests #requestsClosedTable td:nth-child(2){width:184px;overflow:visible}
-                #page-requests #requestsTable th:nth-child(3),#page-requests #requestsTable td:nth-child(3),
-                #page-requests #requestsClosedTable th:nth-child(3),#page-requests #requestsClosedTable td:nth-child(3){width:94px}
-                #page-requests #requestsTable th:nth-child(4),#page-requests #requestsTable td:nth-child(4),
-                #page-requests #requestsClosedTable th:nth-child(4),#page-requests #requestsClosedTable td:nth-child(4){width:110px}
+                /* تجاوزات قديمة للعرض ألغيت لصالح الـ Auto-fit */
                 #page-requests #requestsTable td:nth-child(2)>div,#page-requests #requestsClosedTable td:nth-child(2)>div{flex-wrap:nowrap;gap:5px}
                 #page-requests #requestsTable td:nth-child(2) .rq-num,#page-requests #requestsClosedTable td:nth-child(2) .rq-num{flex:0 0 auto}
                 #page-requests #requestsTable td:nth-child(2) .rq-num-ico,#page-requests #requestsClosedTable td:nth-child(2) .rq-num-ico{display:none}
@@ -3479,7 +3479,7 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                     <div class="table-container">
                         <table class="data-table" id="requestsTable">
                             <thead>
-                                <tr><th class="no-print" style="text-align:center;"><input type="checkbox" class="row-check" id="requestsSelectAll" onchange="toggleSelectAllRequests(this.checked)" title="تحديد الكل"></th><th class="sortable" data-sort="request_number" title="فرز حسب رقم الطلب"><div class="th-inner"><span>رقم الطلب</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="computer_number" title="فرز حسب الرقم الحاسوبي"><div class="th-inner"><span>الرقم الحاسوبي</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="device_name" title="فرز حسب الجهاز"><div class="th-inner"><span>الجهاز</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="employee_name" title="فرز حسب الموظف"><div class="th-inner"><span>الموظف</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="department" title="فرز حسب القسم"><div class="th-inner"><span>القسم</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="issue_description" title="فرز حسب الوصف"><div class="th-inner"><span>وصف المشكلة</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="status" title="فرز حسب الحالة"><div class="th-inner"><span>الحالة</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="created_at" title="فرز حسب التاريخ"><div class="th-inner"><span>تاريخ الطلب</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="no-print">إجراءات</th></tr>
+                                <tr><th class="no-print" style="text-align:center;"><input type="checkbox" class="row-check" id="requestsSelectAll" onchange="toggleSelectAllRequests(this.checked)" title="تحديد الكل"></th><th class="row-seq-th" style="width:44px;min-width:44px;text-align:center;font-weight:800;color:#475569;">#</th><th class="sortable" data-sort="request_number" title="فرز حسب رقم الطلب"><div class="th-inner"><span>رقم الطلب</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="computer_number" title="فرز حسب الرقم الحاسوبي"><div class="th-inner"><span>الرقم الحاسوبي</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="device_name" title="فرز حسب الجهاز"><div class="th-inner"><span>الجهاز</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="employee_name" title="فرز حسب الموظف"><div class="th-inner"><span>الموظف</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="department" title="فرز حسب القسم"><div class="th-inner"><span>القسم</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="issue_description" title="فرز حسب الوصف"><div class="th-inner"><span>وصف المشكلة</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="status" title="فرز حسب الحالة"><div class="th-inner"><span>الحالة</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="created_at" title="فرز حسب التاريخ"><div class="th-inner"><span>تاريخ الطلب</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="no-print">إجراءات</th></tr>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -3501,7 +3501,7 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                     <div class="table-container">
                         <table class="data-table" id="requestsClosedTable">
                             <thead>
-                                <tr><th class="no-print" style="text-align:center;"><input type="checkbox" class="row-check" id="requestsClosedSelectAll" onchange="toggleSelectAllRequests(this.checked)" title="تحديد الكل"></th><th class="sortable" data-sort="request_number" title="فرز حسب رقم الطلب"><div class="th-inner"><span>رقم الطلب</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="computer_number" title="فرز حسب الرقم الحاسوبي"><div class="th-inner"><span>الرقم الحاسوبي</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="device_name" title="فرز حسب الجهاز"><div class="th-inner"><span>الجهاز</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="employee_name" title="فرز حسب الموظف"><div class="th-inner"><span>الموظف</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="department" title="فرز حسب القسم"><div class="th-inner"><span>القسم</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="issue_description" title="فرز حسب الوصف"><div class="th-inner"><span>وصف المشكلة</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="status" title="فرز حسب الحالة"><div class="th-inner"><span>الحالة</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="created_at" title="فرز حسب التاريخ"><div class="th-inner"><span>تاريخ الطلب</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="no-print">إجراءات</th></tr>
+                                <tr><th class="no-print" style="text-align:center;"><input type="checkbox" class="row-check" id="requestsClosedSelectAll" onchange="toggleSelectAllRequests(this.checked)" title="تحديد الكل"></th><th class="row-seq-th" style="width:44px;min-width:44px;text-align:center;font-weight:800;color:#475569;">#</th><th class="sortable" data-sort="request_number" title="فرز حسب رقم الطلب"><div class="th-inner"><span>رقم الطلب</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="computer_number" title="فرز حسب الرقم الحاسوبي"><div class="th-inner"><span>الرقم الحاسوبي</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="device_name" title="فرز حسب الجهاز"><div class="th-inner"><span>الجهاز</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="employee_name" title="فرز حسب الموظف"><div class="th-inner"><span>الموظف</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="department" title="فرز حسب القسم"><div class="th-inner"><span>القسم</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="issue_description" title="فرز حسب الوصف"><div class="th-inner"><span>وصف المشكلة</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="status" title="فرز حسب الحالة"><div class="th-inner"><span>الحالة</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="sortable" data-sort="created_at" title="فرز حسب التاريخ"><div class="th-inner"><span>تاريخ الطلب</span><span class="sort-icon"><i class="fas fa-sort"></i></span></div></th><th class="no-print">إجراءات</th></tr>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -10341,18 +10341,10 @@ function toggleRequestsCard(cardId, ev) {
 })();
 
 /* ===== فرز أعمدة جدول طلبات الصيانة ===== */
-let requestsSort = { column: null, direction: 'asc' };
+let requestsSort = { column: 'computer_number', direction: 'asc' };
 
-function sortRequests(column) {
+function syncRequestsSortUI() {
     const tables = ['requestsTable', 'requestsClosedTable'].map(id => document.getElementById(id)).filter(Boolean);
-    if (!tables.length) return;
-    if (requestsSort.column === column) {
-        requestsSort.direction = requestsSort.direction === 'asc' ? 'desc' : null;
-        if (!requestsSort.direction) requestsSort.column = null;
-    } else {
-        requestsSort.column = column;
-        requestsSort.direction = 'asc';
-    }
     tables.forEach(table => table.querySelectorAll('thead th.sortable').forEach(th => {
         th.classList.remove('active');
         const icon = th.querySelector('.sort-icon i');
@@ -10362,8 +10354,20 @@ function sortRequests(column) {
             if (icon) icon.className = requestsSort.direction === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
         }
     }));
+}
 
-
+function sortRequests(column) {
+    const tables = ['requestsTable', 'requestsClosedTable'].map(id => document.getElementById(id)).filter(Boolean);
+    if (!tables.length) return;
+    if (requestsSort.column === column) {
+        if (requestsSort.direction === 'asc') { requestsSort.direction = 'desc'; }
+        else if (requestsSort.direction === 'desc') { requestsSort.column = 'computer_number'; requestsSort.direction = 'asc'; }
+        else { requestsSort.direction = 'asc'; }
+    } else {
+        requestsSort.column = column;
+        requestsSort.direction = 'asc';
+    }
+    syncRequestsSortUI();
     loadRequests();
 }
 
@@ -10387,9 +10391,19 @@ function applyRequestsSort(list, isClosed, reqNum) {
     return [...list].sort((a, b) => {
         const closedDiff = (isClosed(a) ? 1 : 0) - (isClosed(b) ? 1 : 0);
         if (closedDiff !== 0) return closedDiff;
-        if (!col || !requestsSort.direction) return reqNum(a) - reqNum(b);
+        const compA = (a.computer_number || a.computerNumber || '').toString().trim();
+        const compB = (b.computer_number || b.computerNumber || '').toString().trim();
+        if (!col || !requestsSort.direction) {
+            const cmpDefault = compA.localeCompare(compB, 'ar', { numeric: true, sensitivity: 'base' });
+            return cmpDefault !== 0 ? cmpDefault : (reqNum(a) - reqNum(b));
+        }
+        if (col === 'computer_number') {
+            const cmpComp = compA.localeCompare(compB, 'ar', { numeric: true, sensitivity: 'base' }) * dir;
+            return cmpComp !== 0 ? cmpComp : (reqNum(a) - reqNum(b));
+        }
         const av = val(a), bv = val(b);
         if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * dir;
+        if (typeof av === 'string' && typeof bv === 'string') return av.localeCompare(bv, 'ar', { numeric: true, sensitivity: 'base' }) * dir;
         return (av > bv ? 1 : av < bv ? -1 : 0) * dir;
     });
 }
@@ -10398,6 +10412,7 @@ function renderRequestsSkeleton(rows) {
     const skelRow = () => `
         <tr class="rq-skel-row">
             <td class="no-print rq-skel-cell" style="text-align:center;"><div class="rq-skel circle"></div></td>
+            <td class="rq-skel-cell" style="text-align:center;"><div class="rq-skel w40" style="margin:0 auto"></div></td>
             <td class="rq-skel-cell"><div class="rq-skel chip w80"></div></td>
             <td class="rq-skel-cell"><div class="rq-skel w60"></div></td>
             <td class="rq-skel-cell"><div class="rq-skel w80"></div></td>
@@ -10448,9 +10463,9 @@ async function loadRequests() {
         if (token !== __requestsLoadToken) return;
         setRequestsLoading(false);
         const tb = document.querySelector('#requestsTable tbody');
-        if (tb) tb.innerHTML = '<tr><td colspan="10" class="rq-empty"><i class="fas fa-triangle-exclamation"></i> تعذر جلب الطلبات، حاول مرة أخرى</td></tr>';
+        if (tb) tb.innerHTML = '<tr><td colspan="11" class="rq-empty"><i class="fas fa-triangle-exclamation"></i> تعذر جلب الطلبات، حاول مرة أخرى</td></tr>';
         const cb = document.querySelector('#requestsClosedTable tbody');
-        if (cb) cb.innerHTML = '<tr><td colspan="10" class="rq-empty"><i class="fas fa-triangle-exclamation"></i> تعذر جلب الطلبات</td></tr>';
+        if (cb) cb.innerHTML = '<tr><td colspan="11" class="rq-empty"><i class="fas fa-triangle-exclamation"></i> تعذر جلب الطلبات</td></tr>';
         throw e;
     }
     if (token !== __requestsLoadToken) return;
@@ -10480,9 +10495,10 @@ async function loadRequests() {
 
     const activeCount = sorted.filter(r => !isClosed(r)).length;
     const closedCount = sorted.length - activeCount;
-    const rowHtml = (r) => `
+    const rowHtml = (r, idx) => `
         <tr data-request-row="${r.id}" class="${isClosed(r) ? 'request-closed-row ' : ''}${selectedRequestIds.has(r.id) ? 'row-selected' : ''}">
             <td class="no-print" style="text-align:center;"><input type="checkbox" class="row-check request-row-check" value="${r.id}" ${selectedRequestIds.has(r.id) ? 'checked' : ''} onchange="toggleRequestSelection(${r.id}, this.checked)"></td>
+            <td class="row-seq-td" style="text-align:center;font-weight:700;color:#64748b;font-size:12px;">${idx + 1}</td>
             <td><div style="display:flex;align-items:center;gap:6px;"><span class="rq-num rq-num-link" role="button" tabindex="0" title="فتح الطلب للتعديل وإضافة إجراء" onclick="event.stopPropagation(); openRequestModal(${r.id})" onkeydown="if(event.key==='Enter'){event.preventDefault();openRequestModal(${r.id});}">#${r.request_number || r.requestNumber} <i class="fas fa-up-right-from-square rq-num-ico"></i></span>${getStatusChip(r.status, true)}</div></td>
             <td>${r.computer_number || r.computerNumber}</td>
             <td>${r.device_name || r.deviceName}</td>
@@ -10505,9 +10521,9 @@ async function loadRequests() {
 
     const activeRows = sorted.filter(r => !isClosed(r));
     const closedRows = sorted.filter(isClosed);
-    tbody.innerHTML = activeRows.map(rowHtml).join('') || '<tr><td colspan="10" class="rq-empty"><i class="fas fa-inbox"></i> لا توجد طلبات نشطة مطابقة</td></tr>';
+    tbody.innerHTML = activeRows.map((r, i) => rowHtml(r, i)).join('') || '<tr><td colspan="11" class="rq-empty"><i class="fas fa-inbox"></i> لا توجد طلبات نشطة مطابقة</td></tr>';
     const closedTbody = document.querySelector('#requestsClosedTable tbody');
-    if (closedTbody) closedTbody.innerHTML = closedRows.map(rowHtml).join('') || '<tr><td colspan="10" class="rq-empty"><i class="fas fa-box-open"></i> لا توجد طلبات منتهية</td></tr>';
+    if (closedTbody) closedTbody.innerHTML = closedRows.map((r, i) => rowHtml(r, i)).join('') || '<tr><td colspan="11" class="rq-empty"><i class="fas fa-box-open"></i> لا توجد طلبات منتهية</td></tr>';
     const closedCountEl = document.getElementById('rqClosedCount');
     if (closedCountEl) closedCountEl.textContent = `عرض ${closedRows.length} طلب منتهٍ`;
 
@@ -10516,6 +10532,7 @@ async function loadRequests() {
     updateBulkBar();
     updateQuickFilterCounts(requests);
     syncQuickFilterUI();
+    syncRequestsSortUI();
     document.getElementById('requestsBadge').textContent = requests.length;
 
     const activeChip = document.getElementById('rqActiveChip');
