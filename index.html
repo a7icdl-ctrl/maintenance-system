@@ -29423,9 +29423,14 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
 
             <!-- الكشف الرسمي القابل للطباعة والتعديل -->
             <div class="att-doc" id="attPrintableArea">
-                <div style="display:flex;align-items:center;gap:7px;font-size:12px;color:#3730a3;background:#eef2ff;border:1px dashed #a5b4fc;padding:8px 14px;border-radius:10px;margin-bottom:14px">
-                    <i class="fas fa-pen-to-square" style="color:#4f46e5;font-size:14px"></i>
-                    <span><b>ملاحظة:</b> جميع نصوص الكشف (العنوان، الوصف، المسميات، التوقيع، وخلايا الإجراءات) قابلة للنقر والتعديل المباشر قبل الحفظ والطباعة.</span>
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:12px;color:#3730a3;background:#eef2ff;border:1px dashed #a5b4fc;padding:8px 14px;border-radius:10px;margin-bottom:14px">
+                    <div style="display:flex;align-items:center;gap:7px">
+                        <i class="fas fa-pen-to-square" style="color:#4f46e5;font-size:14px"></i>
+                        <span><b>ملاحظة:</b> جميع نصوص الكشف ومربع التوقيع قابلة للنقر والتعديل المباشر، وتُحفظ تلقائياً لكل زيارة.</span>
+                    </div>
+                    <div id="attAutoSaveBadge" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;color:#059669;background:#ecfdf5;border:1px solid #a7f3d0;padding:2px 10px;border-radius:999px">
+                        <i class="fas fa-check-double"></i> <span>محفوظ تلقائياً</span>
+                    </div>
                 </div>
                 <div class="att-doc-header">
                     <div class="att-doc-brand">
@@ -30085,6 +30090,56 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         }
     };
 
+    // دالة الحفظ التلقائي الشامل لجميع نصوص وبيانات الكشف لكل زيارة
+    var autoSaveTimer = null;
+    window.triggerAutoSaveAttendance = function () {
+        if (!currentAttendanceVisitId) return;
+        var badge = document.getElementById('attAutoSaveBadge');
+        if (badge) {
+            badge.style.color = '#d97706';
+            badge.style.background = '#fffbeb';
+            badge.style.borderColor = '#fde68a';
+            badge.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>جارٍ الحفظ...</span>';
+        }
+
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(function () {
+            try {
+                var data = {
+                    title: document.getElementById('attDocTitleText') ? document.getElementById('attDocTitleText').innerText : '',
+                    sub: document.getElementById('attDocSubText') ? document.getElementById('attDocSubText').innerText : '',
+                    num: document.getElementById('attDocNumber') ? document.getElementById('attDocNumber').innerText : '',
+                    date: document.getElementById('attDocDate') ? document.getElementById('attDocDate').innerText : '',
+                    company: document.getElementById('attCompany') ? document.getElementById('attCompany').value : '',
+                    rep: document.getElementById('attRep') ? document.getElementById('attRep').value : '',
+                    tech: document.getElementById('attTech') ? document.getElementById('attTech').value : '',
+                    vDate: document.getElementById('attDate') ? document.getElementById('attDate').value : '',
+                    arrival: document.getElementById('attArrival') ? document.getElementById('attArrival').value : '',
+                    end: document.getElementById('attEnd') ? document.getElementById('attEnd').value : '',
+                    commitment: document.getElementById('attCommitment') ? document.getElementById('attCommitment').value : '',
+                    notes: document.getElementById('attNotes') ? document.getElementById('attNotes').value : '',
+                    tasksTitle: document.getElementById('attTasksTitle') ? document.getElementById('attTasksTitle').innerText : '',
+                    tasksBodyHtml: document.getElementById('attTasksBody') ? document.getElementById('attTasksBody').innerHTML : '',
+                    signRole: document.getElementById('attSignRole') ? document.getElementById('attSignRole').innerText : '',
+                    signTech: document.getElementById('attSignTech') ? document.getElementById('attSignTech').innerText : '',
+                    signLineLabel: document.getElementById('attSignLineLabel') ? document.getElementById('attSignLineLabel').innerText : '',
+                    signFooter: document.getElementById('attSignFooter') ? document.getElementById('attSignFooter').innerText : ''
+                };
+
+                localStorage.setItem('att_saved_visit_' + currentAttendanceVisitId, JSON.stringify(data));
+
+                if (badge) {
+                    badge.style.color = '#059669';
+                    badge.style.background = '#ecfdf5';
+                    badge.style.borderColor = '#a7f3d0';
+                    badge.innerHTML = '<i class="fas fa-check-double"></i> <span>تم الحفظ التلقائي</span>';
+                }
+            } catch (err) {
+                console.warn('AutoSave error:', err);
+            }
+        }, 300);
+    };
+
     window.loadAttendanceSheet = function (id) {
         var v = VISITS.find(function (x) { return String(x.id) === String(id); });
         if (!v) return;
@@ -30101,13 +30156,11 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         document.getElementById('attArrival').value = v.arrival_time || '';
         document.getElementById('attEnd').value = v.end_time || '';
 
-        // استخراج حالة الالتزام من سطر الملاحظات المخزن
         var rawNotes = v.notes || '';
         var commMatch = rawNotes.match(/^\s*\[حالة الالتزام\]\s*(.+)$/m);
         var userNotes = rawNotes.replace(/^\s*\[حالة الالتزام\][^\n]*\n?/i, '').trim();
         document.getElementById('attNotes').value = userNotes;
 
-        // تحديد حالة الالتزام الافتراضية بناء على أوقات الحضور والمدة
         var comm = commMatch ? commMatch[1].trim() : '';
         if (!comm) {
             var dur = durationOf(v);
@@ -30121,19 +30174,53 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         }
         document.getElementById('attCommitment').value = comm;
 
-        // تحديث الحسابات والتوقيعات
         onAttTimeOrDateChange();
         renderAttendanceTasks(v);
+
+        // استرجاع كل التعديلات المحفوظة تلقائياً لهذه الزيارة
+        try {
+            var saved = localStorage.getItem('att_saved_visit_' + v.id);
+            if (saved) {
+                var s = JSON.parse(saved);
+                if (s.title && document.getElementById('attDocTitleText')) document.getElementById('attDocTitleText').innerText = s.title;
+                if (s.sub && document.getElementById('attDocSubText')) document.getElementById('attDocSubText').innerText = s.sub;
+                if (s.num && document.getElementById('attDocNumber')) document.getElementById('attDocNumber').innerText = s.num;
+                if (s.date && document.getElementById('attDocDate')) document.getElementById('attDocDate').innerText = s.date;
+                if (s.company !== undefined && document.getElementById('attCompany')) document.getElementById('attCompany').value = s.company;
+                if (s.rep !== undefined && document.getElementById('attRep')) document.getElementById('attRep').value = s.rep;
+                if (s.tech !== undefined && document.getElementById('attTech')) document.getElementById('attTech').value = s.tech;
+                if (s.vDate && document.getElementById('attDate')) document.getElementById('attDate').value = s.vDate;
+                if (s.arrival !== undefined && document.getElementById('attArrival')) document.getElementById('attArrival').value = s.arrival;
+                if (s.end !== undefined && document.getElementById('attEnd')) document.getElementById('attEnd').value = s.end;
+                if (s.commitment && document.getElementById('attCommitment')) document.getElementById('attCommitment').value = s.commitment;
+                if (s.notes !== undefined && document.getElementById('attNotes')) document.getElementById('attNotes').value = s.notes;
+                if (s.tasksTitle && document.getElementById('attTasksTitle')) document.getElementById('attTasksTitle').innerText = s.tasksTitle;
+                if (s.tasksBodyHtml && document.getElementById('attTasksBody')) document.getElementById('attTasksBody').innerHTML = s.tasksBodyHtml;
+
+                // استعادة نصوص صندوق التوقيع بالكامل
+                if (s.signRole && document.getElementById('attSignRole')) document.getElementById('attSignRole').innerText = s.signRole;
+                if (s.signTech && document.getElementById('attSignTech')) document.getElementById('attSignTech').innerText = s.signTech;
+                if (s.signLineLabel && document.getElementById('attSignLineLabel')) document.getElementById('attSignLineLabel').innerText = s.signLineLabel;
+                if (s.signFooter && document.getElementById('attSignFooter')) document.getElementById('attSignFooter').innerText = s.signFooter;
+
+                onAttTimeOrDateChange(true);
+            }
+        } catch (e) {
+            console.warn('AutoSave restore error:', e);
+        }
+
+        if (typeof bindAutoSaveAttendanceListeners === 'function') {
+            bindAutoSaveAttendanceListeners();
+        }
     };
 
-    window.onAttTimeOrDateChange = function () {
-        var arr = document.getElementById('attArrival').value;
-        var end = document.getElementById('attEnd').value;
-        var rep = document.getElementById('attRep').value.trim();
-        var tech = document.getElementById('attTech').value.trim();
-        var d = document.getElementById('attDate').value;
+    window.onAttTimeOrDateChange = function (skipSignOverride) {
+        var arr = document.getElementById('attArrival') ? document.getElementById('attArrival').value : '';
+        var end = document.getElementById('attEnd') ? document.getElementById('attEnd').value : '';
+        var rep = document.getElementById('attRep') ? document.getElementById('attRep').value.trim() : '';
+        var tech = document.getElementById('attTech') ? document.getElementById('attTech').value.trim() : '';
+        var d = document.getElementById('attDate') ? document.getElementById('attDate').value : '';
 
-        // حساب المدة
         var durStr = '—';
         if (arr && end) {
             var parts1 = arr.split(':').map(Number);
@@ -30146,16 +30233,31 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
             var m = diff % 60;
             durStr = (h > 0 ? h + ' ساعة ' : '') + (m > 0 ? m + ' دقيقة' : (h === 0 ? '0 دقيقة' : ''));
         }
-        document.getElementById('attDuration').innerText = durStr;
+        var durEl = document.getElementById('attDuration');
+        if (durEl) durEl.innerText = durStr;
 
-        // تحديث اسم المشرف في التوقيع
-        var sigTechEl = document.getElementById('attSignTech');
-        if (sigTechEl) {
-            sigTechEl.innerText = tech || 'احمد رحيل';
+        if (!skipSignOverride) {
+            var sigTechEl = document.getElementById('attSignTech');
+            if (sigTechEl && (!sigTechEl.innerText || sigTechEl.innerText === '—' || sigTechEl.innerText === 'الفني المشرف')) {
+                sigTechEl.innerText = tech || 'احمد رحيل';
+            }
         }
-        if (d) document.getElementById('attDocDate').innerText = fmtDate(d);
+        if (d && document.getElementById('attDocDate')) document.getElementById('attDocDate').innerText = fmtDate(d);
 
         updateCommitmentBadge();
+        if (typeof triggerAutoSaveAttendance === 'function') triggerAutoSaveAttendance();
+    };
+
+    window.bindAutoSaveAttendanceListeners = function () {
+        var area = document.getElementById('attPrintableArea');
+        if (!area || area._autosaveBound) return;
+        area._autosaveBound = true;
+        
+        ['input', 'keyup', 'blur', 'change'].forEach(function (evt) {
+            area.addEventListener(evt, function () {
+                if (typeof triggerAutoSaveAttendance === 'function') triggerAutoSaveAttendance();
+            });
+        });
     };
 
     window.updateCommitmentBadge = function () {
