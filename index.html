@@ -29551,7 +29551,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
                 <!-- قسم التوقيعات (توقيع المشرف الداخلي فقط - قابل للتعديل المباشر) -->
                 <div class="att-signs-wrapper" style="display:flex;justify-content:center;margin-top:24px;padding-top:18px;border-top:1px dashed #cbd5e1">
                     <div class="att-sign-box-single" style="width:340px;max-width:100%;border:1px solid #cbd5e1;border-radius:14px;padding:18px 22px;background:#ffffff;text-align:center;box-shadow:0 3px 12px rgba(15,23,42,0.04)">
-                        <div class="role" id="attSignRole" contenteditable="true" title="انقر لتعديل المسمى" style="font-size:13.5px;font-weight:800;color:#334155;margin-bottom:8px;outline:none;cursor:text">الفني / المشرف الداخلي المتابع</div>
+                        <div class="role" id="attSignRole" contenteditable="true" title="انقر لتعديل المسمى" style="font-size:13.5px;font-weight:800;color:#334155;margin-bottom:8px;outline:none;cursor:text">المتابع لعطاء الصيانة</div>
                         <div class="name" id="attSignTech" contenteditable="true" title="انقر لتعديل الاسم" style="font-size:16px;font-weight:900;color:#0f172a;min-height:24px;margin-bottom:14px;outline:none;cursor:text">احمد رحيل</div>
                         <div class="line" style="position:relative;border-bottom:1px solid #94a3b8;margin:18px 0 10px;height:auto;display:block">
                             <span id="attSignLineLabel" contenteditable="true" title="انقر لتعديل نص التوقيع" style="position:relative;top:-10px;background:#ffffff;padding:0 12px;font-size:11.5px;color:#64748b;font-weight:700;outline:none;cursor:text">التوقيع</span>
@@ -30477,7 +30477,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
         var notes = document.getElementById('attNotes').value || 'لا توجد ملاحظات إضافية';
         var tasksHtml = document.getElementById('attTasksBody').innerHTML;
 
-        var signRole = document.getElementById('attSignRole') ? document.getElementById('attSignRole').innerText : 'الفني / المشرف الداخلي المتابع';
+        var signRole = document.getElementById('attSignRole') ? document.getElementById('attSignRole').innerText : 'المتابع لعطاء الصيانة';
         var signName = document.getElementById('attSignTech') ? document.getElementById('attSignTech').innerText : (tech || 'احمد رحيل');
         var signLineLabel = document.getElementById('attSignLineLabel') ? document.getElementById('attSignLineLabel').innerText : 'التوقيع';
         var signFooter = document.getElementById('attSignFooter') ? document.getElementById('attSignFooter').innerText : 'تمت المتابعة والتحقق من التواجد';
@@ -30695,7 +30695,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
             '<div style="font-size:14px;font-weight:800;color:#f8fafc;margin-top:2px;"><i class="fas fa-user-tie" style="color:#38bdf8;margin-inline-end:6px;"></i>' + esc(v.rep_name || '—') + '</div>' +
             '</div>' +
             '<div style="background:rgba(255,255,255,0.06);padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);">' +
-            '<div style="font-size:11px;color:#94a3b8;">الفني / المشرف المتابع</div>' +
+            '<div style="font-size:11px;color:#94a3b8;">المتابع لعطاء الصيانة</div>' +
             '<div style="font-size:14px;font-weight:800;color:#f8fafc;margin-top:2px;"><i class="fas fa-user-shield" style="color:#4ade80;margin-inline-end:6px;"></i>' + esc(v.technician || 'احمد رحيل') + '</div>' +
             '</div>' +
             '<div style="background:rgba(255,255,255,0.06);padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);">' +
@@ -30979,8 +30979,7 @@ html[data-theme="dark"] #page-invx .ix-bar{ background:rgba(255,255,255,.1) }
             '</table>' +
             '<div class="notes"><b>ملاحظات وتوصيات الزيارة:</b> ' + esc(notes) + '</div>' +
             '<div class="signs">' +
-            '<div class="sign"><div class="sign-role">مندوب شركة الصيانة المنفذ</div><div class="sign-name">' + esc(rep) + '</div><div class="sign-line"></div><div style="font-size:10px;color:#64748b;">التوقيع والاعتماد</div></div>' +
-            '<div class="sign"><div class="sign-role">الفني / المشرف الداخلي المتابع</div><div class="sign-name">' + esc(tech) + '</div><div class="sign-line"></div><div style="font-size:10px;color:#64748b;">التوقيع والاعتماد</div></div>' +
+            '<div class="sign"><div class="sign-role">المتابع لعطاء الصيانة</div><div class="sign-name">' + esc(tech) + '</div><div class="sign-line"></div><div style="font-size:10px;color:#64748b;">التوقيع والاعتماد</div></div>' +
             '</div>' +
             '</div>' +
             '<script>setTimeout(function(){window.print();},350);<\/script>' +
