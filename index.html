@@ -6885,8 +6885,12 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                         <input type="text" class="form-control" id="invAvailableQty" readonly style="background: #f8fafc;">
                     </div>
                     <div class="form-group">
-                        <label>الكمية المطلوبة</label>
-                        <input type="number" class="form-control" id="invQty" min="1" value="1">
+                        <label>الكمية المطلوبة <span style="color: var(--danger);">*</span></label>
+                        <input type="number" class="form-control" id="invQty" min="1" value="1" oninput="calculateRemainingQty()" onchange="calculateRemainingQty()">
+                    </div>
+                    <div class="form-group">
+                        <label>الرصيد المتبقي بعد الصرف</label>
+                        <input type="text" class="form-control" id="invRemainingQty" readonly style="background: #f8fafc; font-weight: 700; color: #64748b; text-align: center;" value="-">
                     </div>
                     <div class="form-group">
                         <label>الموظف</label>
@@ -12421,16 +12425,76 @@ async function loadInventory() {
 
 function updateInvQty() {
     const itemId = parseInt(document.getElementById('invItemSelect').value);
+    const availInput = document.getElementById('invAvailableQty');
+    const qtyInput = document.getElementById('invQty');
+    if (!itemId) {
+        availInput.value = '';
+        if (qtyInput) qtyInput.removeAttribute('max');
+        calculateRemainingQty();
+        return;
+    }
     SupabaseAPI.request('inventory', 'GET').then(inventory => {
         const item = inventory.find(i => i.id === itemId);
-        document.getElementById('invAvailableQty').value = item ? item.qty : '';
+        const avail = item ? (parseInt(item.qty) || 0) : 0;
+        availInput.value = avail;
+        if (qtyInput) {
+            qtyInput.max = avail;
+            if (avail > 0 && (!qtyInput.value || parseInt(qtyInput.value) < 1)) {
+                qtyInput.value = 1;
+            }
+        }
+        calculateRemainingQty();
+    }).catch(err => {
+        console.error('Error fetching item qty:', err);
+        calculateRemainingQty();
     });
+}
+
+function calculateRemainingQty() {
+    const availStr = document.getElementById('invAvailableQty').value;
+    const remainingEl = document.getElementById('invRemainingQty');
+    const qtyInput = document.getElementById('invQty');
+    if (!remainingEl) return;
+
+    if (availStr === '' || availStr === null || isNaN(parseInt(availStr))) {
+        remainingEl.value = '-';
+        remainingEl.style.color = '#64748b';
+        return;
+    }
+
+    const avail = parseInt(availStr) || 0;
+    const qty = parseInt(qtyInput.value) || 0;
+
+    if (qty <= 0) {
+        remainingEl.value = avail + ' متاح';
+        remainingEl.style.color = '#64748b';
+        return;
+    }
+
+    const rem = avail - qty;
+    if (rem < 0) {
+        remainingEl.value = '❌ غير مسموح (عجز: ' + Math.abs(rem) + ')';
+        remainingEl.style.color = '#dc2626';
+    } else if (rem === 0) {
+        remainingEl.value = '⚠️ 0 متبقي (استنفاد كامل)';
+        remainingEl.style.color = '#ea580c';
+    } else {
+        remainingEl.value = '✅ ' + rem + ' متبقي بالمستودع';
+        remainingEl.style.color = '#16a34a';
+    }
 }
 
 function openInventoryModal() {
     document.getElementById('invItemSelect').value = '';
     document.getElementById('invAvailableQty').value = '';
-    document.getElementById('invQty').value = '1';
+    const remainingEl = document.getElementById('invRemainingQty');
+    if (remainingEl) {
+        remainingEl.value = '-';
+        remainingEl.style.color = '#64748b';
+    }
+    const qtyInput = document.getElementById('invQty');
+    qtyInput.value = '1';
+    qtyInput.removeAttribute('max');
     document.getElementById('invEmployee').value = '';
     document.getElementById('invDate').value = new Date().toISOString().split('T')[0];
     document.getElementById('invDamaged').value = 'no';
@@ -12439,59 +12503,114 @@ function openInventoryModal() {
 }
 
 async function saveInventoryTransaction() {
-    if (checkReadOnly()) return;
+    if (checkReadOnly()) {
+        showToast('error', 'غير مصرح', 'أنت في وضع القراءة فقط');
+        return;
+    }
     const itemId = parseInt(document.getElementById('invItemSelect').value);
     const qty = parseInt(document.getElementById('invQty').value);
     const employee = document.getElementById('invEmployee').value.trim();
     const date = document.getElementById('invDate').value;
+    const damaged = document.getElementById('invDamaged').value;
+    const notes = document.getElementById('invNotes').value.trim();
 
-    if (!itemId || !qty || qty < 1 || !employee || !date) {
-        showToast('error', 'خطأ', 'الرجاء ملء جميع الحقول');
+    if (!itemId) {
+        showToast('error', 'حقل مطلوب', 'الرجاء اختيار المادة المراد صرفها');
         return;
     }
 
+    if (!qty || qty < 1) {
+        showToast('error', 'كمية غير صالحة', 'يرجى إدخال كمية صحيحة (1 على الأقل)');
+        return;
+    }
+
+    if (!employee) {
+        showToast('error', 'حقل مطلوب', 'الرجاء إدخال اسم الموظف المستلم');
+        return;
+    }
+
+    if (!date) {
+        showToast('error', 'حقل مطلوب', 'الرجاء تحديد تاريخ الصرف');
+        return;
+    }
+
+    // التحقق الدقيق من قاعدة البيانات لمنع صرف كمية تتجاوز الرصيد المتاح
     const inventory = await SupabaseAPI.request('inventory', 'GET');
     const item = inventory.find(i => i.id === itemId);
 
-    if (!item || (item.qty || 0) < qty) {
-        showToast('error', 'خطأ', 'الكمية المطلوبة غير متوفرة');
+    if (!item) {
+        showToast('error', 'خطأ', 'المادة المحددة غير موجودة بالمستودع');
         return;
     }
 
-    const oldQty = item.qty || 0;
-    const newQty = oldQty - qty;
+    const currentQty = parseInt(item.qty) || 0;
 
-    await SupabaseAPI.request('inventory', 'PATCH', { qty: newQty }, itemId);
+    if (currentQty <= 0) {
+        showToast('error', 'رصيد نافد', 'عذراً، رصيد مادة "' + item.name + '" نافد تماماً (0) ولا يوجد ما يمكن صرفه.');
+        return;
+    }
 
-    await SupabaseAPI.request('transactions', 'POST', {
-        item_id: itemId,
-        item_name: item.name,
-        qty,
-        employee,
-        date,
-        damaged: document.getElementById('invDamaged').value,
-        notes: document.getElementById('invNotes').value,
-        user: currentUser?.full_name || currentUser?.fullName || 'System'
-    });
+    if (qty > currentQty) {
+        const deficit = qty - currentQty;
+        showToast('error', 'تجاوز الرصيد المتاح', 'لا يمكن إتمام الصرف! الكمية المطلوبة (' + qty + ') تتجاوز الرصيد المتوفر في المستودع (' + currentQty + ') بمقدار ' + deficit + '.');
+        return;
+    }
 
-    await SupabaseAPI.request('inventory_history', 'POST', {
-        item_id: itemId,
-        item_name: item.name,
-        type: 'out',
-        qty,
-        old_qty: oldQty,
-        new_qty: newQty,
-        date,
-        user: currentUser?.full_name || currentUser?.fullName || 'System'
-    });
+    const remainingQty = currentQty - qty;
 
-    closeModal('inventoryModal');
-    await loadInventory();
-    await updateDashboard();
-    showToast('success', 'تم الصرف', `تم صرف ${qty} من ${item.name}`);
+    // توضيح تفاصيل الرصيد والكمية المتبقية وطلب التأكيد قبل الخصم
+    const confirmMessage = 'تأكيد عملية الصرف:\n\n' +
+        '• المادة: ' + item.name + '\n' +
+        '• الرصيد الحالي المتوفر: ' + currentQty + '\n' +
+        '• الكمية المطلوب صرفها: ' + qty + '\n' +
+        '• الرصيد المتبقي بعد الصرف: ' + remainingQty + '\n' +
+        '• الموظف المستلم: ' + employee + '\n' +
+        '• التاريخ: ' + date + '\n\n' +
+        'هل تريد المتابعة وتأكيد خصم الكمية من المستودع؟';
+
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+
+    const oldQty = currentQty;
+    const newQty = remainingQty;
+
+    try {
+        await SupabaseAPI.request('inventory', 'PATCH', { qty: newQty }, itemId);
+
+        await SupabaseAPI.request('transactions', 'POST', {
+            item_id: itemId,
+            item_name: item.name,
+            qty,
+            employee,
+            date,
+            damaged,
+            notes,
+            user: currentUser?.full_name || currentUser?.fullName || 'System'
+        });
+
+        await SupabaseAPI.request('inventory_history', 'POST', {
+            item_id: itemId,
+            item_name: item.name,
+            type: 'out',
+            qty,
+            old_qty: oldQty,
+            new_qty: newQty,
+            date,
+            user: currentUser?.full_name || currentUser?.fullName || 'System'
+        });
+
+        closeModal('inventoryModal');
+        await loadInventory();
+        await updateDashboard();
+        showToast('success', 'تم الصرف بنجاح', 'تم صرف ' + qty + ' بنجاح. الرصيد المتبقي في المستودع: ' + newQty);
+    } catch (err) {
+        console.error('Error saving transaction:', err);
+        showToast('error', 'خطأ في الحفظ', 'حدث خطأ أثناء حفظ حركة الصرف، يرجى المحاولة مرة أخرى.');
+    }
 }
 
-// ==================== INVENTORY TRANSACTIONS REVERT & DELETE ====================
+
 async function revertInventoryTransaction(transId) {
     if (checkReadOnly()) { showToast('error', 'غير مصرح', 'أنت في وضع القراءة فقط'); return; }
     const transList = window.__invTrans || [];
