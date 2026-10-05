@@ -7335,8 +7335,15 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
 
 // ==================== CONFIG ====================
 // ✅ بيانات السيرفر مضمنة - أي شخص يفتح الموقع يتصل مباشرة
-const DEFAULT_SUPABASE_URL = 'https://cevwdiryhkpicmfprydb.supabase.co';
-const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNldndkaXJ5aGtwaWNtZnByeWRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2MDc0MjMsImV4cCI6MjEwMDE4MzQyM30.ETDHndwejilTDwD4vzBHB9Pu-tp5W36yHlZZkgoR3Mc';
+const DEFAULT_SUPABASE_URL = 'https://hvuawnrbtfhqxpecxnes.supabase.co';
+const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2dWF3bnJidGZocXhwZWN4bmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzQ5ODUsImV4cCI6MjEwNjc1MDk4NX0.pOefs_zADTySxMBvujaCkxhPioeWFgk1rnVXcp-_xLI';
+
+// تنظيف الربط القديم تلقائياً إن وجد في ذاكرة المتصفح
+if (localStorage.getItem('supabase_url') && localStorage.getItem('supabase_url').includes('cevwdiryhkpicmfprydb')) {
+    localStorage.removeItem('supabase_url');
+    localStorage.removeItem('supabase_key');
+}
+
 
 let SUPABASE_URL = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
 let SUPABASE_KEY = localStorage.getItem('supabase_key') || DEFAULT_SUPABASE_KEY;
@@ -8904,33 +8911,66 @@ async function openDocumentModal(documentId) {
     openModal('documentModal');
 }
 
-function handleDocumentFileSelect(input) {
+
+// ==================== SUPABASE STORAGE UPLOAD ====================
+async function uploadFileToSupabaseStorage(file) {
+    if (!SUPABASE_URL || !SUPABASE_KEY) {
+        throw new Error('Supabase credentials missing');
+    }
+    const cleanBaseUrl = SUPABASE_URL.replace(/\/rest\/v1\/?$/, '').replace(/\/+$/, '');
+    const safeName = (file.name || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
+    const filePath = Date.now() + '_' + Math.random().toString(36).substring(2, 7) + '_' + safeName;
+    const uploadUrl = cleanBaseUrl + '/storage/v1/object/attachments/' + filePath;
+
+    const res = await fetch(uploadUrl, {
+        method: 'POST',
+        headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Content-Type': file.type || 'application/octet-stream'
+        },
+        body: file
+    });
+
+    if (!res.ok) {
+        const errText = await res.text();
+        console.error('Storage upload error:', errText);
+        throw new Error('فشل رفع الملف إلى السيرفر');
+    }
+
+    return cleanBaseUrl + '/storage/v1/object/public/attachments/' + filePath;
+}
+
+async function handleDocumentFileSelect(input) {
     const file = input.files[0];
     if (!file) return;
-    if (file.size > 10 * 1024 * 1024) {
-        showToast('error', 'خطأ', 'حجم الملف يتجاوز 10 ميجابايت');
+    if (file.size > 25 * 1024 * 1024) {
+        showToast('error', 'خطأ', 'حجم الملف يتجاوز 25 ميجابايت');
         input.value = '';
         return;
     }
     const desc = prompt('وصف الملف (اختياري):', file.name);
-    const reader = new FileReader();
-    reader.onload = function(e) {
+    showToast('info', 'جاري الرفع', 'يتم رفع الملف إلى وحدة التخزين السحابية...');
+    try {
+        const publicUrl = await uploadFileToSupabaseStorage(file);
         const att = {
             id: Date.now(),
             description: desc || file.name,
             filename: file.name,
             size: file.size,
             type: file.type,
-            data: e.target.result
+            data: publicUrl
         };
         documentTempAttachments.push(att);
         documentAttachmentsChanged = true;
         renderDocumentAttachments();
         document.getElementById('documentFileName').textContent = '✅ ' + file.name;
         document.getElementById('documentFileName').style.color = 'var(--success)';
-        showToast('success', 'تم', 'تم إرفاق الملف');
-    };
-    reader.readAsDataURL(file);
+        showToast('success', 'تم', 'تم رفع الملف بنجاح وحفظه سحابياً');
+    } catch (err) {
+        console.error(err);
+        showToast('error', 'خطأ', 'تعذر رفع الملف إلى Storage، تحقق من إعدادات الـ Bucket');
+    }
     input.value = '';
 }
 
@@ -10070,30 +10110,34 @@ function addProcedure() {
     showToast('success', 'تم', pendingAttachment ? 'تم إضافة الإجراء مع المرفق' : 'تم إضافة الإجراء');
 }
 
-function handleProcedureAttachmentSelect(input) {
+async function handleProcedureAttachmentSelect(input) {
     const file = input.files[0];
     if (!file) return;
-
-    const desc = prompt('وصف الملف (اختياري):', file.name);
-
-    if (file.size > 2 * 1024 * 1024) {
-        showToast('warning', 'حجم الملف كبير', 'يُفضل أن يكون المرفق أقل من 2 ميغابايت لتجنب بطء السيرفر.');
+    if (file.size > 25 * 1024 * 1024) {
+        showToast('error', 'خطأ', 'حجم الملف يتجاوز 25 ميجابايت');
+        input.value = '';
+        return;
     }
-    const reader = new FileReader();
-    reader.onload = function(e) {
+    const desc = prompt('وصف الملف (اختياري):', file.name);
+    showToast('info', 'جاري الرفع', 'يتم رفع مرفق الإجراء إلى التخزين السحابي...');
+    try {
+        const publicUrl = await uploadFileToSupabaseStorage(file);
         window.pendingProcedureAttachment = {
             id: Date.now(),
             description: desc || file.name,
             filename: file.name,
             size: file.size,
             type: file.type,
-            data: e.target.result
+            data: publicUrl
         };
         document.getElementById('procedureAttachmentName').textContent = '✅ ' + file.name;
         document.getElementById('procedureAttachmentName').style.color = 'var(--success)';
-        showToast('info', 'تم اختيار الملف', 'اضغط "إضافة إجراء" لربط الملف بالإجراء');
-    };
-    reader.readAsDataURL(file);
+        showToast('info', 'تم رفع الملف بنجاح', 'اضغط "إضافة إجراء" لربط الملف بالإجراء');
+    } catch (err) {
+        console.error(err);
+        showToast('error', 'خطأ', 'تعذر رفع الملف إلى Storage');
+    }
+    input.value = '';
 }
 
 function rqmConfirm(opts = {}) {
@@ -14114,32 +14158,35 @@ function openTenderModal() {
     openModal('tenderModal');
 }
 
-function handleTenderAttachment(input) {
+async function handleTenderAttachment(input) {
     const file = input.files[0];
     if (!file) return;
-    if (file.size > 10 * 1024 * 1024) {
-        showToast('error', 'خطأ', 'حجم الملف يتجاوز 10 ميجابايت');
+    if (file.size > 25 * 1024 * 1024) {
+        showToast('error', 'خطأ', 'حجم الملف يتجاوز 25 ميجابايت');
         input.value = '';
         return;
     }
     const desc = prompt('وصف الملف (اختياري):', file.name);
-    const reader = new FileReader();
-    reader.onload = function(e) {
+    showToast('info', 'جاري الرفع', 'يتم رفع مرفق العطاء سحابياً...');
+    try {
+        const publicUrl = await uploadFileToSupabaseStorage(file);
         tenderTempAttachment = {
             id: Date.now(),
             description: desc || file.name,
             filename: file.name,
             size: file.size,
             type: file.type,
-            data: e.target.result
+            data: publicUrl
         };
         tenderAttachmentChanged = true;
         document.getElementById('tenderAttachmentName').textContent = '✅ ' + file.name;
         document.getElementById('tenderAttachmentName').style.color = 'var(--success)';
         renderTenderAttachmentPreview();
-        showToast('success', 'تم', 'تم إرفاق الملف بنجاح');
-    };
-    reader.readAsDataURL(file);
+        showToast('success', 'تم', 'تم رفع الملف بنجاح');
+    } catch (err) {
+        console.error(err);
+        showToast('error', 'خطأ', 'تعذر رفع الملف إلى Storage');
+    }
     input.value = '';
 }
 
@@ -21305,18 +21352,21 @@ async function openPrModal(id){
   openModal('prModal');
 }
 
-function prHandleFile(input){
+async function prHandleFile(input){
   const file = input.files[0];
   if(!file) return;
-  if(file.size > 10*1024*1024){ showToast('error','خطأ','حجم الملف يتجاوز 10 ميجابايت'); input.value=''; return; }
-  const reader = new FileReader();
-  reader.onload = function(e){
-    prTempAttachments.push({ id: Date.now(), filename: file.name, size: file.size, type: file.type, data: e.target.result });
+  if(file.size > 25*1024*1024){ showToast('error','خطأ','حجم الملف يتجاوز 25 ميجابايت'); input.value=''; return; }
+  showToast('info','جاري الرفع','يتم رفع الملف إلى التخزين السحابي...');
+  try {
+    const publicUrl = await uploadFileToSupabaseStorage(file);
+    prTempAttachments.push({ id: Date.now(), filename: file.name, size: file.size, type: file.type, data: publicUrl });
     prAttachmentsChanged = true;
     prRenderAttachments();
-    showToast('success','تم','تم إرفاق الملف');
-  };
-  reader.readAsDataURL(file);
+    showToast('success','تم','تم رفع الملف بنجاح');
+  } catch (err) {
+    console.error(err);
+    showToast('error','خطأ','تعذر رفع الملف سحابياً');
+  }
   input.value = '';
 }
 
