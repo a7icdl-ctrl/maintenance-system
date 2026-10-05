@@ -3806,7 +3806,7 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                             <div class="table-container">
                                 <table class="data-table" id="transactionsTable">
                                     <thead>
-                                        <tr><th>المادة</th><th>الكمية</th><th>الموظف</th><th>التاريخ</th><th>التالف</th><th>ملاحظات</th></tr>
+                                        <tr><th>المادة</th><th>الكمية</th><th>الموظف</th><th>التاريخ</th><th>التالف</th><th>ملاحظات</th><th style="width:140px; text-align:center;">الإجراءات</th></tr>
                                     </thead>
                                     <tbody></tbody>
                                 </table>
@@ -3820,7 +3820,7 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                             <div class="table-container">
                                 <table class="data-table" id="historyTable">
                                     <thead>
-                                        <tr><th>المادة</th><th>نوع العملية</th><th>الكمية</th><th>الرصيد السابق</th><th>الرصيد الجديد</th><th>التاريخ</th><th>المستخدم</th></tr>
+                                        <tr><th>المادة</th><th>نوع العملية</th><th>الكمية</th><th>الرصيد السابق</th><th>الرصيد الجديد</th><th>التاريخ</th><th>المستخدم</th><th style="width:80px; text-align:center;">الإجراءات</th></tr>
                                     </thead>
                                     <tbody></tbody>
                                 </table>
@@ -7872,7 +7872,7 @@ async function performAdvancedSearch(type) {
 
             resultsHtml = `<h4 style="margin-bottom: 10px; color: var(--primary);"><i class="fas fa-exchange-alt"></i> حركات الصرف</h4>
             <div class="table-container" style="margin-bottom: 20px;"><table class="data-table">
-            <thead><tr><th>المادة</th><th>الكمية</th><th>الموظف</th><th>التاريخ</th><th>التالف</th><th>ملاحظات</th></tr></thead>
+            <thead><tr><th>المادة</th><th>الكمية</th><th>الموظف</th><th>التاريخ</th><th>التالف</th><th>ملاحظات</th><th style="width:140px; text-align:center;">الإجراءات</th></tr></thead>
             <tbody>${filtered.sort((a, b) => (b.id || 0) - (a.id || 0)).map(t => `
                 <tr><td>${t.item_name || t.itemName}</td><td>${t.qty}</td><td>${t.employee}</td><td>${t.date}</td>
                 <td>${t.damaged === 'yes' ? '<span class="badge badge-cancelled">نعم</span>' : '<span class="badge badge-completed">لا</span>'}</td>
@@ -7891,7 +7891,7 @@ async function performAdvancedSearch(type) {
             currentSearchResults = filtered;
             count = filtered.length;
             resultsHtml = `<div class="table-container"><table class="data-table">
-            <thead><tr><th>المادة</th><th>الكمية</th><th>الموظف</th><th>التاريخ</th><th>التالف</th><th>ملاحظات</th></tr></thead>
+            <thead><tr><th>المادة</th><th>الكمية</th><th>الموظف</th><th>التاريخ</th><th>التالف</th><th>ملاحظات</th><th style="width:140px; text-align:center;">الإجراءات</th></tr></thead>
             <tbody>${filtered.sort((a, b) => (b.id || 0) - (a.id || 0)).map(t => `
                 <tr><td>${t.item_name || t.itemName}</td><td>${t.qty}</td><td>${t.employee}</td><td>${t.date}</td>
                 <td>${t.damaged === 'yes' ? '<span class="badge badge-cancelled">نعم</span>' : '<span class="badge badge-completed">لا</span>'}</td>
@@ -12368,11 +12368,21 @@ async function loadInventory() {
     transTbody.innerHTML = transactions.sort((a, b) => (b.id || 0) - (a.id || 0)).map(t => `
         <tr>
             <td>${t.item_name || t.itemName}</td>
-            <td>${t.qty}</td>
+            <td><b>${t.qty}</b></td>
             <td>${t.employee}</td>
             <td>${t.date}</td>
             <td>${t.damaged === 'yes' ? '<span class="badge badge-cancelled">نعم</span>' : '<span class="badge badge-completed">لا</span>'}</td>
             <td>${t.notes || '-'}</td>
+            <td style="text-align:center;">
+                <div style="display:inline-flex; gap:6px; justify-content:center;">
+                    <button type="button" class="btn btn-warning btn-xs" onclick="revertInventoryTransaction(${t.id})" title="تراجع عن الصرف وإعادة الكمية للمستودع" style="padding:3px 8px; font-size:11px; white-space:nowrap;">
+                        <i class="fas fa-rotate-left"></i> تراجع
+                    </button>
+                    <button type="button" class="btn btn-danger btn-xs" onclick="deleteInventoryTransaction(${t.id})" title="حذف حركة الصرف فقط دون تعديل الرصيد" style="padding:3px 8px; font-size:11px;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
         </tr>
     `).join('');
 
@@ -12394,6 +12404,11 @@ async function loadInventory() {
             <td>${h.new_qty || h.newQty}</td>
             <td>${h.date}</td>
             <td>${h.user}</td>
+            <td style="text-align:center;">
+                <button type="button" class="btn btn-danger btn-xs" onclick="deleteInventoryHistory(${h.id})" title="حذف هذا السجل من التاريخ" style="padding:3px 8px; font-size:11px;">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
         </tr>
     `).join('');
 
@@ -12474,6 +12489,88 @@ async function saveInventoryTransaction() {
     await loadInventory();
     await updateDashboard();
     showToast('success', 'تم الصرف', `تم صرف ${qty} من ${item.name}`);
+}
+
+// ==================== INVENTORY TRANSACTIONS REVERT & DELETE ====================
+async function revertInventoryTransaction(transId) {
+    if (checkReadOnly()) { showToast('error', 'غير مصرح', 'أنت في وضع القراءة فقط'); return; }
+    const transList = window.__invTrans || [];
+    const t = transList.find(x => x.id === transId);
+    if (!t) { showToast('error', 'خطأ', 'لم يتم العثور على حركة الصرف'); return; }
+
+    const itemName = t.item_name || t.itemName || 'المادة';
+    const qty = parseInt(t.qty) || 0;
+
+    if (!confirm(`هل أنت متأكد من التراجع عن هذه الحركة؟\n\n- المادة: ${itemName}\n- الكمية المسترجعة: ${qty}\n- الموظف: ${t.employee || '-'}\n\nسيتم إعادة الكمية (${qty}) تلقائياً إلى رصيد المستودع وحذف الحركة.`)) {
+        return;
+    }
+
+    try {
+        const inventory = await SupabaseAPI.request('inventory', 'GET');
+        const item = inventory.find(i => String(i.id) === String(t.item_id || t.itemId) || (i.name && i.name.trim() === itemName.trim()));
+
+        if (item) {
+            const currentQty = parseInt(item.qty) || 0;
+            const newQty = currentQty + qty;
+
+            await SupabaseAPI.request('inventory', 'PATCH', { qty: newQty }, item.id);
+
+            await SupabaseAPI.request('inventory_history', 'POST', {
+                item_id: item.id,
+                item_name: item.name,
+                type: 'in',
+                qty: qty,
+                old_qty: currentQty,
+                new_qty: newQty,
+                date: new Date().toISOString().split('T')[0],
+                user: (currentUser?.full_name || currentUser?.fullName || 'System') + ' (تراجع عن صرف)'
+            });
+        }
+
+        await SupabaseAPI.request('transactions', 'DELETE', null, transId);
+        await loadInventory();
+        await updateDashboard();
+        showToast('success', 'تم التراجع', `تم التراجع عن الصرف وإعادة ${qty} إلى رصيد ${itemName}`);
+    } catch (err) {
+        console.error('Error reverting transaction:', err);
+        showToast('error', 'خطأ', 'حدث خطأ أثناء محاولة التراجع عن الحركة');
+    }
+}
+
+async function deleteInventoryTransaction(transId) {
+    if (checkReadOnly()) { showToast('error', 'غير مصرح', 'أنت في وضع القراءة فقط'); return; }
+    const transList = window.__invTrans || [];
+    const t = transList.find(x => x.id === transId);
+    const itemName = t ? (t.item_name || t.itemName || '') : '';
+
+    if (!confirm(`تحذير: هل أنت متأكد من حذف حركة الصرف المسجلة${itemName ? ' لـ ' + itemName : ''}؟\n\nملاحظة: هذا الخيار سيحذف سجل الحركة فقط دون تعديل كمية المستودع الحالية.`)) {
+        return;
+    }
+
+    try {
+        await SupabaseAPI.request('transactions', 'DELETE', null, transId);
+        await loadInventory();
+        await updateDashboard();
+        showToast('success', 'تم الحذف', 'تم حذف حركة الصرف بنجاح');
+    } catch (err) {
+        console.error('Error deleting transaction:', err);
+        showToast('error', 'خطأ', 'حدث خطأ أثناء حذف الحركة');
+    }
+}
+
+async function deleteInventoryHistory(histId) {
+    if (checkReadOnly()) { showToast('error', 'غير مصرح', 'أنت في وضع القراءة فقط'); return; }
+    if (!confirm('هل أنت متأكد من حذف هذا السجل من تاريخ الحركات؟')) {
+        return;
+    }
+    try {
+        await SupabaseAPI.request('inventory_history', 'DELETE', null, histId);
+        await loadInventory();
+        showToast('success', 'تم الحذف', 'تم حذف السجل من التاريخ بنجاح');
+    } catch (err) {
+        console.error('Error deleting history record:', err);
+        showToast('error', 'خطأ', 'حدث خطأ أثناء حذف السجل');
+    }
 }
 
 // ==================== ADD STOCK FUNCTIONS ====================
