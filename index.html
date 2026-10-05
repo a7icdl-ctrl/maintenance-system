@@ -3477,7 +3477,10 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                 <div class="rq-card" id="rqActiveCard">
                     <div class="rq-cardhead" onclick="toggleRequestsCard('rqActiveCard', event)">
                         <h3><button type="button" class="rq-toggle no-print" onclick="toggleRequestsCard('rqActiveCard', event)" title="طي / توسيع"><i class="fas fa-chevron-up"></i></button><span class="rq-dot"></span><i class="fas fa-bolt"></i> الطلبات النشطة <span class="rq-chip" id="rqActiveChip"><i class="fas fa-list-check"></i> 0 طلب</span></h3>
-                        <div class="rq-tools no-print">
+                        <div class="rq-tools no-print" style="display:flex; align-items:center; gap:8px;">
+                            <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); printActiveRequestsOnly()" style="background:#4f46e5; color:#fff; border:0; border-radius:7px; padding:5px 12px; font-size:12px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 4px rgba(79,70,229,0.25);" title="طباعة أو تصدير PDF للطلبات النشطة فقط">
+                                <i class="fas fa-print"></i> طباعة النشطة
+                            </button>
                             <span class="rq-hint"><i class="fas fa-arrow-pointer"></i> اضغط على أي عمود للفرز</span>
                         </div>
                     </div>
@@ -3499,7 +3502,10 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                 <div class="rq-card rq-closed-card is-collapsed" id="rqClosedCard">
                     <div class="rq-cardhead" onclick="toggleRequestsCard('rqClosedCard', event)">
                         <h3><button type="button" class="rq-toggle no-print" onclick="toggleRequestsCard('rqClosedCard', event)" title="طي / توسيع"><i class="fas fa-chevron-up"></i></button><span class="rq-dot"></span><i class="fas fa-box-archive"></i> الطلبات المكتملة والمنتهية <span class="rq-chip" id="rqClosedChip" style="background:#f1f5f9;border-color:#e2e8f0;color:#64748b;"><i class="fas fa-box-archive"></i> منتهية: 0</span></h3>
-                        <div class="rq-tools no-print">
+                        <div class="rq-tools no-print" style="display:flex; align-items:center; gap:8px;">
+                            <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); printCompletedRequestsOnly()" style="background:#059669; color:#fff; border:0; border-radius:7px; padding:5px 12px; font-size:12px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 4px rgba(5,150,105,0.25);" title="طباعة أو تصدير PDF للطلبات المكتملة والمنتهية">
+                                <i class="fas fa-print"></i> طباعة المكتملة
+                            </button>
                             <span class="rq-hint"><i class="fas fa-circle-check"></i> مكتمل / مكرر / ملغي</span>
                         </div>
                     </div>
@@ -11071,6 +11077,47 @@ async function bulkSendToMaintenance() {
     showUndoBar(`تم إرسال ${ok} طلب إلى فريق الصيانة`, async () => { await restoreRequestSnapshots(snapshots); markChangeLogUndone(logId2); });
 }
 
+
+async function printActiveRequestsOnly() {
+    let all = window.requests || [];
+    if (!all.length) {
+        try {
+            all = await SupabaseAPI.request('requests', 'GET') || [];
+            window.requests = all;
+        } catch (e) {
+            showToast('error', 'خطأ', 'تعذر تحميل الطلبات');
+            return;
+        }
+    }
+    const isClosed = (r) => ['completed', 'cancelled', 'duplicate'].includes(r.status);
+    const activeReqs = all.filter(r => !isClosed(r));
+    if (!activeReqs.length) {
+        showToast('warning', 'تنبيه', 'لا توجد طلبات نشطة حالياً للطباعة');
+        return;
+    }
+    openSelectedRequestsReport(activeReqs, false, 'كشف طلبات الصيانة النشطة (قيد المتابعة)');
+}
+
+async function printCompletedRequestsOnly() {
+    let all = window.requests || [];
+    if (!all.length) {
+        try {
+            all = await SupabaseAPI.request('requests', 'GET') || [];
+            window.requests = all;
+        } catch (e) {
+            showToast('error', 'خطأ', 'تعذر تحميل الطلبات');
+            return;
+        }
+    }
+    const isClosed = (r) => ['completed', 'cancelled', 'duplicate'].includes(r.status);
+    const completedReqs = all.filter(isClosed);
+    if (!completedReqs.length) {
+        showToast('warning', 'تنبيه', 'لا توجد طلبات مكتملة أو منتهية حالياً للطباعة');
+        return;
+    }
+    openSelectedRequestsReport(completedReqs, false, 'كشف طلبات الصيانة المكتملة والمنتهية');
+}
+
 async function bulkPrintRequests(withDetails = false) {
     const ids = getSelectedRequestIds();
     if (!ids) return;
@@ -11089,12 +11136,13 @@ async function bulkPrintRequests(withDetails = false) {
     openSelectedRequestsReport(selected, withDetails);
 }
 
-function openSelectedRequestsReport(requests, withDetails) {
+function openSelectedRequestsReport(requests, withDetails, customTitle) {
     const esc = typeof _drEsc === 'function' ? _drEsc : (v => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'));
     const sorted = requests.slice().sort((a, b) => (parseInt(b.request_number || b.requestNumber || b.id || 0) || 0) - (parseInt(a.request_number || a.requestNumber || a.id || 0) || 0));
     const printedAt = new Date().toLocaleString('ar-SA-u-ca-gregory-nu-latn');
-    const filename = withDetails ? 'طلبات-الصيانة-المحددة-بالتفاصيل.pdf' : 'طلبات-الصيانة-المحددة.pdf';
-    const title = withDetails ? 'تفاصيل طلبات الصيانة المحددة' : 'قائمة طلبات الصيانة المحددة';
+    const defaultFilename = withDetails ? 'طلبات-الصيانة-المحددة-بالتفاصيل.pdf' : 'طلبات-الصيانة-المحددة.pdf';
+    const filename = customTitle ? (customTitle.replace(/[\s()\/]+/g, '_') + '.pdf') : defaultFilename;
+    const title = customTitle || (withDetails ? 'تفاصيل طلبات الصيانة المحددة' : 'قائمة طلبات الصيانة المحددة');
     const tableRows = sorted.map((r, i) => `<tr>
         <td>${i + 1}</td>
         <td class="num">#${esc(r.request_number || r.requestNumber || '-')}</td>
