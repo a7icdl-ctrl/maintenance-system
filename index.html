@@ -2438,89 +2438,185 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
         .tc-legend i{width:12px;height:12px;border-radius:4px;display:inline-block;}
     </style>
 <style id="maint-gateway-fixed-styles">
-/* ===== ترقية شاشة الدخول: الشعار بحجم كبير وهالات ألوان أنيقة دون تشويه التخطيط ===== */
+/* ===== شاشة تسجيل الدخول: شعار الصيانة التكنولوجي بألوان متناغمة وتجاوب ذكي ===== */
+.brand-mark {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
 .brand-ring {
     position: relative !important;
-    width: 130px !important;
-    height: 130px !important;
+    width: 124px !important;
+    height: 124px !important;
     display: grid !important;
     place-items: center !important;
-    flex: 0 0 130px !important;
-    background: radial-gradient(circle, rgba(15, 23, 42, 0.9) 0%, rgba(2, 6, 23, 0.98) 100%) !important;
+    flex: 0 0 124px !important;
+    background: radial-gradient(circle, rgba(15, 23, 42, 0.92) 0%, rgba(2, 6, 23, 0.98) 100%) !important;
     border-radius: 50% !important;
-    box-shadow:
-        0 0 35px rgba(56, 189, 248, 0.45),
-        0 0 65px rgba(139, 92, 246, 0.35),
-        0 0 90px rgba(16, 185, 129, 0.2),
-        inset 0 0 25px rgba(56, 189, 248, 0.25) !important;
+    box-shadow: 
+        0 0 35px rgba(56, 189, 248, 0.5),
+        0 0 70px rgba(99, 102, 241, 0.35),
+        0 0 100px rgba(16, 185, 129, 0.22),
+        inset 0 0 25px rgba(56, 189, 248, 0.28) !important;
+    transform-style: preserve-3d;
+    transition: all 0.35s ease;
 }
 .brand-ring i.fa-tools {
     position: relative !important;
     z-index: 4 !important;
-    font-size: 54px !important;
-    background: linear-gradient(135deg, #ffffff 15%, #7dd3fc 60%, #a7f3d0 100%) !important;
+    font-size: 52px !important;
+    background: linear-gradient(135deg, #ffffff 15%, #7dd3fc 55%, #a7f3d0 100%) !important;
     -webkit-background-clip: text !important;
     background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
-    filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.85)) drop-shadow(0 0 30px rgba(6, 182, 212, 0.65)) !important;
-    animation: maintCoreIconPulse 3.5s ease-in-out infinite !important;
+    filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.85)) drop-shadow(0 0 32px rgba(6, 182, 212, 0.7)) !important;
+    animation: maintCoreIconPulse 3.6s ease-in-out infinite !important;
 }
 @keyframes maintCoreIconPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.08) rotate(3deg); }
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.85)); }
+    50% { transform: scale(1.08) rotate(3deg); filter: drop-shadow(0 0 28px rgba(129, 140, 248, 0.95)) drop-shadow(0 0 42px rgba(56, 189, 248, 0.85)); }
 }
+
+/* هالات لونية متناغمة وفائقة التباين والوضوح مع الخلفية الداكنة */
 .brand-ring .maint-prismatic-aura {
     position: absolute;
     inset: -18px;
     border-radius: 50%;
-    background: conic-gradient(from 0deg, #38bdf8, #818cf8, #c084fc, #f472b6, #34d399, #06b6d4, #38bdf8);
-    opacity: 0.38;
-    filter: blur(14px);
+    background: conic-gradient(from 0deg, #38bdf8, #60a5fa, #818cf8, #a855f7, #ec4899, #14b8a6, #10b981, #0284c7, #38bdf8);
+    opacity: 0.52;
+    filter: blur(16px);
     animation: maintAuraSpin 14s linear infinite;
     pointer-events: none;
     z-index: 1;
 }
+
 .brand-ring .maint-orbit-outer {
     position: absolute;
     inset: -12px;
     border-radius: 50%;
-    border: 2px dashed rgba(56, 189, 248, 0.85);
-    box-shadow: 0 0 25px rgba(56, 189, 248, 0.5), inset 0 0 12px rgba(139, 92, 246, 0.3);
+    border: 2px dashed rgba(56, 189, 248, 0.9);
+    box-shadow: 0 0 28px rgba(56, 189, 248, 0.6), inset 0 0 14px rgba(129, 140, 248, 0.35);
     animation: maintOrbitSpin 18s linear infinite;
     pointer-events: none;
     z-index: 2;
 }
+
 .brand-ring .maint-orbit-middle {
     position: absolute;
     inset: -4px;
     border-radius: 50%;
     border: 2px solid transparent;
-    border-top: 3px solid #06b6d4;
-    border-right: 3px solid #818cf8;
+    border-top: 3px solid #38bdf8;
+    border-right: 3px solid #a855f7;
     border-bottom: 3px solid #10b981;
-    border-left: 2px solid #ec4899;
-    box-shadow: 0 0 25px rgba(6, 182, 212, 0.6), 0 0 45px rgba(129, 140, 248, 0.35);
+    border-left: 2.5px solid #ec4899;
+    box-shadow: 0 0 28px rgba(56, 189, 248, 0.65), 0 0 48px rgba(168, 85, 247, 0.4);
     animation: maintOrbitSpinRev 11s linear infinite;
     pointer-events: none;
     z-index: 3;
 }
+
 .brand-ring .maint-orbit-glow {
     position: absolute;
     inset: 4px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(56, 189, 248, 0.35) 0%, rgba(139, 92, 246, 0.25) 45%, rgba(16, 185, 129, 0.15) 70%, transparent 85%);
-    animation: maintCoreBreathing 3s ease-in-out infinite alternate;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.42) 0%, rgba(129, 140, 248, 0.3) 45%, rgba(16, 185, 129, 0.2) 72%, transparent 88%);
+    animation: maintCoreBreathing 3.2s ease-in-out infinite alternate;
     pointer-events: none;
     z-index: 2;
 }
+
 @keyframes maintAuraSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes maintOrbitSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes maintOrbitSpinRev { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 @keyframes maintCoreBreathing {
-    0% { transform: scale(0.94); opacity: 0.65; }
-    100% { transform: scale(1.12); opacity: 1; }
+    0% { transform: scale(0.93); opacity: 0.7; }
+    100% { transform: scale(1.12); opacity: 1; filter: drop-shadow(0 0 32px #38bdf8); }
 }
-/* ===== بوابة الصيانة السينمائية لفتح النظام ===== */
+
+/* التجاوب المرن على الشاشات المتوسطة والصغيرة (تابلت وموبايل) */
+@media (max-width: 1024px) {
+    .brand-ring {
+        width: 105px !important;
+        height: 105px !important;
+        flex: 0 0 105px !important;
+    }
+    .brand-ring i.fa-tools {
+        font-size: 44px !important;
+    }
+    .brand-ring .maint-prismatic-aura {
+        inset: -14px;
+        filter: blur(12px);
+    }
+    .brand-ring .maint-orbit-outer {
+        inset: -9px;
+    }
+}
+
+@media (max-width: 768px) {
+    .auth-brand {
+        padding: 30px 20px 22px !important;
+        gap: 16px !important;
+        text-align: center;
+        align-items: center;
+    }
+    .brand-mark {
+        gap: 16px !important;
+        flex-direction: row;
+        justify-content: center;
+    }
+    .brand-ring {
+        width: 85px !important;
+        height: 85px !important;
+        flex: 0 0 85px !important;
+    }
+    .brand-ring i.fa-tools {
+        font-size: 36px !important;
+    }
+    .brand-ring .maint-prismatic-aura {
+        inset: -10px;
+        filter: blur(10px);
+        opacity: 0.45;
+    }
+    .brand-ring .maint-orbit-outer {
+        inset: -7px;
+        border-width: 1.5px;
+    }
+    .brand-mark h1 {
+        font-size: 21px !important;
+    }
+    .brand-mark p {
+        font-size: 12px !important;
+    }
+    .brand-tag {
+        font-size: 14.5px !important;
+        line-height: 1.6 !important;
+    }
+    .brand-feats {
+        display: none !important; /* إخفاء النقاط التفصيلية على الموبايل لإبقاء بطاقة الدخول بارزة مباشرة دون تمرير */
+    }
+}
+
+@media (max-width: 480px) {
+    .brand-ring {
+        width: 74px !important;
+        height: 74px !important;
+        flex: 0 0 74px !important;
+    }
+    .brand-ring i.fa-tools {
+        font-size: 30px !important;
+    }
+    .brand-ring .maint-prismatic-aura {
+        inset: -8px;
+    }
+    .brand-mark h1 {
+        font-size: 18px !important;
+    }
+}
+
+/* ========================================================
+   بوابة الصيانة السينمائية لفتح النظام - حركة ناعمة وتلاشٍ متدرج فخم
+======================================================== */
 #maintGatewayPortal {
     position: fixed;
     inset: 0;
@@ -2528,24 +2624,38 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
     display: none;
     align-items: center;
     justify-content: center;
-    background: radial-gradient(circle at center, rgba(15, 23, 42, 0.97) 0%, rgba(2, 6, 23, 0.99) 100%);
-    backdrop-filter: blur(30px);
+    background: radial-gradient(circle at center, rgba(15, 23, 42, 0.96) 0%, rgba(2, 6, 23, 0.99) 100%);
+    backdrop-filter: blur(35px);
+    -webkit-backdrop-filter: blur(35px);
     overflow: hidden;
     pointer-events: all;
     opacity: 0;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.95s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.95s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-#maintGatewayPortal.portal-active { display: flex !important; opacity: 1 !important; }
+#maintGatewayPortal.portal-active {
+    display: flex !important;
+    opacity: 1 !important;
+}
+
 .gateway-aperture {
     position: relative;
     width: 280px;
     height: 280px;
     display: grid;
     place-items: center;
-    transform: scale(0.5);
-    transition: transform 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: scale(0.65);
+    transition: transform 1.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
 }
-.portal-opening .gateway-aperture { transform: scale(1.28); }
+
+.portal-opening .gateway-aperture {
+    transform: scale(1.24);
+}
+
+.portal-dissolve .gateway-aperture {
+    transform: scale(1.45);
+    opacity: 0.15;
+}
+
 .gateway-core-icon {
     font-size: 92px;
     color: #ffffff;
@@ -2557,13 +2667,20 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
     0% { transform: scale(0.95); filter: brightness(1); }
     100% { transform: scale(1.12); filter: brightness(1.45); }
 }
-.gateway-ring { position: absolute; border-radius: 50%; pointer-events: none; }
+
+.gateway-ring {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
 .gateway-ring-1 {
     inset: -30px;
     border: 3.5px dashed rgba(56, 189, 248, 0.95);
     box-shadow: 0 0 45px rgba(56, 189, 248, 0.8), inset 0 0 20px rgba(56, 189, 248, 0.4);
     animation: maintOrbitSpin 8s linear infinite;
 }
+
 .gateway-ring-2 {
     inset: -70px;
     border: 3.5px solid transparent;
@@ -2574,12 +2691,14 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
     box-shadow: 0 0 60px rgba(6, 182, 212, 0.7), 0 0 90px rgba(192, 132, 252, 0.45);
     animation: maintOrbitSpinRev 7s linear infinite;
 }
+
 .gateway-ring-3 {
     inset: -120px;
     border: 2.5px dashed rgba(99, 102, 241, 0.85);
     box-shadow: 0 0 80px rgba(99, 102, 241, 0.5), inset 0 0 30px rgba(52, 211, 153, 0.3);
     animation: maintOrbitSpin 15s linear infinite;
 }
+
 .gateway-shockwave {
     position: absolute;
     width: 120px;
@@ -2591,33 +2710,62 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
     pointer-events: none;
     transform: scale(0.2);
 }
-.portal-burst .gateway-shockwave { animation: gatewayShockwaveAnim 1.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
+
+.portal-burst .gateway-shockwave {
+    animation: gatewayShockwaveAnim 1.4s cubic-bezier(0.12, 0.8, 0.25, 1) forwards;
+}
+
 @keyframes gatewayShockwaveAnim {
     0% { transform: scale(0.2); opacity: 1; border-width: 12px; }
-    50% { opacity: 0.95; }
-    100% { transform: scale(32); opacity: 0; border-width: 1px; }
+    40% { opacity: 0.95; }
+    100% { transform: scale(36); opacity: 0; border-width: 1px; }
 }
+
 .gateway-iris-blast {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at center, rgba(56, 189, 248, 0.85) 0%, rgba(139, 92, 246, 0.55) 35%, rgba(6, 182, 212, 0.35) 60%, rgba(15, 23, 42, 0) 80%);
+    background: radial-gradient(circle at center, rgba(56, 189, 248, 0.9) 0%, rgba(129, 140, 248, 0.55) 35%, rgba(6, 182, 212, 0.35) 60%, rgba(15, 23, 42, 0) 80%);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.6s ease;
+    transition: opacity 0.8s ease;
 }
-.portal-burst .gateway-iris-blast { opacity: 1; }
+
+.portal-burst .gateway-iris-blast {
+    opacity: 1;
+}
+
 .gateway-status-text {
     position: absolute;
-    bottom: -90px;
-    font-size: 18px;
+    bottom: 7%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    font-size: 16.5px;
     font-weight: 800;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     color: #e0f2fe;
     text-shadow: 0 0 20px rgba(56, 189, 248, 0.95), 0 0 35px rgba(139, 92, 246, 0.7);
     white-space: nowrap;
     display: flex;
     align-items: center;
     gap: 12px;
+    padding: 10px 24px;
+    background: rgba(15, 23, 42, 0.78);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 99px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45), 0 0 25px rgba(56, 189, 248, 0.2);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+@media (max-width: 768px) {
+    .gateway-status-text {
+        bottom: 5%;
+        font-size: 13.5px;
+        padding: 8px 18px;
+        gap: 8px;
+    }
 }
 </style>
 
@@ -2772,10 +2920,10 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
         <div class="gateway-ring gateway-ring-2"></div>
         <div class="gateway-ring gateway-ring-3"></div>
         <i class="fas fa-tools gateway-core-icon"></i>
-        <div class="gateway-status-text">
-            <i class="fas fa-shield-halved" style="color:#38bdf8;"></i>
-            <span>جاري التحقق من الصلاحيات وتهيئة وحدات النظام...</span>
-        </div>
+    </div>
+    <div class="gateway-status-text">
+        <i class="fas fa-shield-halved" style="color:#38bdf8;"></i>
+        <span>جاري التحقق من الصلاحيات وتهيئة وحدات النظام...</span>
     </div>
 </div>
 
@@ -34549,45 +34697,56 @@ window.openMaintenanceGatewayPortal = function(onCompleteCallback) {
         var statusEl = portal.querySelector('.gateway-status-text span');
         var completed = false;
 
-        function finish() {
+        function revealApp() {
             if (completed) return;
             completed = true;
             if (typeof onCompleteCallback === 'function') {
                 try { onCompleteCallback(); } catch(err) { console.error(err); }
             }
-            setTimeout(function() {
-                portal.style.transition = 'opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1)';
-                portal.style.opacity = '0';
-                setTimeout(function() {
-                    portal.classList.remove('portal-active', 'portal-opening', 'portal-burst');
-                    portal.style.display = 'none';
-                    portal.style.opacity = '';
-                    portal.style.transition = '';
-                    if (statusEl) statusEl.textContent = 'جاري تهيئة بيئة الصيانة وفتح لوحة التحكم...';
-                }, 650);
-            }, 400);
         }
 
+        // المرحلة 1 (0 ثانية): فتح البوابة ودوران الحلقات والتمدد السينمائي
         portal.style.display = 'flex';
+        portal.style.opacity = '1';
         void portal.offsetWidth;
         portal.classList.add('portal-active', 'portal-opening');
         if (statusEl) statusEl.textContent = 'جاري التحقق من الصلاحيات وتهيئة وحدات النظام...';
 
+        // المرحلة 2 (1.8 ثانية): إعلان تأكيد الدخول وتجهيز بيئة الصيانة
         setTimeout(function() {
-            if (statusEl) statusEl.textContent = 'تم تأكيد الدخول بنجاح! جاري فتح لوحة التحكم...';
-        }, 900);
+            if (statusEl) statusEl.textContent = 'تم تأكيد الدخول بنجاح! جاري تحضير بيئة الصيانة...';
+        }, 1800);
 
+        // المرحلة 3 (3.4 ثانية): الانفجار الضوئي وموجة الصدمة الهولوغرافية
         setTimeout(function() {
             portal.classList.add('portal-burst');
-        }, 1500);
+            if (statusEl) statusEl.textContent = 'مرحباً بك! جاري فتح لوحة التحكم الرئيسية...';
+        }, 3400);
 
+        // المرحلة 4 (4.6 ثانية): كشف لوحة التحكم وبدء التلاشي السينمائي الناعم الفخم
         setTimeout(function() {
-            finish();
-        }, 2200);
+            revealApp();
+            portal.classList.add('portal-dissolve');
+            portal.style.transition = 'opacity 1.4s cubic-bezier(0.2, 0.8, 0.2, 1), transform 1.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
+            portal.style.opacity = '0';
+            portal.style.transform = 'scale(1.05)';
+        }, 4600);
 
+        // المرحلة 5 (6.0 ثوانٍ): إتمام الحركة وإخفاء البوابة بالكامل
         setTimeout(function() {
-            finish();
-        }, 3000);
+            portal.classList.remove('portal-active', 'portal-opening', 'portal-burst', 'portal-dissolve');
+            portal.style.display = 'none';
+            portal.style.opacity = '';
+            portal.style.transform = '';
+            portal.style.transition = '';
+            if (statusEl) statusEl.textContent = 'جاري تهيئة بيئة الصيانة وفتح لوحة التحكم...';
+        }, 6000);
+
+        // صمام أمان
+        setTimeout(function() {
+            revealApp();
+        }, 6300);
+
     } catch(e) {
         console.error('Portal transition error:', e);
         if (typeof onCompleteCallback === 'function') onCompleteCallback();
