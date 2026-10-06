@@ -2437,6 +2437,190 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
         .tc-legend span{display:inline-flex;align-items:center;gap:6px;}
         .tc-legend i{width:12px;height:12px;border-radius:4px;display:inline-block;}
     </style>
+<style id="maint-gateway-fixed-styles">
+/* ===== ترقية شاشة الدخول: الشعار بحجم كبير وهالات ألوان أنيقة دون تشويه التخطيط ===== */
+.brand-ring {
+    position: relative !important;
+    width: 130px !important;
+    height: 130px !important;
+    display: grid !important;
+    place-items: center !important;
+    flex: 0 0 130px !important;
+    background: radial-gradient(circle, rgba(15, 23, 42, 0.9) 0%, rgba(2, 6, 23, 0.98) 100%) !important;
+    border-radius: 50% !important;
+    box-shadow:
+        0 0 35px rgba(56, 189, 248, 0.45),
+        0 0 65px rgba(139, 92, 246, 0.35),
+        0 0 90px rgba(16, 185, 129, 0.2),
+        inset 0 0 25px rgba(56, 189, 248, 0.25) !important;
+}
+.brand-ring i.fa-tools {
+    position: relative !important;
+    z-index: 4 !important;
+    font-size: 54px !important;
+    background: linear-gradient(135deg, #ffffff 15%, #7dd3fc 60%, #a7f3d0 100%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.85)) drop-shadow(0 0 30px rgba(6, 182, 212, 0.65)) !important;
+    animation: maintCoreIconPulse 3.5s ease-in-out infinite !important;
+}
+@keyframes maintCoreIconPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08) rotate(3deg); }
+}
+.brand-ring .maint-prismatic-aura {
+    position: absolute;
+    inset: -18px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #38bdf8, #818cf8, #c084fc, #f472b6, #34d399, #06b6d4, #38bdf8);
+    opacity: 0.38;
+    filter: blur(14px);
+    animation: maintAuraSpin 14s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+.brand-ring .maint-orbit-outer {
+    position: absolute;
+    inset: -12px;
+    border-radius: 50%;
+    border: 2px dashed rgba(56, 189, 248, 0.85);
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.5), inset 0 0 12px rgba(139, 92, 246, 0.3);
+    animation: maintOrbitSpin 18s linear infinite;
+    pointer-events: none;
+    z-index: 2;
+}
+.brand-ring .maint-orbit-middle {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top: 3px solid #06b6d4;
+    border-right: 3px solid #818cf8;
+    border-bottom: 3px solid #10b981;
+    border-left: 2px solid #ec4899;
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.6), 0 0 45px rgba(129, 140, 248, 0.35);
+    animation: maintOrbitSpinRev 11s linear infinite;
+    pointer-events: none;
+    z-index: 3;
+}
+.brand-ring .maint-orbit-glow {
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.35) 0%, rgba(139, 92, 246, 0.25) 45%, rgba(16, 185, 129, 0.15) 70%, transparent 85%);
+    animation: maintCoreBreathing 3s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 2;
+}
+@keyframes maintAuraSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes maintOrbitSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes maintOrbitSpinRev { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+@keyframes maintCoreBreathing {
+    0% { transform: scale(0.94); opacity: 0.65; }
+    100% { transform: scale(1.12); opacity: 1; }
+}
+/* ===== بوابة الصيانة السينمائية لفتح النظام ===== */
+#maintGatewayPortal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999999 !important;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at center, rgba(15, 23, 42, 0.97) 0%, rgba(2, 6, 23, 0.99) 100%);
+    backdrop-filter: blur(30px);
+    overflow: hidden;
+    pointer-events: all;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+#maintGatewayPortal.portal-active { display: flex !important; opacity: 1 !important; }
+.gateway-aperture {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    display: grid;
+    place-items: center;
+    transform: scale(0.5);
+    transition: transform 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.portal-opening .gateway-aperture { transform: scale(1.28); }
+.gateway-core-icon {
+    font-size: 92px;
+    color: #ffffff;
+    z-index: 10;
+    text-shadow: 0 0 35px #38bdf8, 0 0 70px #06b6d4, 0 0 120px #818cf8;
+    animation: gatewayToolPulse 1.4s ease-in-out infinite alternate;
+}
+@keyframes gatewayToolPulse {
+    0% { transform: scale(0.95); filter: brightness(1); }
+    100% { transform: scale(1.12); filter: brightness(1.45); }
+}
+.gateway-ring { position: absolute; border-radius: 50%; pointer-events: none; }
+.gateway-ring-1 {
+    inset: -30px;
+    border: 3.5px dashed rgba(56, 189, 248, 0.95);
+    box-shadow: 0 0 45px rgba(56, 189, 248, 0.8), inset 0 0 20px rgba(56, 189, 248, 0.4);
+    animation: maintOrbitSpin 8s linear infinite;
+}
+.gateway-ring-2 {
+    inset: -70px;
+    border: 3.5px solid transparent;
+    border-top: 4.5px solid #06b6d4;
+    border-right: 3.5px solid #c084fc;
+    border-bottom: 4.5px solid #10b981;
+    border-left: 3.5px solid #ec4899;
+    box-shadow: 0 0 60px rgba(6, 182, 212, 0.7), 0 0 90px rgba(192, 132, 252, 0.45);
+    animation: maintOrbitSpinRev 7s linear infinite;
+}
+.gateway-ring-3 {
+    inset: -120px;
+    border: 2.5px dashed rgba(99, 102, 241, 0.85);
+    box-shadow: 0 0 80px rgba(99, 102, 241, 0.5), inset 0 0 30px rgba(52, 211, 153, 0.3);
+    animation: maintOrbitSpin 15s linear infinite;
+}
+.gateway-shockwave {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 5px solid #38bdf8;
+    box-shadow: 0 0 90px #38bdf8, 0 0 140px #818cf8, inset 0 0 60px #06b6d4;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.2);
+}
+.portal-burst .gateway-shockwave { animation: gatewayShockwaveAnim 1.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
+@keyframes gatewayShockwaveAnim {
+    0% { transform: scale(0.2); opacity: 1; border-width: 12px; }
+    50% { opacity: 0.95; }
+    100% { transform: scale(32); opacity: 0; border-width: 1px; }
+}
+.gateway-iris-blast {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(56, 189, 248, 0.85) 0%, rgba(139, 92, 246, 0.55) 35%, rgba(6, 182, 212, 0.35) 60%, rgba(15, 23, 42, 0) 80%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+}
+.portal-burst .gateway-iris-blast { opacity: 1; }
+.gateway-status-text {
+    position: absolute;
+    bottom: -90px;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #e0f2fe;
+    text-shadow: 0 0 20px rgba(56, 189, 248, 0.95), 0 0 35px rgba(139, 92, 246, 0.7);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+</style>
+
 </head>
 
 <body>
@@ -2576,7 +2760,26 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
         </div>
     </div>
 
-    <div class="login-container" id="loginScreen" style="display:flex;">
+    
+<!-- ========================================================
+     بوابة الصيانة السينمائية لفتح النظام (MAINTENANCE GATEWAY PORTAL)
+======================================================== -->
+<div id="maintGatewayPortal" style="display:none;">
+    <div class="gateway-iris-blast"></div>
+    <div class="gateway-shockwave"></div>
+    <div class="gateway-aperture">
+        <div class="gateway-ring gateway-ring-1"></div>
+        <div class="gateway-ring gateway-ring-2"></div>
+        <div class="gateway-ring gateway-ring-3"></div>
+        <i class="fas fa-tools gateway-core-icon"></i>
+        <div class="gateway-status-text">
+            <i class="fas fa-shield-halved" style="color:#38bdf8;"></i>
+            <span>جاري التحقق من الصلاحيات وتهيئة وحدات النظام...</span>
+        </div>
+    </div>
+</div>
+
+<div class="login-container" id="loginScreen" style="display:flex;">
       <!-- خلفية ألوان زاهية وأمواج شفقية وجزيئات تفاعلية -->
       <canvas id="authCanvas"></canvas>
       <div class="auth-vibrant-bg"></div>
@@ -2596,7 +2799,13 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
             </div>
 
             <div class="brand-mark">
-                <div class="brand-ring"><i class="fas fa-tools"></i></div>
+                <div class="brand-ring" id="maintCoreRing">
+                    <div class="maint-prismatic-aura"></div>
+                    <div class="maint-orbit-glow"></div>
+                    <div class="maint-orbit-outer"></div>
+                    <div class="maint-orbit-middle"></div>
+                    <i class="fas fa-tools"></i>
+                </div>
                 <div>
                     <h1>نظام إدارة الصيانة</h1>
                     <p>Maintenance Management System</p>
@@ -2855,95 +3064,142 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
             var screen = document.getElementById('loginScreen');
             if(!canvas || !screen) return;
             var ctx = canvas.getContext('2d');
-            var width = canvas.width = window.innerWidth;
-            var height = canvas.height = window.innerHeight;
+            var width, height, dpr;
+            var particles = [];
+            var gears = [];
+            var animId;
 
-            var points = [];
-            var numPoints = Math.floor((width * height) / 16000);
-            if(numPoints > 65) numPoints = 65;
-            if(numPoints < 25) numPoints = 25;
-
-            var mouse = { x: width / 2, y: height / 2, active: false };
-
-            window.addEventListener('resize', function(){
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-            });
-
-            window.addEventListener('mousemove', function(e){
-                mouse.x = e.clientX;
-                mouse.y = e.clientY;
-                mouse.active = true;
-            });
-
-            var colors = ['#38bdf8', '#ec4899', '#a78bfa', '#34d399', '#fde047'];
-
-            for(var i = 0; i < numPoints; i++){
-                points.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    vx: (Math.random() - 0.5) * 0.75,
-                    vy: (Math.random() - 0.5) * 0.75,
-                    radius: Math.random() * 2.5 + 1.2,
-                    color: colors[Math.floor(Math.random() * colors.length)],
-                    alpha: Math.random() * 0.7 + 0.3
-                });
+            function resize(){
+                dpr = window.devicePixelRatio || 1;
+                width = screen.clientWidth || window.innerWidth;
+                height = screen.clientHeight || window.innerHeight;
+                canvas.width = Math.floor(width * dpr);
+                canvas.height = Math.floor(height * dpr);
+                canvas.style.width = width + 'px';
+                canvas.style.height = height + 'px';
+                ctx.setTransform(1,0,0,1,0,0);
+                ctx.scale(dpr, dpr);
+                initScene();
             }
 
-            function animate(){
-                if(screen.style.display !== 'none'){
-                    ctx.clearRect(0, 0, width, height);
-
-                    for(var i = 0; i < points.length; i++){
-                        var p = points[i];
-                        p.x += p.vx;
-                        p.y += p.vy;
-
-                        if(p.x < 0 || p.x > width) p.vx *= -1;
-                        if(p.y < 0 || p.y > height) p.vy *= -1;
-
-                        ctx.beginPath();
-                        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                        ctx.fillStyle = p.color;
-                        ctx.shadowBlur = 8;
-                        ctx.shadowColor = p.color;
-                        ctx.fill();
-
-                        for(var j = i + 1; j < points.length; j++){
-                            var p2 = points[j];
-                            var dx = p.x - p2.x;
-                            var dy = p.y - p2.y;
-                            var dist = Math.sqrt(dx * dx + dy * dy);
-                            if(dist < 110){
-                                ctx.beginPath();
-                                ctx.moveTo(p.x, p.y);
-                                ctx.lineTo(p2.x, p2.y);
-                                ctx.strokeStyle = 'rgba(255, 255, 255, ' + (0.18 * (1 - dist / 110)) + ')';
-                                ctx.lineWidth = 0.8;
-                                ctx.shadowBlur = 0;
-                                ctx.stroke();
-                            }
-                        }
-
-                        if(mouse.active){
-                            var mdx = p.x - mouse.x;
-                            var mdy = p.y - mouse.y;
-                            var mdist = Math.sqrt(mdx * mdx + mdy * mdy);
-                            if(mdist < 140){
-                                ctx.beginPath();
-                                ctx.moveTo(p.x, p.y);
-                                ctx.lineTo(mouse.x, mouse.y);
-                                ctx.strokeStyle = 'rgba(236, 72, 153, ' + (0.4 * (1 - mdist / 140)) + ')';
-                                ctx.lineWidth = 1.2;
-                                ctx.stroke();
-                            }
-                        }
-                    }
+            function initScene(){
+                particles = [];
+                var count = Math.min(Math.floor((width * height) / 14000), 75);
+                for(var i=0; i<count; i++){
+                    particles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        vx: (Math.random() - 0.5) * 0.45,
+                        vy: -0.3 - Math.random() * 0.4,
+                        size: 1.5 + Math.random() * 2.5,
+                        color: Math.random() > 0.45 ? 'rgba(56, 189, 248, ' : (Math.random() > 0.5 ? 'rgba(6, 182, 212, ' : 'rgba(16, 185, 129, '),
+                        alpha: 0.2 + Math.random() * 0.5,
+                        pulse: Math.random() * 6.28
+                    });
                 }
-                requestAnimationFrame(animate);
+
+                gears = [
+                    { x: width * 0.18, y: height * 0.28, r: 85, teeth: 12, speed: 0.003, angle: 0, color: 'rgba(56, 189, 248, 0.07)' },
+                    { x: width * 0.18 + 125, y: height * 0.28 + 65, r: 52, teeth: 8, speed: -0.0049, angle: 0.2, color: 'rgba(6, 182, 212, 0.06)' },
+                    { x: width * 0.82, y: height * 0.72, r: 105, teeth: 16, speed: -0.0025, angle: 0, color: 'rgba(56, 189, 248, 0.06)' },
+                    { x: width * 0.82 - 145, y: height * 0.72 - 70, r: 60, teeth: 10, speed: 0.0044, angle: 0.3, color: 'rgba(16, 185, 129, 0.05)' }
+                ];
             }
-            animate();
+
+            function drawGear(g){
+                ctx.save();
+                ctx.translate(g.x, g.y);
+                ctx.rotate(g.angle);
+                ctx.strokeStyle = g.color;
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                var numTeeth = g.teeth;
+                var step = (Math.PI * 2) / numTeeth;
+                var outerR = g.r;
+                var innerR = g.r * 0.82;
+                for(var i=0; i<numTeeth; i++){
+                    var a = i * step;
+                    ctx.lineTo(Math.cos(a) * innerR, Math.sin(a) * innerR);
+                    ctx.lineTo(Math.cos(a + step * 0.25) * outerR, Math.sin(a + step * 0.25) * outerR);
+                    ctx.lineTo(Math.cos(a + step * 0.6) * outerR, Math.sin(a + step * 0.6) * outerR);
+                    ctx.lineTo(Math.cos(a + step * 0.85) * innerR, Math.sin(a + step * 0.85) * innerR);
+                }
+                ctx.closePath();
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(0, 0, g.r * 0.45, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(0, 0, 7, 0, Math.PI * 2);
+                ctx.fillStyle = g.color;
+                ctx.fill();
+
+                ctx.restore();
+            }
+
+            var gridOffset = 0;
+            function drawCyberGrid(){
+                gridOffset = (gridOffset + 0.22) % 35;
+                ctx.save();
+                ctx.strokeStyle = 'rgba(56, 189, 248, 0.04)';
+                ctx.lineWidth = 1;
+                for(var x = 0; x <= width; x += 35){
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, height);
+                    ctx.stroke();
+                }
+                for(var y = gridOffset; y <= height; y += 35){
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(width, y);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+
+            function render(){
+                if(screen.style.display === 'none') return;
+                ctx.clearRect(0, 0, width, height);
+
+                drawCyberGrid();
+
+                for(var g=0; g<gears.length; g++){
+                    gears[g].angle += gears[g].speed;
+                    drawGear(gears[g]);
+                }
+
+                for(var i=0; i<particles.length; i++){
+                    var p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.pulse += 0.04;
+
+                    if(p.y < -10) { p.y = height + 10; p.x = Math.random() * width; }
+                    if(p.x < -10) p.x = width + 10;
+                    if(p.x > width + 10) p.x = -10;
+
+                    var currentAlpha = p.alpha * (0.7 + 0.3 * Math.sin(p.pulse));
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color + currentAlpha + ')';
+                    ctx.shadowColor = '#38bdf8';
+                    ctx.shadowBlur = 8;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+
+                animId = requestAnimationFrame(render);
+            }
+
+            window.addEventListener('resize', resize);
+            resize();
+            render();
         }
+
+
         if(document.readyState === 'loading'){
             document.addEventListener('DOMContentLoaded', setupCanvas);
         } else {
@@ -7677,8 +7933,15 @@ async function handleLogin() {
         localStorage.setItem('currentUser', JSON.stringify(user));
         attachIdleListeners();
         startIdleTimer();
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('appContainer').style.display = 'block';
+        if (typeof window.openMaintenanceGatewayPortal === 'function') {
+            window.openMaintenanceGatewayPortal(function() {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+            });
+        } else {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+        }
         document.getElementById('userName').textContent = user.full_name || user.fullName || user.username;
         document.getElementById('userAvatar').textContent = (user.full_name || user.fullName || user.username).charAt(0);
 
@@ -34273,5 +34536,63 @@ html body .page-section > .page-header .page-actions #fd3BellBtn:hover,
 }
 
 </style>
+
+<script id="maint-gateway-engine-script">
+window.openMaintenanceGatewayPortal = function(onCompleteCallback) {
+    try {
+        var portal = document.getElementById('maintGatewayPortal');
+        if (!portal) {
+            if (typeof onCompleteCallback === 'function') onCompleteCallback();
+            return;
+        }
+
+        var statusEl = portal.querySelector('.gateway-status-text span');
+        var completed = false;
+
+        function finish() {
+            if (completed) return;
+            completed = true;
+            if (typeof onCompleteCallback === 'function') {
+                try { onCompleteCallback(); } catch(err) { console.error(err); }
+            }
+            setTimeout(function() {
+                portal.style.transition = 'opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1)';
+                portal.style.opacity = '0';
+                setTimeout(function() {
+                    portal.classList.remove('portal-active', 'portal-opening', 'portal-burst');
+                    portal.style.display = 'none';
+                    portal.style.opacity = '';
+                    portal.style.transition = '';
+                    if (statusEl) statusEl.textContent = 'جاري تهيئة بيئة الصيانة وفتح لوحة التحكم...';
+                }, 650);
+            }, 400);
+        }
+
+        portal.style.display = 'flex';
+        void portal.offsetWidth;
+        portal.classList.add('portal-active', 'portal-opening');
+        if (statusEl) statusEl.textContent = 'جاري التحقق من الصلاحيات وتهيئة وحدات النظام...';
+
+        setTimeout(function() {
+            if (statusEl) statusEl.textContent = 'تم تأكيد الدخول بنجاح! جاري فتح لوحة التحكم...';
+        }, 900);
+
+        setTimeout(function() {
+            portal.classList.add('portal-burst');
+        }, 1500);
+
+        setTimeout(function() {
+            finish();
+        }, 2200);
+
+        setTimeout(function() {
+            finish();
+        }, 3000);
+    } catch(e) {
+        console.error('Portal transition error:', e);
+        if (typeof onCompleteCallback === 'function') onCompleteCallback();
+    }
+};
+</script>
 
 </html>
