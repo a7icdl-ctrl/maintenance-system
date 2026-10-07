@@ -3402,7 +3402,12 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                     <span>البديل الدائم</span>
                     <span class="nav-badge" id="prBadge">0</span>
                 </a>
-                <a class="nav-item" data-title="تفاصيل عطاء الصيانة" onclick="showPage('tender')">
+                                <a class="nav-item" data-title="تقويم العطاء" onclick="showPage('tender_calendar')" style="position:relative;">
+                    <i class="fas fa-calendar-days" style="color:#8b5cf6;"></i>
+                    <span>تقويم العطاء</span>
+                    <span class="nav-badge" id="calendarBadge" style="background:#8b5cf6;">0</span>
+                </a>
+<a class="nav-item" data-title="تفاصيل عطاء الصيانة" onclick="showPage('tender')">
                     <i class="fas fa-file-contract"></i>
                     <span>تفاصيل عطاء الصيانة</span>
                 </a>
@@ -7013,6 +7018,1848 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                 </script>
             </div>
 
+            
+            <!-- ==================== تقويم العطاء (TENDER CALENDAR) ==================== -->
+            <div class="page-section" id="page-tender_calendar">
+                <style>
+                    #page-tender_calendar {
+                        animation: tcSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+                    }
+                    @keyframes tcSlideIn {
+                        from { opacity: 0; transform: translateY(10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    .tc-wrapper {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 20px;
+                        padding-bottom: 40px;
+                    }
+
+                    /* Hero Header Card */
+                    .tc-hero-card {
+                        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #312e81 85%, #3730a3 100%);
+                        border-radius: 20px;
+                        padding: 24px 28px;
+                        color: #ffffff;
+                        box-shadow: 0 14px 34px rgba(30, 27, 75, 0.28), 0 2px 8px rgba(0,0,0,0.06);
+                        position: relative;
+                        overflow: hidden;
+                        border: 1px solid rgba(255, 255, 255, 0.12);
+                    }
+                    .tc-hero-card::before {
+                        content: '';
+                        position: absolute;
+                        top: -50%;
+                        left: -20%;
+                        width: 320px;
+                        height: 320px;
+                        background: radial-gradient(circle, rgba(139, 92, 246, 0.35) 0%, transparent 70%);
+                        border-radius: 50%;
+                        pointer-events: none;
+                    }
+                    .tc-hero-top {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        flex-wrap: wrap;
+                        gap: 16px;
+                        position: relative;
+                        z-index: 2;
+                    }
+                    .tc-hero-title h1 {
+                        font-size: 24px;
+                        font-weight: 800;
+                        margin: 0 0 6px 0;
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        letter-spacing: -0.3px;
+                    }
+                    .tc-hero-title p {
+                        margin: 0;
+                        font-size: 13.5px;
+                        color: rgba(226, 232, 240, 0.9);
+                        line-height: 1.5;
+                    }
+                    .tc-hero-actions {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        flex-wrap: wrap;
+                    }
+                    .tc-hero-btn {
+                        background: rgba(255, 255, 255, 0.14);
+                        border: 1px solid rgba(255, 255, 255, 0.25);
+                        color: #ffffff;
+                        padding: 8px 16px;
+                        border-radius: 10px;
+                        font-size: 13px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 8px;
+                        transition: all 0.2s ease;
+                        backdrop-filter: blur(8px);
+                    }
+                    .tc-hero-btn:hover {
+                        background: rgba(255, 255, 255, 0.24);
+                        transform: translateY(-1px);
+                    }
+
+                    /* KPI Summary Pills Bar */
+                    .tc-kpi-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+                        gap: 10px;
+                        margin-top: 18px;
+                        position: relative;
+                        z-index: 2;
+                    }
+                    .tc-kpi-pill {
+                        background: rgba(15, 23, 42, 0.45);
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                        border-radius: 12px;
+                        padding: 10px 14px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        backdrop-filter: blur(10px);
+                    }
+                    .tc-kpi-left {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 2px;
+                    }
+                    .tc-kpi-label {
+                        font-size: 11px;
+                        color: rgba(203, 213, 225, 0.9);
+                        font-weight: 500;
+                    }
+                    .tc-kpi-val {
+                        font-size: 18px;
+                        font-weight: 800;
+                        color: #ffffff;
+                    }
+
+                    /* Toolbar Section */
+                    .tc-toolbar {
+                        background: #ffffff;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 16px;
+                        padding: 14px 18px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 14px;
+                        flex-wrap: wrap;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+                    }
+                    .tc-nav-cluster {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                    }
+                    .tc-nav-btn {
+                        width: 38px;
+                        height: 38px;
+                        border-radius: 10px;
+                        border: 1px solid #cbd5e1;
+                        background: #ffffff;
+                        color: #334155;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 13px;
+                        transition: all 0.2s;
+                    }
+                    .tc-nav-btn:hover {
+                        background: #f1f5f9;
+                        color: #0f172a;
+                        border-color: #94a3b8;
+                    }
+                    .tc-btn-today {
+                        padding: 0 16px;
+                        height: 38px;
+                        border-radius: 10px;
+                        border: 1px solid #cbd5e1;
+                        background: #ffffff;
+                        color: #1e293b;
+                        font-weight: 700;
+                        font-size: 13px;
+                        cursor: pointer;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        transition: all 0.2s;
+                    }
+                    .tc-btn-today:hover {
+                        background: #7c3aed;
+                        color: #ffffff;
+                        border-color: #7c3aed;
+                    }
+                    .tc-period-title {
+                        font-size: 17px;
+                        font-weight: 800;
+                        color: #0f172a;
+                        min-width: 170px;
+                        text-align: center;
+                    }
+
+                    /* View Switcher (Month / Week) */
+                    .tc-view-switcher {
+                        display: inline-flex;
+                        background: #f1f5f9;
+                        padding: 3px;
+                        border-radius: 10px;
+                        border: 1px solid #e2e8f0;
+                        gap: 3px;
+                    }
+                    .tc-view-btn {
+                        border: none;
+                        background: transparent;
+                        padding: 6px 14px;
+                        border-radius: 8px;
+                        font-size: 12.5px;
+                        font-weight: 700;
+                        color: #475569;
+                        cursor: pointer;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        transition: all 0.18s ease;
+                    }
+                    .tc-view-btn.active {
+                        background: #ffffff;
+                        color: #4338ca;
+                        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+                    }
+
+                    /* Filter Buttons Row */
+                    .tc-filters-row {
+                        display: flex;
+                        align-items: center;
+                        flex-wrap: wrap;
+                        gap: 6px;
+                        width: 100%;
+                        padding-top: 10px;
+                        border-top: 1px solid #f1f5f9;
+                    }
+                    .tc-filter-pill {
+                        border: 1px solid #e2e8f0;
+                        background: #f8fafc;
+                        color: #475569;
+                        padding: 5px 12px;
+                        border-radius: 20px;
+                        font-size: 12px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        transition: all 0.15s;
+                    }
+                    .tc-filter-pill:hover {
+                        background: #f1f5f9;
+                        border-color: #cbd5e1;
+                    }
+                    .tc-filter-pill.active {
+                        background: #0f172a;
+                        color: #ffffff;
+                        border-color: #0f172a;
+                    }
+                    .tc-filter-pill.active i {
+                        color: #a78bfa !important;
+                    }
+
+                    /* Search wrap */
+                    .tc-search-wrap {
+                        display: flex;
+                        align-items: center;
+                        background: #f8fafc;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 10px;
+                        padding: 0 12px;
+                        height: 38px;
+                        flex: 1;
+                        min-width: 200px;
+                    }
+                    .tc-search-wrap i {
+                        color: #94a3b8;
+                        margin-inline-end: 8px;
+                    }
+                    .tc-search-wrap input {
+                        border: none;
+                        background: transparent;
+                        outline: none;
+                        width: 100%;
+                        font-size: 13px;
+                        color: #1e293b;
+                    }
+
+                    /* Board and Grid */
+                    .tc-board-card {
+                        background: #ffffff;
+                        border-radius: 18px;
+                        border: 1px solid #e2e8f0;
+                        overflow: hidden;
+                        box-shadow: 0 4px 18px rgba(0,0,0,0.03);
+                    }
+                    .tc-grid-head {
+                        display: grid;
+                        grid-template-columns: repeat(7, 1fr);
+                        background: #f8fafc;
+                        border-bottom: 2px solid #e2e8f0;
+                        text-align: center;
+                    }
+                    .tc-col-name {
+                        padding: 12px 6px;
+                        font-size: 13px;
+                        font-weight: 700;
+                        color: #475569;
+                    }
+                    .tc-col-name.is-weekend {
+                        color: #9333ea;
+                        background: #faf5ff;
+                    }
+
+                    .tc-grid-cells {
+                        display: grid;
+                        grid-template-columns: repeat(7, 1fr);
+                        background: #cbd5e1;
+                        gap: 1px;
+                    }
+
+                    /* Day Box in Month Grid */
+                    .tc-day-box {
+                        background: #ffffff;
+                        min-height: 125px;
+                        padding: 8px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 5px;
+                        cursor: pointer;
+                        transition: background-color 0.15s, transform 0.15s;
+                    }
+                    .tc-day-box:hover {
+                        background: #f8fafc;
+                    }
+                    .tc-day-box.is-other {
+                        background: #fbfcfe;
+                        opacity: 0.55;
+                    }
+                    .tc-day-box.is-today {
+                        background: #f5f3ff;
+                        box-shadow: inset 0 0 0 2px #8b5cf6;
+                    }
+                    .tc-day-box-top {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 4px;
+                    }
+                    .tc-day-num {
+                        font-size: 13px;
+                        font-weight: 800;
+                        color: #1e293b;
+                        width: 26px;
+                        height: 26px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 8px;
+                    }
+                    .is-today .tc-day-num {
+                        background: #8b5cf6;
+                        color: #ffffff;
+                    }
+                    .tc-day-badge-total {
+                        font-size: 10px;
+                        font-weight: 700;
+                        padding: 1px 6px;
+                        border-radius: 8px;
+                        background: #ede9fe;
+                        color: #6d28d9;
+                    }
+
+                    /* Daily Financial & Inventory Summary Strip (شريط إجمالي اليوم) */
+                    .tc-day-summary-strip {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 2px;
+                        background: #f8fafc;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 6px;
+                        padding: 3px 5px;
+                        font-size: 10px;
+                    }
+                    .tc-sum-item {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 4px;
+                        line-height: 1.2;
+                    }
+                    .tc-sum-item.exp {
+                        color: #e11d48;
+                        font-weight: 700;
+                    }
+                    .tc-sum-item.add {
+                        color: #0d9488;
+                        font-weight: 700;
+                    }
+                    .tc-sum-item.net {
+                        font-weight: 800;
+                        border-top: 1px dashed #cbd5e1;
+                        padding-top: 2px;
+                        margin-top: 1px;
+                    }
+                    .tc-sum-item.net.net-pos {
+                        color: #059669;
+                    }
+                    .tc-sum-item.net.net-neg {
+                        color: #dc2626;
+                    }
+                    .tc-sum-item.net.net-zero {
+                        color: #64748b;
+                    }
+
+                    /* Events Stack */
+                    .tc-events-stack {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 4px;
+                        flex: 1;
+                    }
+                    .tc-chip {
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        padding: 3px 6px;
+                        border-radius: 5px;
+                        font-size: 11px;
+                        font-weight: 600;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        transition: transform 0.12s;
+                    }
+                    .tc-chip:hover {
+                        transform: scale(1.02);
+                    }
+                    .tc-chip span {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+
+                    .tc-chip-visit {
+                        background: #fae8ff;
+                        color: #86198f;
+                        border-right: 3px solid #c026d3;
+                    }
+                    .tc-chip-req-new {
+                        background: #dbeafe;
+                        color: #1e40af;
+                        border-right: 3px solid #2563eb;
+                    }
+                    .tc-chip-req-done {
+                        background: #dcfce7;
+                        color: #166534;
+                        border-right: 3px solid #16a34a;
+                    }
+                    .tc-chip-periodic {
+                        background: #fef3c7;
+                        color: #92400e;
+                        border-right: 3px solid #d97706;
+                    }
+                    .tc-chip-expense {
+                        background: #ffe4e6;
+                        color: #9f1239;
+                        border-right: 3px solid #e11d48;
+                    }
+                    .tc-chip-addition {
+                        background: #ccfbf1;
+                        color: #115e59;
+                        border-right: 3px solid #0d9488;
+                    }
+                    .tc-chip-tender {
+                        background: #fce7f3;
+                        color: #9d174d;
+                        border-right: 3px solid #db2777;
+                    }
+                    .tc-chip-more {
+                        font-size: 10px;
+                        color: #64748b;
+                        font-weight: 700;
+                        padding: 1px 4px;
+                        text-align: center;
+                    }
+
+                    /* ==================== WEEKLY VIEW STYLING ==================== */
+                    .tc-week-container {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 12px;
+                        padding: 16px;
+                        background: #f8fafc;
+                    }
+                    .tc-week-grid {
+                        display: grid;
+                        grid-template-columns: repeat(7, 1fr);
+                        gap: 12px;
+                    }
+                    .tc-week-col {
+                        background: #ffffff;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 14px;
+                        overflow: hidden;
+                        display: flex;
+                        flex-direction: column;
+                        min-height: 480px;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+                        transition: border-color 0.15s, box-shadow 0.15s;
+                    }
+                    .tc-week-col:hover {
+                        border-color: #cbd5e1;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                    }
+                    .tc-week-col.is-today {
+                        border: 2px solid #8b5cf6;
+                    }
+                    .tc-week-head {
+                        padding: 12px 10px;
+                        background: #f8fafc;
+                        border-bottom: 1px solid #e2e8f0;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 2px;
+                    }
+                    .tc-week-col.is-today .tc-week-head {
+                        background: #ede9fe;
+                        color: #5b21b6;
+                    }
+                    .tc-week-day-title {
+                        font-size: 13px;
+                        font-weight: 800;
+                        color: #1e293b;
+                    }
+                    .tc-week-day-sub {
+                        font-size: 11.5px;
+                        color: #64748b;
+                        font-weight: 600;
+                    }
+                    .tc-week-summary-box {
+                        padding: 8px 10px;
+                        background: #fafaf9;
+                        border-bottom: 1px solid #e2e8f0;
+                        font-size: 11px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 3px;
+                    }
+                    .tc-week-events-list {
+                        padding: 10px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+                        flex: 1;
+                        overflow-y: auto;
+                    }
+                    .tc-week-event-card {
+                        border-radius: 8px;
+                        padding: 8px 10px;
+                        font-size: 11.5px;
+                        border: 1px solid transparent;
+                        cursor: pointer;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 4px;
+                        transition: all 0.15s ease;
+                    }
+                    .tc-week-event-card:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+                    }
+                    .tc-week-event-card-top {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 6px;
+                    }
+                    .tc-week-event-card-title {
+                        font-weight: 700;
+                        font-size: 12px;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        line-height: 1.3;
+                    }
+                    .tc-week-event-card-desc {
+                        font-size: 11px;
+                        opacity: 0.88;
+                        line-height: 1.4;
+                        margin: 0;
+                    }
+
+                    /* Modal Styling */
+                    .tc-modal-mask {
+                        position: fixed;
+                        top: 0; left: 0; right: 0; bottom: 0;
+                        background: rgba(15, 23, 42, 0.65);
+                        backdrop-filter: blur(5px);
+                        display: none;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 99999;
+                        padding: 16px;
+                    }
+                    .tc-modal-mask.active {
+                        display: flex;
+                    }
+                    .tc-modal-box {
+                        background: #ffffff;
+                        border-radius: 20px;
+                        width: 100%;
+                        max-width: 720px;
+                        max-height: 90vh;
+                        overflow-y: auto;
+                        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+                        display: flex;
+                        flex-direction: column;
+                        animation: tcModalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                    }
+                    @keyframes tcModalScale {
+                        from { opacity: 0; transform: scale(0.95); }
+                        to { opacity: 1; transform: scale(1); }
+                    }
+                    .tc-modal-head {
+                        padding: 18px 24px;
+                        background: #0f172a;
+                        color: #ffffff;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        border-bottom: 1px solid rgba(255,255,255,0.1);
+                        position: sticky;
+                        top: 0;
+                        z-index: 10;
+                    }
+                    .tc-modal-head-title {
+                        font-size: 17px;
+                        font-weight: 800;
+                        margin: 0;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                    }
+                    .tc-modal-x {
+                        background: rgba(255, 255, 255, 0.15);
+                        border: none;
+                        color: #ffffff;
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 15px;
+                        transition: background 0.15s;
+                    }
+                    .tc-modal-x:hover {
+                        background: rgba(255, 255, 255, 0.3);
+                    }
+
+                    /* Modal Day Totals Executive Card (إجماليات اليوم في النافذة) */
+                    .tc-modal-day-totals {
+                        padding: 16px 22px;
+                        background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+                        border-bottom: 1px solid #e2e8f0;
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+                        gap: 10px;
+                    }
+                    .tc-day-tot-card {
+                        background: #ffffff;
+                        border-radius: 12px;
+                        padding: 10px 14px;
+                        border: 1px solid #e2e8f0;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 2px;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+                    }
+                    .tc-day-tot-label {
+                        font-size: 11px;
+                        color: #64748b;
+                        font-weight: 600;
+                    }
+                    .tc-day-tot-val {
+                        font-size: 17px;
+                        font-weight: 800;
+                        color: #1e293b;
+                    }
+
+                    .tc-modal-content {
+                        padding: 20px 24px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 12px;
+                    }
+                    .tc-modal-row {
+                        border-radius: 12px;
+                        padding: 14px 18px;
+                        border: 1px solid #e2e8f0;
+                        background: #f8fafc;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+                    }
+                    .tc-modal-row.type-visit {
+                        border-color: #f0abfc;
+                        background: #fdf4ff;
+                    }
+                    .tc-modal-row.type-req-new {
+                        border-color: #bfdbfe;
+                        background: #eff6ff;
+                    }
+                    .tc-modal-row.type-req-done {
+                        border-color: #bbf7d0;
+                        background: #f0fdf4;
+                    }
+                    .tc-modal-row.type-periodic {
+                        border-color: #fde68a;
+                        background: #fffbeb;
+                    }
+                    .tc-modal-row.type-expense {
+                        border-color: #fecdd3;
+                        background: #fff1f2;
+                    }
+                    .tc-modal-row.type-addition {
+                        border-color: #99f6e4;
+                        background: #f0fdfa;
+                    }
+                    .tc-modal-row.type-tender {
+                        border-color: #fbcfe8;
+                        background: #fdf2f8;
+                    }
+
+                    .tc-modal-row-top {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 10px;
+                    }
+                    .tc-modal-item-title {
+                        font-size: 14.5px;
+                        font-weight: 700;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        color: #0f172a;
+                    }
+                    .tc-modal-item-time {
+                        font-size: 12px;
+                        font-weight: 600;
+                        color: #64748b;
+                        background: rgba(255,255,255,0.7);
+                        padding: 2px 8px;
+                        border-radius: 6px;
+                    }
+                    .tc-modal-item-desc {
+                        font-size: 13px;
+                        color: #334155;
+                        margin: 0;
+                        line-height: 1.5;
+                    }
+                    .tc-modal-item-tags {
+                        display: flex;
+                        align-items: center;
+                        flex-wrap: wrap;
+                        gap: 6px;
+                        margin-top: 4px;
+                    }
+                    .tc-modal-item-tags span {
+                        font-size: 11.5px;
+                        background: rgba(255,255,255,0.85);
+                        border: 1px solid rgba(0,0,0,0.06);
+                        padding: 3px 8px;
+                        border-radius: 6px;
+                        color: #475569;
+                    }
+
+                    /* Button to open original record in the system */
+                    .tc-open-sys-btn {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 7px;
+                        margin-top: 8px;
+                        align-self: flex-start;
+                        background: #ffffff;
+                        color: #4f46e5;
+                        border: 1px solid #c7d2fe;
+                        border-radius: 8px;
+                        padding: 6px 14px;
+                        font-size: 12.5px;
+                        font-weight: 700;
+                        cursor: pointer;
+                        transition: all 0.15s ease;
+                        box-shadow: 0 1px 3px rgba(79, 70, 229, 0.08);
+                    }
+                    .tc-open-sys-btn:hover {
+                        background: #4f46e5;
+                        color: #ffffff;
+                        border-color: #4f46e5;
+                    }
+
+                    /* Mobile Responsiveness */
+                    @media (max-width: 900px) {
+                        .tc-week-grid {
+                            grid-template-columns: 1fr;
+                        }
+                        .tc-week-col {
+                            min-height: auto;
+                        }
+                        .tc-col-name {
+                            font-size: 11px;
+                            padding: 8px 2px;
+                        }
+                        .tc-day-box {
+                            min-height: 90px;
+                            padding: 4px;
+                        }
+                        .tc-day-num {
+                            font-size: 11px;
+                            width: 22px;
+                            height: 22px;
+                        }
+                        .tc-chip {
+                            font-size: 9.5px;
+                            padding: 2px 4px;
+                        }
+                        .tc-period-title {
+                            font-size: 15px;
+                            min-width: 140px;
+                        }
+                    }
+                </style>
+
+                <div class="tc-wrapper">
+                    <!-- Hero Top Card -->
+                    <div class="tc-hero-card">
+                        <div class="tc-hero-top">
+                            <div class="tc-hero-title">
+                                <h1><i class="fas fa-calendar-star"></i> تقويم العطاء الشامل المتطور</h1>
+                                <p>سجل تفاعلي موحد لزيارات الشركة، طلبات الصيانة، الجداول الدورية، وحركات المصروفات والإضافات وصافي حركة المخزون</p>
+                            </div>
+                            <div class="tc-hero-actions">
+                                <button class="tc-hero-btn" onclick="loadTenderCalendar()"><i class="fas fa-rotate"></i> تحديث البيانات</button>
+                                <button class="tc-hero-btn" onclick="printTenderCalendar()"><i class="fas fa-print"></i> طباعة التقويم</button>
+                            </div>
+                        </div>
+
+                        <!-- KPI Indicator Summary -->
+                        <div class="tc-kpi-grid">
+                            <div class="tc-kpi-pill">
+                                <div class="tc-kpi-left">
+                                    <span class="tc-kpi-label">زيارات الشركة</span>
+                                    <span class="tc-kpi-val" id="tcStatVisits">0</span>
+                                </div>
+                                <i class="fas fa-truck-fast" style="font-size:22px; color:#c084fc;"></i>
+                            </div>
+                            <div class="tc-kpi-pill">
+                                <div class="tc-kpi-left">
+                                    <span class="tc-kpi-label">طلبات صيانة</span>
+                                    <span class="tc-kpi-val" id="tcStatNew">0</span>
+                                </div>
+                                <i class="fas fa-file-circle-plus" style="font-size:22px; color:#60a5fa;"></i>
+                            </div>
+                            <div class="tc-kpi-pill">
+                                <div class="tc-kpi-left">
+                                    <span class="tc-kpi-label">طلبات منجزة</span>
+                                    <span class="tc-kpi-val" id="tcStatDone">0</span>
+                                </div>
+                                <i class="fas fa-circle-check" style="font-size:22px; color:#4ade80;"></i>
+                            </div>
+                            <div class="tc-kpi-pill">
+                                <div class="tc-kpi-left">
+                                    <span class="tc-kpi-label">صيانة دورية</span>
+                                    <span class="tc-kpi-val" id="tcStatPeriodic">0</span>
+                                </div>
+                                <i class="fas fa-calendar-check" style="font-size:22px; color:#fbbf24;"></i>
+                            </div>
+                            <div class="tc-kpi-pill">
+                                <div class="tc-kpi-left">
+                                    <span class="tc-kpi-label">المصروفات والصرف</span>
+                                    <span class="tc-kpi-val" id="tcStatExpenses">0</span>
+                                </div>
+                                <i class="fas fa-arrow-up-right-from-square" style="font-size:22px; color:#f43f5e;"></i>
+                            </div>
+                            <div class="tc-kpi-pill">
+                                <div class="tc-kpi-left">
+                                    <span class="tc-kpi-label">الإضافات والتوريد</span>
+                                    <span class="tc-kpi-val" id="tcStatAdditions">0</span>
+                                </div>
+                                <i class="fas fa-boxes-packing" style="font-size:22px; color:#2dd4bf;"></i>
+                            </div>
+                            <div class="tc-kpi-pill">
+                                <div class="tc-kpi-left">
+                                    <span class="tc-kpi-label">إجمالي السجلات</span>
+                                    <span class="tc-kpi-val" id="tcStatTotal">0</span>
+                                </div>
+                                <i class="fas fa-database" style="font-size:22px; color:#cbd5e1;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Toolbar -->
+                    <div class="tc-toolbar">
+                        <div class="tc-nav-cluster">
+                            <button class="tc-nav-btn" onclick="tcNavDelta(-1)" title="السابق"><i class="fas fa-chevron-right"></i></button>
+                            <button class="tc-btn-today" onclick="tcGoToday()"><i class="fas fa-bullseye"></i> اليوم</button>
+                            <button class="tc-nav-btn" onclick="tcNavDelta(1)" title="التالي"><i class="fas fa-chevron-left"></i></button>
+                            <span class="tc-period-title" id="tcCurrentPeriod">-</span>
+                        </div>
+
+                        <!-- View Switcher (شهري / أسبوعي) -->
+                        <div class="tc-view-switcher">
+                            <button class="tc-view-btn active" id="tcBtnViewMonth" onclick="tcSetViewMode('month')"><i class="fas fa-calendar-days"></i> عرض شهري</button>
+                            <button class="tc-view-btn" id="tcBtnViewWeek" onclick="tcSetViewMode('week')"><i class="fas fa-calendar-week"></i> عرض أسبوعي</button>
+                        </div>
+
+                        <!-- Search Input -->
+                        <div class="tc-search-wrap">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="tcSearchInput" placeholder="بحث في الأحداث، المواد، والمصروفات..." oninput="tcRenderCurrentView()">
+                        </div>
+
+                        <!-- Filter Pills -->
+                        <div class="tc-filters-row">
+                            <button class="tc-filter-pill active" data-type="all" onclick="tcSetFilter('all')"><i class="fas fa-layer-group"></i> الكل</button>
+                            <button class="tc-filter-pill" data-type="visits" onclick="tcSetFilter('visits')"><i class="fas fa-truck-fast" style="color:#9333ea;"></i> زيارات الشركة</button>
+                            <button class="tc-filter-pill" data-type="requests_new" onclick="tcSetFilter('requests_new')"><i class="fas fa-file-circle-plus" style="color:#2563eb;"></i> طلبات جديدة</button>
+                            <button class="tc-filter-pill" data-type="requests_completed" onclick="tcSetFilter('requests_completed')"><i class="fas fa-check-double" style="color:#059669;"></i> مكتملة</button>
+                            <button class="tc-filter-pill" data-type="periodic" onclick="tcSetFilter('periodic')"><i class="fas fa-calendar-check" style="color:#d97706;"></i> صيانة دورية</button>
+                            <button class="tc-filter-pill" data-type="expenses" onclick="tcSetFilter('expenses')"><i class="fas fa-arrow-up-right-from-square" style="color:#e11d48;"></i> المصروفات</button>
+                            <button class="tc-filter-pill" data-type="additions" onclick="tcSetFilter('additions')"><i class="fas fa-boxes-packing" style="color:#0d9488;"></i> الإضافات</button>
+                            <button class="tc-filter-pill" data-type="other" onclick="tcSetFilter('other')"><i class="fas fa-tag" style="color:#db2777;"></i> العطاء والكفالات</button>
+                        </div>
+                    </div>
+
+                    <!-- Container for Monthly View -->
+                    <div class="tc-board-card" id="tcMonthContainer">
+                        <div class="tc-grid-head">
+                            <div class="tc-col-name is-weekend">السبت</div>
+                            <div class="tc-col-name">الأحد</div>
+                            <div class="tc-col-name">الإثنين</div>
+                            <div class="tc-col-name">الثلاثاء</div>
+                            <div class="tc-col-name">الأربعاء</div>
+                            <div class="tc-col-name">الخميس</div>
+                            <div class="tc-col-name is-weekend">الجمعة</div>
+                        </div>
+                        <div class="tc-grid-cells" id="tcGridBody">
+                            <!-- Monthly Cells dynamically rendered -->
+                        </div>
+                    </div>
+
+                    <!-- Container for Weekly View -->
+                    <div class="tc-board-card" id="tcWeekContainer" style="display:none;">
+                        <div class="tc-week-container">
+                            <div class="tc-week-grid" id="tcWeekGridBody">
+                                <!-- Weekly Columns dynamically rendered -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Details Modal with Daily Summary and Jump to Original Record -->
+            <div class="tc-modal-mask" id="tcModalOverlay" onclick="if(event.target===this) tcCloseModal()">
+                <div class="tc-modal-box">
+                    <div class="tc-modal-head">
+                        <h3 class="tc-modal-head-title" id="tcModalTitle"><i class="fas fa-calendar-day"></i> تفاصيل الأحداث والمصروفات</h3>
+                        <button class="tc-modal-x" onclick="tcCloseModal()" title="إغلاق"><i class="fas fa-xmark"></i></button>
+                    </div>
+
+                    <!-- Executive Day Totals Strip inside modal -->
+                    <div class="tc-modal-day-totals" id="tcModalDayTotals">
+                        <!-- Rendered by JS -->
+                    </div>
+
+                    <div class="tc-modal-content" id="tcModalEventsContainer">
+                        <!-- Loaded events list -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tender Calendar Script -->
+            <script>
+                (function() {
+                    let tcEvents = [];
+                    let tcCurrentDate = new Date();
+                    let tcActiveFilter = 'all';
+                    let tcViewMode = 'month'; // 'month' or 'week'
+
+                    const ARABIC_MONTHS = [
+                        'يناير (كانون الثاني)', 'فبراير (شباط)', 'مارس (آذار)', 'أبريل (نيسان)',
+                        'مايو (أيار)', 'يونيو (حزيران)', 'يوليو (تموز)', 'أغسطس (آب)',
+                        'سبتمبر (أيلول)', 'أكتوبر (تشرين الأول)', 'نوفمبر (تشرين الثاني)', 'ديسمبر (كانون الأول)'
+                    ];
+
+                    const ARABIC_DAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+                    function toDateString(d) {
+                        if (!d) return null;
+                        try {
+                            if (typeof d === 'string') {
+                                const clean = d.split('T')[0].split(' ')[0].trim();
+                                if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) return clean;
+                                const parsed = new Date(d);
+                                if (!isNaN(parsed.getTime())) return parsed.toISOString().split('T')[0];
+                            } else if (d instanceof Date && !isNaN(d.getTime())) {
+                                return d.toISOString().split('T')[0];
+                            }
+                        } catch(e) {}
+                        return null;
+                    }
+
+                    // Calculate Daily Totals (Expenses, Additions, Net Inventory Movement)
+                    function getDayTotals(dateStr) {
+                        const dayAllEvents = tcEvents.filter(e => e.date === dateStr);
+                        let expQty = 0;
+                        let addQty = 0;
+                        let expCount = 0;
+                        let addCount = 0;
+
+                        dayAllEvents.forEach(e => {
+                            if (e.type === 'expenses') {
+                                expQty += Number(e.qty) || 1;
+                                expCount++;
+                            } else if (e.type === 'additions') {
+                                addQty += Number(e.qty) || 1;
+                                addCount++;
+                            }
+                        });
+
+                        const net = addQty - expQty;
+                        return {
+                            expQty,
+                            addQty,
+                            net,
+                            expCount,
+                            addCount,
+                            totalEvents: dayAllEvents.length,
+                            hasMovement: (expQty > 0 || addQty > 0)
+                        };
+                    }
+
+                    window.loadTenderCalendar = async function() {
+                        tcEvents = [];
+                        
+                        try {
+                            // 1. Fetch Maintenance Requests (طلبات جديدة ومنجزة)
+                            let reqs = [];
+                            try {
+                                if (typeof requests !== 'undefined' && Array.isArray(requests) && requests.length > 0) {
+                                    reqs = requests;
+                                } else if (typeof SupabaseAPI !== 'undefined') {
+                                    reqs = (await SupabaseAPI.request('requests', 'GET')) || [];
+                                }
+                            } catch(e) { console.warn('TC: Requests fetch fallback', e); }
+
+                            reqs.forEach(r => {
+                                const cDate = toDateString(r.created_at || r.request_date || r.date);
+                                if (cDate) {
+                                    tcEvents.push({
+                                        id: 'req_new_' + (r.id || Math.random()),
+                                        date: cDate,
+                                        type: 'requests_new',
+                                        title: 'طلب صيانة جديد #' + (r.request_number || r.id || ''),
+                                        description: (r.device_name || r.device_type || 'جهاز') + ' - ' + (r.problem_description || r.issue || r.fault_details || 'لا يوجد وصف'),
+                                        meta: {
+                                            'القسم': r.department || r.department_name || '',
+                                            'الحالة': r.status || 'جديد',
+                                            'الأولوية': r.priority || 'عادي',
+                                            'مقدم الطلب': r.requester_name || ''
+                                        },
+                                        badgeClass: 'tc-chip-req-new',
+                                        icon: 'fa-file-circle-plus'
+                                    });
+                                }
+
+                                const isClosed = ['مكتمل', 'تم الإنجاز', 'completed', 'closed', 'جاهز للتسليم'].some(s => 
+                                    String(r.status || '').toLowerCase().includes(s)
+                                );
+                                const doneDate = toDateString(r.closed_at || r.completion_date || r.repaired_at || (isClosed ? (r.updated_at || r.created_at) : null));
+                                if (doneDate && (isClosed || r.closed_at || r.completion_date)) {
+                                    tcEvents.push({
+                                        id: 'req_done_' + (r.id || Math.random()),
+                                        date: doneDate,
+                                        type: 'requests_completed',
+                                        title: 'تم إنجاز طلب #' + (r.request_number || r.id || ''),
+                                        description: 'اكتملت صيانة ' + (r.device_name || r.device_type || 'الجهاز') + ' بنجاح (' + (r.repair_notes || r.action_taken || 'تمت المعالجة') + ')',
+                                        meta: {
+                                            'القسم': r.department || r.department_name || '',
+                                            'الحالة': r.status || 'مكتمل',
+                                            'التكلفة': r.cost ? (r.cost + ' د.أ') : ''
+                                        },
+                                        badgeClass: 'tc-chip-req-done',
+                                        icon: 'fa-circle-check'
+                                    });
+                                }
+                            });
+
+                            // 2. Fetch Company Visits (زيارات الشركة)
+                            let visits = [];
+                            try {
+                                if (typeof VISITS !== 'undefined' && Array.isArray(VISITS) && VISITS.length > 0) {
+                                    visits = VISITS;
+                                } else if (typeof cvDB === 'function') {
+                                    visits = (await cvDB('GET')) || [];
+                                } else if (typeof SupabaseAPI !== 'undefined') {
+                                    visits = (await SupabaseAPI.request('company_visits', 'GET')) || [];
+                                }
+                            } catch(e) { console.warn('TC: Visits fetch fallback', e); }
+
+                            if (!visits || visits.length === 0) {
+                                try {
+                                    const localV = localStorage.getItem('local_company_visits');
+                                    if (localV) visits = JSON.parse(localV);
+                                } catch(e) {}
+                            }
+
+                            visits.forEach(v => {
+                                const vDate = toDateString(v.visit_date || v.date || v.created_at);
+                                if (vDate) {
+                                    tcEvents.push({
+                                        id: 'visit_' + (v.id || Math.random()),
+                                        date: vDate,
+                                        type: 'visits',
+                                        title: 'زيارة شركة العطاء: ' + (v.company_name || 'الشركة الصانعة / الموردة'),
+                                        description: 'المهندس: ' + (v.engineer_name || 'فريق الصيانة') + ' - ' + (v.notes || v.purpose || 'زيارة ميدانية لصيانة وتفقد الأجهزة'),
+                                        meta: {
+                                            'المهندس': v.engineer_name || '',
+                                            'الشركة': v.company_name || 'شركة العطاء',
+                                            'الحالة': v.status || 'مجدولة / منجزة',
+                                            'عدد الإجراءات': (v.procedures ? v.procedures.length : (v.items_count || '1')) + ' إجراء'
+                                        },
+                                        badgeClass: 'tc-chip-visit',
+                                        icon: 'fa-truck-fast'
+                                    });
+                                }
+                            });
+
+                            // 3. Fetch Periodic Maintenance (الصيانة الدورية)
+                            try {
+                                const pmRaw = localStorage.getItem('pmCycleStatus_v1') || localStorage.getItem('pmGroupsV1');
+                                if (pmRaw) {
+                                    const pmData = JSON.parse(pmRaw);
+                                    if (Array.isArray(pmData)) {
+                                        pmData.forEach(p => {
+                                            const pDate = toDateString(p.date || p.scheduled_date || p.cycle_date);
+                                            if (pDate) {
+                                                tcEvents.push({
+                                                    id: 'pm_' + (p.id || Math.random()),
+                                                    date: pDate,
+                                                    type: 'periodic',
+                                                    title: 'دورة صيانة وقائية: ' + (p.name || p.group_name || 'مجموعة أجهزة'),
+                                                    description: 'الفحص الدوري المجدول للأجهزة المشمولة بالعطاء',
+                                                    meta: {
+                                                        'المجموعة': p.group_name || '',
+                                                        'الحالة': p.completed ? 'منفذة' : 'مجدولة'
+                                                    },
+                                                    badgeClass: 'tc-chip-periodic',
+                                                    icon: 'fa-calendar-check'
+                                                });
+                                            }
+                                        });
+                                    }
+                                }
+                            } catch(e) {}
+
+                            // 4. Fetch Expenses & Disbursements (المصروفات وحركات الصرف)
+                            let transactionsList = [];
+                            try {
+                                if (typeof transactions !== 'undefined' && Array.isArray(transactions) && transactions.length > 0) {
+                                    transactionsList = transactions;
+                                } else if (typeof SupabaseAPI !== 'undefined') {
+                                    transactionsList = (await SupabaseAPI.request('transactions', 'GET')) || [];
+                                }
+                            } catch(e) { console.warn('TC: Transactions fetch fallback', e); }
+
+                            if (!transactionsList || transactionsList.length === 0) {
+                                try {
+                                    const localT = localStorage.getItem('local_transactions') || localStorage.getItem('transactions');
+                                    if (localT) transactionsList = JSON.parse(localT);
+                                } catch(e) {}
+                            }
+
+                            transactionsList.forEach(t => {
+                                const tDate = toDateString(t.date || t.created_at || t.timestamp);
+                                if (tDate) {
+                                    const qVal = parseInt(t.qty) || 1;
+                                    tcEvents.push({
+                                        id: 'trans_expense_' + (t.id || Math.random()),
+                                        rawId: t.id,
+                                        itemId: t.item_id || t.itemId,
+                                        itemName: t.item_name || t.itemName || 'قطعة غيار',
+                                        sourceTable: 'transactions',
+                                        qty: qVal,
+                                        date: tDate,
+                                        type: 'expenses',
+                                        title: 'صرف مادة: ' + (t.item_name || 'قطعة غيار') + ' (' + qVal + ' قطعة)',
+                                        description: 'تم صرفها للموظف / الفني: ' + (t.employee || 'غير محدد') + (t.notes ? (' — ملاحظات: ' + t.notes) : '') + (t.damaged === 'yes' ? ' (تالف)' : ''),
+                                        meta: {
+                                            'المادة': t.item_name || '',
+                                            'الكمية المصروفة': qVal + ' قطعة',
+                                            'المستلم / الموظف': t.employee || '',
+                                            'المسؤول': t.user || '',
+                                            'سجل النظام': 'جدول الحركات (transactions)'
+                                        },
+                                        badgeClass: 'tc-chip-expense',
+                                        icon: 'fa-arrow-up-right-from-square'
+                                    });
+                                }
+                            });
+
+                            // 5. Fetch Additions & Inventory Stock-ins (الإضافات والتوريد)
+                            let historyList = [];
+                            try {
+                                if (typeof inventory_history !== 'undefined' && Array.isArray(inventory_history) && inventory_history.length > 0) {
+                                    historyList = inventory_history;
+                                } else if (typeof SupabaseAPI !== 'undefined') {
+                                    historyList = (await SupabaseAPI.request('inventory_history', 'GET')) || [];
+                                }
+                            } catch(e) { console.warn('TC: History fetch fallback', e); }
+
+                            if (!historyList || historyList.length === 0) {
+                                try {
+                                    const localH = localStorage.getItem('local_inventory_history') || localStorage.getItem('inventory_history');
+                                    if (localH) historyList = JSON.parse(localH);
+                                } catch(e) {}
+                            }
+
+                            historyList.forEach(h => {
+                                const hDate = toDateString(h.date || h.created_at || h.timestamp);
+                                if (hDate) {
+                                    const isAdd = (h.type === 'add' || h.type === 'إضافة' || h.type === 'in' || h.action === 'add' || (Number(h.new_qty) > Number(h.old_qty)));
+                                    const calcQty = Math.abs(Number(h.qty) || (Number(h.new_qty) - Number(h.old_qty)) || 1);
+                                    if (isAdd) {
+                                        tcEvents.push({
+                                            id: 'inv_add_' + (h.id || Math.random()),
+                                            rawId: h.id,
+                                            itemId: h.item_id || h.itemId,
+                                            itemName: h.item_name || h.itemName || 'مادة جديدة',
+                                            sourceTable: 'inventory_history',
+                                            qty: calcQty,
+                                            date: hDate,
+                                            type: 'additions',
+                                            title: 'إضافة وتوريد رصيد: ' + (h.item_name || 'مادة جديدة') + ' (' + calcQty + ' قطعة)',
+                                            description: 'تم توريد كمية (' + calcQty + ' قطعة) إلى المستودع. الرصيد الجديد: ' + (h.new_qty || 'محدث'),
+                                            meta: {
+                                                'المادة': h.item_name || '',
+                                                'الكمية المضافة': calcQty + ' قطعة',
+                                                'الرصيد السابق': h.old_qty || '0',
+                                                'الرصيد الجديد': h.new_qty || '',
+                                                'بواسطة': h.user || '',
+                                                'سجل النظام': 'سجل حركة المخزون (inventory_history)'
+                                            },
+                                            badgeClass: 'tc-chip-addition',
+                                            icon: 'fa-boxes-packing'
+                                        });
+                                    } else {
+                                        tcEvents.push({
+                                            id: 'inv_out_' + (h.id || Math.random()),
+                                            rawId: h.id,
+                                            itemId: h.item_id || h.itemId,
+                                            itemName: h.item_name || h.itemName || 'مادة',
+                                            sourceTable: 'inventory_history',
+                                            qty: calcQty,
+                                            date: hDate,
+                                            type: 'expenses',
+                                            title: 'صرف مخزني: ' + (h.item_name || 'مادة') + ' (' + calcQty + ' قطعة)',
+                                            description: 'سحب كمية (' + calcQty + ' قطعة) من المستودع',
+                                            meta: {
+                                                'المادة': h.item_name || '',
+                                                'الكمية المسحوبة': calcQty + ' قطعة',
+                                                'بواسطة': h.user || '',
+                                                'سجل النظام': 'سجل حركة المخزون (inventory_history)'
+                                            },
+                                            badgeClass: 'tc-chip-expense',
+                                            icon: 'fa-arrow-up-right-from-square'
+                                        });
+                                    }
+                                }
+                            });
+
+                            // 6. Tender Duration Dates (سريان ونهاية العطاء)
+                            try {
+                                if (typeof SupabaseAPI !== 'undefined') {
+                                    const tenders = await SupabaseAPI.request('tenders', 'GET');
+                                    if (tenders && tenders.length > 0) {
+                                        tenders.forEach(t => {
+                                            if (t.start_date) {
+                                                tcEvents.push({
+                                                    id: 'tender_start_' + (t.id || 1),
+                                                    date: toDateString(t.start_date),
+                                                    type: 'other',
+                                                    title: 'تاريخ سريان عطاء الصيانة: ' + (t.tender_number || t.tender_name || ''),
+                                                    description: 'بدء فترة تغطية العطاء من الشركة الموردة: ' + (t.company_name || ''),
+                                                    meta: { 'النوع': 'بداية العطاء' },
+                                                    badgeClass: 'tc-chip-tender',
+                                                    icon: 'fa-file-signature'
+                                                });
+                                            }
+                                            if (t.end_date) {
+                                                tcEvents.push({
+                                                    id: 'tender_end_' + (t.id || 1),
+                                                    date: toDateString(t.end_date),
+                                                    type: 'other',
+                                                    title: 'تاريخ انتهاء عطاء الصيانة: ' + (t.tender_number || ''),
+                                                    description: 'الموعد النهائي لكفالة وتغطية العطاء الحالية',
+                                                    meta: { 'النوع': 'نهاية العطاء' },
+                                                    badgeClass: 'tc-chip-tender',
+                                                    icon: 'fa-flag-checkered'
+                                                });
+                                            }
+                                        });
+                                    }
+                                }
+                            } catch(e) {}
+
+                            updateStats();
+                            tcRenderCurrentView();
+
+                        } catch(err) {
+                            console.error('TC: Error loading calendar data', err);
+                        }
+                    };
+
+                    function updateStats() {
+                        const visitsCount = tcEvents.filter(e => e.type === 'visits').length;
+                        const newCount = tcEvents.filter(e => e.type === 'requests_new').length;
+                        const doneCount = tcEvents.filter(e => e.type === 'requests_completed').length;
+                        const periodicCount = tcEvents.filter(e => e.type === 'periodic').length;
+                        const expensesCount = tcEvents.filter(e => e.type === 'expenses').length;
+                        const additionsCount = tcEvents.filter(e => e.type === 'additions').length;
+                        
+                        const setT = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+                        setT('tcStatVisits', visitsCount);
+                        setT('tcStatNew', newCount);
+                        setT('tcStatDone', doneCount);
+                        setT('tcStatPeriodic', periodicCount);
+                        setT('tcStatExpenses', expensesCount);
+                        setT('tcStatAdditions', additionsCount);
+                        setT('tcStatTotal', tcEvents.length);
+                        
+                        const badge = document.getElementById('calendarBadge');
+                        if (badge) badge.textContent = tcEvents.length;
+                    }
+
+                    // Navigation for Month or Week
+                    window.tcNavDelta = function(delta) {
+                        if (tcViewMode === 'month') {
+                            tcCurrentDate.setMonth(tcCurrentDate.getMonth() + delta);
+                        } else {
+                            tcCurrentDate.setDate(tcCurrentDate.getDate() + (delta * 7));
+                        }
+                        tcRenderCurrentView();
+                    };
+
+                    window.tcGoToday = function() {
+                        tcCurrentDate = new Date();
+                        tcRenderCurrentView();
+                    };
+
+                    window.tcSetViewMode = function(mode) {
+                        tcViewMode = mode;
+                        const btnMonth = document.getElementById('tcBtnViewMonth');
+                        const btnWeek = document.getElementById('tcBtnViewWeek');
+                        const monthContainer = document.getElementById('tcMonthContainer');
+                        const weekContainer = document.getElementById('tcWeekContainer');
+
+                        if (mode === 'month') {
+                            if (btnMonth) btnMonth.classList.add('active');
+                            if (btnWeek) btnWeek.classList.remove('active');
+                            if (monthContainer) monthContainer.style.display = 'block';
+                            if (weekContainer) weekContainer.style.display = 'none';
+                        } else {
+                            if (btnWeek) btnWeek.classList.add('active');
+                            if (btnMonth) btnMonth.classList.remove('active');
+                            if (monthContainer) monthContainer.style.display = 'none';
+                            if (weekContainer) weekContainer.style.display = 'block';
+                        }
+                        tcRenderCurrentView();
+                    };
+
+                    window.tcSetFilter = function(filterType) {
+                        tcActiveFilter = filterType;
+                        document.querySelectorAll('.tc-filter-pill').forEach(btn => {
+                            if (btn.getAttribute('data-type') === filterType) {
+                                btn.classList.add('active');
+                            } else {
+                                btn.classList.remove('active');
+                            }
+                        });
+                        tcRenderCurrentView();
+                    };
+
+                    window.tcRenderCurrentView = function() {
+                        if (tcViewMode === 'week') {
+                            tcRenderWeeklyCalendar();
+                        } else {
+                            tcRenderMonthlyCalendar();
+                        }
+                    };
+
+                    // ==================== MONTHLY RENDER ====================
+                    function tcRenderMonthlyCalendar() {
+                        const gridBody = document.getElementById('tcGridBody');
+                        const periodLabel = document.getElementById('tcCurrentPeriod');
+                        if (!gridBody) return;
+
+                        const year = tcCurrentDate.getFullYear();
+                        const month = tcCurrentDate.getMonth();
+
+                        if (periodLabel) {
+                            periodLabel.textContent = ARABIC_MONTHS[month] + ' ' + year;
+                        }
+
+                        gridBody.innerHTML = '';
+
+                        const searchInput = document.getElementById('tcSearchInput');
+                        const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+
+                        const firstDayOfMonth = new Date(year, month, 1);
+                        const daysInMonth = new Date(year, month + 1, 0).getDate();
+                        const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+                        // Saturday is 6 in JS (0=Sun, 1=Mon, ..., 6=Sat)
+                        // In our week starting Saturday: Sat=0, Sun=1, Mon=2, Tue=3, Wed=4, Thu=5, Fri=6
+                        const jsDay = firstDayOfMonth.getDay();
+                        const startCol = (jsDay + 1) % 7;
+
+                        const today = new Date();
+                        const todayStr = toDateString(today);
+
+                        for (let i = startCol - 1; i >= 0; i--) {
+                            const prevDayNum = daysInPrevMonth - i;
+                            const prevDate = new Date(year, month - 1, prevDayNum);
+                            const dateStr = toDateString(prevDate);
+                            gridBody.appendChild(createMonthlyDayCell(prevDayNum, dateStr, true, false, query));
+                        }
+
+                        for (let dayNum = 1; dayNum <= daysInMonth; dayNum++) {
+                            const curDate = new Date(year, month, dayNum);
+                            const dateStr = toDateString(curDate);
+                            const isToday = (dateStr === todayStr);
+                            gridBody.appendChild(createMonthlyDayCell(dayNum, dateStr, false, isToday, query));
+                        }
+
+                        const totalRendered = startCol + daysInMonth;
+                        const remainder = (7 - (totalRendered % 7)) % 7;
+                        for (let nextDay = 1; nextDay <= remainder; nextDay++) {
+                            const nextDate = new Date(year, month + 1, nextDay);
+                            const dateStr = toDateString(nextDate);
+                            gridBody.appendChild(createMonthlyDayCell(nextDay, dateStr, true, false, query));
+                        }
+                    }
+
+                    function createMonthlyDayCell(dayNum, dateStr, isOtherMonth, isToday, query) {
+                        const cell = document.createElement('div');
+                        cell.className = 'tc-day-box' + (isOtherMonth ? ' is-other' : '') + (isToday ? ' is-today' : '');
+
+                        let dayEvents = tcEvents.filter(e => e.date === dateStr);
+                        const totals = getDayTotals(dateStr);
+
+                        if (tcActiveFilter !== 'all') {
+                            dayEvents = dayEvents.filter(e => e.type === tcActiveFilter);
+                        }
+
+                        if (query) {
+                            dayEvents = dayEvents.filter(e => 
+                                (e.title && e.title.toLowerCase().includes(query)) ||
+                                (e.description && e.description.toLowerCase().includes(query)) ||
+                                (e.meta && Object.values(e.meta).some(v => String(v).toLowerCase().includes(query)))
+                            );
+                        }
+
+                        const topBar = document.createElement('div');
+                        topBar.className = 'tc-day-box-top';
+
+                        const dayNumEl = document.createElement('span');
+                        dayNumEl.className = 'tc-day-num';
+                        dayNumEl.textContent = dayNum;
+                        topBar.appendChild(dayNumEl);
+
+                        if (dayEvents.length > 0) {
+                            const countEl = document.createElement('span');
+                            countEl.className = 'tc-day-badge-total';
+                            countEl.textContent = dayEvents.length + ' حدث';
+                            topBar.appendChild(countEl);
+                        }
+
+                        cell.appendChild(topBar);
+
+                        // Clear Daily Summary of Expenses, Additions, and Net Movement
+                        if (totals.hasMovement) {
+                            const sumStrip = document.createElement('div');
+                            sumStrip.className = 'tc-day-summary-strip';
+
+                            let netClass = 'net-zero';
+                            let netSign = '';
+                            if (totals.net > 0) { netClass = 'net-pos'; netSign = '+'; }
+                            else if (totals.net < 0) { netClass = 'net-neg'; }
+
+                            sumStrip.innerHTML = `
+                                ${totals.expQty > 0 ? `<div class="tc-sum-item exp"><span>صرف:</span><b>${totals.expQty}</b></div>` : ''}
+                                ${totals.addQty > 0 ? `<div class="tc-sum-item add"><span>إضافة:</span><b>+${totals.addQty}</b></div>` : ''}
+                                <div class="tc-sum-item net ${netClass}"><span>صافي الحركة:</span><b>${netSign}${totals.net}</b></div>
+                            `;
+                            cell.appendChild(sumStrip);
+                        }
+
+                        const eventsList = document.createElement('div');
+                        eventsList.className = 'tc-events-stack';
+
+                        const displayLimit = totals.hasMovement ? 2 : 3;
+                        dayEvents.slice(0, displayLimit).forEach(ev => {
+                            const chip = document.createElement('div');
+                            chip.className = 'tc-chip ' + (ev.badgeClass || '');
+                            chip.title = ev.title + ' - اضغط للعرض';
+                            chip.innerHTML = '<i class="fas ' + ev.icon + '"></i> <span>' + ev.title + '</span>';
+                            chip.onclick = function(e) {
+                                e.stopPropagation();
+                                if (ev.type === 'expenses' || ev.type === 'additions') {
+                                    tcOpenOriginalMovementRecord(ev);
+                                } else {
+                                    tcOpenEventDetails(ev, dateStr);
+                                }
+                            };
+                            eventsList.appendChild(chip);
+                        });
+
+                        if (dayEvents.length > displayLimit) {
+                            const moreEl = document.createElement('div');
+                            moreEl.className = 'tc-chip-more';
+                            moreEl.textContent = '+' + (dayEvents.length - displayLimit) + ' المزيد...';
+                            eventsList.appendChild(moreEl);
+                        }
+
+                        cell.appendChild(eventsList);
+
+                        cell.onclick = function() {
+                            tcOpenDayDetails(dateStr, dayEvents);
+                        };
+
+                        return cell;
+                    }
+
+                    // ==================== WEEKLY RENDER ====================
+                    function tcRenderWeeklyCalendar() {
+                        const weekGrid = document.getElementById('tcWeekGridBody');
+                        const periodLabel = document.getElementById('tcCurrentPeriod');
+                        if (!weekGrid) return;
+
+                        weekGrid.innerHTML = '';
+
+                        // Determine the Saturday of the current week
+                        const curr = new Date(tcCurrentDate);
+                        const jsDay = curr.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+                        const diffToSaturday = (jsDay + 1) % 7; // days since Saturday
+
+                        const saturday = new Date(curr);
+                        saturday.setDate(curr.getDate() - diffToSaturday);
+
+                        const friday = new Date(saturday);
+                        friday.setDate(saturday.getDate() + 6);
+
+                        if (periodLabel) {
+                            periodLabel.textContent = 'أسبوع: ' + saturday.getDate() + ' ' + ARABIC_MONTHS[saturday.getMonth()] + ' - ' + friday.getDate() + ' ' + ARABIC_MONTHS[friday.getMonth()] + ' ' + friday.getFullYear();
+                        }
+
+                        const searchInput = document.getElementById('tcSearchInput');
+                        const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+                        const todayStr = toDateString(new Date());
+
+                        for (let d = 0; d < 7; d++) {
+                            const dayDate = new Date(saturday);
+                            dayDate.setDate(saturday.getDate() + d);
+                            const dateStr = toDateString(dayDate);
+                            const isToday = (dateStr === todayStr);
+
+                            let dayEvents = tcEvents.filter(e => e.date === dateStr);
+                            const totals = getDayTotals(dateStr);
+
+                            if (tcActiveFilter !== 'all') {
+                                dayEvents = dayEvents.filter(e => e.type === tcActiveFilter);
+                            }
+
+                            if (query) {
+                                dayEvents = dayEvents.filter(e => 
+                                    (e.title && e.title.toLowerCase().includes(query)) ||
+                                    (e.description && e.description.toLowerCase().includes(query)) ||
+                                    (e.meta && Object.values(e.meta).some(v => String(v).toLowerCase().includes(query)))
+                                );
+                            }
+
+                            const col = document.createElement('div');
+                            col.className = 'tc-week-col' + (isToday ? ' is-today' : '');
+
+                            // Header for Day Column
+                            const head = document.createElement('div');
+                            head.className = 'tc-week-head';
+                            head.innerHTML = `
+                                <span class="tc-week-day-title">${ARABIC_DAYS[dayDate.getDay()]}</span>
+                                <span class="tc-week-day-sub">${dayDate.getDate()} ${ARABIC_MONTHS[dayDate.getMonth()]}</span>
+                            `;
+                            col.appendChild(head);
+
+                            // Summary Box for Day
+                            const sumBox = document.createElement('div');
+                            sumBox.className = 'tc-week-summary-box';
+
+                            let netColor = '#64748b';
+                            let netSign = '';
+                            if (totals.net > 0) { netColor = '#059669'; netSign = '+'; }
+                            else if (totals.net < 0) { netColor = '#dc2626'; }
+
+                            sumBox.innerHTML = `
+                                <div style="display:flex;justify-content:space-between;color:#e11d48;font-weight:700;">
+                                    <span>المصروفات:</span><b>${totals.expQty} قطعة</b>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;color:#0d9488;font-weight:700;">
+                                    <span>الإضافات:</span><b>${totals.addQty} قطعة</b>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;color:${netColor};font-weight:800;border-top:1px dashed #cbd5e1;padding-top:3px;margin-top:2px;">
+                                    <span>صافي المخزون:</span><b>${netSign}${totals.net}</b>
+                                </div>
+                            `;
+                            col.appendChild(sumBox);
+
+                            // Events List inside Day Column
+                            const list = document.createElement('div');
+                            list.className = 'tc-week-events-list';
+
+                            if (dayEvents.length === 0) {
+                                list.innerHTML = `<div style="text-align:center;padding:24px 8px;color:#94a3b8;font-size:11.5px;"><i class="fas fa-calendar-xmark" style="font-size:18px;margin-bottom:6px;display:block;opacity:0.4;"></i>لا توجد أحداث</div>`;
+                            } else {
+                                dayEvents.forEach(ev => {
+                                    const card = document.createElement('div');
+                                    let typeCardClass = 'tc-chip-req-new';
+                                    if (ev.type === 'visits') typeCardClass = 'tc-chip-visit';
+                                    else if (ev.type === 'requests_completed') typeCardClass = 'tc-chip-req-done';
+                                    else if (ev.type === 'periodic') typeCardClass = 'tc-chip-periodic';
+                                    else if (ev.type === 'expenses') typeCardClass = 'tc-chip-expense';
+                                    else if (ev.type === 'additions') typeCardClass = 'tc-chip-addition';
+                                    else if (ev.type === 'other') typeCardClass = 'tc-chip-tender';
+
+                                    card.className = 'tc-week-event-card ' + typeCardClass;
+                                    card.innerHTML = `
+                                        <div class="tc-week-event-card-top">
+                                            <span class="tc-week-event-card-title"><i class="fas ${ev.icon}"></i> ${ev.title}</span>
+                                        </div>
+                                        <p class="tc-week-event-card-desc">${ev.description}</p>
+                                        ${(ev.type === 'expenses' || ev.type === 'additions') ? `<small style="font-weight:700;text-decoration:underline;color:inherit;margin-top:3px;display:inline-block;"><i class="fas fa-arrow-up-right-from-square"></i> اضغط لفتح سجل الحركة الأصلي</small>` : ''}
+                                    `;
+
+                                    card.onclick = function(e) {
+                                        e.stopPropagation();
+                                        if (ev.type === 'expenses' || ev.type === 'additions') {
+                                            tcOpenOriginalMovementRecord(ev);
+                                        } else {
+                                            tcOpenEventDetails(ev, dateStr);
+                                        }
+                                    };
+
+                                    list.appendChild(card);
+                                });
+                            }
+
+                            col.appendChild(list);
+
+                            col.onclick = function(e) {
+                                if (e.target === col || e.target === head || e.target === sumBox) {
+                                    tcOpenDayDetails(dateStr, dayEvents);
+                                }
+                            };
+
+                            weekGrid.appendChild(col);
+                        }
+                    }
+
+                    // ==================== OPEN ORIGINAL MOVEMENT RECORD ====================
+                    window.tcOpenOriginalMovementRecord = async function(ev) {
+                        try {
+                            // 1. Try to find the item in memory or fetch inventory
+                            let items = window.__invItems || [];
+                            if (!items || items.length === 0) {
+                                if (typeof SupabaseAPI !== 'undefined') {
+                                    try {
+                                        items = (await SupabaseAPI.request('inventory', 'GET')) || [];
+                                        window.__invItems = items;
+                                    } catch(e) {}
+                                }
+                            }
+
+                            let targetItem = null;
+                            if (ev.itemId) {
+                                targetItem = items.find(i => String(i.id) === String(ev.itemId));
+                            }
+                            if (!targetItem && ev.itemName) {
+                                targetItem = items.find(i => (i.name || '').trim().toLowerCase() === String(ev.itemName).trim().toLowerCase());
+                            }
+
+                            if (targetItem && typeof openInvDetails === 'function') {
+                                tcCloseModal();
+                                // Open the system's official full movement history modal for this item
+                                openInvDetails(targetItem.id);
+                                if (typeof showToast === 'function') {
+                                    showToast('info', 'سجل الحركة في المخزون', 'تم فتح كشف حركة المادة الكامل: ' + targetItem.name);
+                                }
+                                return;
+                            }
+
+                            // 2. Fallback: Jump to the inventory transactions tab in the system
+                            if (typeof showPage === 'function') {
+                                tcCloseModal();
+                                showPage('inventory');
+                                if (typeof showInventoryTab === 'function') {
+                                    showInventoryTab('transactions');
+                                }
+                                const searchInput = document.getElementById('transSearchInput');
+                                if (searchInput && ev.itemName) {
+                                    searchInput.value = ev.itemName;
+                                    if (typeof filterTransactionsTable === 'function') {
+                                        filterTransactionsTable();
+                                    }
+                                }
+                                if (typeof showToast === 'function') {
+                                    showToast('success', 'جدول الحركات في النظام', 'تم الانتقال إلى سجل حركات المخزون في النظام');
+                                }
+                                return;
+                            }
+
+                            // 3. Fallback: Display details in day modal
+                            tcOpenEventDetails(ev, ev.date);
+
+                        } catch(err) {
+                            console.error('TC: Error opening original movement record', err);
+                            tcOpenEventDetails(ev, ev.date);
+                        }
+                    };
+
+                    // ==================== DAY DETAILS MODAL ====================
+                    window.tcOpenDayDetails = function(dateStr, events) {
+                        const modal = document.getElementById('tcModalOverlay');
+                        const titleEl = document.getElementById('tcModalTitle');
+                        const totalsContainer = document.getElementById('tcModalDayTotals');
+                        const container = document.getElementById('tcModalEventsContainer');
+                        if (!modal || !container) return;
+
+                        const totals = getDayTotals(dateStr);
+
+                        titleEl.innerHTML = '<i class="fas fa-calendar-day"></i> أحداث ومصروفات تاريخ: <span style="color:#7c3aed;direction:ltr;">' + dateStr + '</span> (' + events.length + ')';
+                        
+                        // Render Day Executive Totals Card
+                        let netColor = '#64748b';
+                        let netSign = '';
+                        if (totals.net > 0) { netColor = '#059669'; netSign = '+'; }
+                        else if (totals.net < 0) { netColor = '#dc2626'; }
+
+                        if (totalsContainer) {
+                            totalsContainer.innerHTML = `
+                                <div class="tc-day-tot-card">
+                                    <span class="tc-day-tot-label"><i class="fas fa-arrow-up-right-from-square" style="color:#e11d48;"></i> إجمالي المصروفات</span>
+                                    <span class="tc-day-tot-val" style="color:#e11d48;">${totals.expQty} قطعة <small style="font-size:11px;font-weight:600;color:#64748b;">(${totals.expCount} حركة)</small></span>
+                                </div>
+                                <div class="tc-day-tot-card">
+                                    <span class="tc-day-tot-label"><i class="fas fa-boxes-packing" style="color:#0d9488;"></i> إجمالي الإضافات والتوريد</span>
+                                    <span class="tc-day-tot-val" style="color:#0d9488;">+${totals.addQty} قطعة <small style="font-size:11px;font-weight:600;color:#64748b;">(${totals.addCount} حركة)</small></span>
+                                </div>
+                                <div class="tc-day-tot-card">
+                                    <span class="tc-day-tot-label"><i class="fas fa-scale-balanced" style="color:${netColor};"></i> صافي حركة المخزون</span>
+                                    <span class="tc-day-tot-val" style="color:${netColor};">${netSign}${totals.net} قطعة</span>
+                                </div>
+                                <div class="tc-day-tot-card">
+                                    <span class="tc-day-tot-label"><i class="fas fa-list-check" style="color:#6366f1;"></i> إجمالي أحداث اليوم</span>
+                                    <span class="tc-day-tot-val" style="color:#4338ca;">${events.length} سجل</span>
+                                </div>
+                            `;
+                        }
+
+                        container.innerHTML = '';
+
+                        if (events.length === 0) {
+                            container.innerHTML = '<div style="text-align:center;padding:45px 20px;color:#94a3b8;"><i class="fas fa-calendar-xmark" style="font-size:38px;margin-bottom:12px;color:#cbd5e1;"></i><p style="font-size:15px;margin:0;font-weight:600;">لا توجد أحداث أو حركات مسجلة في هذا التاريخ</p></div>';
+                        } else {
+                            events.forEach(ev => {
+                                const item = document.createElement('div');
+                                let typeClass = 'type-req-new';
+                                if (ev.type === 'visits') typeClass = 'type-visit';
+                                else if (ev.type === 'requests_completed') typeClass = 'type-req-done';
+                                else if (ev.type === 'periodic') typeClass = 'type-periodic';
+                                else if (ev.type === 'expenses') typeClass = 'type-expense';
+                                else if (ev.type === 'additions') typeClass = 'type-addition';
+                                else if (ev.type === 'other') typeClass = 'type-tender';
+
+                                item.className = 'tc-modal-row ' + typeClass;
+
+                                let metaHtml = '';
+                                if (ev.meta) {
+                                    Object.entries(ev.meta).forEach(([k, v]) => {
+                                        if (v) {
+                                            metaHtml += '<span><strong>' + k + ':</strong> ' + v + '</span>';
+                                        }
+                                    });
+                                }
+
+                                const isMovement = (ev.type === 'expenses' || ev.type === 'additions');
+                                const jumpBtnHtml = isMovement ? `
+                                    <button class="tc-open-sys-btn" onclick="tcOpenOriginalMovementRecord(${JSON.stringify(ev).replace(/"/g, '&quot;')})">
+                                        <i class="fas fa-arrow-up-right-from-square"></i> فتح سجل الحركة الأصلي في النظام
+                                    </button>
+                                ` : '';
+
+                                item.innerHTML = `
+                                    <div class="tc-modal-row-top">
+                                        <div class="tc-modal-item-title">
+                                            <i class="fas ${ev.icon}"></i> ${ev.title}
+                                        </div>
+                                        <span class="tc-modal-item-time">${dateStr}</span>
+                                    </div>
+                                    <p class="tc-modal-item-desc">${ev.description}</p>
+                                    ${metaHtml ? `<div class="tc-modal-item-tags">${metaHtml}</div>` : ''}
+                                    ${jumpBtnHtml}
+                                `;
+
+                                container.appendChild(item);
+                            });
+                        }
+
+                        modal.classList.add('active');
+                    };
+
+                    window.tcOpenEventDetails = function(ev, dateStr) {
+                        tcOpenDayDetails(dateStr, [ev]);
+                    };
+
+                    window.tcCloseModal = function() {
+                        const modal = document.getElementById('tcModalOverlay');
+                        if (modal) modal.classList.remove('active');
+                    };
+
+                    window.printTenderCalendar = function() {
+                        window.print();
+                    };
+
+                })();
+            </script>
+
             <div class="page-section" id="page-tender">
                 <div class="page-header">
                     <h1 class="page-title">تفاصيل عطاء الصيانة</h1>
@@ -8687,6 +10534,7 @@ async function showPage(page) {
     if (page === 'periodic') await loadPeriodic();
     if (page === 'reports') { setTimeout(() => loadReportsCharts(), 100); }
     if (page === 'advanced_search') { await loadSearchDropdowns(); document.getElementById('searchResultsCard').style.display = 'none'; }
+    if (page === 'tender_calendar') { if (typeof loadTenderCalendar === 'function') { await loadTenderCalendar(); } }
     if (page === 'tender') { await loadTender(); }
     if (page === 'smart_forms') { await loadSmartForms(); }
     if (page === 'visits') { if (typeof loadVisits === 'function') { loadVisits(); } }
