@@ -7816,13 +7816,145 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                         border-color: #4f46e5;
                     }
 
+                    /* Grouped Table & Totals Grid inside Modal */
+                    .tc-day-totals-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+                        gap: 10px;
+                        padding: 14px 20px 6px;
+                    }
+                    .tc-grouped-table-wrap {
+                        padding: 6px 20px 14px;
+                    }
+                    .tc-grouped-table-head {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        font-size: 13.5px;
+                        font-weight: 800;
+                        color: #1e293b;
+                        margin-bottom: 8px;
+                    }
+                    .tc-grouped-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 12.5px;
+                        background: #ffffff;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 10px;
+                        overflow: hidden;
+                    }
+                    .tc-grouped-table th {
+                        background: #f8fafc;
+                        color: #475569;
+                        padding: 10px 12px;
+                        font-weight: 700;
+                        border-bottom: 2px solid #e2e8f0;
+                        text-align: center;
+                    }
+                    .tc-grouped-table th:first-child {
+                        text-align: right;
+                    }
+                    .tc-table-btn {
+                        background: #f1f5f9;
+                        color: #4338ca;
+                        border: 1px solid #cbd5e1;
+                        padding: 4px 10px;
+                        border-radius: 6px;
+                        font-size: 11px;
+                        font-weight: 700;
+                        cursor: pointer;
+                        transition: all 0.15s;
+                    }
+                    .tc-table-btn:hover {
+                        background: #4338ca;
+                        color: #ffffff;
+                        border-color: #4338ca;
+                    }
+
+                    /* Weekly View Mobile Enhancements */
+                    .tc-week-head {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        padding: 10px 12px;
+                        background: #f8fafc;
+                        border-bottom: 1px solid #e2e8f0;
+                    }
+                    .tc-week-head-info {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 1px;
+                    }
+                    .tc-week-open-btn {
+                        background: #ffffff;
+                        color: #6366f1;
+                        border: 1px solid #c7d2fe;
+                        border-radius: 8px;
+                        padding: 5px 10px;
+                        font-size: 11px;
+                        font-weight: 700;
+                        cursor: pointer;
+                        transition: all 0.15s;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 5px;
+                    }
+                    .tc-week-open-btn:hover {
+                        background: #6366f1;
+                        color: #ffffff;
+                    }
+                    .tc-week-dense-pill {
+                        background: #ede9fe;
+                        color: #5b21b6;
+                        border: 1px dashed #8b5cf6;
+                        border-radius: 8px;
+                        padding: 8px 10px;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        text-align: center;
+                        cursor: pointer;
+                        margin-top: 4px;
+                        transition: background 0.15s;
+                    }
+                    .tc-week-dense-pill:hover {
+                        background: #ddd6fe;
+                    }
+
                     /* Mobile Responsiveness */
                     @media (max-width: 900px) {
                         .tc-week-grid {
                             grid-template-columns: 1fr;
+                            gap: 14px;
                         }
                         .tc-week-col {
                             min-height: auto;
+                            border-radius: 12px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+                            border: 1px solid #cbd5e1;
+                        }
+                        .tc-week-head {
+                            padding: 12px 14px;
+                        }
+                        .tc-week-open-btn {
+                            padding: 7px 12px;
+                            font-size: 12px;
+                        }
+                        .tc-week-summary-box {
+                            padding: 10px 14px;
+                            font-size: 12px;
+                        }
+                        .tc-week-events-list {
+                            padding: 12px 14px;
+                            gap: 10px;
+                        }
+                        .tc-week-event-card {
+                            padding: 10px 12px;
+                            font-size: 12.5px;
+                        }
+                        .tc-week-dense-pill {
+                            padding: 10px 12px;
+                            font-size: 12px;
                         }
                         .tc-col-name {
                             font-size: 11px;
@@ -7859,6 +7991,8 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                             <div class="tc-hero-actions">
                                 <button class="tc-hero-btn" onclick="loadTenderCalendar()"><i class="fas fa-rotate"></i> تحديث البيانات</button>
                                 <button class="tc-hero-btn" onclick="printTenderCalendar()"><i class="fas fa-print"></i> طباعة التقويم</button>
+                                <button class="tc-hero-btn" onclick="tcExportSummary('csv')"><i class="fas fa-file-csv"></i> تصدير CSV</button>
+                                <button class="tc-hero-btn" onclick="tcExportSummary('pdf')"><i class="fas fa-file-pdf"></i> تصدير PDF</button>
                             </div>
                         </div>
 
@@ -8027,7 +8161,46 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                         return null;
                     }
 
-                    // Calculate Daily Totals (Expenses, Additions, Net Inventory Movement)
+                    // Group movements by Item & Unit of measurement
+                    function groupMovementsByItem(eventsList) {
+                        const groups = {};
+                        eventsList.forEach(e => {
+                            if (e.type !== 'expenses' && e.type !== 'additions') return;
+                            const itemName = (e.itemName || 'مادة عامة').trim();
+                            const unit = (e.unit || 'قطعة').trim();
+                            const key = itemName + '___' + unit;
+                            if (!groups[key]) {
+                                groups[key] = {
+                                    itemName: itemName,
+                                    unit: unit,
+                                    itemId: e.itemId,
+                                    rawEvent: e,
+                                    expQty: 0,
+                                    addQty: 0,
+                                    expCount: 0,
+                                    addCount: 0,
+                                    dates: new Set()
+                                };
+                            }
+                            const q = Number(e.qty) || 1;
+                            if (e.type === 'expenses') {
+                                groups[key].expQty += q;
+                                groups[key].expCount++;
+                            } else if (e.type === 'additions') {
+                                groups[key].addQty += q;
+                                groups[key].addCount++;
+                            }
+                            if (e.date) groups[key].dates.add(e.date);
+                        });
+
+                        return Object.values(groups).map(g => {
+                            g.net = g.addQty - g.expQty;
+                            g.datesList = Array.from(g.dates);
+                            return g;
+                        });
+                    }
+
+                    // Calculate Daily Totals & Grouped Items
                     function getDayTotals(dateStr) {
                         const dayAllEvents = tcEvents.filter(e => e.date === dateStr);
                         let expQty = 0;
@@ -8045,15 +8218,19 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                             }
                         });
 
+                        const groupedItems = groupMovementsByItem(dayAllEvents);
                         const net = addQty - expQty;
+
                         return {
                             expQty,
                             addQty,
                             net,
                             expCount,
                             addCount,
+                            groupedItems,
+                            distinctItemsCount: groupedItems.length,
                             totalEvents: dayAllEvents.length,
-                            hasMovement: (expQty > 0 || addQty > 0)
+                            hasMovement: (groupedItems.length > 0)
                         };
                     }
 
@@ -8202,11 +8379,13 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                                 const tDate = toDateString(t.date || t.created_at || t.timestamp);
                                 if (tDate) {
                                     const qVal = parseInt(t.qty) || 1;
+                                    const uVal = t.unit || t.unit_name || 'قطعة';
                                     tcEvents.push({
                                         id: 'trans_expense_' + (t.id || Math.random()),
                                         rawId: t.id,
                                         itemId: t.item_id || t.itemId,
                                         itemName: t.item_name || t.itemName || 'قطعة غيار',
+                                        unit: uVal,
                                         sourceTable: 'transactions',
                                         qty: qVal,
                                         date: tDate,
@@ -8249,11 +8428,13 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                                     const isAdd = (h.type === 'add' || h.type === 'إضافة' || h.type === 'in' || h.action === 'add' || (Number(h.new_qty) > Number(h.old_qty)));
                                     const calcQty = Math.abs(Number(h.qty) || (Number(h.new_qty) - Number(h.old_qty)) || 1);
                                     if (isAdd) {
+                                        const hUnit = h.unit || h.unit_name || 'قطعة';
                                         tcEvents.push({
                                             id: 'inv_add_' + (h.id || Math.random()),
                                             rawId: h.id,
                                             itemId: h.item_id || h.itemId,
                                             itemName: h.item_name || h.itemName || 'مادة جديدة',
+                                            unit: hUnit,
                                             sourceTable: 'inventory_history',
                                             qty: calcQty,
                                             date: hDate,
@@ -8272,11 +8453,13 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                                             icon: 'fa-boxes-packing'
                                         });
                                     } else {
+                                        const hOutUnit = h.unit || h.unit_name || 'قطعة';
                                         tcEvents.push({
                                             id: 'inv_out_' + (h.id || Math.random()),
                                             rawId: h.id,
                                             itemId: h.item_id || h.itemId,
                                             itemName: h.item_name || h.itemName || 'مادة',
+                                            unit: hOutUnit,
                                             sourceTable: 'inventory_history',
                                             qty: calcQty,
                                             date: hDate,
@@ -8505,21 +8688,31 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
 
                         cell.appendChild(topBar);
 
-                        // Clear Daily Summary of Expenses, Additions, and Net Movement
+                        // Clear Daily Summary of Expenses, Additions, and Net Movement (Grouped by Item & Unit)
                         if (totals.hasMovement) {
                             const sumStrip = document.createElement('div');
                             sumStrip.className = 'tc-day-summary-strip';
 
-                            let netClass = 'net-zero';
-                            let netSign = '';
-                            if (totals.net > 0) { netClass = 'net-pos'; netSign = '+'; }
-                            else if (totals.net < 0) { netClass = 'net-neg'; }
-
-                            sumStrip.innerHTML = `
-                                ${totals.expQty > 0 ? `<div class="tc-sum-item exp"><span>صرف:</span><b>${totals.expQty}</b></div>` : ''}
-                                ${totals.addQty > 0 ? `<div class="tc-sum-item add"><span>إضافة:</span><b>+${totals.addQty}</b></div>` : ''}
-                                <div class="tc-sum-item net ${netClass}"><span>صافي الحركة:</span><b>${netSign}${totals.net}</b></div>
-                            `;
+                            if (totals.groupedItems.length === 1) {
+                                const item = totals.groupedItems[0];
+                                let netClass = item.net > 0 ? 'net-pos' : (item.net < 0 ? 'net-neg' : 'net-zero');
+                                let netSign = item.net > 0 ? '+' : '';
+                                sumStrip.innerHTML = `
+                                    <div class="tc-sum-item net ${netClass}" title="${item.itemName} (${item.unit})">
+                                        <span style="max-width:85px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.itemName}:</span>
+                                        <b>${netSign}${item.net} ${item.unit}</b>
+                                    </div>
+                                `;
+                            } else {
+                                sumStrip.innerHTML = `
+                                    <div class="tc-sum-item" style="color:#4f46e5;font-weight:700;">
+                                        <span>حركة أصناف:</span>
+                                        <b>${totals.groupedItems.length} مواد</b>
+                                    </div>
+                                    <div class="tc-sum-item exp"><span>صرف:</span><b>${totals.expCount} حركات</b></div>
+                                    <div class="tc-sum-item add"><span>توريد:</span><b>${totals.addCount} حركات</b></div>
+                                `;
+                            }
                             cell.appendChild(sumStrip);
                         }
 
@@ -8610,45 +8803,66 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                             const col = document.createElement('div');
                             col.className = 'tc-week-col' + (isToday ? ' is-today' : '');
 
-                            // Header for Day Column
+                            // Header for Day Column with Mobile-friendly Action
                             const head = document.createElement('div');
                             head.className = 'tc-week-head';
                             head.innerHTML = `
-                                <span class="tc-week-day-title">${ARABIC_DAYS[dayDate.getDay()]}</span>
-                                <span class="tc-week-day-sub">${dayDate.getDate()} ${ARABIC_MONTHS[dayDate.getMonth()]}</span>
+                                <div class="tc-week-head-info">
+                                    <span class="tc-week-day-title">${ARABIC_DAYS[dayDate.getDay()]}</span>
+                                    <span class="tc-week-day-sub">${dayDate.getDate()} ${ARABIC_MONTHS[dayDate.getMonth()]}</span>
+                                </div>
+                                <button class="tc-week-open-btn" onclick="event.stopPropagation(); tcOpenDayDetails('${dateStr}', tcEvents.filter(e => e.date === '${dateStr}'))" title="فتح تفاصيل هذا اليوم">
+                                    <i class="fas fa-expand"></i> تفاصيل اليوم (${dayEvents.length})
+                                </button>
                             `;
                             col.appendChild(head);
 
-                            // Summary Box for Day
+                            // Summary Box for Day (Grouped cleanly by Material & Unit)
                             const sumBox = document.createElement('div');
                             sumBox.className = 'tc-week-summary-box';
 
-                            let netColor = '#64748b';
-                            let netSign = '';
-                            if (totals.net > 0) { netColor = '#059669'; netSign = '+'; }
-                            else if (totals.net < 0) { netColor = '#dc2626'; }
+                            if (totals.groupedItems.length > 0) {
+                                let itemsListHtml = totals.groupedItems.slice(0, 2).map(it => {
+                                    let sColor = it.net > 0 ? '#059669' : (it.net < 0 ? '#dc2626' : '#64748b');
+                                    let sign = it.net > 0 ? '+' : '';
+                                    return `<div style="display:flex;justify-content:space-between;gap:4px;font-size:10.5px;color:#334155;">
+                                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:110px;">${it.itemName}</span>
+                                        <b style="color:${sColor};direction:ltr;">${sign}${it.net} ${it.unit}</b>
+                                    </div>`;
+                                }).join('');
 
-                            sumBox.innerHTML = `
-                                <div style="display:flex;justify-content:space-between;color:#e11d48;font-weight:700;">
-                                    <span>المصروفات:</span><b>${totals.expQty} قطعة</b>
-                                </div>
-                                <div style="display:flex;justify-content:space-between;color:#0d9488;font-weight:700;">
-                                    <span>الإضافات:</span><b>${totals.addQty} قطعة</b>
-                                </div>
-                                <div style="display:flex;justify-content:space-between;color:${netColor};font-weight:800;border-top:1px dashed #cbd5e1;padding-top:3px;margin-top:2px;">
-                                    <span>صافي المخزون:</span><b>${netSign}${totals.net}</b>
-                                </div>
-                            `;
+                                if (totals.groupedItems.length > 2) {
+                                    itemsListHtml += `<div style="font-size:10px;color:#6366f1;font-weight:700;text-align:center;">+${totals.groupedItems.length - 2} أصناف أخرى...</div>`;
+                                }
+
+                                sumBox.innerHTML = `
+                                    <div style="display:flex;justify-content:space-between;font-weight:800;color:#1e293b;border-bottom:1px solid #e2e8f0;padding-bottom:2px;margin-bottom:3px;">
+                                        <span>حركة المخزون:</span>
+                                        <span>${totals.groupedItems.length} صنف</span>
+                                    </div>
+                                    ${itemsListHtml}
+                                `;
+                            } else {
+                                sumBox.innerHTML = `
+                                    <div style="text-align:center;color:#94a3b8;font-size:10.5px;padding:2px 0;">
+                                        <i class="fas fa-box-open" style="opacity:0.5;"></i> لا حركات صرف أو توريد
+                                    </div>
+                                `;
+                            }
                             col.appendChild(sumBox);
 
-                            // Events List inside Day Column
+                            // Events List inside Day Column with Mobile Dense Handling
                             const list = document.createElement('div');
                             list.className = 'tc-week-events-list';
 
                             if (dayEvents.length === 0) {
-                                list.innerHTML = `<div style="text-align:center;padding:24px 8px;color:#94a3b8;font-size:11.5px;"><i class="fas fa-calendar-xmark" style="font-size:18px;margin-bottom:6px;display:block;opacity:0.4;"></i>لا توجد أحداث</div>`;
+                                list.innerHTML = `<div style="text-align:center;padding:20px 8px;color:#94a3b8;font-size:11.5px;"><i class="fas fa-calendar-xmark" style="font-size:18px;margin-bottom:6px;display:block;opacity:0.4;"></i>لا توجد أحداث</div>`;
                             } else {
-                                dayEvents.forEach(ev => {
+                                const DENSE_LIMIT = 3;
+                                const visibleEvents = dayEvents.slice(0, DENSE_LIMIT);
+                                const extraEventsCount = dayEvents.length - DENSE_LIMIT;
+
+                                visibleEvents.forEach(ev => {
                                     const card = document.createElement('div');
                                     let typeCardClass = 'tc-chip-req-new';
                                     if (ev.type === 'visits') typeCardClass = 'tc-chip-visit';
@@ -8678,6 +8892,17 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
 
                                     list.appendChild(card);
                                 });
+
+                                if (extraEventsCount > 0) {
+                                    const moreBanner = document.createElement('div');
+                                    moreBanner.className = 'tc-week-dense-pill';
+                                    moreBanner.innerHTML = `<i class="fas fa-layer-group"></i> +${extraEventsCount} أحداث أخرى (انقر لعرض كامل اليوم)`;
+                                    moreBanner.onclick = function(e) {
+                                        e.stopPropagation();
+                                        tcOpenDayDetails(dateStr, dayEvents);
+                                    };
+                                    list.appendChild(moreBanner);
+                                }
                             }
 
                             col.appendChild(list);
@@ -8765,30 +8990,74 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
 
                         titleEl.innerHTML = '<i class="fas fa-calendar-day"></i> أحداث ومصروفات تاريخ: <span style="color:#7c3aed;direction:ltr;">' + dateStr + '</span> (' + events.length + ')';
                         
-                        // Render Day Executive Totals Card
-                        let netColor = '#64748b';
-                        let netSign = '';
-                        if (totals.net > 0) { netColor = '#059669'; netSign = '+'; }
-                        else if (totals.net < 0) { netColor = '#dc2626'; }
-
+                        // Render Day Executive KPI and Grouped Items Breakdown Table
                         if (totalsContainer) {
+                            let groupedHtml = '';
+                            if (totals.groupedItems && totals.groupedItems.length > 0) {
+                                const rowsHtml = totals.groupedItems.map((g, idx) => {
+                                    const netClass = g.net > 0 ? '#059669' : (g.net < 0 ? '#dc2626' : '#64748b');
+                                    const netSign = g.net > 0 ? '+' : '';
+                                    return `
+                                        <tr style="border-bottom:1px solid #f1f5f9;">
+                                            <td style="padding:10px 12px;font-weight:700;color:#1e293b;">${g.itemName}</td>
+                                            <td style="padding:10px 12px;text-align:center;"><span style="background:#e0e7ff;color:#4338ca;padding:2px 8px;border-radius:6px;font-size:11.5px;font-weight:600;">${g.unit}</span></td>
+                                            <td style="padding:10px 12px;text-align:center;color:#e11d48;font-weight:700;">${g.expQty > 0 ? g.expQty + ' ' + g.unit : '0'}</td>
+                                            <td style="padding:10px 12px;text-align:center;color:#0d9488;font-weight:700;">${g.addQty > 0 ? '+' + g.addQty + ' ' + g.unit : '0'}</td>
+                                            <td style="padding:10px 12px;text-align:center;color:${netClass};font-weight:800;direction:ltr;">${netSign}${g.net} ${g.unit}</td>
+                                            <td style="padding:10px 12px;text-align:center;">
+                                                <button class="tc-table-btn" onclick="tcOpenOriginalMovementRecord(${JSON.stringify(g.rawEvent).replace(/"/g, '&quot;')})" title="فتح سجل الحركة في النظام">
+                                                    <i class="fas fa-arrow-up-right-from-square"></i> فتح السجل
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('');
+
+                                groupedHtml = `
+                                    <div class="tc-grouped-table-wrap">
+                                        <div class="tc-grouped-table-head">
+                                            <span><i class="fas fa-boxes-stacked" style="color:#6366f1;"></i> حركة المواد مجمّعة حسب الصنف ووحدة القياس</span>
+                                            <span style="font-size:12px;color:#64748b;font-weight:600;">(${totals.groupedItems.length} مواد)</span>
+                                        </div>
+                                        <div style="overflow-x:auto;">
+                                            <table class="tc-grouped-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>اسم المادة</th>
+                                                        <th>وحدة القياس</th>
+                                                        <th>المصروف (صرف)</th>
+                                                        <th>المضاف (توريد)</th>
+                                                        <th>صافي حركة المخزون</th>
+                                                        <th>إجراء</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>${rowsHtml}</tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+
                             totalsContainer.innerHTML = `
-                                <div class="tc-day-tot-card">
-                                    <span class="tc-day-tot-label"><i class="fas fa-arrow-up-right-from-square" style="color:#e11d48;"></i> إجمالي المصروفات</span>
-                                    <span class="tc-day-tot-val" style="color:#e11d48;">${totals.expQty} قطعة <small style="font-size:11px;font-weight:600;color:#64748b;">(${totals.expCount} حركة)</small></span>
+                                <div class="tc-day-totals-grid">
+                                    <div class="tc-day-tot-card">
+                                        <span class="tc-day-tot-label"><i class="fas fa-boxes-stacked" style="color:#6366f1;"></i> أصناف المواد المتحركة</span>
+                                        <span class="tc-day-tot-val" style="color:#4338ca;">${totals.groupedItems.length} <small style="font-size:12px;font-weight:600;">صنف</small></span>
+                                    </div>
+                                    <div class="tc-day-tot-card">
+                                        <span class="tc-day-tot-label"><i class="fas fa-arrow-up-right-from-square" style="color:#e11d48;"></i> حركات المصروفات</span>
+                                        <span class="tc-day-tot-val" style="color:#e11d48;">${totals.expCount} <small style="font-size:12px;font-weight:600;">حركة</small></span>
+                                    </div>
+                                    <div class="tc-day-tot-card">
+                                        <span class="tc-day-tot-label"><i class="fas fa-boxes-packing" style="color:#0d9488;"></i> حركات الإضافات</span>
+                                        <span class="tc-day-tot-val" style="color:#0d9488;">${totals.addCount} <small style="font-size:12px;font-weight:600;">حركة</small></span>
+                                    </div>
+                                    <div class="tc-day-tot-card">
+                                        <span class="tc-day-tot-label"><i class="fas fa-list-check" style="color:#0284c7;"></i> إجمالي أحداث اليوم</span>
+                                        <span class="tc-day-tot-val" style="color:#0369a1;">${events.length} <small style="font-size:12px;font-weight:600;">سجل</small></span>
+                                    </div>
                                 </div>
-                                <div class="tc-day-tot-card">
-                                    <span class="tc-day-tot-label"><i class="fas fa-boxes-packing" style="color:#0d9488;"></i> إجمالي الإضافات والتوريد</span>
-                                    <span class="tc-day-tot-val" style="color:#0d9488;">+${totals.addQty} قطعة <small style="font-size:11px;font-weight:600;color:#64748b;">(${totals.addCount} حركة)</small></span>
-                                </div>
-                                <div class="tc-day-tot-card">
-                                    <span class="tc-day-tot-label"><i class="fas fa-scale-balanced" style="color:${netColor};"></i> صافي حركة المخزون</span>
-                                    <span class="tc-day-tot-val" style="color:${netColor};">${netSign}${totals.net} قطعة</span>
-                                </div>
-                                <div class="tc-day-tot-card">
-                                    <span class="tc-day-tot-label"><i class="fas fa-list-check" style="color:#6366f1;"></i> إجمالي أحداث اليوم</span>
-                                    <span class="tc-day-tot-val" style="color:#4338ca;">${events.length} سجل</span>
-                                </div>
+                                ${groupedHtml}
                             `;
                         }
 
@@ -8847,6 +9116,211 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                     window.tcOpenEventDetails = function(ev, dateStr) {
                         tcOpenDayDetails(dateStr, [ev]);
                     };
+
+
+                    // ==================== EXPORT SUMMARY (CSV & PDF) ====================
+                    function tcGetDisplayedPeriodRange() {
+                        if (tcViewMode === 'month') {
+                            const year = tcCurrentDate.getFullYear();
+                            const month = tcCurrentDate.getMonth();
+                            const start = new Date(year, month, 1);
+                            const end = new Date(year, month + 1, 0);
+                            return {
+                                title: ARABIC_MONTHS[month] + ' ' + year,
+                                fileSlug: 'شهر_' + (month + 1) + '_' + year,
+                                startDate: toDateString(start),
+                                endDate: toDateString(end)
+                            };
+                        } else {
+                            const curr = new Date(tcCurrentDate);
+                            const jsDay = curr.getDay();
+                            const diffToSaturday = (jsDay + 1) % 7;
+                            const saturday = new Date(curr);
+                            saturday.setDate(curr.getDate() - diffToSaturday);
+                            const friday = new Date(saturday);
+                            friday.setDate(saturday.getDate() + 6);
+                            return {
+                                title: 'أسبوع: ' + saturday.getDate() + ' ' + ARABIC_MONTHS[saturday.getMonth()] + ' - ' + friday.getDate() + ' ' + ARABIC_MONTHS[friday.getMonth()] + ' ' + friday.getFullYear(),
+                                fileSlug: 'اسبوع_' + toDateString(saturday) + '_الى_' + toDateString(friday),
+                                startDate: toDateString(saturday),
+                                endDate: toDateString(friday)
+                            };
+                        }
+                    }
+
+                    window.tcExportSummary = function(format) {
+                        try {
+                            const period = tcGetDisplayedPeriodRange();
+                            // Filter events in the displayed period that are movements
+                            const periodEvents = tcEvents.filter(e => {
+                                if (e.type !== 'expenses' && e.type !== 'additions') return false;
+                                return e.date >= period.startDate && e.date <= period.endDate;
+                            });
+
+                            const grouped = groupMovementsByItem(periodEvents);
+
+                            if (grouped.length === 0) {
+                                if (typeof showToast === 'function') {
+                                    showToast('warning', 'تنبيه التصدير', 'لا توجد حركات مصروفات أو إضافات مسجلة في الفترة المعروضة (' + period.title + ')');
+                                } else {
+                                    alert('لا توجد حركات مصروفات أو إضافات مسجلة في الفترة المعروضة (' + period.title + ')');
+                                }
+                                return;
+                            }
+
+                            if (format === 'csv') {
+                                tcGenerateCsvExport(period, grouped);
+                            } else if (format === 'pdf') {
+                                tcGeneratePdfExport(period, grouped);
+                            }
+                        } catch(err) {
+                            console.error('TC: Export error', err);
+                            alert('حدث خطأ أثناء إعداد التصدير: ' + err.message);
+                        }
+                    };
+
+                    function tcGenerateCsvExport(period, grouped) {
+                        let csvContent = '\uFEFF'; // UTF-8 BOM for Excel Arabic support
+                        csvContent += 'تقرير ملخص حركة المخزون والمصروفات والإضافات\n';
+                        csvContent += 'الفترة المعروضة:,' + '"' + period.title + '"' + ',من:,' + period.startDate + ',إلى:,' + period.endDate + '\n\n';
+                        csvContent += 'اسم المادة,وحدة القياس,إجمالي المصروفات (صرف),إجمالي الإضافات (توريد),صافي حركة المخزون,عدد حركات الصرف,عدد حركات الإضافة,تواريخ الحركة\n';
+
+                        grouped.forEach(g => {
+                            const itemClean = '"' + (g.itemName || '').replace(/"/g, '""') + '"';
+                            const unitClean = '"' + (g.unit || '').replace(/"/g, '""') + '"';
+                            const datesClean = '"' + (g.datesList.join(', ')).replace(/"/g, '""') + '"';
+                            csvContent += `${itemClean},${unitClean},${g.expQty},${g.addQty},${g.net},${g.expCount},${g.addCount},${datesClean}\n`;
+                        });
+
+                        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = 'ملخص_حركة_المخزون_' + period.fileSlug + '.csv';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        if (typeof showToast === 'function') {
+                            showToast('success', 'تم تصدير CSV', 'تم تصدير كشف حركة المخزون مجمعاً حسب المادة والوحدة بنجاح');
+                        }
+                    }
+
+                    function tcGeneratePdfExport(period, grouped) {
+                        const totalExp = grouped.reduce((acc, g) => acc + g.expQty, 0);
+                        const totalAdd = grouped.reduce((acc, g) => acc + g.addQty, 0);
+
+                        const rowsHtml = grouped.map((g, idx) => {
+                            const netColor = g.net > 0 ? '#059669' : (g.net < 0 ? '#dc2626' : '#475569');
+                            const netSign = g.net > 0 ? '+' : '';
+                            return `
+                                <tr style="border-bottom:1px solid #cbd5e1; background:${idx % 2 === 0 ? '#ffffff' : '#f8fafc'};">
+                                    <td style="padding:10px 14px; font-weight:700; text-align:right;">${g.itemName}</td>
+                                    <td style="padding:10px 14px; text-align:center;"><span style="background:#e0e7ff; color:#3730a3; padding:3px 10px; border-radius:6px; font-weight:600;">${g.unit}</span></td>
+                                    <td style="padding:10px 14px; text-align:center; color:#e11d48; font-weight:700;">${g.expQty} ${g.unit}</td>
+                                    <td style="padding:10px 14px; text-align:center; color:#0d9488; font-weight:700;">${g.addQty > 0 ? '+' : ''}${g.addQty} ${g.unit}</td>
+                                    <td style="padding:10px 14px; text-align:center; color:${netColor}; font-weight:800; direction:ltr;">${netSign}${g.net} ${g.unit}</td>
+                                    <td style="padding:10px 14px; text-align:center; font-size:12px; color:#64748b;">${g.expCount + g.addCount} حركة</td>
+                                </tr>
+                            `;
+                        }).join('');
+
+                        const printWindow = window.open('', '_blank');
+                        if (!printWindow) {
+                            alert('يرجى السماح بالنوافذ المنبثقة لطباعة / تصدير تقرير PDF');
+                            return;
+                        }
+
+                        const printHtml = `
+                        <!DOCTYPE html>
+                        <html dir="rtl" lang="ar">
+                        <head>
+                            <meta charset="UTF-8">
+                            <title>ملخص حركة المخزون - ${period.title}</title>
+                            <style>
+                                @page { size: A4 portrait; margin: 15mm; }
+                                body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; margin: 0; padding: 20px; color: #0f172a; direction: rtl; }
+                                .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #3b82f6; padding-bottom: 15px; margin-bottom: 20px; }
+                                .header h1 { margin: 0 0 5px 0; font-size: 22px; color: #1e3a8a; }
+                                .header p { margin: 0; color: #64748b; font-size: 13px; }
+                                .kpi-row { display: flex; gap: 14px; margin-bottom: 24px; }
+                                .kpi-box { flex: 1; padding: 12px 16px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0; }
+                                .kpi-title { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+                                .kpi-val { font-size: 20px; font-weight: 800; color: #0f172a; }
+                                table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+                                th { background: #1e293b; color: #ffffff; padding: 12px 14px; font-weight: 700; text-align: center; }
+                                th:first-child { text-align: right; }
+                                td { border-bottom: 1px solid #cbd5e1; }
+                                .footer { margin-top: 30px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+                                @media print {
+                                    .no-print { display: none !important; }
+                                    body { padding: 0; }
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="no-print" style="margin-bottom:15px; text-align:left;">
+                                <button onclick="window.print()" style="background:#2563eb; color:#fff; border:none; padding:8px 18px; border-radius:6px; font-weight:700; cursor:pointer;">
+                                    🖨️ طباعة أو حفظ بصيغة PDF
+                                </button>
+                            </div>
+                            <div class="header">
+                                <div>
+                                    <h1>تقرير ملخص حركة المخزون والمصروفات والإضافات</h1>
+                                    <p>نظام إدارة وصيانة الأجهزة — تقويم العطاء الشامل</p>
+                                </div>
+                                <div style="text-align:left;">
+                                    <div style="font-weight:700; color:#1e293b;">الفترة: ${period.title}</div>
+                                    <div style="font-size:12px; color:#64748b;">تاريخ التقرير: ${new Date().toLocaleDateString('ar-EG')}</div>
+                                </div>
+                            </div>
+
+                            <div class="kpi-row">
+                                <div class="kpi-box">
+                                    <div class="kpi-title">عدد الأصناف المتداولة</div>
+                                    <div class="kpi-val">${grouped.length} مادة</div>
+                                </div>
+                                <div class="kpi-box">
+                                    <div class="kpi-title">إجمالي حركات الصرف</div>
+                                    <div class="kpi-val" style="color:#e11d48;">${grouped.reduce((a,b)=>a+b.expCount,0)} حركة</div>
+                                </div>
+                                <div class="kpi-box">
+                                    <div class="kpi-title">إجمالي حركات التوريد والإضافة</div>
+                                    <div class="kpi-val" style="color:#0d9488;">${grouped.reduce((a,b)=>a+b.addCount,0)} حركة</div>
+                                </div>
+                            </div>
+
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>اسم المادة</th>
+                                        <th>وحدة القياس</th>
+                                        <th>إجمالي المصروف (صرف)</th>
+                                        <th>إجمالي المضاف (توريد)</th>
+                                        <th>صافي حركة المخزون</th>
+                                        <th>عدد الحركات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rowsHtml}
+                                </tbody>
+                            </table>
+
+                            <div class="footer">
+                                تقرير صادر آلياً من نظام إدارة العطاء والصيانة — بيانات مجمعة حسب المادة ووحدة القياس
+                            </div>
+                            <script>
+                                window.onload = function() {
+                                    setTimeout(function() { window.print(); }, 400);
+                                };
+                            <\/script>
+                        </body>
+                        </html>
+                        `;
+
+                        printWindow.document.open();
+                        printWindow.document.write(printHtml);
+                        printWindow.document.close();
+                    }
 
                     window.tcCloseModal = function() {
                         const modal = document.getElementById('tcModalOverlay');
