@@ -7993,6 +7993,7 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                                 <button class="tc-hero-btn" onclick="printTenderCalendar()"><i class="fas fa-print"></i> طباعة التقويم</button>
                                 <button class="tc-hero-btn" onclick="tcExportSummary('csv')"><i class="fas fa-file-csv"></i> تصدير CSV</button>
                                 <button class="tc-hero-btn" onclick="tcExportSummary('pdf')"><i class="fas fa-file-pdf"></i> تصدير PDF</button>
+                                <button class="tc-hero-btn tc-hero-btn-compare" onclick="tcOpenPeriodComparison()" style="background:linear-gradient(135deg, #4f46e5, #7c3aed);border-color:rgba(255,255,255,0.4);"><i class="fas fa-code-compare"></i> مقارنة الفترات</button>
                             </div>
                         </div>
 
@@ -8129,6 +8130,340 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                     </div>
                 </div>
             </div>
+
+            
+            <!-- ==================== PERIOD COMPARISON MODAL ==================== -->
+            <div class="tc-modal-mask" id="tcCompareModalOverlay" onclick="if(event.target===this) tcCloseCompareModal()">
+                <div class="tc-modal-box tc-compare-modal-box" style="max-width:1050px; width:95%; max-height:92vh;">
+                    <div class="tc-modal-head" style="background:linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%);">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div style="width:38px; height:38px; border-radius:10px; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:18px;">
+                                <i class="fas fa-code-compare" style="color:#a78bfa;"></i>
+                            </div>
+                            <div>
+                                <h3 class="tc-modal-head-title" style="margin:0; font-size:18px;">مقارنة إجماليات المصروفات والإضافات وصافي حركة المخزون</h3>
+                                <p style="margin:0; font-size:12px; color:#cbd5e1;">مقارنة تحليلية دقيقة مجمّعة حسب المادة ووحدة القياس بين الفترة المعروضة وفترة سابقة</p>
+                            </div>
+                        </div>
+                        <button class="tc-modal-x" onclick="tcCloseCompareModal()" title="إغلاق"><i class="fas fa-xmark"></i></button>
+                    </div>
+
+                    <!-- Comparison Controls Bar -->
+                    <div class="tc-compare-bar">
+                        <div class="tc-compare-col">
+                            <label class="tc-compare-label"><i class="fas fa-calendar-check" style="color:#3b82f6;"></i> الفترة المعروضة (الحالية)</label>
+                            <div class="tc-compare-val-badge" id="tcCurrentPeriodDisplay">جاري التحميل...</div>
+                        </div>
+                        <div class="tc-compare-col">
+                            <label class="tc-compare-label"><i class="fas fa-clock-rotate-left" style="color:#8b5cf6;"></i> اختر الفترة السابقة للمقارنة</label>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                                <select id="tcComparePeriodType" class="tc-compare-select" onchange="tcOnChangeComparePeriodType()">
+                                    <option value="previous_period" selected>الفترة السابقة المباشرة (تلقائياً)</option>
+                                    <option value="previous_year">نفس الفترة من العام الماضي</option>
+                                    <option value="custom">فترة مخصصة (تحديد التواريخ)</option>
+                                </select>
+                                <div id="tcCustomDateRangeWrap" style="display:none; align-items:center; gap:6px;">
+                                    <input type="date" id="tcCompareStartDate" class="tc-compare-date-input" title="تاريخ البداية">
+                                    <span style="font-size:12px; color:#64748b;">إلى</span>
+                                    <input type="date" id="tcCompareEndDate" class="tc-compare-date-input" title="تاريخ النهاية">
+                                    <button class="tc-compare-btn-sub" onclick="tcApplyCustomComparisonRange()" title="تطبيق"><i class="fas fa-check"></i> تطبيق</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tc-compare-col" style="flex:0 0 auto;">
+                            <label class="tc-compare-label">&nbsp;</label>
+                            <div style="display:flex; gap:8px;">
+                                <button class="tc-compare-btn-action" onclick="tcExportComparisonCsv()"><i class="fas fa-file-csv"></i> تصدير CSV</button>
+                                <button class="tc-compare-btn-action" onclick="tcPrintComparisonPdf()"><i class="fas fa-file-pdf"></i> طباعة / PDF</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comparison KPI Summary Cards -->
+                    <div class="tc-compare-kpi-grid" id="tcCompareKpis">
+                        <!-- Filled by JS -->
+                    </div>
+
+                    <!-- Search and Filter Bar -->
+                    <div style="padding:12px 24px 0 24px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+                        <div style="position:relative; flex:1; min-width:240px;">
+                            <i class="fas fa-magnifying-glass" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#94a3b8; font-size:13px;"></i>
+                            <input type="text" id="tcCompareSearch" class="tc-compare-search-input" placeholder="ابحث باسم المادة..." oninput="tcFilterComparisonTable()">
+                        </div>
+                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                            <button class="tc-filter-pill active" data-filter="all" onclick="tcSetComparisonFilter('all', this)">الكل</button>
+                            <button class="tc-filter-pill" data-filter="exp_up" onclick="tcSetComparisonFilter('exp_up', this)">ارتفاع الصرف <i class="fas fa-arrow-trend-up" style="color:#ef4444;"></i></button>
+                            <button class="tc-filter-pill" data-filter="add_up" onclick="tcSetComparisonFilter('add_up', this)">ارتفاع التوريد <i class="fas fa-arrow-trend-up" style="color:#10b981;"></i></button>
+                            <button class="tc-filter-pill" data-filter="net_diff" onclick="tcSetComparisonFilter('net_diff', this)">تغير الصافي</button>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Table Container -->
+                    <div class="tc-modal-content" style="padding:16px 24px 24px 24px;">
+                        <div class="tc-compare-table-wrap">
+                            <table class="tc-compare-table" id="tcComparisonTable">
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2" style="text-align:right; width:22%;">المادة والوحدة</th>
+                                        <th colspan="3" style="background:#f1f5f9; color:#1e293b; border-bottom:1px solid #cbd5e1;">الفترة المعروضة (الحالية)</th>
+                                        <th colspan="3" style="background:#f8fafc; color:#475569; border-bottom:1px solid #cbd5e1;">الفترة السابقة للمقارنة</th>
+                                        <th colspan="3" style="background:#eef2ff; color:#312e81; border-bottom:1px solid #c7d2fe;">الفروقات والتغير (Δ)</th>
+                                        <th rowspan="2" style="width:10%;">إجراء</th>
+                                    </tr>
+                                    <tr>
+                                        <!-- Current -->
+                                        <th style="background:#f1f5f9; color:#e11d48; font-size:11px;">المصروف (صرف)</th>
+                                        <th style="background:#f1f5f9; color:#0d9488; font-size:11px;">المضاف (توريد)</th>
+                                        <th style="background:#f1f5f9; color:#1e293b; font-size:11px;">الصافي</th>
+                                        <!-- Previous -->
+                                        <th style="background:#f8fafc; color:#e11d48; font-size:11px;">المصروف (صرف)</th>
+                                        <th style="background:#f8fafc; color:#0d9488; font-size:11px;">المضاف (توريد)</th>
+                                        <th style="background:#f8fafc; color:#475569; font-size:11px;">الصافي</th>
+                                        <!-- Diff -->
+                                        <th style="background:#eef2ff; color:#e11d48; font-size:11px;">فرق الصرف</th>
+                                        <th style="background:#eef2ff; color:#0d9488; font-size:11px;">فرق التوريد</th>
+                                        <th style="background:#eef2ff; color:#4338ca; font-size:11px;">فرق الصافي</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tcCompareTableBody">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison CSS Styles -->
+            <style>
+                .tc-compare-bar {
+                    background: #f8fafc;
+                    border-bottom: 1px solid #e2e8f0;
+                    padding: 16px 24px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: 16px;
+                }
+                .tc-compare-col {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                }
+                .tc-compare-label {
+                    font-size: 11.5px;
+                    font-weight: 700;
+                    color: #64748b;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+                .tc-compare-val-badge {
+                    background: #e0e7ff;
+                    color: #3730a3;
+                    font-size: 13px;
+                    font-weight: 700;
+                    padding: 6px 14px;
+                    border-radius: 8px;
+                    border: 1px solid #c7d2fe;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+                .tc-compare-select {
+                    padding: 7px 12px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 8px;
+                    background: #ffffff;
+                    color: #1e293b;
+                    outline: none;
+                    cursor: pointer;
+                    transition: border 0.2s;
+                }
+                .tc-compare-select:focus {
+                    border-color: #6366f1;
+                }
+                .tc-compare-date-input {
+                    padding: 5px 10px;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 6px;
+                    font-size: 12px;
+                    outline: none;
+                }
+                .tc-compare-btn-sub {
+                    background: #6366f1;
+                    color: #ffffff;
+                    border: none;
+                    padding: 6px 12px;
+                    border-radius: 6px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    cursor: pointer;
+                }
+                .tc-compare-btn-action {
+                    background: #ffffff;
+                    border: 1px solid #cbd5e1;
+                    color: #334155;
+                    padding: 7px 14px;
+                    border-radius: 8px;
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    transition: all 0.2s;
+                }
+                .tc-compare-btn-action:hover {
+                    background: #f1f5f9;
+                    border-color: #94a3b8;
+                    color: #0f172a;
+                }
+                .tc-compare-kpi-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 14px;
+                    padding: 16px 24px;
+                    background: #fcfcfd;
+                    border-bottom: 1px solid #f1f5f9;
+                }
+                .tc-cmp-kpi-card {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 12px;
+                    padding: 12px 16px;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                }
+                .tc-cmp-kpi-title {
+                    font-size: 11.5px;
+                    color: #64748b;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                }
+                .tc-cmp-kpi-body {
+                    display: flex;
+                    align-items: baseline;
+                    justify-content: space-between;
+                    gap: 8px;
+                    margin-top: 4px;
+                }
+                .tc-cmp-kpi-curr {
+                    font-size: 18px;
+                    font-weight: 800;
+                    color: #0f172a;
+                }
+                .tc-cmp-kpi-prev {
+                    font-size: 12px;
+                    color: #94a3b8;
+                    font-weight: 600;
+                }
+                .tc-cmp-kpi-diff {
+                    font-size: 11px;
+                    font-weight: 700;
+                    padding: 2px 8px;
+                    border-radius: 6px;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                }
+                .tc-diff-up-green { background: #dcfce7; color: #15803d; }
+                .tc-diff-down-red { background: #fee2e2; color: #b91c1c; }
+                .tc-diff-neutral { background: #f1f5f9; color: #475569; }
+                .tc-diff-up-red { background: #fee2e2; color: #b91c1c; }
+                .tc-diff-down-green { background: #dcfce7; color: #15803d; }
+                .tc-compare-search-input {
+                    width: 100%;
+                    padding: 8px 36px 8px 12px;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 8px;
+                    font-size: 13px;
+                    outline: none;
+                }
+                .tc-compare-search-input:focus {
+                    border-color: #6366f1;
+                }
+                .tc-filter-pill {
+                    background: #f1f5f9;
+                    border: 1px solid #e2e8f0;
+                    color: #475569;
+                    padding: 5px 12px;
+                    border-radius: 20px;
+                    font-size: 11.5px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .tc-filter-pill.active {
+                    background: #4f46e5;
+                    border-color: #4f46e5;
+                    color: #ffffff;
+                }
+                .tc-compare-table-wrap {
+                    overflow-x: auto;
+                    border-radius: 12px;
+                    border: 1px solid #e2e8f0;
+                    background: #ffffff;
+                }
+                .tc-compare-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 12px;
+                    text-align: center;
+                }
+                .tc-compare-table th {
+                    padding: 10px 8px;
+                    font-weight: 700;
+                    border: 1px solid #e2e8f0;
+                }
+                .tc-compare-table td {
+                    padding: 9px 8px;
+                    border: 1px solid #f1f5f9;
+                    vertical-align: middle;
+                }
+                .tc-compare-table tbody tr:hover {
+                    background: #f8fafc;
+                }
+                .tc-item-cell {
+                    text-align: right !important;
+                    padding-right: 14px !important;
+                }
+                .tc-item-name-bold {
+                    font-weight: 700;
+                    color: #0f172a;
+                    font-size: 12.5px;
+                    display: block;
+                }
+                .tc-unit-pill {
+                    font-size: 10.5px;
+                    color: #4338ca;
+                    background: #e0e7ff;
+                    padding: 2px 7px;
+                    border-radius: 5px;
+                    font-weight: 600;
+                    display: inline-block;
+                    margin-top: 3px;
+                }
+                @media (max-width: 768px) {
+                    .tc-compare-bar {
+                        flex-direction: column;
+                        align-items: stretch;
+                    }
+                    .tc-compare-table {
+                        font-size: 11px;
+                    }
+                    .tc-compare-table th, .tc-compare-table td {
+                        padding: 6px 4px;
+                    }
+                }
+            </style>
 
             <!-- Tender Calendar Script -->
             <script>
@@ -9117,6 +9452,564 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                         tcOpenDayDetails(dateStr, [ev]);
                     };
 
+
+                    
+                    // ==================== PERIOD COMPARISON LOGIC ====================
+                    let tcComparePrevPeriod = null;
+                    let tcComparisonData = [];
+                    let tcComparisonActiveFilter = 'all';
+
+                    function tcCalculatePreviousPeriodRange(type, customStart, customEnd) {
+                        const curr = tcGetDisplayedPeriodRange();
+                        const currStart = new Date(curr.startDate);
+                        const currEnd = new Date(curr.endDate);
+
+                        if (type === 'custom') {
+                            if (!customStart || !customEnd) {
+                                // Default to previous month if not given
+                                return tcCalculatePreviousPeriodRange('previous_period');
+                            }
+                            return {
+                                title: 'فترة مخصصة: ' + customStart + ' إلى ' + customEnd,
+                                fileSlug: 'مقارنة_مخصصة_' + customStart + '_' + customEnd,
+                                startDate: customStart,
+                                endDate: customEnd
+                            };
+                        }
+
+                        if (type === 'previous_year') {
+                            // Same period 1 year ago
+                            const prevStart = new Date(currStart);
+                            prevStart.setFullYear(currStart.getFullYear() - 1);
+                            const prevEnd = new Date(currEnd);
+                            prevEnd.setFullYear(currEnd.getFullYear() - 1);
+                            
+                            return {
+                                title: 'نفس الفترة من العام السابق (' + prevStart.getFullYear() + ')',
+                                fileSlug: 'العام_السابق_' + toDateString(prevStart) + '_' + toDateString(prevEnd),
+                                startDate: toDateString(prevStart),
+                                endDate: toDateString(prevEnd)
+                            };
+                        }
+
+                        // Default: 'previous_period' (immediately preceding period)
+                        if (tcViewMode === 'month') {
+                            // Immediately preceding month
+                            const prevMonthDate = new Date(tcCurrentDate.getFullYear(), tcCurrentDate.getMonth() - 1, 1);
+                            const start = new Date(prevMonthDate.getFullYear(), prevMonthDate.getMonth(), 1);
+                            const end = new Date(prevMonthDate.getFullYear(), prevMonthDate.getMonth() + 1, 0);
+                            return {
+                                title: ARABIC_MONTHS[start.getMonth()] + ' ' + start.getFullYear() + ' (الشهر السابق)',
+                                fileSlug: 'شهر_' + (start.getMonth() + 1) + '_' + start.getFullYear(),
+                                startDate: toDateString(start),
+                                endDate: toDateString(end)
+                            };
+                        } else {
+                            // Immediately preceding week (7 days prior to saturday)
+                            const jsDay = tcCurrentDate.getDay();
+                            const diffToSaturday = (jsDay + 1) % 7;
+                            const saturday = new Date(tcCurrentDate);
+                            saturday.setDate(tcCurrentDate.getDate() - diffToSaturday - 7);
+                            const friday = new Date(saturday);
+                            friday.setDate(saturday.getDate() + 6);
+                            return {
+                                title: 'الأسبوع السابق (' + saturday.getDate() + ' ' + ARABIC_MONTHS[saturday.getMonth()] + ' - ' + friday.getDate() + ' ' + ARABIC_MONTHS[friday.getMonth()] + ')',
+                                fileSlug: 'اسبوع_سابق_' + toDateString(saturday) + '_' + toDateString(friday),
+                                startDate: toDateString(saturday),
+                                endDate: toDateString(friday)
+                            };
+                        }
+                    }
+
+                    window.tcOpenPeriodComparison = function() {
+                        const modal = document.getElementById('tcCompareModalOverlay');
+                        if (!modal) return;
+
+                        const currPeriod = tcGetDisplayedPeriodRange();
+                        const currDisplay = document.getElementById('tcCurrentPeriodDisplay');
+                        if (currDisplay) {
+                            currDisplay.innerHTML = '<i class="fas fa-calendar-alt"></i> ' + currPeriod.title + ' <span style="font-size:11px; opacity:0.8;">(' + currPeriod.startDate + ' إلى ' + currPeriod.endDate + ')</span>';
+                        }
+
+                        // Default comparison period type
+                        const typeSelect = document.getElementById('tcComparePeriodType');
+                        if (typeSelect) typeSelect.value = 'previous_period';
+                        const customWrap = document.getElementById('tcCustomDateRangeWrap');
+                        if (customWrap) customWrap.style.display = 'none';
+
+                        tcComparePrevPeriod = tcCalculatePreviousPeriodRange('previous_period');
+                        tcBuildAndRenderComparison();
+
+                        modal.classList.add('active');
+                    };
+
+                    window.tcCloseCompareModal = function() {
+                        const modal = document.getElementById('tcCompareModalOverlay');
+                        if (modal) modal.classList.remove('active');
+                    };
+
+                    window.tcOnChangeComparePeriodType = function() {
+                        const typeSelect = document.getElementById('tcComparePeriodType');
+                        const customWrap = document.getElementById('tcCustomDateRangeWrap');
+                        if (!typeSelect) return;
+
+                        const type = typeSelect.value;
+                        if (type === 'custom') {
+                            if (customWrap) customWrap.style.display = 'flex';
+                            const currPeriod = tcGetDisplayedPeriodRange();
+                            const sInput = document.getElementById('tcCompareStartDate');
+                            const eInput = document.getElementById('tcCompareEndDate');
+                            if (sInput && !sInput.value) sInput.value = currPeriod.startDate;
+                            if (eInput && !eInput.value) eInput.value = currPeriod.endDate;
+                        } else {
+                            if (customWrap) customWrap.style.display = 'none';
+                            tcComparePrevPeriod = tcCalculatePreviousPeriodRange(type);
+                            tcBuildAndRenderComparison();
+                        }
+                    };
+
+                    window.tcApplyCustomComparisonRange = function() {
+                        const sInput = document.getElementById('tcCompareStartDate');
+                        const eInput = document.getElementById('tcCompareEndDate');
+                        if (!sInput || !eInput || !sInput.value || !eInput.value) {
+                            alert('يرجى تحديد تاريخ البداية والنهاية للفترة المخصصة');
+                            return;
+                        }
+                        if (sInput.value > eInput.value) {
+                            alert('تاريخ البداية يجب أن يكون قبل أو يساوي تاريخ النهاية');
+                            return;
+                        }
+                        tcComparePrevPeriod = tcCalculatePreviousPeriodRange('custom', sInput.value, eInput.value);
+                        tcBuildAndRenderComparison();
+                    };
+
+                    function tcBuildAndRenderComparison() {
+                        const currPeriod = tcGetDisplayedPeriodRange();
+                        const prevPeriod = tcComparePrevPeriod;
+
+                        // Filter events in current period
+                        const currEvents = tcEvents.filter(e => {
+                            if (e.type !== 'expenses' && e.type !== 'additions') return false;
+                            return e.date >= currPeriod.startDate && e.date <= currPeriod.endDate;
+                        });
+
+                        // Filter events in previous period
+                        const prevEvents = tcEvents.filter(e => {
+                            if (e.type !== 'expenses' && e.type !== 'additions') return false;
+                            return e.date >= prevPeriod.startDate && e.date <= prevPeriod.endDate;
+                        });
+
+                        const currGrouped = groupMovementsByItem(currEvents);
+                        const prevGrouped = groupMovementsByItem(prevEvents);
+
+                        // Build a consolidated dictionary by Item + Unit
+                        const map = {};
+                        currGrouped.forEach(g => {
+                            const key = g.itemName + '___' + g.unit;
+                            map[key] = {
+                                key: key,
+                                itemName: g.itemName,
+                                unit: g.unit,
+                                itemId: g.itemId,
+                                rawEvent: g.rawEvent,
+                                currExpQty: g.expQty,
+                                currAddQty: g.addQty,
+                                currNet: g.net,
+                                currExpCount: g.expCount,
+                                currAddCount: g.addCount,
+                                prevExpQty: 0,
+                                prevAddQty: 0,
+                                prevNet: 0,
+                                prevExpCount: 0,
+                                prevAddCount: 0
+                            };
+                        });
+
+                        prevGrouped.forEach(g => {
+                            const key = g.itemName + '___' + g.unit;
+                            if (!map[key]) {
+                                map[key] = {
+                                    key: key,
+                                    itemName: g.itemName,
+                                    unit: g.unit,
+                                    itemId: g.itemId,
+                                    rawEvent: g.rawEvent,
+                                    currExpQty: 0,
+                                    currAddQty: 0,
+                                    currNet: 0,
+                                    currExpCount: 0,
+                                    currAddCount: 0,
+                                    prevExpQty: g.expQty,
+                                    prevAddQty: g.addQty,
+                                    prevNet: g.net,
+                                    prevExpCount: g.expCount,
+                                    prevAddCount: g.addCount
+                                };
+                            } else {
+                                map[key].prevExpQty = g.expQty;
+                                map[key].prevAddQty = g.addQty;
+                                map[key].prevNet = g.net;
+                                map[key].prevExpCount = g.expCount;
+                                map[key].prevAddCount = g.addCount;
+                            }
+                        });
+
+                        // Calculate differences
+                        tcComparisonData = Object.values(map).map(row => {
+                            row.diffExp = row.currExpQty - row.prevExpQty;
+                            row.diffAdd = row.currAddQty - row.prevAddQty;
+                            row.diffNet = row.currNet - row.prevNet;
+                            return row;
+                        });
+
+                        // Sort by largest net impact or name
+                        tcComparisonData.sort((a, b) => Math.abs(b.diffNet) - Math.abs(a.diffNet) || a.itemName.localeCompare(b.itemName));
+
+                        // Render KPIs
+                        tcRenderComparisonKpis(currPeriod, prevPeriod, tcComparisonData);
+
+                        // Render Table
+                        tcRenderComparisonRows();
+                    }
+
+                    function tcRenderComparisonKpis(currPeriod, prevPeriod, data) {
+                        const kpiContainer = document.getElementById('tcCompareKpis');
+                        if (!kpiContainer) return;
+
+                        const totalCurrExp = data.reduce((a, b) => a + b.currExpQty, 0);
+                        const totalPrevExp = data.reduce((a, b) => a + b.prevExpQty, 0);
+                        const diffExp = totalCurrExp - totalPrevExp;
+
+                        const totalCurrAdd = data.reduce((a, b) => a + b.currAddQty, 0);
+                        const totalPrevAdd = data.reduce((a, b) => a + b.prevAddQty, 0);
+                        const diffAdd = totalCurrAdd - totalPrevAdd;
+
+                        const totalCurrNet = totalCurrAdd - totalCurrExp;
+                        const totalPrevNet = totalPrevAdd - totalPrevExp;
+                        const diffNet = totalCurrNet - totalPrevNet;
+
+                        function badge(diff, isExp = false) {
+                            if (diff === 0) return '<span class="tc-cmp-kpi-diff tc-diff-neutral">لا تغير (0)</span>';
+                            const sign = diff > 0 ? '+' : '';
+                            if (isExp) {
+                                // More expenses is usually red, less is green
+                                const cls = diff > 0 ? 'tc-diff-up-red' : 'tc-diff-down-green';
+                                const icon = diff > 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
+                                return `<span class="tc-cmp-kpi-diff ${cls}"><i class="fas ${icon}"></i> ${sign}${diff}</span>`;
+                            } else {
+                                const cls = diff > 0 ? 'tc-diff-up-green' : 'tc-diff-down-red';
+                                const icon = diff > 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
+                                return `<span class="tc-cmp-kpi-diff ${cls}"><i class="fas ${icon}"></i> ${sign}${diff}</span>`;
+                            }
+                        }
+
+                        kpiContainer.innerHTML = `
+                            <div class="tc-cmp-kpi-card">
+                                <span class="tc-cmp-kpi-title"><i class="fas fa-boxes-stacked" style="color:#6366f1;"></i> إجمالي المواد المقارنة</span>
+                                <div class="tc-cmp-kpi-body">
+                                    <span class="tc-cmp-kpi-curr">${data.length} <small style="font-size:12px;font-weight:600;">صنف</small></span>
+                                    <span class="tc-cmp-kpi-prev" title="${prevPeriod.title}">مقارنة بـ ${prevPeriod.title}</span>
+                                </div>
+                            </div>
+                            <div class="tc-cmp-kpi-card">
+                                <span class="tc-cmp-kpi-title"><i class="fas fa-arrow-up-right-from-square" style="color:#e11d48;"></i> إجمالي المصروفات (صرف)</span>
+                                <div class="tc-cmp-kpi-body">
+                                    <span class="tc-cmp-kpi-curr" style="color:#e11d48;">${totalCurrExp}</span>
+                                    ${badge(diffExp, true)}
+                                </div>
+                                <span style="font-size:11px;color:#94a3b8;margin-top:2px;">السابقة: ${totalPrevExp}</span>
+                            </div>
+                            <div class="tc-cmp-kpi-card">
+                                <span class="tc-cmp-kpi-title"><i class="fas fa-boxes-packing" style="color:#0d9488;"></i> إجمالي الإضافات (توريد)</span>
+                                <div class="tc-cmp-kpi-body">
+                                    <span class="tc-cmp-kpi-curr" style="color:#0d9488;">+${totalCurrAdd}</span>
+                                    ${badge(diffAdd, false)}
+                                </div>
+                                <span style="font-size:11px;color:#94a3b8;margin-top:2px;">السابقة: ${totalPrevAdd}</span>
+                            </div>
+                            <div class="tc-cmp-kpi-card">
+                                <span class="tc-cmp-kpi-title"><i class="fas fa-scale-balanced" style="color:#4338ca;"></i> صافي حركة المخزون</span>
+                                <div class="tc-cmp-kpi-body">
+                                    <span class="tc-cmp-kpi-curr" style="color:${totalCurrNet >= 0 ? '#059669' : '#dc2626'};">${totalCurrNet > 0 ? '+' : ''}${totalCurrNet}</span>
+                                    ${badge(diffNet, false)}
+                                </div>
+                                <span style="font-size:11px;color:#94a3b8;margin-top:2px;">السابقة: ${totalPrevNet > 0 ? '+' : ''}${totalPrevNet}</span>
+                            </div>
+                        `;
+                    }
+
+                    window.tcSetComparisonFilter = function(filter, btnEl) {
+                        tcComparisonActiveFilter = filter;
+                        document.querySelectorAll('.tc-filter-pill').forEach(b => b.classList.remove('active'));
+                        if (btnEl) btnEl.classList.add('active');
+                        tcRenderComparisonRows();
+                    };
+
+                    window.tcFilterComparisonTable = function() {
+                        tcRenderComparisonRows();
+                    };
+
+                    function tcRenderComparisonRows() {
+                        const tbody = document.getElementById('tcCompareTableBody');
+                        if (!tbody) return;
+
+                        const searchInput = document.getElementById('tcCompareSearch');
+                        const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+
+                        let filtered = tcComparisonData.filter(row => {
+                            if (query && !row.itemName.toLowerCase().includes(query)) return false;
+                            if (tcComparisonActiveFilter === 'exp_up' && row.diffExp <= 0) return false;
+                            if (tcComparisonActiveFilter === 'add_up' && row.diffAdd <= 0) return false;
+                            if (tcComparisonActiveFilter === 'net_diff' && row.diffNet === 0) return false;
+                            return true;
+                        });
+
+                        if (filtered.length === 0) {
+                            tbody.innerHTML = `
+                                <tr>
+                                    <td colspan="11" style="padding:40px 20px; text-align:center; color:#94a3b8;">
+                                        <i class="fas fa-box-open" style="font-size:32px; color:#cbd5e1; margin-bottom:8px; display:block;"></i>
+                                        لا توجد حركات مصروفات أو إضافات مسجلة للمقارنة وفق المحددات المختارة
+                                    </td>
+                                </tr>
+                            `;
+                            return;
+                        }
+
+                        tbody.innerHTML = filtered.map((row, idx) => {
+                            const expSign = row.diffExp > 0 ? '+' : '';
+                            const addSign = row.diffAdd > 0 ? '+' : '';
+                            const netSign = row.diffNet > 0 ? '+' : '';
+
+                            const expColor = row.diffExp > 0 ? '#dc2626' : (row.diffExp < 0 ? '#16a34a' : '#64748b');
+                            const addColor = row.diffAdd > 0 ? '#16a34a' : (row.diffAdd < 0 ? '#dc2626' : '#64748b');
+                            const netColor = row.diffNet > 0 ? '#16a34a' : (row.diffNet < 0 ? '#dc2626' : '#64748b');
+
+                            const currNetColor = row.currNet > 0 ? '#059669' : (row.currNet < 0 ? '#dc2626' : '#64748b');
+                            const prevNetColor = row.prevNet > 0 ? '#059669' : (row.prevNet < 0 ? '#dc2626' : '#64748b');
+
+                            const escapedEvent = row.rawEvent ? JSON.stringify(row.rawEvent).replace(/"/g, '&quot;') : '{}';
+
+                            return `
+                                <tr style="background:${idx % 2 === 0 ? '#ffffff' : '#fcfcfd'};">
+                                    <td class="tc-item-cell">
+                                        <span class="tc-item-name-bold">${row.itemName}</span>
+                                        <span class="tc-unit-pill"><i class="fas fa-tag" style="font-size:9px;"></i> ${row.unit}</span>
+                                    </td>
+                                    <!-- Current -->
+                                    <td style="color:#e11d48; font-weight:700;">${row.currExpQty}</td>
+                                    <td style="color:#0d9488; font-weight:700;">${row.currAddQty > 0 ? '+' : ''}${row.currAddQty}</td>
+                                    <td style="color:${currNetColor}; font-weight:800; direction:ltr;">${row.currNet > 0 ? '+' : ''}${row.currNet}</td>
+                                    <!-- Previous -->
+                                    <td style="color:#e11d48; font-weight:600; opacity:0.85;">${row.prevExpQty}</td>
+                                    <td style="color:#0d9488; font-weight:600; opacity:0.85;">${row.prevAddQty > 0 ? '+' : ''}${row.prevAddQty}</td>
+                                    <td style="color:${prevNetColor}; font-weight:700; direction:ltr; opacity:0.85;">${row.prevNet > 0 ? '+' : ''}${row.prevNet}</td>
+                                    <!-- Differences (Δ) -->
+                                    <td style="color:${expColor}; font-weight:800; direction:ltr; background:#fff1f2;">
+                                        ${row.diffExp !== 0 ? `<i class="fas ${row.diffExp > 0 ? 'fa-arrow-up' : 'fa-arrow-down'}" style="font-size:10px;"></i> ` : ''}${expSign}${row.diffExp}
+                                    </td>
+                                    <td style="color:${addColor}; font-weight:800; direction:ltr; background:#f0fdf4;">
+                                        ${row.diffAdd !== 0 ? `<i class="fas ${row.diffAdd > 0 ? 'fa-arrow-up' : 'fa-arrow-down'}" style="font-size:10px;"></i> ` : ''}${addSign}${row.diffAdd}
+                                    </td>
+                                    <td style="color:${netColor}; font-weight:900; direction:ltr; background:#eef2ff;">
+                                        ${row.diffNet !== 0 ? `<i class="fas ${row.diffNet > 0 ? 'fa-arrow-up' : 'fa-arrow-down'}" style="font-size:10px;"></i> ` : ''}${netSign}${row.diffNet}
+                                    </td>
+                                    <!-- Action -->
+                                    <td>
+                                        <button class="tc-open-sys-btn" style="padding:4px 8px; font-size:11px; margin:0;" onclick="tcOpenOriginalMovementRecord(${escapedEvent})">
+                                            <i class="fas fa-arrow-up-right-from-square"></i> فتح
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                    }
+
+                    window.tcExportComparisonCsv = function() {
+                        try {
+                            if (!tcComparisonData || tcComparisonData.length === 0) {
+                                alert('لا توجد بيانات مقارنة للتصدير');
+                                return;
+                            }
+                            const currPeriod = tcGetDisplayedPeriodRange();
+                            const prevPeriod = tcComparePrevPeriod;
+
+                            let lines = [];
+                            lines.push('\uFEFFتقرير مقارنة إجماليات المصروفات والإضافات وصافي حركة المخزون بين الفترات');
+                            lines.push('الفترة المعروضة (الحالية):,' + '"' + currPeriod.title + ' (' + currPeriod.startDate + ' إلى ' + currPeriod.endDate + ')"');
+                            lines.push('الفترة السابقة للمقارنة:,' + '"' + prevPeriod.title + ' (' + prevPeriod.startDate + ' إلى ' + prevPeriod.endDate + ')"');
+                            lines.push('');
+                            lines.push('اسم المادة,وحدة القياس,مصروف الحالية,مضاف الحالية,صافي الحالية,مصروف السابقة,مضاف السابقة,صافي السابقة,فرق الصرف (Δ),فرق التوريد (Δ),فرق صافي الحركة (Δ)');
+
+                            tcComparisonData.forEach(row => {
+                                const itemClean = '"' + (row.itemName || '').replace(/"/g, '""') + '"';
+                                const unitClean = '"' + (row.unit || '').replace(/"/g, '""') + '"';
+                                lines.push(`${itemClean},${unitClean},${row.currExpQty},${row.currAddQty},${row.currNet},${row.prevExpQty},${row.prevAddQty},${row.prevNet},${row.diffExp},${row.diffAdd},${row.diffNet}`);
+                            });
+
+                            const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                            const link = document.createElement('a');
+                            link.href = URL.createObjectURL(blob);
+                            link.download = 'مقارنة_المخزون_' + currPeriod.fileSlug + '_مع_' + prevPeriod.fileSlug + '.csv';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+
+                            if (typeof showToast === 'function') {
+                                showToast('success', 'تم تصدير مقارنة الفترات CSV', 'تم تصدير ملف مقارنة حركات المخزون بنجاح');
+                            }
+                        } catch(err) {
+                            console.error('TC: Export comparison CSV error', err);
+                            alert('حدث خطأ أثناء تصدير المقارنة: ' + err.message);
+                        }
+                    };
+
+                    window.tcPrintComparisonPdf = function() {
+                        try {
+                            if (!tcComparisonData || tcComparisonData.length === 0) {
+                                alert('لا توجد بيانات مقارنة للطباعة');
+                                return;
+                            }
+                            const currPeriod = tcGetDisplayedPeriodRange();
+                            const prevPeriod = tcComparePrevPeriod;
+
+                            const totalCurrExp = tcComparisonData.reduce((a, b) => a + b.currExpQty, 0);
+                            const totalPrevExp = tcComparisonData.reduce((a, b) => a + b.prevExpQty, 0);
+                            const totalCurrAdd = tcComparisonData.reduce((a, b) => a + b.currAddQty, 0);
+                            const totalPrevAdd = tcComparisonData.reduce((a, b) => a + b.prevAddQty, 0);
+                            const totalCurrNet = totalCurrAdd - totalCurrExp;
+                            const totalPrevNet = totalPrevAdd - totalPrevExp;
+
+                            const rowsHtml = tcComparisonData.map((row, idx) => {
+                                const diffNetColor = row.diffNet > 0 ? '#16a34a' : (row.diffNet < 0 ? '#dc2626' : '#475569');
+                                const diffNetSign = row.diffNet > 0 ? '+' : '';
+                                return `
+                                    <tr style="border-bottom:1px solid #cbd5e1; background:${idx % 2 === 0 ? '#ffffff' : '#f8fafc'}; text-align:center;">
+                                        <td style="padding:8px 12px; font-weight:700; text-align:right;">${row.itemName}</td>
+                                        <td style="padding:8px 12px;"><span style="background:#e0e7ff; color:#3730a3; padding:2px 8px; border-radius:5px; font-size:11px;">${row.unit}</span></td>
+                                        <td style="padding:8px 10px; color:#e11d48; font-weight:700;">${row.currExpQty}</td>
+                                        <td style="padding:8px 10px; color:#0d9488; font-weight:700;">${row.currAddQty}</td>
+                                        <td style="padding:8px 10px; font-weight:800; direction:ltr;">${row.currNet}</td>
+                                        <td style="padding:8px 10px; color:#e11d48; opacity:0.85;">${row.prevExpQty}</td>
+                                        <td style="padding:8px 10px; color:#0d9488; opacity:0.85;">${row.prevAddQty}</td>
+                                        <td style="padding:8px 10px; direction:ltr; opacity:0.85;">${row.prevNet}</td>
+                                        <td style="padding:8px 10px; font-weight:800; direction:ltr; color:${diffNetColor};">${diffNetSign}${row.diffNet} ${row.unit}</td>
+                                    </tr>
+                                `;
+                            }).join('');
+
+                            const printWindow = window.open('', '_blank');
+                            if (!printWindow) {
+                                alert('يرجى السماح بالنوافذ المنبثقة لطباعة المقارنة');
+                                return;
+                            }
+
+                            const printHtml = `
+                            <!DOCTYPE html>
+                            <html dir="rtl" lang="ar">
+                            <head>
+                                <meta charset="UTF-8">
+                                <title>تقرير مقارنة حركة المخزون بين الفترات</title>
+                                <style>
+                                    @page { size: A4 landscape; margin: 12mm; }
+                                    body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; margin: 0; padding: 20px; color: #0f172a; direction: rtl; }
+                                    .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #4f46e5; padding-bottom: 12px; margin-bottom: 18px; }
+                                    .header h1 { margin: 0 0 5px 0; font-size: 20px; color: #1e1b4b; }
+                                    .header p { margin: 0; color: #64748b; font-size: 12px; }
+                                    .kpi-row { display: flex; gap: 12px; margin-bottom: 20px; }
+                                    .kpi-box { flex: 1; padding: 10px 14px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0; }
+                                    .kpi-title { font-size: 11px; color: #64748b; margin-bottom: 4px; }
+                                    .kpi-val { font-size: 16px; font-weight: 800; color: #0f172a; }
+                                    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11.5px; }
+                                    th { background: #1e293b; color: #ffffff; padding: 10px 8px; font-weight: 700; border: 1px solid #cbd5e1; }
+                                    td { border: 1px solid #e2e8f0; }
+                                    .footer { margin-top: 25px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 8px; }
+                                    @media print {
+                                        .no-print { display: none !important; }
+                                        body { padding: 0; }
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="no-print" style="margin-bottom:12px; text-align:left;">
+                                    <button onclick="window.print()" style="background:#4f46e5; color:#fff; border:none; padding:8px 18px; border-radius:6px; font-weight:700; cursor:pointer;">
+                                        🖨️ طباعة أو حفظ التقرير PDF
+                                    </button>
+                                </div>
+                                <div class="header">
+                                    <div>
+                                        <h1>تقرير مقارنة حركات المخزون والمصروفات بين الفترات</h1>
+                                        <p>نظام إدارة وصيانة الأجهزة — تقويم العطاء الشامل (مقارنة مجمعة حسب المادة ووحدة القياس)</p>
+                                    </div>
+                                    <div style="text-align:left;">
+                                        <div style="font-weight:700; font-size:12px;">الحالية: ${currPeriod.title}</div>
+                                        <div style="font-weight:600; font-size:11px; color:#475569;">السابقة: ${prevPeriod.title}</div>
+                                        <div style="font-size:11px; color:#94a3b8;">تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</div>
+                                    </div>
+                                </div>
+
+                                <div class="kpi-row">
+                                    <div class="kpi-box">
+                                        <div class="kpi-title">عدد المواد المقارنة</div>
+                                        <div class="kpi-val">${tcComparisonData.length} مادة</div>
+                                    </div>
+                                    <div class="kpi-box">
+                                        <div class="kpi-title">المصروفات (الحالية vs السابقة)</div>
+                                        <div class="kpi-val" style="color:#e11d48;">${totalCurrExp} <span style="font-size:11px;color:#94a3b8;">(السابقة: ${totalPrevExp})</span></div>
+                                    </div>
+                                    <div class="kpi-box">
+                                        <div class="kpi-title">الإضافات (الحالية vs السابقة)</div>
+                                        <div class="kpi-val" style="color:#0d9488;">${totalCurrAdd} <span style="font-size:11px;color:#94a3b8;">(السابقة: ${totalPrevAdd})</span></div>
+                                    </div>
+                                    <div class="kpi-box">
+                                        <div class="kpi-title">صافي الحركة (الحالية vs السابقة)</div>
+                                        <div class="kpi-val" style="color:#4338ca;">${totalCurrNet} <span style="font-size:11px;color:#94a3b8;">(السابقة: ${totalPrevNet})</span></div>
+                                    </div>
+                                </div>
+
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th rowspan="2">اسم المادة</th>
+                                            <th rowspan="2">الوحدة</th>
+                                            <th colspan="3">الفترة المعروضة (${currPeriod.title})</th>
+                                            <th colspan="3">الفترة السابقة (${prevPeriod.title})</th>
+                                            <th rowspan="2">تغير صافي الحركة (Δ)</th>
+                                        </tr>
+                                        <tr>
+                                            <th>صرف</th>
+                                            <th>إضافة</th>
+                                            <th>صافي</th>
+                                            <th>صرف</th>
+                                            <th>إضافة</th>
+                                            <th>صافي</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${rowsHtml}
+                                    </tbody>
+                                </table>
+
+                                <div class="footer">
+                                    تقرير مقارنة صادر آلياً من تقويم العطاء — تم التجميع آلياً حسب المادة ووحدة القياس
+                                </div>
+                                <script>
+                                    window.onload = function() {
+                                        setTimeout(function() { window.print(); }, 400);
+                                    };
+                                <\/script>
+                            </body>
+                            </html>
+                            `;
+
+                            printWindow.document.open();
+                            printWindow.document.write(printHtml);
+                            printWindow.document.close();
+                        } catch(err) {
+                            console.error('TC: Print comparison PDF error', err);
+                            alert('حدث خطأ أثناء إعداد طباعة المقارنة: ' + err.message);
+                        }
+                    };
 
                     // ==================== EXPORT SUMMARY (CSV & PDF) ====================
                     function tcGetDisplayedPeriodRange() {
