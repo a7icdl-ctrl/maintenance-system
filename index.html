@@ -4645,56 +4645,170 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
 
 <div class="page-section" id="page-documents">
                 <div class="page-header">
-                    <h1 class="page-title">الوثائق والملاحظات</h1>
-                    <div class="page-actions no-print">
+                    <h1 class="page-title"><i class="fas fa-folder-open" style="color:var(--primary); margin-left:8px;"></i>الوثائق والملاحظات</h1>
+                    <div class="page-actions no-print" style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn btn-sm no-readonly" onclick="if(checkReadOnly())return;openReminderModal()" style="background:linear-gradient(135deg, #7c3aed, #6366f1); color:#fff; border:none; font-weight:700; box-shadow:0 2px 6px rgba(124,58,237,0.3);">
+                            <i class="fas fa-bell"></i> إضافة ملاحظات (تذكيرات)
+                        </button>
                         <button class="btn btn-success btn-sm no-readonly" onclick="if(checkReadOnly())return;openDocumentModal()">
                             <i class="fas fa-plus"></i> إضافة وثيقة
                         </button>
-                        <button class="btn btn-primary btn-sm" onclick="printDocuments()">
+                        <button class="btn btn-primary btn-sm" onclick="printCurrentDocTab()">
                             <i class="fas fa-print"></i> طباعة
                         </button>
                     </div>
                 </div>
-                <div class="search-filter no-print">
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="documentSearch" placeholder="بحث في الوثائق..." onkeyup="filterDocuments()">
-                    </div>
-                    <select class="form-control" id="documentCategoryFilter" onchange="filterDocuments()" style="width: 180px;">
-                        <option value="">جميع التصنيفات</option>
-                        <option value="report">تقرير</option>
-                        <option value="memo_internal">مذكرة داخلية</option>
-                        <option value="invoice">فاتورة</option>
-                        <option value="official_letter">كتاب رسمي</option>
-                        <option value="maintenance_contract">عقد صيانة</option>
-                        <option value="other">أخرى</option>
-                    </select>
+
+                <!-- Sub-navigation tabs -->
+                <div class="no-print" style="display:flex; gap:10px; margin-bottom:18px; border-bottom:2px solid #e2e8f0; padding-bottom:8px;">
+                    <button id="tabBtnReminders" class="doc-sub-tab active" onclick="switchDocTab('reminders')" style="background:none; border:none; padding:8px 18px; font-weight:700; font-size:14px; border-radius:8px; cursor:pointer; color:#7c3aed; border-bottom:3px solid #7c3aed; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-bell"></i> الملاحظات والتذكيرات <span class="badge" id="remindersActiveBadge" style="background:#7c3aed; color:#fff; border-radius:12px; padding:2px 8px; font-size:11px;">0</span>
+                    </button>
+                    <button id="tabBtnDocuments" class="doc-sub-tab" onclick="switchDocTab('documents')" style="background:none; border:none; padding:8px 18px; font-weight:600; font-size:14px; border-radius:8px; cursor:pointer; color:#64748b; border-bottom:3px solid transparent; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-file-lines"></i> الوثائق والمستندات
+                    </button>
                 </div>
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-container">
-                            <table class="data-table" id="documentsTable">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>العنوان</th>
-                                        <th>التصنيف</th>
-                                        <th>الوصف</th>
-                                        <th>الملاحظات</th>
-                                        <th>المرفقات</th>
-                                        <th>تاريخ الإنشاء</th>
-                                        <th>المستخدم</th>
-                                        <th class="no-print">إجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
+
+                <!-- ==================== REMINDERS & NOTES VIEW ==================== -->
+                <div id="view-doc-reminders">
+                    <!-- Reminders KPI Strip -->
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px; margin-bottom:18px;" class="no-print">
+                        <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:12px 16px; box-shadow:0 1px 3px rgba(0,0,0,0.04); display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <span style="font-size:12px; color:#64748b; display:block;">إجمالي الملاحظات</span>
+                                <strong id="kpiRemTotal" style="font-size:20px; color:#1e293b;">0</strong>
+                            </div>
+                            <div style="width:38px; height:38px; border-radius:10px; background:#e0e7ff; color:#4338ca; display:flex; align-items:center; justify-content:center; font-size:18px;"><i class="fas fa-clipboard-list"></i></div>
+                        </div>
+                        <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:12px 16px; box-shadow:0 1px 3px rgba(0,0,0,0.04); display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <span style="font-size:12px; color:#64748b; display:block;">تذكيرات قيد المتابعة</span>
+                                <strong id="kpiRemPending" style="font-size:20px; color:#7c3aed;">0</strong>
+                            </div>
+                            <div style="width:38px; height:38px; border-radius:10px; background:#f3e8ff; color:#7c3aed; display:flex; align-items:center; justify-content:center; font-size:18px;"><i class="fas fa-clock"></i></div>
+                        </div>
+                        <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:12px 16px; box-shadow:0 1px 3px rgba(0,0,0,0.04); display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <span style="font-size:12px; color:#64748b; display:block;">تذكيرات عاجلة</span>
+                                <strong id="kpiRemUrgent" style="font-size:20px; color:#e11d48;">0</strong>
+                            </div>
+                            <div style="width:38px; height:38px; border-radius:10px; background:#ffe4e6; color:#e11d48; display:flex; align-items:center; justify-content:center; font-size:18px;"><i class="fas fa-triangle-exclamation"></i></div>
+                        </div>
+                        <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:12px 16px; box-shadow:0 1px 3px rgba(0,0,0,0.04); display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <span style="font-size:12px; color:#64748b; display:block;">تذكيرات مكتملة</span>
+                                <strong id="kpiRemCompleted" style="font-size:20px; color:#059669;">0</strong>
+                            </div>
+                            <div style="width:38px; height:38px; border-radius:10px; background:#dcfce7; color:#059669; display:flex; align-items:center; justify-content:center; font-size:18px;"><i class="fas fa-check-double"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Search and Filters for Reminders -->
+                    <div class="search-filter no-print" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:15px;">
+                        <div class="search-box" style="flex:1; min-width:220px;">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="reminderSearch" placeholder="بحث في الملاحظات والتذكيرات..." onkeyup="filterReminders()">
+                        </div>
+                        <select class="form-control" id="reminderStatusFilter" onchange="filterReminders()" style="width:150px;">
+                            <option value="">جميع الحالات</option>
+                            <option value="pending" selected>قيد المتابعة</option>
+                            <option value="completed">مكتمل</option>
+                        </select>
+                        <select class="form-control" id="reminderPriorityFilter" onchange="filterReminders()" style="width:140px;">
+                            <option value="">جميع الأولويات</option>
+                            <option value="urgent">عاجل جداً</option>
+                            <option value="high">مهم</option>
+                            <option value="medium">عادي</option>
+                            <option value="low">منخفض</option>
+                        </select>
+                        <select class="form-control" id="reminderCategoryFilter" onchange="filterReminders()" style="width:140px;">
+                            <option value="">جميع التصنيفات</option>
+                            <option value="صيانة">صيانة</option>
+                            <option value="عطاء">عطاء</option>
+                            <option value="متابعة">متابعة</option>
+                            <option value="قطع غيار">قطع غيار</option>
+                            <option value="إداري">إداري</option>
+                            <option value="عام">عام</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn btn-outline-secondary btn-sm" onclick="exportRemindersCSV()" title="تصدير إلى CSV">
+                                <i class="fas fa-file-csv"></i> تصدير CSV
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="printRemindersPDF()" title="طباعة / PDF">
+                                <i class="fas fa-print"></i> طباعة
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Reminders Table Card -->
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="data-table" id="remindersTable">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>عنوان الملاحظة / التذكير</th>
+                                            <th>التصنيف</th>
+                                            <th>الأولوية</th>
+                                            <th>تاريخ التذكير / الاستحقاق</th>
+                                            <th>الحالة</th>
+                                            <th style="width:30%;">نص وتفاصيل الملاحظة</th>
+                                            <th>المنشئ / التاريخ</th>
+                                            <th class="no-print">إجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="remindersTableBody">
+                                        <!-- Loaded by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="page-section" id="page-reports">
+                <!-- ==================== DOCUMENTS VIEW ==================== -->
+                <div id="view-doc-documents" style="display:none;">
+                    <div class="search-filter no-print">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="documentSearch" placeholder="بحث في الوثائق..." onkeyup="filterDocuments()">
+                        </div>
+                        <select class="form-control" id="documentCategoryFilter" onchange="filterDocuments()" style="width: 180px;">
+                            <option value="">جميع التصنيفات</option>
+                            <option value="report">تقرير</option>
+                            <option value="memo_internal">مذكرة داخلية</option>
+                            <option value="invoice">فاتورة</option>
+                            <option value="official_letter">كتاب رسمي</option>
+                            <option value="maintenance_contract">عقد صيانة</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="data-table" id="documentsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>العنوان</th>
+                                            <th>التصنيف</th>
+                                            <th>الوصف</th>
+                                            <th>الملاحظات</th>
+                                            <th>المرفقات</th>
+                                            <th>تاريخ الإنشاء</th>
+                                            <th>المستخدم</th>
+                                            <th class="no-print">إجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><div class="page-section" id="page-reports">
                 <div class="page-header">
                     <h1 class="page-title">التقارير والرسوم البيانية</h1>
                     <div class="page-actions no-print">
@@ -10696,6 +10810,67 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
     </div>
 
 
+    <!-- Reminder / Note Modal -->
+    <div class="modal-overlay" id="reminderModal">
+        <div class="modal" style="max-width: 650px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color:#fff;">
+                <h3 id="reminderModalTitle" style="color:#fff;"><i class="fas fa-bell" style="color:#a78bfa; margin-left:8px;"></i>إضافة ملاحظة / تذكير</h3>
+                <button class="modal-close" onclick="closeModal('reminderModal')" style="color:#fff;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="reminderForm" onsubmit="saveReminder(event)">
+                    <input type="hidden" id="reminderId">
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>عنوان الملاحظة / التذكير <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="form-control" id="reminderTitle" required placeholder="مثال: متابعة توريد أحبار قسم الأشعة، صيانة وقائية للطابعات...">
+                        </div>
+                        <div class="form-group">
+                            <label>التصنيف <span style="color: var(--danger);">*</span></label>
+                            <select class="form-control" id="reminderCategory" required>
+                                <option value="صيانة">صيانة وأعطال</option>
+                                <option value="عطاء">عطاء ولوازم</option>
+                                <option value="متابعة">متابعة إدارية</option>
+                                <option value="قطع غيار">قطع غيار ومخزون</option>
+                                <option value="إداري">إداري</option>
+                                <option value="عام" selected>عام</option>
+                                <option value="أخرى">أخرى</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>مستوى الأولوية <span style="color: var(--danger);">*</span></label>
+                            <select class="form-control" id="reminderPriority" required>
+                                <option value="urgent">عاجل جداً (أحمر)</option>
+                                <option value="high">مهم (برتقالي)</option>
+                                <option value="medium" selected>عادي (أزرق)</option>
+                                <option value="low">منخفض (رمادي)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ ووقت التذكير / الاستحقاق</label>
+                            <input type="datetime-local" class="form-control" id="reminderDueDate">
+                        </div>
+                        <div class="form-group">
+                            <label>الحالة</label>
+                            <select class="form-control" id="reminderStatus">
+                                <option value="pending" selected>قيد المتابعة (نشط)</option>
+                                <option value="completed">مكتمل</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>نص وتفاصيل الملاحظة <span style="color: var(--danger);">*</span></label>
+                            <textarea class="form-control" id="reminderDetails" rows="4" required placeholder="اكتب تفاصيل الملاحظة أو التذكير هنا بدقة..."></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions" style="margin-top: 18px; display:flex; justify-content:flex-end; gap:8px;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('reminderModal')">إلغاء</button>
+                        <button type="submit" class="btn" style="background:#7c3aed; color:#fff; font-weight:700;"><i class="fas fa-save"></i> حفظ الملاحظة</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Document Modal -->
     <div class="modal-overlay" id="documentModal">
         <div class="modal">
@@ -11894,7 +12069,7 @@ async function showPage(page) {
     if (page === 'inventory') { await loadInventory(); setTimeout(checkLowStock, 500); }
     if (page === 'alternatives') await loadAlternatives();
     if (page === 'admin') await loadUsers();
-    if (page === 'documents') await loadDocuments();
+    if (page === 'documents') { if (typeof currentDocTab !== 'undefined' && currentDocTab === 'reminders') await loadReminders(); else await loadDocuments(); }
     if (page === 'computer_items') await loadComputerItems();
     if (page === 'permanent_replacement') await loadPermanentReplacements();
     if (page === 'departments') await loadDepartments();
@@ -12473,6 +12648,511 @@ function printRequestMap() {
 let editingDocumentId = null;
 let documentTempAttachments = [];
 let documentAttachmentsChanged = false;
+
+
+// ==================== REMINDERS & NOTES SYSTEM ====================
+let currentDocTab = 'reminders';
+let editingReminderId = null;
+let allRemindersData = [];
+
+window.switchDocTab = function(tab) {
+    currentDocTab = tab;
+    const viewReminders = document.getElementById('view-doc-reminders');
+    const viewDocuments = document.getElementById('view-doc-documents');
+    const tabBtnReminders = document.getElementById('tabBtnReminders');
+    const tabBtnDocuments = document.getElementById('tabBtnDocuments');
+
+    if (tab === 'reminders') {
+        if (viewReminders) viewReminders.style.display = 'block';
+        if (viewDocuments) viewDocuments.style.display = 'none';
+        if (tabBtnReminders) {
+            tabBtnReminders.style.color = '#7c3aed';
+            tabBtnReminders.style.borderBottom = '3px solid #7c3aed';
+            tabBtnReminders.style.fontWeight = '700';
+        }
+        if (tabBtnDocuments) {
+            tabBtnDocuments.style.color = '#64748b';
+            tabBtnDocuments.style.borderBottom = '3px solid transparent';
+            tabBtnDocuments.style.fontWeight = '600';
+        }
+        loadReminders();
+    } else {
+        if (viewReminders) viewReminders.style.display = 'none';
+        if (viewDocuments) viewDocuments.style.display = 'block';
+        if (tabBtnDocuments) {
+            tabBtnDocuments.style.color = '#2563eb';
+            tabBtnDocuments.style.borderBottom = '3px solid #2563eb';
+            tabBtnDocuments.style.fontWeight = '700';
+        }
+        if (tabBtnReminders) {
+            tabBtnReminders.style.color = '#64748b';
+            tabBtnReminders.style.borderBottom = '3px solid transparent';
+            tabBtnReminders.style.fontWeight = '600';
+        }
+        loadDocuments();
+    }
+};
+
+window.printCurrentDocTab = function() {
+    if (currentDocTab === 'reminders') {
+        printRemindersPDF();
+    } else {
+        printDocuments();
+    }
+};
+
+async function fetchRemindersFromStorage() {
+    try {
+        if (typeof SupabaseAPI !== 'undefined' && !USE_LOCAL) {
+            try {
+                const res = await SupabaseAPI.request('reminders_notes', 'GET');
+                if (Array.isArray(res)) return res;
+            } catch (err) {
+                console.warn('Supabase reminders_notes table not reachable, falling back to LocalDB:', err.message);
+            }
+        }
+    } catch (e) {}
+    // Fallback to LocalDB
+    return await LocalDB.request('reminders_notes', 'GET');
+}
+
+async function saveReminderToStorage(data, id = null) {
+    if (id) {
+        // Update
+        try {
+            if (typeof SupabaseAPI !== 'undefined' && !USE_LOCAL) {
+                try {
+                    return await SupabaseAPI.request('reminders_notes', 'PATCH', data, id);
+                } catch(e) {}
+            }
+        } catch(e) {}
+        return await LocalDB.request('reminders_notes', 'PATCH', data, id);
+    } else {
+        // Create
+        try {
+            if (typeof SupabaseAPI !== 'undefined' && !USE_LOCAL) {
+                try {
+                    return await SupabaseAPI.request('reminders_notes', 'POST', data);
+                } catch(e) {}
+            }
+        } catch(e) {}
+        return await LocalDB.request('reminders_notes', 'POST', data);
+    }
+}
+
+async function deleteReminderFromStorage(id) {
+    try {
+        if (typeof SupabaseAPI !== 'undefined' && !USE_LOCAL) {
+            try {
+                return await SupabaseAPI.request('reminders_notes', 'DELETE', null, id);
+            } catch(e) {}
+        }
+    } catch(e) {}
+    return await LocalDB.request('reminders_notes', 'DELETE', null, id);
+}
+
+window.loadReminders = async function() {
+    try {
+        allRemindersData = await fetchRemindersFromStorage();
+        if (!Array.isArray(allRemindersData)) allRemindersData = [];
+    } catch (err) {
+        console.error('Error loading reminders:', err);
+        allRemindersData = [];
+    }
+
+    // Update KPIs
+    const total = allRemindersData.length;
+    const pending = allRemindersData.filter(r => (r.status || 'pending') === 'pending').length;
+    const urgent = allRemindersData.filter(r => (r.status || 'pending') === 'pending' && r.priority === 'urgent').length;
+    const completed = allRemindersData.filter(r => r.status === 'completed').length;
+
+    const kpiTot = document.getElementById('kpiRemTotal');
+    const kpiPen = document.getElementById('kpiRemPending');
+    const kpiUrg = document.getElementById('kpiRemUrgent');
+    const kpiCom = document.getElementById('kpiRemCompleted');
+    const badge = document.getElementById('remindersActiveBadge');
+
+    if (kpiTot) kpiTot.textContent = total;
+    if (kpiPen) kpiPen.textContent = pending;
+    if (kpiUrg) kpiUrg.textContent = urgent;
+    if (kpiCom) kpiCom.textContent = completed;
+    if (badge) badge.textContent = pending;
+
+    renderRemindersTable();
+};
+
+window.filterReminders = function() {
+    renderRemindersTable();
+};
+
+function renderRemindersTable() {
+    const tbody = document.getElementById('remindersTableBody');
+    if (!tbody) return;
+
+    const search = (document.getElementById('reminderSearch')?.value || '').trim().toLowerCase();
+    const statusFilter = document.getElementById('reminderStatusFilter')?.value || '';
+    const priorityFilter = document.getElementById('reminderPriorityFilter')?.value || '';
+    const categoryFilter = document.getElementById('reminderCategoryFilter')?.value || '';
+
+    let filtered = allRemindersData.filter(r => {
+        if (search) {
+            const match = (r.title || '').toLowerCase().includes(search) ||
+                          (r.details || '').toLowerCase().includes(search) ||
+                          (r.category || '').toLowerCase().includes(search) ||
+                          (r.created_by || '').toLowerCase().includes(search);
+            if (!match) return false;
+        }
+        if (statusFilter && (r.status || 'pending') !== statusFilter) return false;
+        if (priorityFilter && (r.priority || 'medium') !== priorityFilter) return false;
+        if (categoryFilter && (r.category || 'عام') !== categoryFilter) return false;
+        return true;
+    });
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" style="text-align:center; padding:35px 20px; color:#94a3b8;">
+                    <i class="fas fa-bell-slash" style="font-size:32px; color:#cbd5e1; margin-bottom:10px; display:block;"></i>
+                    لا توجد ملاحظات أو تذكيرات تطابق معايير البحث المحددة
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    const priorityBadges = {
+        urgent: '<span style="background:#fee2e2; color:#b91c1c; padding:3px 10px; border-radius:20px; font-weight:700; font-size:11px; display:inline-flex; align-items:center; gap:4px;"><i class="fas fa-circle-exclamation"></i> عاجل جداً</span>',
+        high: '<span style="background:#ffedd5; color:#c2410c; padding:3px 10px; border-radius:20px; font-weight:700; font-size:11px; display:inline-flex; align-items:center; gap:4px;"><i class="fas fa-arrow-trend-up"></i> مهم</span>',
+        medium: '<span style="background:#e0e7ff; color:#3730a3; padding:3px 10px; border-radius:20px; font-weight:600; font-size:11px; display:inline-flex; align-items:center; gap:4px;"><i class="fas fa-circle"></i> عادي</span>',
+        low: '<span style="background:#f1f5f9; color:#475569; padding:3px 10px; border-radius:20px; font-weight:600; font-size:11px; display:inline-flex; align-items:center; gap:4px;"><i class="fas fa-minus"></i> منخفض</span>'
+    };
+
+    tbody.innerHTML = filtered.map((r, idx) => {
+        const isCompleted = r.status === 'completed';
+        const statusBadge = isCompleted ?
+            '<span style="background:#dcfce7; color:#15803d; padding:3px 10px; border-radius:20px; font-weight:700; font-size:11px; display:inline-flex; align-items:center; gap:4px;"><i class="fas fa-check"></i> مكتمل</span>' :
+            '<span style="background:#f3e8ff; color:#7c3aed; padding:3px 10px; border-radius:20px; font-weight:700; font-size:11px; display:inline-flex; align-items:center; gap:4px;"><i class="fas fa-clock"></i> قيد المتابعة</span>';
+
+        const pBadge = priorityBadges[r.priority || 'medium'] || priorityBadges.medium;
+
+        // Due date format
+        let dueStr = '<span style="color:#94a3b8; font-size:11px;">غير محدد</span>';
+        if (r.due_date) {
+            const d = new Date(r.due_date);
+            const isPast = d < new Date() && !isCompleted;
+            const color = isPast ? '#e11d48' : '#1e293b';
+            dueStr = `<span style="font-weight:600; font-size:11.5px; color:${color}; direction:ltr; display:inline-block;">${d.toLocaleDateString('ar-EG')} ${d.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'})}</span>`;
+            if (isPast) {
+                dueStr += ' <small style="color:#e11d48; font-weight:700; display:block;">(متأخر)</small>';
+            }
+        }
+
+        const createdDate = r.created_at ? new Date(r.created_at).toLocaleDateString('ar-EG') : '';
+
+        return `
+            <tr style="background:${idx % 2 === 0 ? '#ffffff' : '#fafafa'}; opacity:${isCompleted ? '0.75' : '1'};">
+                <td style="font-weight:700; color:#64748b; text-align:center;">${idx + 1}</td>
+                <td style="font-weight:700; color:#1e293b; font-size:13px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <button onclick="toggleReminderStatus(${r.id})" style="background:none; border:none; cursor:pointer; font-size:15px; color:${isCompleted ? '#16a34a' : '#cbd5e1'};" title="${isCompleted ? 'تغيير إلى قيد المتابعة' : 'تحديد كمكتمل'}">
+                            <i class="fas ${isCompleted ? 'fa-circle-check' : 'fa-circle'}"></i>
+                        </button>
+                        <span style="text-decoration:${isCompleted ? 'line-through' : 'none'};">${r.title}</span>
+                    </div>
+                </td>
+                <td style="text-align:center;"><span style="background:#f1f5f9; color:#334155; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:600;">${r.category || 'عام'}</span></td>
+                <td style="text-align:center;">${pBadge}</td>
+                <td style="text-align:center;">${dueStr}</td>
+                <td style="text-align:center;">${statusBadge}</td>
+                <td style="font-size:12px; color:#475569; line-height:1.5; white-space:pre-wrap;">${r.details || ''}</td>
+                <td style="font-size:11px; color:#64748b; text-align:center;">
+                    <div>${r.created_by || 'المسؤول'}</div>
+                    <div style="color:#94a3b8;">${createdDate}</div>
+                </td>
+                <td class="no-print" style="text-align:center; white-space:nowrap;">
+                    <button class="btn btn-sm btn-outline-primary" style="padding:3px 8px; font-size:11px; margin-left:4px;" onclick="openReminderModal(${r.id})" title="تعديل">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" style="padding:3px 8px; font-size:11px;" onclick="deleteReminder(${r.id})" title="حذف">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+window.openReminderModal = function(id = null) {
+    editingReminderId = id;
+    const modal = document.getElementById('reminderModal');
+    const titleEl = document.getElementById('reminderModalTitle');
+    const form = document.getElementById('reminderForm');
+    if (!modal || !form) return;
+
+    form.reset();
+
+    if (id) {
+        titleEl.innerHTML = '<i class="fas fa-pen-to-square" style="color:#a78bfa; margin-left:8px;"></i>تعديل الملاحظة / التذكير';
+        const item = allRemindersData.find(r => r.id === id);
+        if (item) {
+            document.getElementById('reminderId').value = item.id;
+            document.getElementById('reminderTitle').value = item.title || '';
+            document.getElementById('reminderCategory').value = item.category || 'عام';
+            document.getElementById('reminderPriority').value = item.priority || 'medium';
+            document.getElementById('reminderStatus').value = item.status || 'pending';
+            document.getElementById('reminderDetails').value = item.details || '';
+            if (item.due_date) {
+                // format for datetime-local: YYYY-MM-DDTHH:mm
+                try {
+                    const d = new Date(item.due_date);
+                    const iso = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+                    document.getElementById('reminderDueDate').value = iso;
+                } catch(e) {}
+            }
+        }
+    } else {
+        titleEl.innerHTML = '<i class="fas fa-bell" style="color:#a78bfa; margin-left:8px;"></i>إضافة ملاحظة / تذكير جديد';
+        document.getElementById('reminderId').value = '';
+        document.getElementById('reminderStatus').value = 'pending';
+        document.getElementById('reminderPriority').value = 'medium';
+        document.getElementById('reminderCategory').value = 'عام';
+    }
+
+    openModal('reminderModal');
+};
+
+window.saveReminder = async function(e) {
+    if (e && e.preventDefault) e.preventDefault();
+
+    const title = (document.getElementById('reminderTitle').value || '').trim();
+    const category = document.getElementById('reminderCategory').value;
+    const priority = document.getElementById('reminderPriority').value;
+    const status = document.getElementById('reminderStatus').value;
+    const details = (document.getElementById('reminderDetails').value || '').trim();
+    const dueDate = document.getElementById('reminderDueDate').value;
+
+    if (!title || !details) {
+        alert('يرجى ملء عنوان وتفاصيل الملاحظة');
+        return;
+    }
+
+    const currentUser = (typeof currentUserData !== 'undefined' && currentUserData?.fullName) ? currentUserData.fullName : 'المسؤول';
+
+    const reminderPayload = {
+        title,
+        category,
+        priority,
+        status,
+        details,
+        due_date: dueDate ? new Date(dueDate).toISOString() : null,
+        created_by: currentUser,
+        updated_at: new Date().toISOString()
+    };
+
+    if (!editingReminderId) {
+        reminderPayload.created_at = new Date().toISOString();
+    }
+
+    try {
+        await saveReminderToStorage(reminderPayload, editingReminderId);
+        closeModal('reminderModal');
+        await loadReminders();
+        if (typeof showToast === 'function') {
+            showToast('success', 'تم الحفظ بنجاح', editingReminderId ? 'تم تحديث الملاحظة بنجاح' : 'تم إضافة التذكير والملاحظة بنجاح');
+        }
+    } catch(err) {
+        console.error('Save reminder error:', err);
+        alert('حدث خطأ أثناء الحفظ: ' + err.message);
+    }
+};
+
+window.toggleReminderStatus = async function(id) {
+    const item = allRemindersData.find(r => r.id === id);
+    if (!item) return;
+
+    const newStatus = (item.status === 'completed') ? 'pending' : 'completed';
+    try {
+        await saveReminderToStorage({ status: newStatus, updated_at: new Date().toISOString() }, id);
+        await loadReminders();
+        if (typeof showToast === 'function') {
+            showToast('success', 'تم تحديث الحالة', newStatus === 'completed' ? 'تم تعيين الملاحظة كمكتملة' : 'تم إعادة تعيين الملاحظة كنشطة');
+        }
+    } catch(err) {
+        console.error('Toggle status error:', err);
+    }
+};
+
+window.deleteReminder = async function(id) {
+    if (!confirm('هل أنت متأكد من حذف هذه الملاحظة نهائياً؟')) return;
+
+    try {
+        await deleteReminderFromStorage(id);
+        await loadReminders();
+        if (typeof showToast === 'function') {
+            showToast('success', 'تم الحذف', 'تم حذف الملاحظة بنجاح');
+        }
+    } catch(err) {
+        console.error('Delete reminder error:', err);
+        alert('تعذر حذف الملاحظة: ' + err.message);
+    }
+};
+
+window.exportRemindersCSV = function() {
+    try {
+        if (!allRemindersData || allRemindersData.length === 0) {
+            alert('لا توجد ملاحظات أو تذكيرات لتصديرها');
+            return;
+        }
+
+        let lines = [];
+        lines.push('\uFEFFسجل الملاحظات والتذكيرات');
+        lines.push('تاريخ التصدير:,' + new Date().toLocaleDateString('ar-EG'));
+        lines.push('');
+        lines.push('رقم,العنوان,التصنيف,الأولوية,الحالة,تاريخ الاستحقاق,التفاصيل,المنشئ,تاريخ الإنشاء');
+
+        allRemindersData.forEach((r, idx) => {
+            const titleClean = '"' + (r.title || '').replace(/"/g, '""') + '"';
+            const catClean = '"' + (r.category || '').replace(/"/g, '""') + '"';
+            const prioMap = { urgent: 'عاجل جداً', high: 'مهم', medium: 'عادي', low: 'منخفض' };
+            const prioClean = '"' + (prioMap[r.priority] || 'عادي') + '"';
+            const statusClean = r.status === 'completed' ? '"مكتمل"' : '"قيد المتابعة"';
+            const dueClean = '"' + (r.due_date ? new Date(r.due_date).toLocaleString('ar-EG') : 'غير محدد') + '"';
+            const detailsClean = '"' + (r.details || '').replace(/"/g, '""') + '"';
+            const userClean = '"' + (r.created_by || '').replace(/"/g, '""') + '"';
+            const createdClean = '"' + (r.created_at ? new Date(r.created_at).toLocaleDateString('ar-EG') : '') + '"';
+
+            lines.push(`${idx + 1},${titleClean},${catClean},${prioClean},${statusClean},${dueClean},${detailsClean},${userClean},${createdClean}`);
+        });
+
+        const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'سجل_الملاحظات_والتذكيرات_' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        if (typeof showToast === 'function') {
+            showToast('success', 'تم تصدير CSV', 'تم تصدير سجل الملاحظات بنجاح');
+        }
+    } catch(err) {
+        console.error('Export CSV error:', err);
+        alert('حدث خطأ أثناء التصدير: ' + err.message);
+    }
+};
+
+window.printRemindersPDF = function() {
+    try {
+        if (!allRemindersData || allRemindersData.length === 0) {
+            alert('لا توجد ملاحظات أو تذكيرات للطباعة');
+            return;
+        }
+
+        const prioMap = { urgent: 'عاجل جداً', high: 'مهم', medium: 'عادي', low: 'منخفض' };
+
+        const rowsHtml = allRemindersData.map((r, idx) => {
+            const isCompleted = r.status === 'completed';
+            const statusStr = isCompleted ? 'مكتمل' : 'قيد المتابعة';
+            const prioStr = prioMap[r.priority] || 'عادي';
+            const dueStr = r.due_date ? new Date(r.due_date).toLocaleString('ar-EG') : '—';
+            return `
+                <tr style="border-bottom:1px solid #cbd5e1; background:${idx % 2 === 0 ? '#ffffff' : '#f8fafc'};">
+                    <td style="padding:8px; text-align:center; font-weight:700;">${idx + 1}</td>
+                    <td style="padding:8px; font-weight:700; color:#0f172a;">${r.title}</td>
+                    <td style="padding:8px; text-align:center;">${r.category || 'عام'}</td>
+                    <td style="padding:8px; text-align:center; font-weight:700; color:${r.priority === 'urgent' ? '#dc2626' : (r.priority === 'high' ? '#ea580c' : '#2563eb')}">${prioStr}</td>
+                    <td style="padding:8px; text-align:center;">${dueStr}</td>
+                    <td style="padding:8px; text-align:center; font-weight:700; color:${isCompleted ? '#16a34a' : '#7c3aed'};">${statusStr}</td>
+                    <td style="padding:8px; font-size:11px; color:#334155; line-height:1.4;">${r.details || ''}</td>
+                    <td style="padding:8px; text-align:center; font-size:11px;">${r.created_by || 'المسؤول'}</td>
+                </tr>
+            `;
+        }).join('');
+
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            alert('يرجى السماح بالنوافذ المنبثقة لطباعة سجل الملاحظات');
+            return;
+        }
+
+        const printHtml = `
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>سجل الملاحظات والتذكيرات</title>
+            <style>
+                @page { size: A4 landscape; margin: 12mm; }
+                body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; margin: 0; padding: 20px; color: #0f172a; direction: rtl; }
+                .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #7c3aed; padding-bottom: 12px; margin-bottom: 18px; }
+                .header h1 { margin: 0 0 5px 0; font-size: 20px; color: #1e1b4b; }
+                .header p { margin: 0; color: #64748b; font-size: 12px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11.5px; }
+                th { background: #1e293b; color: #ffffff; padding: 10px 8px; font-weight: 700; border: 1px solid #cbd5e1; }
+                td { border: 1px solid #e2e8f0; }
+                .footer { margin-top: 25px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 8px; }
+                @media print {
+                    .no-print { display: none !important; }
+                    body { padding: 0; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="no-print" style="margin-bottom:12px; text-align:left;">
+                <button onclick="window.print()" style="background:#7c3aed; color:#fff; border:none; padding:8px 18px; border-radius:6px; font-weight:700; cursor:pointer;">
+                    🖨️ طباعة أو حفظ التقرير PDF
+                </button>
+            </div>
+            <div class="header">
+                <div>
+                    <h1>سجل الملاحظات والتذكيرات العامة</h1>
+                    <p>نظام إدارة وصيانة الأجهزة — تبويب الوثائق والملاحظات</p>
+                </div>
+                <div style="text-align:left;">
+                    <div style="font-weight:700; font-size:12px;">إجمالي الملاحظات: ${allRemindersData.length}</div>
+                    <div style="font-size:11px; color:#94a3b8;">تاريخ التقرير: ${new Date().toLocaleDateString('ar-EG')}</div>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:40px;">#</th>
+                        <th>عنوان الملاحظة / التذكير</th>
+                        <th>التصنيف</th>
+                        <th>الأولوية</th>
+                        <th>تاريخ الاستحقاق</th>
+                        <th>الحالة</th>
+                        <th style="width:35%;">نص وتفاصيل الملاحظة</th>
+                        <th>المنشئ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rowsHtml}
+                </tbody>
+            </table>
+
+            <div class="footer">
+                تقرير رسمي صادر من نظام إدارة العطاء والأجهزة
+            </div>
+            <script>
+                window.onload = function() {
+                    setTimeout(function() { window.print(); }, 400);
+                };
+            <\/script>
+        </body>
+        </html>
+        `;
+
+        printWindow.document.open();
+        printWindow.document.write(printHtml);
+        printWindow.document.close();
+    } catch(err) {
+        console.error('Print reminders error:', err);
+        alert('حدث خطأ أثناء الطباعة: ' + err.message);
+    }
+};
+
 
 async function loadDocuments() {
     const documents = await SupabaseAPI.request('documents', 'GET');
