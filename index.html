@@ -10836,7 +10836,7 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
 
 
     <!-- Reminder / Note Modal -->
-    <div class="modal-overlay" id="reminderModal">
+    <div class="modal-overlay" id="reminderModal" onclick="if(event.target === this) closeModal('reminderModal')">
         <div class="modal" style="max-width: 650px;">
             <div class="modal-header" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color:#fff;">
                 <h3 id="reminderModalTitle" style="color:#fff;"><i class="fas fa-bell" style="color:#a78bfa; margin-left:8px;"></i>إضافة ملاحظة / تذكير</h3>
@@ -10919,6 +10919,83 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
         </div>
     </div>
 
+    
+    <!-- Reminder Snooze Modal -->
+    <div class="modal-overlay" id="reminderSnoozeModal" style="display:none; z-index:10000;" onclick="if(event.target === this) closeModal('reminderSnoozeModal')">
+        <div class="modal" style="max-width: 520px; border-radius:14px; overflow:hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color:#fff; padding:14px 20px;">
+                <h3 style="color:#fff; font-size:16px; margin:0; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-clock" style="color:#f59e0b;"></i> تأجيل التنبيه مؤقتاً (Snooze)
+                </h3>
+                <button class="modal-close" onclick="closeModal('reminderSnoozeModal')" style="color:#fff; font-size:20px;">&times;</button>
+            </div>
+            <div class="modal-body" style="padding:20px;">
+                <input type="hidden" id="snoozeTargetId">
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px; margin-bottom:16px;">
+                    <div style="font-size:11.5px; color:#64748b; margin-bottom:3px;">التذكير المستهدف بالتأجيل:</div>
+                    <strong id="snoozeTargetTitle" style="color:#1e293b; font-size:13.5px; display:block;">-</strong>
+                </div>
+
+                <div style="margin-bottom:16px;">
+                    <label style="font-weight:700; font-size:12.5px; color:#334155; margin-bottom:8px; display:block;">اختر مدة التأجيل:</label>
+                    <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;" id="snoozePresetsGrid">
+                        <button type="button" class="btn btn-outline-primary snooze-preset-btn" data-min="15" data-label="15 دقيقة" style="padding:10px; font-size:12px; text-align:right; border-radius:8px; display:flex; align-items:center; justify-content:space-between;" onclick="selectSnoozePreset(15, '15 دقيقة', this)">
+                            <span><i class="fas fa-stopwatch" style="margin-left:6px; color:#6366f1;"></i> 15 دقيقة</span>
+                            <small style="color:#94a3b8;">ربع ساعة</small>
+                        </button>
+                        <button type="button" class="btn btn-outline-primary snooze-preset-btn" data-min="30" data-label="30 دقيقة" style="padding:10px; font-size:12px; text-align:right; border-radius:8px; display:flex; align-items:center; justify-content:space-between;" onclick="selectSnoozePreset(30, '30 دقيقة', this)">
+                            <span><i class="fas fa-stopwatch" style="margin-left:6px; color:#6366f1;"></i> 30 دقيقة</span>
+                            <small style="color:#94a3b8;">نصف ساعة</small>
+                        </button>
+                        <button type="button" class="btn btn-outline-primary snooze-preset-btn" data-min="60" data-label="ساعة واحدة" style="padding:10px; font-size:12px; text-align:right; border-radius:8px; display:flex; align-items:center; justify-content:space-between;" onclick="selectSnoozePreset(60, 'ساعة واحدة', this)">
+                            <span><i class="fas fa-hourglass-start" style="margin-left:6px; color:#6366f1;"></i> 1 ساعة</span>
+                            <small style="color:#94a3b8;">60 دقيقة</small>
+                        </button>
+                        <button type="button" class="btn btn-outline-primary snooze-preset-btn" data-min="180" data-label="3 ساعات" style="padding:10px; font-size:12px; text-align:right; border-radius:8px; display:flex; align-items:center; justify-content:space-between;" onclick="selectSnoozePreset(180, '3 ساعات', this)">
+                            <span><i class="fas fa-hourglass-half" style="margin-left:6px; color:#6366f1;"></i> 3 ساعات</span>
+                            <small style="color:#94a3b8;">180 دقيقة</small>
+                        </button>
+                        <button type="button" class="btn btn-outline-primary snooze-preset-btn" data-min="360" data-label="6 ساعات" style="padding:10px; font-size:12px; text-align:right; border-radius:8px; display:flex; align-items:center; justify-content:space-between;" onclick="selectSnoozePreset(360, '6 ساعات', this)">
+                            <span><i class="fas fa-hourglass" style="margin-left:6px; color:#6366f1;"></i> 6 ساعات</span>
+                            <small style="color:#94a3b8;">نصف يوم</small>
+                        </button>
+                        <button type="button" class="btn btn-outline-primary snooze-preset-btn" data-min="1440" data-label="24 ساعة (غداً)" style="padding:10px; font-size:12px; text-align:right; border-radius:8px; display:flex; align-items:center; justify-content:space-between;" onclick="selectSnoozePreset(1440, '24 ساعة (غداً)', this)">
+                            <span><i class="fas fa-calendar-day" style="margin-left:6px; color:#6366f1;"></i> حتى الغد</span>
+                            <small style="color:#94a3b8;">24 ساعة</small>
+                        </button>
+                    </div>
+                </div>
+
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:16px;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                        <input type="radio" id="snoozeCustomRadio" name="snoozeOptionType" onchange="enableSnoozeCustom()">
+                        <label for="snoozeCustomRadio" style="font-weight:700; font-size:12px; margin:0; cursor:pointer;">أو حدد مدة مخصصة:</label>
+                    </div>
+                    <div id="snoozeCustomInputs" style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+                        <input type="number" id="snoozeCustomVal" class="form-control" style="width:100px; height:34px; font-size:12px;" min="1" value="45" disabled>
+                        <select id="snoozeCustomUnit" class="form-control" style="width:120px; height:34px; font-size:12px;" disabled>
+                            <option value="min">دقيقة</option>
+                            <option value="hour" selected>ساعة</option>
+                            <option value="day">يوم</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:10px 12px; font-size:11.5px; color:#1e40af; display:flex; align-items:flex-start; gap:8px; margin-bottom:18px;">
+                    <i class="fas fa-info-circle" style="color:#3b82f6; margin-top:2px;"></i>
+                    <span><b>ملاحظة:</b> التأجيل يخفي التنبيه مؤقتاً فقط ويعيد ظهوره تلقائياً فور انقضاء المدة المحددة، مع بقاء حالة التذكير كما هي <b>(قيد المتابعة)</b> دون أي تعديل على بياناته أو حالته.</span>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:8px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('reminderSnoozeModal')" style="font-size:12px;">إلغاء</button>
+                    <button type="button" class="btn btn-warning" id="confirmSnoozeBtn" onclick="confirmSnoozeAction()" style="font-size:12px; font-weight:700; background:#f59e0b; color:#fff; border:none; padding:8px 16px;">
+                        <i class="fas fa-check"></i> تأكيد التأجيل
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Document Modal -->
     <div class="modal-overlay" id="documentModal">
         <div class="modal">
@@ -11302,12 +11379,12 @@ const LocalDB = {
             return Promise.resolve([newItem]);
         }
         if (method === 'PATCH' && id) {
-            const idx = items.findIndex(i => i.id === id);
+            const idx = items.findIndex(i => String(i.id) === String(id));
             if (idx !== -1) { items[idx] = { ...items[idx], ...data }; localStorage.setItem(key, JSON.stringify(items)); }
             return Promise.resolve([items[idx]]);
         }
         if (method === 'DELETE' && id) {
-            items = items.filter(i => i.id !== id);
+            items = items.filter(i => String(i.id) !== String(id));
             localStorage.setItem(key, JSON.stringify(items));
             return Promise.resolve([]);
         }
@@ -12822,8 +12899,214 @@ function playReminderAlertSound() {
 }
 
 let lastNotifiedReminderIds = new Set();
+let selectedSnoozeMinutes = 30;
+let selectedSnoozeLabel = '30 دقيقة';
+const pendingReminderStatusToggles = new Set();
 
-// Smart Reminder Alerts Checker (Before due & Overdue)
+// =================== SNOOZE (تأجيل التنبيهات) MANAGEMENT ===================
+window.getReminderSnoozeMap = function() {
+    try {
+        return JSON.parse(localStorage.getItem('reminders_snooze_map') || '{}');
+    } catch(e) {
+        return {};
+    }
+};
+
+window.saveReminderSnoozeMap = function(map) {
+    try {
+        localStorage.setItem('reminders_snooze_map', JSON.stringify(map));
+    } catch(e) {}
+};
+
+window.getReminderSnooze = function(id) {
+    if (!id) return null;
+    const map = getReminderSnoozeMap();
+    const entry = map[String(id)];
+    if (!entry) return null;
+
+    const untilTime = new Date(entry.until).getTime();
+    const nowTime = Date.now();
+    if (untilTime > nowTime) {
+        const remainingMin = Math.ceil((untilTime - nowTime) / 60000);
+        return {
+            until: entry.until,
+            label: entry.label || 'مؤجل',
+            remainingMin: remainingMin
+        };
+    }
+
+    // Expired snooze: remove so alert reactivates
+    delete map[String(id)];
+    saveReminderSnoozeMap(map);
+    return null;
+};
+
+window.openSnoozeModal = function(targetId, targetTitle = '') {
+    const modal = document.getElementById('reminderSnoozeModal');
+    if (!modal) return;
+
+    document.getElementById('snoozeTargetId').value = targetId || 'all';
+    
+    if (targetId === 'all') {
+        document.getElementById('snoozeTargetTitle').textContent = 'جميع التنبيهات النشطة حالياً (المتأخرة والمستحقة قريباً)';
+    } else {
+        const item = (allRemindersData || []).find(r => String(r.id) === String(targetId));
+        document.getElementById('snoozeTargetTitle').textContent = (item ? item.title : (targetTitle || 'تذكير #' + targetId));
+    }
+
+    // Reset default duration to 30 min
+    selectedSnoozeMinutes = 30;
+    selectedSnoozeLabel = '30 دقيقة';
+    
+    // Highlight 30 min button
+    const buttons = document.querySelectorAll('.snooze-preset-btn');
+    buttons.forEach(btn => {
+        if (btn.getAttribute('data-min') === '30') {
+            btn.classList.remove('btn-outline-primary');
+            btn.classList.add('btn-primary');
+            btn.style.background = '#4338ca';
+            btn.style.color = '#fff';
+        } else {
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-outline-primary');
+            btn.style.background = 'transparent';
+            btn.style.color = 'inherit';
+        }
+    });
+
+    const customRadio = document.getElementById('snoozeCustomRadio');
+    if (customRadio) customRadio.checked = false;
+    const customVal = document.getElementById('snoozeCustomVal');
+    const customUnit = document.getElementById('snoozeCustomUnit');
+    if (customVal) customVal.disabled = true;
+    if (customUnit) customUnit.disabled = true;
+
+    openModal('reminderSnoozeModal');
+};
+
+window.selectSnoozePreset = function(mins, label, btnEl) {
+    selectedSnoozeMinutes = Number(mins);
+    selectedSnoozeLabel = label;
+
+    const buttons = document.querySelectorAll('.snooze-preset-btn');
+    buttons.forEach(b => {
+        b.classList.remove('btn-primary');
+        b.classList.add('btn-outline-primary');
+        b.style.background = 'transparent';
+        b.style.color = 'inherit';
+    });
+
+    if (btnEl) {
+        btnEl.classList.remove('btn-outline-primary');
+        btnEl.classList.add('btn-primary');
+        btnEl.style.background = '#4338ca';
+        btnEl.style.color = '#fff';
+    }
+
+    const customRadio = document.getElementById('snoozeCustomRadio');
+    if (customRadio) customRadio.checked = false;
+    const customVal = document.getElementById('snoozeCustomVal');
+    const customUnit = document.getElementById('snoozeCustomUnit');
+    if (customVal) customVal.disabled = true;
+    if (customUnit) customUnit.disabled = true;
+};
+
+window.enableSnoozeCustom = function() {
+    const buttons = document.querySelectorAll('.snooze-preset-btn');
+    buttons.forEach(b => {
+        b.classList.remove('btn-primary');
+        b.classList.add('btn-outline-primary');
+        b.style.background = 'transparent';
+        b.style.color = 'inherit';
+    });
+
+    const customVal = document.getElementById('snoozeCustomVal');
+    const customUnit = document.getElementById('snoozeCustomUnit');
+    if (customVal) customVal.disabled = false;
+    if (customUnit) customUnit.disabled = false;
+};
+
+window.confirmSnoozeAction = function() {
+    const targetId = document.getElementById('snoozeTargetId').value;
+    let minutes = selectedSnoozeMinutes;
+    let label = selectedSnoozeLabel;
+
+    const customRadio = document.getElementById('snoozeCustomRadio');
+    if (customRadio && customRadio.checked) {
+        const val = Number(document.getElementById('snoozeCustomVal').value) || 30;
+        const unit = document.getElementById('snoozeCustomUnit').value;
+        if (unit === 'min') {
+            minutes = val;
+            label = `${val} دقيقة`;
+        } else if (unit === 'hour') {
+            minutes = val * 60;
+            label = `${val} ساعة`;
+        } else if (unit === 'day') {
+            minutes = val * 1440;
+            label = `${val} يوم`;
+        }
+    }
+
+    if (minutes <= 0) minutes = 30;
+
+    applyReminderSnooze(targetId, minutes, label);
+    closeModal('reminderSnoozeModal');
+};
+
+window.applyReminderSnooze = function(targetId, minutes, label) {
+    const map = getReminderSnoozeMap();
+    const until = new Date(Date.now() + minutes * 60000).toISOString();
+
+    if (targetId === 'all') {
+        const now = new Date();
+        // Snooze all currently active alerts
+        (allRemindersData || []).forEach(r => {
+            if (r.status === 'completed' || !r.due_date) return;
+            const due = new Date(r.due_date);
+            const diffMin = (due.getTime() - now.getTime()) / 60000;
+            const alertWindow = (r.alert_before != null && r.alert_before !== '') ? Number(r.alert_before) : 60;
+
+            if (diffMin < 0 || diffMin <= alertWindow || diffMin <= 1440) {
+                map[String(r.id)] = {
+                    until: until,
+                    label: label,
+                    snoozedAt: new Date().toISOString()
+                };
+            }
+        });
+    } else {
+        map[String(targetId)] = {
+            until: until,
+            label: label,
+            snoozedAt: new Date().toISOString()
+        };
+    }
+
+    saveReminderSnoozeMap(map);
+
+    if (typeof showToast === 'function') {
+        showToast('info', 'تم تأجيل التنبيه مؤقتاً', `تم إخفاء التنبيه لمدة (${label}). ستعود التنبيهات تلقائياً عند انتهاء المدة، مع بقاء حالة التذكير دون أي تغيير.`);
+    }
+
+    // Refresh alerts & table to reflect snoozed state
+    checkReminderAlerts();
+    renderRemindersTable();
+};
+
+window.cancelReminderSnooze = function(id) {
+    const map = getReminderSnoozeMap();
+    if (map[String(id)]) {
+        delete map[String(id)];
+        saveReminderSnoozeMap(map);
+        if (typeof showToast === 'function') {
+            showToast('info', 'تم إلغاء التأجيل', 'تم إعادة تفعيل تنبيه الملاحظة فوراً');
+        }
+        checkReminderAlerts();
+        renderRemindersTable();
+    }
+};
+
+// Smart Reminder Alerts Checker (Before due & Overdue, with Snooze filtering)
 window.checkReminderAlerts = function() {
     if (!Array.isArray(allRemindersData)) return;
 
@@ -12833,10 +13116,17 @@ window.checkReminderAlerts = function() {
 
     allRemindersData.forEach(r => {
         if (r.status === 'completed' || !r.due_date) return;
+
+        // Check if currently snoozed by the user
+        const snooze = getReminderSnooze(r.id);
+        if (snooze) {
+            // Alert is snoozed until snooze.until; do not show alert banner/bar or ring sound
+            return;
+        }
+
         const due = new Date(r.due_date);
         const diffMs = due.getTime() - now.getTime();
         const diffMin = Math.round(diffMs / 60000);
-
         const alertWindowMin = (r.alert_before != null && r.alert_before !== '') ? Number(r.alert_before) : 60;
 
         if (diffMs < 0) {
@@ -12904,20 +13194,25 @@ function renderRemindersTabAlertBanner(overdueList, dueSoonList) {
     let alertItemsHtml = '';
 
     if (overdueList.length > 0) {
+        const firstOverdue = overdueList[0];
+        const safeTitle = (firstOverdue.title || '').replace(/'/g, "\'").replace(/"/g, '&quot;');
         alertItemsHtml += `
             <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:10px 14px; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <span style="width:32px; height:32px; border-radius:50%; background:#fee2e2; color:#dc2626; display:flex; align-items:center; justify-content:center; font-size:15px;"><i class="fas fa-triangle-exclamation"></i></span>
                     <div>
                         <strong style="color:#991b1b; font-size:13px;">تنبيه: يوجد ${overdueList.length} تذكيرات متأخرة عن موعد استحقاقها!</strong>
-                        <div style="font-size:11.5px; color:#b91c1c;">أقربها: <b>${overdueList[0].title}</b> (متأخر منذ ${formatDurationArabic(overdueList[0].overdueMin)})</div>
+                        <div style="font-size:11.5px; color:#b91c1c;">أقربها: <b>${safeTitle}</b> (متأخر منذ ${formatDurationArabic(firstOverdue.overdueMin)})</div>
                     </div>
                 </div>
-                <div style="display:flex; gap:6px;">
+                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                     <button class="btn btn-sm" style="background:#dc2626; color:#fff; font-size:11px; padding:4px 10px;" onclick="quickFilterReminders('overdue')">
-                        <i class="fas fa-eye"></i> عرض المتأخرة فقط
+                        <i class="fas fa-eye"></i> عرض المتأخرة
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" style="font-size:11px; padding:4px 10px;" onclick="toggleReminderStatus(${overdueList[0].id})">
+                    <button class="btn btn-sm btn-outline-warning" style="font-size:11px; padding:4px 10px; border-color:#f59e0b; color:#b45309; background:#fffbeb;" onclick="openSnoozeModal(${firstOverdue.id}, '${safeTitle}')" title="تأجيل هذا التنبيه مؤقتاً">
+                        <i class="fas fa-clock"></i> تأجيل التنبيه
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" style="font-size:11px; padding:4px 10px;" onclick="toggleReminderStatus(${firstOverdue.id})">
                         <i class="fas fa-check"></i> إكمال الأولى
                     </button>
                 </div>
@@ -12929,18 +13224,23 @@ function renderRemindersTabAlertBanner(overdueList, dueSoonList) {
         const immediateSoon = dueSoonList.filter(r => r.inAlertWindow);
         const count = immediateSoon.length > 0 ? immediateSoon.length : dueSoonList.length;
         const targetList = immediateSoon.length > 0 ? immediateSoon : dueSoonList;
+        const firstDue = targetList[0];
+        const safeTitle = (firstDue.title || '').replace(/'/g, "\'").replace(/"/g, '&quot;');
         alertItemsHtml += `
             <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <span style="width:32px; height:32px; border-radius:50%; background:#fef3c7; color:#d97706; display:flex; align-items:center; justify-content:center; font-size:15px;"><i class="fas fa-bell"></i></span>
                     <div>
                         <strong style="color:#92400e; font-size:13px;">تنبيه مسبق: يوجد ${count} تذكيرات مستحقة قريباً!</strong>
-                        <div style="font-size:11.5px; color:#b45309;">أقربها: <b>${targetList[0].title}</b> (مستحق خلال ${formatDurationArabic(targetList[0].remainingMin)})</div>
+                        <div style="font-size:11.5px; color:#b45309;">أقربها: <b>${safeTitle}</b> (مستحق خلال ${formatDurationArabic(firstDue.remainingMin)})</div>
                     </div>
                 </div>
-                <div>
+                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                     <button class="btn btn-sm" style="background:#d97706; color:#fff; font-size:11px; padding:4px 10px;" onclick="quickFilterReminders('due_soon')">
-                        <i class="fas fa-filter"></i> تصفية المستحقة قريباً
+                        <i class="fas fa-filter"></i> تصفية المستحقة
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning" style="font-size:11px; padding:4px 10px; border-color:#f59e0b; color:#b45309; background:#fff;" onclick="openSnoozeModal(${firstDue.id}, '${safeTitle}')" title="تأجيل هذا التنبيه مؤقتاً">
+                        <i class="fas fa-clock"></i> تأجيل التنبيه
                     </button>
                 </div>
             </div>
@@ -12964,7 +13264,7 @@ function renderGlobalRemindersAlertBar(overdueList, dueSoonList) {
         bar = document.createElement('div');
         bar.id = 'globalRemindersAlertBar';
         bar.className = 'no-print';
-        bar.style.cssText = 'position:fixed; bottom:20px; left:20px; z-index:9999; background:linear-gradient(135deg, #1e1b4b, #0f172a); color:#fff; padding:12px 18px; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.3); border:1px solid #4338ca; display:flex; align-items:center; gap:14px; max-width:420px; font-family:inherit; animation:slideInAlert 0.4s ease-out;';
+        bar.style.cssText = 'position:fixed; bottom:20px; left:20px; z-index:9999; background:linear-gradient(135deg, #1e1b4b, #0f172a); color:#fff; padding:12px 18px; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.3); border:1px solid #4338ca; display:flex; align-items:center; gap:14px; max-width:460px; font-family:inherit; animation:slideInAlert 0.4s ease-out;';
         document.body.appendChild(bar);
     }
 
@@ -12984,10 +13284,13 @@ function renderGlobalRemindersAlertBar(overdueList, dueSoonList) {
             <div style="font-size:11.5px; color:#cbd5e1;">${mainMsg}</div>
         </div>
         <div style="display:flex; align-items:center; gap:6px;">
+            <button onclick="openSnoozeModal('all')" style="background:#f59e0b; color:#1e1b4b; border:none; padding:5px 10px; border-radius:6px; font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px;" title="تأجيل هذه التنبيهات مؤقتاً">
+                <i class="fas fa-clock"></i> تأجيل
+            </button>
             <button onclick="goToRemindersTab()" style="background:#7c3aed; color:#fff; border:none; padding:5px 10px; border-radius:6px; font-size:11px; font-weight:700; cursor:pointer;">
                 فتح
             </button>
-            <button onclick="document.getElementById('globalRemindersAlertBar').style.display='none'" style="background:transparent; color:#94a3b8; border:none; font-size:16px; cursor:pointer; padding:0 4px;">
+            <button onclick="document.getElementById('globalRemindersAlertBar').style.display='none'" style="background:transparent; color:#94a3b8; border:none; font-size:16px; cursor:pointer; padding:0 4px;" title="إغلاق">
                 &times;
             </button>
         </div>
@@ -13142,6 +13445,9 @@ function renderRemindersTable() {
         const pBadge = priorityBadges[r.priority || 'medium'] || priorityBadges.medium;
         const recBadge = recurrenceBadges[r.recurrence || 'none'] || recurrenceBadges.none;
 
+        // Snooze indicator for this item
+        const snoozeInfo = getReminderSnooze(r.id);
+
         // Due date & Timing alert format
         let dueStr = '<span style="color:#94a3b8; font-size:11px;">غير محدد</span>';
         if (r.due_date) {
@@ -13152,6 +13458,15 @@ function renderRemindersTable() {
 
             if (isCompleted) {
                 dueStr = `<span style="font-weight:600; font-size:11.5px; color:#16a34a; direction:ltr; display:inline-block;">${dateFormatted}</span>`;
+            } else if (snoozeInfo) {
+                // Currently Snoozed
+                dueStr = `
+                    <div style="font-weight:600; font-size:11.5px; color:#475569; direction:ltr;">${dateFormatted}</div>
+                    <span style="background:#fef3c7; color:#92400e; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:600; display:inline-flex; align-items:center; gap:3px; margin-top:3px;">
+                        <i class="fas fa-clock"></i> مؤجل (${snoozeInfo.label})
+                        <a href="javascript:void(0)" onclick="cancelReminderSnooze(${r.id})" style="color:#b45309; text-decoration:underline; font-size:9.5px; margin-right:4px;" title="إلغاء التأجيل فوراً">إلغاء</a>
+                    </span>
+                `;
             } else if (diffMin < 0) {
                 // Overdue
                 dueStr = `
@@ -13174,13 +13489,14 @@ function renderRemindersTable() {
         }
 
         const createdDate = r.created_at ? new Date(r.created_at).toLocaleDateString('ar-EG') : '';
+        const safeTitle = (r.title || '').replace(/'/g, "\'").replace(/"/g, '&quot;');
 
         return `
             <tr style="background:${idx % 2 === 0 ? '#ffffff' : '#fafafa'}; opacity:${isCompleted ? '0.75' : '1'};">
                 <td style="font-weight:700; color:#64748b; text-align:center;">${idx + 1}</td>
                 <td style="font-weight:700; color:#1e293b; font-size:13px;">
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <button onclick="toggleReminderStatus(${r.id})" style="background:none; border:none; cursor:pointer; font-size:16px; color:${isCompleted ? '#16a34a' : '#94a3b8'};" title="${isCompleted ? 'تغيير إلى قيد المتابعة' : 'تحديد كمكتمل (وتجديد التكرار إذا كان متكرراً)'}">
+                        <button onclick="toggleReminderStatus(${r.id})" style="background:none; border:none; cursor:pointer; font-size:16px; color:${isCompleted ? '#16a34a' : '#94a3b8'};" title="${isCompleted ? 'إعادة إلى قيد المتابعة' : 'تحديد كمكتمل'}">
                             <i class="fas ${isCompleted ? 'fa-circle-check' : 'fa-circle'}"></i>
                         </button>
                         <div>
@@ -13200,6 +13516,11 @@ function renderRemindersTable() {
                     <div style="color:#94a3b8;">${createdDate}</div>
                 </td>
                 <td class="no-print" style="text-align:center; white-space:nowrap;">
+                    ${!isCompleted ? `
+                        <button class="btn btn-sm btn-outline-warning" style="padding:3px 8px; font-size:11px; margin-left:4px; color:#b45309; border-color:#f59e0b;" onclick="openSnoozeModal(${r.id}, '${safeTitle}')" title="تأجيل التنبيه مؤقتاً">
+                            <i class="fas fa-clock"></i>
+                        </button>
+                    ` : ''}
                     <button class="btn btn-sm btn-outline-primary" style="padding:3px 8px; font-size:11px; margin-left:4px;" onclick="openReminderModal(${r.id})" title="تعديل">
                         <i class="fas fa-edit"></i>
                     </button>
@@ -13213,7 +13534,7 @@ function renderRemindersTable() {
 }
 
 window.openReminderModal = function(id = null) {
-    editingReminderId = id;
+    editingReminderId = id ? (Number(id) || id) : null;
     const modal = document.getElementById('reminderModal');
     const titleEl = document.getElementById('reminderModalTitle');
     const form = document.getElementById('reminderForm');
@@ -13223,7 +13544,7 @@ window.openReminderModal = function(id = null) {
 
     if (id) {
         titleEl.innerHTML = '<i class="fas fa-pen-to-square" style="color:#a78bfa; margin-left:8px;"></i>تعديل الملاحظة / التذكير';
-        const item = allRemindersData.find(r => r.id === id);
+        const item = (allRemindersData || []).find(r => String(r.id) === String(id));
         if (item) {
             document.getElementById('reminderId').value = item.id;
             document.getElementById('reminderTitle').value = item.title || '';
@@ -13234,26 +13555,24 @@ window.openReminderModal = function(id = null) {
             const recEl = document.getElementById('reminderRecurrence');
             if (recEl) recEl.value = item.recurrence || 'none';
             const alertEl = document.getElementById('reminderAlertBefore');
-            if (alertEl) alertEl.value = (item.alert_before != null) ? String(item.alert_before) : '60';
-
+            if (alertEl) alertEl.value = (item.alert_before != null && item.alert_before !== '') ? item.alert_before : 60;
             if (item.due_date) {
-                try {
-                    const d = new Date(item.due_date);
-                    const iso = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-                    document.getElementById('reminderDueDate').value = iso;
-                } catch(e) {}
+                const d = new Date(item.due_date);
+                if (!isNaN(d.getTime())) {
+                    const pad = n => String(n).padStart(2, '0');
+                    const localIso = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                    document.getElementById('reminderDueDate').value = localIso;
+                }
             }
         }
     } else {
         titleEl.innerHTML = '<i class="fas fa-bell" style="color:#a78bfa; margin-left:8px;"></i>إضافة ملاحظة / تذكير جديد';
         document.getElementById('reminderId').value = '';
-        document.getElementById('reminderStatus').value = 'pending';
-        document.getElementById('reminderPriority').value = 'medium';
-        document.getElementById('reminderCategory').value = 'عام';
         const recEl = document.getElementById('reminderRecurrence');
         if (recEl) recEl.value = 'none';
         const alertEl = document.getElementById('reminderAlertBefore');
-        if (alertEl) alertEl.value = '60';
+        if (alertEl) alertEl.value = 60;
+        document.getElementById('reminderStatus').value = 'pending';
     }
 
     openModal('reminderModal');
@@ -13262,12 +13581,14 @@ window.openReminderModal = function(id = null) {
 window.saveReminder = async function(e) {
     if (e && e.preventDefault) e.preventDefault();
 
-    const title = (document.getElementById('reminderTitle').value || '').trim();
-    const category = document.getElementById('reminderCategory').value;
-    const priority = document.getElementById('reminderPriority').value;
-    const status = document.getElementById('reminderStatus').value;
-    const details = (document.getElementById('reminderDetails').value || '').trim();
-    const dueDate = document.getElementById('reminderDueDate').value;
+    const titleInput = document.getElementById('reminderTitle');
+    const detailsInput = document.getElementById('reminderDetails');
+    const title = (titleInput?.value || '').trim();
+    const category = document.getElementById('reminderCategory')?.value || 'عام';
+    const priority = document.getElementById('reminderPriority')?.value || 'medium';
+    const status = document.getElementById('reminderStatus')?.value || 'pending';
+    const details = (detailsInput?.value || '').trim();
+    const dueDate = document.getElementById('reminderDueDate')?.value;
     const recurrence = document.getElementById('reminderRecurrence')?.value || 'none';
     const alertBefore = Number(document.getElementById('reminderAlertBefore')?.value || 60);
 
@@ -13278,6 +13599,16 @@ window.saveReminder = async function(e) {
 
     const currentUser = (typeof currentUserData !== 'undefined' && currentUserData?.fullName) ? currentUserData.fullName : 'المسؤول';
 
+    let dueIso = null;
+    if (dueDate) {
+        try {
+            const parsed = new Date(dueDate);
+            if (!isNaN(parsed.getTime())) {
+                dueIso = parsed.toISOString();
+            }
+        } catch(err) {}
+    }
+
     const reminderPayload = {
         title,
         category,
@@ -13286,21 +13617,24 @@ window.saveReminder = async function(e) {
         details,
         recurrence,
         alert_before: alertBefore,
-        due_date: dueDate ? new Date(dueDate).toISOString() : null,
+        due_date: dueIso,
         created_by: currentUser,
         updated_at: new Date().toISOString()
     };
 
-    if (!editingReminderId) {
+    const targetId = editingReminderId ? (Number(editingReminderId) || editingReminderId) : null;
+
+    if (!targetId) {
         reminderPayload.created_at = new Date().toISOString();
     }
 
     try {
-        await saveReminderToStorage(reminderPayload, editingReminderId);
+        await saveReminderToStorage(reminderPayload, targetId);
+        editingReminderId = null;
         closeModal('reminderModal');
         await loadReminders();
         if (typeof showToast === 'function') {
-            showToast('success', 'تم الحفظ بنجاح', editingReminderId ? 'تم تحديث الملاحظة بنجاح' : 'تم إضافة التذكير والملاحظة بنجاح');
+            showToast('success', 'تم الحفظ بنجاح', targetId ? 'تم تحديث الملاحظة بنجاح' : 'تم إضافة التذكير والملاحظة بنجاح');
         }
     } catch(err) {
         console.error('Save reminder error:', err);
@@ -13308,67 +13642,141 @@ window.saveReminder = async function(e) {
     }
 };
 
-// Automatic Next Due Date Calculator for Recurrence
-function computeNextDueDate(baseDate, recurrence) {
-    const d = new Date(baseDate);
+// =================== ROBUST RECURRENCE (حساب التكرار الذكي) ===================
+// Handles shorter months (February 28/29, April 30, etc.) and End-of-Month correctly
+function computeNextDueDate(baseDateStr, recurrence) {
+    const base = new Date(baseDateStr);
+    if (isNaN(base.getTime())) return new Date(Date.now() + 86400000);
     const now = new Date();
 
     if (recurrence === 'daily') {
+        const d = new Date(base);
         d.setDate(d.getDate() + 1);
         while (d <= now) {
             d.setDate(d.getDate() + 1);
         }
-    } else if (recurrence === 'weekly') {
+        return d;
+    }
+
+    if (recurrence === 'weekly') {
+        const d = new Date(base);
         d.setDate(d.getDate() + 7);
         while (d <= now) {
             d.setDate(d.getDate() + 7);
         }
-    } else if (recurrence === 'monthly') {
-        d.setMonth(d.getMonth() + 1);
-        while (d <= now) {
-            d.setMonth(d.getMonth() + 1);
-        }
+        return d;
     }
-    return d;
+
+    if (recurrence === 'monthly') {
+        const origDay = base.getDate();
+        const baseYear = base.getFullYear();
+        const baseMonth = base.getMonth();
+        // Check if base date was the last day of its month (e.g. Jan 31, Feb 28/29, Apr 30)
+        const daysInBaseMonth = new Date(baseYear, baseMonth + 1, 0).getDate();
+        const wasEndOfMonth = (origDay === daysInBaseMonth);
+
+        let curYear = baseYear;
+        let curMonth = baseMonth;
+        let candidate;
+
+        do {
+            curMonth++;
+            if (curMonth > 11) {
+                curYear += Math.floor(curMonth / 12);
+                curMonth = curMonth % 12;
+            }
+            // Number of days in the target month (e.g. Feb 28/29, Apr 30, May 31)
+            const daysInTargetMonth = new Date(curYear, curMonth + 1, 0).getDate();
+
+            // If base was end of month, preserve end of month (e.g. Jan 31 -> Feb 28 -> Mar 31 -> Apr 30)
+            // Otherwise, clamp to the maximum days available in that month without skipping ahead
+            const targetDay = wasEndOfMonth ? daysInTargetMonth : Math.min(origDay, daysInTargetMonth);
+
+            candidate = new Date(
+                curYear,
+                curMonth,
+                targetDay,
+                base.getHours(),
+                base.getMinutes(),
+                base.getSeconds(),
+                base.getMilliseconds()
+            );
+        } while (candidate <= now);
+
+        return candidate;
+    }
+
+    return new Date(Date.now() + 86400000);
 }
 
+// =================== COMPLETION & DUPLICATE PREVENTION ===================
 window.toggleReminderStatus = async function(id) {
-    const item = allRemindersData.find(r => r.id === id);
-    if (!item) return;
+    if (!id) return;
+    const stringId = String(id);
 
-    const newStatus = (item.status === 'completed') ? 'pending' : 'completed';
-    const currentUser = (typeof currentUserData !== 'undefined' && currentUserData?.fullName) ? currentUserData.fullName : 'المسؤول';
+    // Prevent double-clicking / concurrent duplicate executions
+    if (pendingReminderStatusToggles.has(stringId)) {
+        console.warn('Status toggle already in progress for reminder:', id);
+        return;
+    }
+    pendingReminderStatusToggles.add(stringId);
 
     try {
+        const item = (allRemindersData || []).find(r => String(r.id) === stringId);
+        if (!item) return;
+
+        const newStatus = (item.status === 'completed') ? 'pending' : 'completed';
+        const currentUser = (typeof currentUserData !== 'undefined' && currentUserData?.fullName) ? currentUserData.fullName : 'المسؤول';
+
+        // Check if this recurring reminder ALREADY generated a child or occurrence
+        const childAlreadyExists = (allRemindersData || []).some(r => 
+            String(r.parent_id) === stringId && r.status !== 'cancelled'
+        );
+        const hasAlreadySpawned = Boolean(item.has_spawned_recurrence || childAlreadyExists);
+
         // Update current item status
-        await saveReminderToStorage({ status: newStatus, updated_at: new Date().toISOString() }, id);
+        await saveReminderToStorage({ 
+            status: newStatus, 
+            updated_at: new Date().toISOString() 
+        }, id);
 
         // Check for Recurrence when completing
         if (newStatus === 'completed' && item.recurrence && item.recurrence !== 'none' && item.due_date) {
-            const nextDue = computeNextDueDate(item.due_date, item.recurrence);
-            const recLabels = { daily: 'يومي', weekly: 'أسبوعي', monthly: 'شهري' };
-            const recLabel = recLabels[item.recurrence] || item.recurrence;
+            if (hasAlreadySpawned) {
+                // DO NOT duplicate! Next occurrence is already created and tracked.
+                if (typeof showToast === 'function') {
+                    showToast('success', 'تم إكمال التذكير', 'تم تعيين الملاحظة كمكتملة. موعد التكرار التالي تم إنشاؤه مسبقاً ولن يتم تكراره مرة أخرى.');
+                }
+            } else {
+                // First time completing: generate the single next recurring due date
+                const nextDue = computeNextDueDate(item.due_date, item.recurrence);
+                const recLabels = { daily: 'يومي', weekly: 'أسبوعي', monthly: 'شهري' };
+                const recLabel = recLabels[item.recurrence] || item.recurrence;
 
-            const nextPayload = {
-                title: item.title,
-                category: item.category || 'عام',
-                priority: item.priority || 'medium',
-                status: 'pending',
-                details: item.details || '',
-                recurrence: item.recurrence,
-                alert_before: item.alert_before != null ? item.alert_before : 60,
-                due_date: nextDue.toISOString(),
-                parent_id: item.id,
-                created_by: currentUser,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            };
+                const nextPayload = {
+                    title: item.title,
+                    category: item.category || 'عام',
+                    priority: item.priority || 'medium',
+                    status: 'pending',
+                    details: item.details || '',
+                    recurrence: item.recurrence,
+                    alert_before: item.alert_before != null ? item.alert_before : 60,
+                    due_date: nextDue.toISOString(),
+                    parent_id: item.id,
+                    created_by: currentUser,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
 
-            await saveReminderToStorage(nextPayload);
+                await saveReminderToStorage(nextPayload);
 
-            const nextDueFormatted = nextDue.toLocaleDateString('ar-EG') + ' ' + nextDue.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
-            if (typeof showToast === 'function') {
-                showToast('success', 'اكتمل التذكير وجُدول الموعد التالي', `تم إنشاء موعد الاستحقاق التالي تلقائياً في: ${nextDueFormatted} (تكرار: ${recLabel})`);
+                // Mark parent so it never spawns duplicates on subsequent toggles
+                await saveReminderToStorage({ has_spawned_recurrence: true }, id);
+
+                const nextDueFormatted = nextDue.toLocaleDateString('ar-EG') + ' ' + nextDue.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
+                if (typeof showToast === 'function') {
+                    showToast('success', 'اكتمل التذكير وجُدول الموعد التالي', `تم إنشاء موعد الاستحقاق التالي تلقائياً في: ${nextDueFormatted} (تكرار: ${recLabel})`);
+                }
             }
         } else {
             if (typeof showToast === 'function') {
@@ -13380,6 +13788,8 @@ window.toggleReminderStatus = async function(id) {
     } catch(err) {
         console.error('Toggle status error:', err);
         alert('تعذر تحديث الحالة: ' + err.message);
+    } finally {
+        pendingReminderStatusToggles.delete(stringId);
     }
 };
 
@@ -14763,8 +15173,18 @@ function showToast(type, title, message) {
 }
 
 // ==================== MODALS ====================
-function openModal(id) { document.getElementById(id).classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function openModal(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('active');
+    el.style.display = 'flex';
+}
+function closeModal(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('active');
+    el.style.display = 'none';
+}
 
 // ==================== REQUESTS ====================
 async function openRequestModal(requestId) {
