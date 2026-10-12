@@ -2257,29 +2257,41 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
     .alt-fact small { font-size:10.5px; font-weight:800; color:var(--text-light); }
 
     /* tracking */
-    .alt-track { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px; }
+    .alt-track { display:grid; grid-template-columns:repeat(auto-fill,minmax(520px,1fr)); gap:20px; }
+    .alt-track.view-wide { grid-template-columns:repeat(auto-fill,minmax(520px,1fr)); }
+    .alt-track.view-full { grid-template-columns:1fr; }
+    .alt-track.view-compact { grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); }
+    @media (max-width: 768px) {
+        .alt-track, .alt-track.view-wide, .alt-track.view-compact { grid-template-columns:1fr !important; gap:14px; }
+    }
     .altt-card { border:1px solid var(--border-color); border-radius:18px; background:var(--bg-card); overflow:hidden;
         box-shadow:var(--shadow); animation: altIn .45s both cubic-bezier(.22,.68,.36,1); }
-    .altt-head { display:flex; align-items:center; gap:10px; padding:14px 16px;
+    .altt-head { display:flex; align-items:center; gap:12px; padding:15px 18px;
         background:linear-gradient(135deg, color-mix(in srgb, var(--ac2) 14%, transparent), transparent);
         border-bottom:1px solid var(--border-color); }
-    .altt-head i.hicon { width:34px; height:34px; display:grid; place-items:center; border-radius:11px; font-size:14px;
+    .altt-head i.hicon { width:36px; height:36px; display:grid; place-items:center; border-radius:12px; font-size:15px;
         background:color-mix(in srgb, var(--ac2) 16%, transparent); color:var(--ac2); }
-    .altt-head h4 { margin:0; font-size:14.5px; font-weight:900; color:var(--text-dark); flex:1; }
-    .altt-count { font-size:11.5px; font-weight:900; padding:4px 10px; border-radius:999px;
+    .altt-head h4 { margin:0; font-size:15.5px; font-weight:900; color:var(--text-dark); flex:1; }
+    .altt-count { font-size:12px; font-weight:900; padding:4px 12px; border-radius:999px;
         background:color-mix(in srgb, var(--ac2) 14%, transparent); color:var(--ac2); }
-    .altm-list { padding:10px; display:flex; flex-direction:column; gap:8px; max-height:340px; overflow-y:auto; scrollbar-width:thin; }
-    .altm-row { --rc:var(--success); display:flex; align-items:center; gap:10px; padding:11px 12px; border-radius:13px; cursor:pointer;
-        border:1px solid var(--border-color); border-inline-start:4px solid var(--rc); background:transparent; transition:.18s; }
-    .altm-row:hover { background:color-mix(in srgb, var(--rc) 8%, transparent); transform:translateX(-3px); }
+    .altm-list { padding:12px; display:flex; flex-direction:column; gap:10px; max-height:500px; overflow-y:auto; scrollbar-width:thin; }
+    .altm-row { --rc:var(--success); display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:14px; cursor:pointer;
+        border:1px solid var(--border-color); border-inline-start:4px solid var(--rc); background:var(--bg-card, #ffffff); transition:all .2s ease; }
+    .altm-row:hover { background:color-mix(in srgb, var(--rc) 8%, transparent); transform:translateX(-3px); box-shadow:0 4px 14px rgba(0,0,0,0.06); }
     .altm-row.busy { --rc:var(--danger); }
     .altm-main { flex:1; min-width:0; }
-    .altm-name { font-size:13px; font-weight:900; color:var(--text-dark); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .altm-tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:5px; }
-    .altm-tag { font-size:10.5px; font-weight:800; color:var(--text-light); background:color-mix(in srgb, var(--text-light) 12%, transparent);
-        padding:2px 8px; border-radius:999px; display:inline-flex; align-items:center; gap:4px; }
-    .altm-pill { font-size:11px; font-weight:900; padding:4px 10px; border-radius:999px; white-space:nowrap;
+    .altm-name { font-size:14px; font-weight:800; color:var(--text-dark); white-space:normal !important; word-break:break-word; overflow-wrap:anywhere; line-height:1.45; }
+    .altm-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .altm-tag { font-size:11px; font-weight:800; color:var(--text-light); background:color-mix(in srgb, var(--text-light) 12%, transparent);
+        padding:3px 9px; border-radius:999px; display:inline-flex; align-items:center; gap:5px; }
+    .altm-pill { font-size:11.5px; font-weight:900; padding:4px 12px; border-radius:999px; white-space:nowrap; flex:0 0 auto;
         background:color-mix(in srgb, var(--rc) 14%, transparent); color:var(--rc); }
+    .alt-track-layout-btns button.is-active {
+        background: var(--primary) !important;
+        color: #ffffff !important;
+        border-color: var(--primary) !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
     .alt-empty { padding:34px 16px; text-align:center; color:var(--text-light); font-size:13px; font-weight:700; }
     .alt-empty i { display:block; font-size:26px; margin-bottom:8px; opacity:.5; }
 
@@ -2289,8 +2301,8 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
     .altm-row.is-selected { background: color-mix(in srgb, var(--primary) 9%, transparent) !important; border-color: var(--primary) !important; box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 35%, transparent); }
     .altm-avatar { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex: 0 0 34px;
         background: color-mix(in srgb, var(--rc) 14%, transparent); color: var(--rc); font-size: 14px; }
-    .altm-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
-    .altm-top .altm-name { font-size: 13.5px; font-weight: 800; color: var(--text-dark); flex: 1; }
+    .altm-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+    .altm-top .altm-name { font-size: 14px; font-weight: 800; color: var(--text-dark); flex: 1 1 200px; white-space: normal !important; word-break: break-word; overflow-wrap: anywhere; line-height: 1.45; }
     .altm-actions { display: flex; align-items: center; gap: 5px; margin-inline-start: 8px; flex: 0 0 auto; }
     .altm-actions .action-btn { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-size: 12px; cursor: pointer; border: 1px solid var(--border-color); background: var(--bg-card); transition: all 0.15s; }
     .altm-actions .action-btn.edit { color: var(--primary); }
@@ -4466,7 +4478,27 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                     <div class="alt-grid" id="altSummaryGrid"></div>
                 </div>
                 <div class="tab-content" id="tab-tracking">
-                    <div class="alt-track" id="altTrackingGrid"></div>
+                    <div class="alt-track-toolbar no-print" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px; padding:12px 18px; background:var(--bg-card, #ffffff); border:1px solid var(--border-color, #e2e8f0); border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+                        <div style="display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:800; color:var(--text-dark);">
+                            <span style="width:32px; height:32px; border-radius:8px; display:grid; place-items:center; background:color-mix(in srgb, var(--primary) 14%, transparent); color:var(--primary); font-size:14px;">
+                                <i class="fas fa-arrows-left-right-to-line"></i>
+                            </span>
+                            <span>تنسيق وعرض بطاقات التتبع:</span>
+                            <span style="font-size:12px; font-weight:600; color:var(--text-light);">(تم توسيع البطاقات وإظهار أسماء الموديلات كاملة دون اقتطاع)</span>
+                        </div>
+                        <div class="alt-track-layout-btns" style="display:flex; align-items:center; gap:8px;">
+                            <button type="button" class="btn btn-sm btn-outline is-active" id="btnTrackLayoutWide" onclick="setTrackLayout('wide')" title="عرض بطاقات عريضة ومفصلة (بطاقتان في السطر)" style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; padding:6px 14px; border-radius:9px; cursor:pointer;">
+                                <i class="fas fa-table-columns"></i> بطاقات عريضة (افتراضي)
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline" id="btnTrackLayoutFull" onclick="setTrackLayout('full')" title="عرض بطاقة واحدة بعرض الشاشة بالكامل" style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; padding:6px 14px; border-radius:9px; cursor:pointer;">
+                                <i class="fas fa-bars"></i> عرض كامل بعرض الشاشة
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline" id="btnTrackLayoutCompact" onclick="setTrackLayout('compact')" title="عرض شبكي (3 بطاقات في السطر)" style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; padding:6px 14px; border-radius:9px; cursor:pointer;">
+                                <i class="fas fa-border-all"></i> بطاقات مدمجة
+                            </button>
+                        </div>
+                    </div>
+                    <div class="alt-track view-wide" id="altTrackingGrid"></div>
                 </div>
                 <div class="tab-content" id="tab-assignments">
                     <div class="card">
@@ -18956,6 +18988,33 @@ function setAltFilter(f) {
     renderAlternatives();
 }
 
+
+// ==================== وظائف تخطيط بطاقات التتبع الفردي ====================
+function setTrackLayout(mode) {
+    const grid = document.getElementById('altTrackingGrid');
+    if (!grid) return;
+    grid.classList.remove('view-wide', 'view-full', 'view-compact');
+    grid.classList.add('view-' + mode);
+    
+    document.querySelectorAll('.alt-track-layout-btns button').forEach(b => b.classList.remove('is-active'));
+    const btnId = 'btnTrackLayout' + mode.charAt(0).toUpperCase() + mode.slice(1);
+    const activeBtn = document.getElementById(btnId);
+    if (activeBtn) activeBtn.classList.add('is-active');
+
+    try {
+        localStorage.setItem('alt_track_layout_pref', mode);
+    } catch(e) {}
+}
+
+function initTrackLayout() {
+    try {
+        const saved = localStorage.getItem('alt_track_layout_pref') || 'wide';
+        setTrackLayout(saved);
+    } catch(e) {
+        setTrackLayout('wide');
+    }
+}
+
 function renderAlternatives() {
     const { devices, models, assignments, filter } = altState;
     const q = (document.getElementById('altSearch')?.value || '').trim().toLowerCase();
@@ -19047,7 +19106,7 @@ function renderAlternatives() {
                             </div>
                             <div class="altm-main">
                                 <div class="altm-top">
-                                    <span class="altm-name">${m.model || 'بدون اسم'}</span>
+                                    <span class="altm-name" title="${m.model || 'بدون اسم'}">${m.model || 'بدون اسم'}</span>
                                     <span class="altm-pill">${m.status === 'available' ? '<i class="fas fa-check-circle" style="margin-inline-end:3px;"></i>متاح' : '<i class="fas fa-circle-xmark" style="margin-inline-end:3px;"></i>غير متاح'}</span>
                                 </div>
                                 <div class="altm-tags">
@@ -19066,6 +19125,7 @@ function renderAlternatives() {
             </div>`;
     }).filter(Boolean).join('');
     if (trackingGrid) trackingGrid.innerHTML = trackCards || `<div class="alt-empty"><i class="fas fa-magnifying-glass"></i>لا توجد أجهزة مطابقة للبحث</div>`;
+    initTrackLayout();
 
     // ---- assignments table ----
     const assignTbody = document.querySelector('#assignmentsTable tbody');
@@ -20011,6 +20071,9 @@ function showAltTab(tab) {
 
     if (tab === 'full-inventory') {
         renderAltInventoryTable();
+    }
+    if (tab === 'tracking') {
+        initTrackLayout();
     }
 }
 
