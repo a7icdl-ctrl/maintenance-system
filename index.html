@@ -3825,6 +3825,9 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                         <button class="btn btn-danger btn-sm" onclick="printDetailedRequestsReport()" title="تقرير تفصيلي لجميع الطلبات مع مدة التأخير والإجراءات">
                             <i class="fas fa-file-lines"></i> تقرير تفصيلي
                         </button>
+                        <button class="btn btn-sm" style="background:linear-gradient(135deg,#0f2a4a,#1e4e79)!important;color:#fff!important;border:1px solid #c9a227!important" onclick="printWithdrawnRequestsReport()" title="طباعة وتصدير PDF للطلبات المسحوبة فقط مع إجراءاتها">
+                            <i class="fas fa-file-pdf"></i> المسحوبة PDF
+                        </button>
                         <button class="btn btn-warning btn-sm" onclick="printDetailedRequestsReport({ activeOnly: true })" title="تقرير تفصيلي للطلبات النشطة فقط (باستثناء المكتمل والملغي والمكرر)">
                             <i class="fas fa-bolt"></i> تقرير النشطة
                         </button>
@@ -16915,6 +16918,101 @@ function _drDelay(req) {
 }
 
 const DR_CLOSED_STATUSES = ['completed', 'cancelled', 'duplicate'];
+
+async function printWithdrawnRequestsReport() {
+    let all = [];
+    try { all = await SupabaseAPI.request('requests', 'GET') || []; }
+    catch (e) { showToast('error', 'خطأ', 'تعذر تحميل الطلبات'); return; }
+    const E = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const D = v => { if (!v) return '-'; const d = new Date(v); return isNaN(d) ? E(v) : d.toLocaleDateString('en-GB'); };
+    const list = all.filter(r => r.status === 'withdrawn')
+        .sort((a, b) => new Date(b.created_at || b.createdAt || 0) - new Date(a.created_at || a.createdAt || 0));
+    if (!list.length) { showToast('warning', 'لا توجد بيانات', 'لا توجد طلبات بحالة مسحوب'); return; }
+    const totalProcs = list.reduce((s, r) => s + (r.procedures || []).length, 0);
+    const rows = list.map((r, i) => {
+        const procs = r.procedures || [];
+        const procHtml = procs.length
+            ? `<table class="pt"><thead><tr><th style="width:40px">#</th><th style="width:120px">التاريخ</th><th>الإجراء</th></tr></thead><tbody>${procs.map((p, j) => `
+                <tr><td>${j + 1}</td><td class="mono">${E(p.date || '-')}</td><td class="tx">${E(p.text || '-')}${p.attachment ? `<div class="att">📎 ${E(p.attachment.description || p.attachment.filename || 'مرفق')}</div>` : ''}</td></tr>`).join('')}</tbody></table>`
+            : '<div class="empty">لا توجد إجراءات مسجلة على هذا الطلب</div>';
+        return `<tbody class="grp${procs.length > 6 ? ' long' : ''}">
+          <tr class="main"><td>${i + 1}</td>
+            <td class="mono b">${E(r.request_number || r.requestNumber || '-')}</td>
+            <td class="mono">${E(r.computer_number || r.computerNumber || '-')}</td>
+            <td>${E(r.device_name || r.deviceName || '-')}</td>
+            <td>${E(r.employee_name || r.employeeName || '-')}</td>
+            <td>${E(r.department || '-')}</td>
+            <td class="mono">${D(r.created_at || r.createdAt)}</td>
+            <td><span class="pill">مسحوب</span></td></tr>
+          <tr class="issue"><td></td><td colspan="7"><b>وصف المشكلة:</b> ${E(r.issue_description || r.issueDescription || 'لا يوجد وصف')}</td></tr>
+          <tr class="procs"><td></td><td colspan="7"><div class="pth">الإجراءات المتخذة (${procs.length})</div>${procHtml}</td></tr>
+        </tbody>`;
+    }).join('');
+    const now = new Date();
+    const html = `<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>تقرير الطلبات المسحوبة</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Tajawal',Tahoma,sans-serif;background:#f1f5f9;color:#1e293b;padding:18px;line-height:1.8}
+.bar{max-width:1100px;margin:0 auto 12px;display:flex;gap:10px;justify-content:flex-end}
+.bar button{font-family:inherit;font-weight:700;font-size:14px;border:0;border-radius:10px;padding:10px 18px;cursor:pointer;color:#fff}
+#report{background:#fff;max-width:1100px;margin:0 auto;padding:22px}
+.head{text-align:center;border-bottom:3px solid #c9a227;padding-bottom:10px;margin-bottom:14px}
+.head h1{font-size:22px;color:#0f2a4a}.head p{font-size:12px;color:#64748b}
+.sum{display:flex;gap:10px;justify-content:center;margin-bottom:14px}
+.sum div{border:1px solid #cbd5e1;background:#f1f5f9;border-top:3px solid #1e4e79;border-radius:10px;padding:8px 22px;text-align:center}
+.sum b{display:block;font-size:20px;color:#0f2a4a}.sum span{font-size:11px;color:#64748b}
+table.m{width:100%;border-collapse:collapse;font-size:12px}
+table.m>thead th{background:#0f2a4a;color:#fff;padding:8px 5px;border:1px solid #0a1d33;border-bottom:2px solid #c9a227}
+.grp{page-break-inside:avoid;break-inside:avoid;page-break-before:auto}
+.grp tr{page-break-inside:avoid;break-inside:avoid}
+.grp tr.main{page-break-after:avoid;break-after:avoid}
+.grp tr.issue{page-break-before:avoid;break-before:avoid;page-break-after:avoid;break-after:avoid}
+.grp tr.procs{page-break-before:avoid;break-before:avoid}
+.pth{page-break-after:avoid;break-after:avoid}
+.grp td{border:1px solid #e2e8f0;padding:6px;vertical-align:top;text-align:center}
+tr.main td{background:#eef3f9;border-top:2px solid #1e4e79;font-weight:600}
+tr.issue td,tr.procs td{text-align:right;background:#fff}
+.mono{direction:ltr;unicode-bidi:plaintext}.b{font-weight:800;color:#1e4e79}
+.pill{background:#e0e7ef;color:#0f2a4a;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700}
+.pth{font-weight:800;color:#334155;margin-bottom:4px;font-size:12px}
+table.pt{width:100%;border-collapse:collapse;font-size:11.5px}
+table.pt thead{display:table-header-group}table.pt tr{page-break-inside:avoid;break-inside:avoid}table.pt th{background:#dbe4ee;color:#0f2a4a;border:1px solid #cbd5e1;padding:4px}
+table.pt td{border:1px solid #e2e8f0;padding:4px 6px;text-align:center}
+table.pt td.tx{text-align:right}
+table.pt tbody tr:nth-child(even) td{background:#f8fafc}
+.att{color:#0369a1;font-size:11px}.empty{color:#94a3b8;font-style:italic;font-size:12px}
+.foot{text-align:center;font-size:11px;color:#94a3b8;margin-top:14px}
+@page{size:A4 landscape;margin:10mm 10mm 14mm;@bottom-center{content:"تقرير الطلبات المسحوبة  |  تاريخ الطباعة: ${now.toLocaleDateString('en-GB')}  |  صفحة " counter(page) " من " counter(pages);font-family:Tajawal,Tahoma,sans-serif;font-size:9px;color:#475569}}
+.grp.long{page-break-inside:auto!important;break-inside:auto!important}.grp.long tr.procs,.grp.long tr.procs>td{page-break-inside:auto!important;break-inside:auto!important}
+table.m thead{display:table-header-group}
+table.m tr{page-break-inside:avoid;break-inside:avoid}
+@media print{body{background:#fff;padding:0}.bar{display:none}#report{max-width:none;padding:0}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ table.m thead{display:table-header-group}
+ .grp{page-break-inside:avoid;break-inside:avoid}
+  .grp.long,.grp.long tr.procs{page-break-inside:auto!important;break-inside:auto!important}
+ .grp tr{page-break-inside:avoid;break-inside:avoid}
+ .grp tr.main{page-break-after:avoid;break-after:avoid}
+ .grp tr.issue,.grp tr.procs{page-break-before:avoid;break-before:avoid}
+ h1,.head,.sum{page-break-after:avoid;break-after:avoid}}
+</style></head><body>
+<div class="bar"><button style="background:#0f2a4a" onclick="window.print()">🖨️ طباعة</button>
+<button style="background:#1e4e79" onclick="pdf()">⬇️ تصدير PDF</button>
+<button style="background:#64748b" onclick="window.close()">إغلاق</button></div>
+<div id="report">
+<div class="head"><h1>تقرير الطلبات المسحوبة</h1><p>تاريخ الإصدار: ${now.toLocaleDateString('en-GB')} ${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</p></div>
+<div class="sum"><div><b>${list.length}</b><span>عدد الطلبات المسحوبة</span></div><div><b>${totalProcs}</b><span>إجمالي الإجراءات</span></div></div>
+<table class="m"><thead><tr><th style="width:40px">#</th><th>رقم الطلب</th><th>الرقم الحاسوبي</th><th>الجهاز</th><th>الموظف</th><th>القسم</th><th>تاريخ الطلب</th><th>الحالة</th></tr></thead>
+${rows}</table>
+<div class="foot">تقرير صادر آلياً من نظام إدارة الصيانة</div></div>
+<script>function pdf(){html2pdf().set({margin:[8,8,12,8],filename:'withdrawn-requests-${now.toISOString().slice(0,10)}.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'landscape'},pagebreak:{mode:['css','legacy'],avoid:['.grp:not(.long)','table.pt tr','tr.main','tr.issue']}}).from(document.getElementById('report')).toPdf().get('pdf').then(function(doc){var n=doc.internal.getNumberOfPages(),W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();for(var i=1;i<=n;i++){doc.setPage(i);var c=document.createElement('canvas');c.width=2400;c.height=60;var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,2400,60);x.strokeStyle='#c9a227';x.lineWidth=3;x.beginPath();x.moveTo(0,2);x.lineTo(2400,2);x.stroke();x.fillStyle='#334155';x.font='26px Tajawal, Tahoma, sans-serif';x.direction='rtl';x.textAlign='right';x.fillText('تقرير الطلبات المسحوبة',2390,42);x.textAlign='center';x.fillText('تاريخ الطباعة: '+PD,1200,42);x.textAlign='left';x.fillText('صفحة '+i+' من '+n,10,42);doc.addImage(c.toDataURL('image/jpeg',0.95),'JPEG',8,H-8,W-16,(W-16)*60/2400);}}).save();}var PD='${now.toLocaleDateString('en-GB')} ${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}';<\/script>
+</body></html>`;
+    const w = window.open('', '_blank');
+    if (!w) { showToast('error', 'خطأ', 'يرجى السماح بالنوافذ المنبثقة'); return; }
+    w.document.open(); w.document.write(html); w.document.close();
+}
 
 async function printDetailedRequestsReport(options = {}) {
     const activeOnly = !!options.activeOnly;
