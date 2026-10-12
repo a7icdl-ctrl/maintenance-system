@@ -2283,7 +2283,130 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
     .alt-empty { padding:34px 16px; text-align:center; color:var(--text-light); font-size:13px; font-weight:700; }
     .alt-empty i { display:block; font-size:26px; margin-bottom:8px; opacity:.5; }
 
-    </style>
+    /* ==================== ENHANCED ALT TRACKING & EDIT MODAL ==================== */
+    .altm-row { position: relative; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); display: flex; align-items: center; gap: 10px; }
+    .altm-row:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.07); border-color: color-mix(in srgb, var(--rc) 40%, var(--border-color)); }
+    .altm-row.is-selected { background: color-mix(in srgb, var(--primary) 9%, transparent) !important; border-color: var(--primary) !important; box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 35%, transparent); }
+    .altm-avatar { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex: 0 0 34px;
+        background: color-mix(in srgb, var(--rc) 14%, transparent); color: var(--rc); font-size: 14px; }
+    .altm-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+    .altm-top .altm-name { font-size: 13.5px; font-weight: 800; color: var(--text-dark); flex: 1; }
+    .altm-actions { display: flex; align-items: center; gap: 5px; margin-inline-start: 8px; flex: 0 0 auto; }
+    .altm-actions .action-btn { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-size: 12px; cursor: pointer; border: 1px solid var(--border-color); background: var(--bg-card); transition: all 0.15s; }
+    .altm-actions .action-btn.edit { color: var(--primary); }
+    .altm-actions .action-btn.edit:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .altm-actions .action-btn.delete { color: var(--danger); }
+    .altm-actions .action-btn.delete:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .altm-tag.user { background: color-mix(in srgb, var(--primary) 14%, transparent); color: var(--primary); font-weight: 800; }
+    .altm-tag.loc { background: color-mix(in srgb, #0ea5e9 14%, transparent); color: #0284c7; }
+
+    /* Checkbox & Selection Styles */
+    .alt-select-wrap { display: flex; align-items: center; justify-content: center; padding: 4px; cursor: pointer; z-index: 2; }
+    .alt-batch-cb { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; border-radius: 5px; transition: transform 0.15s ease; }
+    .alt-batch-cb:hover { transform: scale(1.15); }
+
+    /* Edit Alt Modal & Bulk Edit Modal - Fixed Scrolling */
+    .edit-alt-modal, .bulk-alt-modal, .undo-alt-modal {
+        max-width: 680px; width: 95%; max-height: 88vh; border-radius: 20px;
+        display: flex !important; flex-direction: column !important; overflow: hidden !important;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.3); background: #ffffff;
+    }
+    .edit-alt-modal .modal-header, .bulk-alt-modal .modal-header {
+        flex-shrink: 0; padding: 20px 25px; border-bottom: 1px solid var(--border-color);
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    }
+    .edit-alt-modal .modal-body, .bulk-alt-modal .modal-body, .undo-alt-modal .modal-body {
+        flex: 1 1 auto; overflow-y: auto !important; max-height: calc(88vh - 145px);
+        padding: 22px 26px; scrollbar-width: thin; scrollbar-color: var(--primary-light) #f1f5f9;
+        overscroll-behavior: contain;
+    }
+    .edit-alt-modal .modal-body::-webkit-scrollbar, .bulk-alt-modal .modal-body::-webkit-scrollbar {
+        width: 7px;
+    }
+    .edit-alt-modal .modal-body::-webkit-scrollbar-track, .bulk-alt-modal .modal-body::-webkit-scrollbar-track {
+        background: #f8fafc; border-radius: 4px;
+    }
+    .edit-alt-modal .modal-body::-webkit-scrollbar-thumb, .bulk-alt-modal .modal-body::-webkit-scrollbar-thumb {
+        background: var(--primary-light); border-radius: 4px;
+    }
+    .edit-alt-modal .modal-footer, .bulk-alt-modal .modal-footer {
+        flex-shrink: 0; padding: 16px 25px; border-top: 1px solid var(--border-color);
+        background: #f8fafc; display: flex; justify-content: flex-end; gap: 10px;
+    }
+    .modal-title-wrap { display: flex; align-items: center; gap: 12px; }
+    .modal-title-icon { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center;
+        background: linear-gradient(135deg, rgba(99,102,241,0.18), rgba(14,165,233,0.18)); color: var(--primary); font-size: 19px; }
+    .modal-sub { font-size: 12px; color: var(--text-light); font-weight: 700; margin-top: 2px; display: block; }
+    .edit-alt-badges-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px 16px;
+        background: color-mix(in srgb, var(--primary) 6%, transparent); border: 1px dashed var(--primary); border-radius: 14px; margin-bottom: 18px; }
+    .edit-alt-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 800; padding: 4px 12px; border-radius: 8px; background: var(--bg-card); border: 1px solid var(--border-color); }
+
+    /* Button Organization & Groups */
+    .alt-top-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+    .alt-btn-group { display: inline-flex; align-items: center; gap: 6px; background: rgba(241,245,249,0.7); padding: 4px 6px; border-radius: 12px; border: 1px solid var(--border-color); }
+    .alt-btn-group .btn { border-radius: 8px; font-weight: 700; }
+
+    
+    /* Undo Modal & Diff Styles */
+    .undo-diff-badge-cur {
+        background: #fee2e2; color: #b91c1c; padding: 2px 7px; border-radius: 6px; font-size: 11.5px; text-decoration: line-through; display: inline-block;
+    }
+    .undo-diff-badge-prev {
+        background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; display: inline-block;
+    }
+    .undo-device-row {
+        background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;
+        transition: all 0.2s ease;
+    }
+    .undo-device-row:hover {
+        background: #ffffff; border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .undo-btn-pulse {
+        animation: pulseUndo 2s infinite;
+    }
+    @keyframes pulseUndo {
+        0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); }
+        70% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
+
+    /* Floating Batch Action Bar */
+    .alt-bulk-bar {
+        position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); z-index: 1050;
+        width: 92%; max-width: 860px; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(14px);
+        border: 1px solid rgba(99, 102, 241, 0.45); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+        border-radius: 20px; padding: 12px 20px; animation: slideUpBulk 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes slideUpBulk {
+        from { opacity: 0; transform: translate(-50%, 25px); }
+        to { opacity: 1; transform: translate(-50%, 0); }
+    }
+    .alt-bulk-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .alt-bulk-info { display: flex; align-items: center; gap: 12px; color: #fff; }
+    .alt-bulk-icon { width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, var(--primary), #0ea5e9); color: #fff; display: grid; place-items: center; font-size: 16px; }
+    .alt-bulk-info b { font-size: 14.5px; color: #ffffff; display: block; }
+    .alt-bulk-info small { font-size: 11.5px; color: #cbd5e1; font-weight: 600; }
+    .alt-bulk-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    /* Grouped Inventory Table */
+    .alt-inv-group-row td { background: linear-gradient(135deg, #f8fafc, #f1f5f9) !important; padding: 10px 14px !important; border-top: 2px solid #cbd5e1 !important; border-bottom: 2px solid #cbd5e1 !important; }
+    .alt-inv-group-banner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .alt-inv-group-title { display: flex; align-items: center; gap: 10px; }
+    .alt-inv-group-icon { width: 34px; height: 34px; border-radius: 9px; background: color-mix(in srgb, var(--primary) 15%, transparent); color: var(--primary); display: grid; place-items: center; font-size: 15px; }
+    .alt-inv-group-name { font-size: 15px; font-weight: 900; color: #1e293b; }
+    .alt-inv-group-stats { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .alt-grp-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 800; padding: 3px 10px; border-radius: 20px; }
+    .alt-grp-pill.total { background: rgba(99,102,241,0.12); color: var(--primary); }
+    .alt-grp-pill.avail { background: rgba(16,185,129,0.14); color: #059669; }
+    .alt-grp-pill.busy { background: rgba(239,68,68,0.14); color: #dc2626; }
+    
+    .alt-inv-badge-avail { display: inline-flex; align-items: center; gap: 5px; background: rgba(16,185,129,0.14); color: #059669; font-weight: 800; padding: 4px 12px; border-radius: 20px; font-size: 11.5px; border: 1px solid rgba(16,185,129,0.25); }
+    .alt-inv-badge-busy { display: inline-flex; align-items: center; gap: 5px; background: rgba(239,68,68,0.14); color: #dc2626; font-weight: 800; padding: 4px 12px; border-radius: 20px; font-size: 11.5px; border: 1px solid rgba(239,68,68,0.25); }
+    .alt-inv-loc { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--text-dark); background: color-mix(in srgb, #0ea5e9 10%, transparent); border: 1px solid color-mix(in srgb, #0ea5e9 20%, transparent); padding: 4px 10px; border-radius: 8px; }
+    .alt-inv-cat { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; color: var(--primary); }
+    #altInventoryTable tbody tr:hover td { background: color-mix(in srgb, var(--primary) 4%, transparent); }
+    #altInventoryTable tbody tr.is-selected td { background: color-mix(in srgb, var(--primary) 10%, transparent) !important; }
+</style>
 
 <style id="pmOverviewCss">
 #pmOverviewOverlay{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(3px);z-index:99999;display:none;padding:12px;overflow:auto}
@@ -4270,16 +4393,57 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
             <div class="page-section" id="page-alternatives">
                 <div class="page-header">
                     <h1 class="page-title">الأجهزة البديلة</h1>
-                    <div class="page-actions no-print">
-                        <button class="btn btn-success btn-sm no-readonly" onclick="if(checkReadOnly())return;openAltModal()">
-                            <i class="fas fa-plus"></i> إضافة موديل
-                        </button>
-                        <button class="btn btn-info btn-sm no-readonly" onclick="if(checkReadOnly())return;openAssignModal()">
-                            <i class="fas fa-hand-holding"></i> تسليم جهاز
-                        </button>
-                        <button class="btn btn-primary btn-sm" onclick="printAlternatives()">
-                            <i class="fas fa-print"></i> طباعة
-                        </button>
+                    <div class="page-actions no-print alt-top-actions">
+                        <div class="alt-btn-group" title="إجراءات الإضافة والتسليم">
+                            <button class="btn btn-success btn-sm no-readonly" onclick="if(checkReadOnly())return;openAltModal()">
+                                <i class="fas fa-plus-circle"></i> إضافة موديل بديل
+                            </button>
+                            <button class="btn btn-info btn-sm no-readonly" onclick="if(checkReadOnly())return;openAssignModal()">
+                                <i class="fas fa-hand-holding-hand"></i> تسليم جهاز
+                            </button>
+                        </div>
+                        <div class="alt-btn-group" title="تصدير وطباعة التقارير">
+                            <button class="btn btn-warning btn-sm" onclick="exportAlternativesToExcel()" title="تصدير جميع الأجهزة البديلة ومواقعها إلى Excel">
+                                <i class="fas fa-file-excel"></i> تصدير Excel
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="exportAlternativesToPDF()" title="تصدير كشف الأجهزة البديلة بصيغة PDF">
+                                <i class="fas fa-file-pdf"></i> تصدير PDF
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="printAlternativesTable()" title="طباعة كشف تفصيلي كامل بجميع الأجهزة ومواقعها">
+                                <i class="fas fa-print"></i> طباعة الكشف
+                            </button>
+                        </div>
+                        <div class="alt-btn-group" id="altUndoBtnGroup" style="display:none;" title="التراجع عن آخر تعديل جماعي">
+                            <button class="btn btn-warning btn-sm undo-btn-pulse" id="altTopUndoBtn" onclick="openUndoBulkEditModal()" style="background:#f59e0b; color:#fff; border:none; font-weight:700;">
+                                <i class="fas fa-rotate-left"></i> تراجع عن آخر تعديل جماعي (<span id="altTopUndoCount">0</span>)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- شريط الإجراءات الجماعية العائم للأجهزة البديلة -->
+                <div id="altBulkActionBar" class="alt-bulk-bar" style="display:none;">
+                    <div class="alt-bulk-inner">
+                        <div class="alt-bulk-info">
+                            <div class="alt-bulk-icon"><i class="fas fa-check-double"></i></div>
+                            <div>
+                                <b id="altBulkCount">0 أجهزة محددة</b>
+                                <small>يمكنك تطبيق تعديل موحد على كافة الأجهزة البديلة المحددة</small>
+                            </div>
+                        </div>
+                        <div class="alt-bulk-actions">
+                            <button class="btn btn-primary btn-sm" onclick="openBulkEditAltModal()">
+                                <i class="fas fa-pen-to-square"></i> تعديل جماعي للأجهزة المحددة
+                            </button>
+                            <button class="btn btn-outline btn-sm" style="color:#fff; border-color:rgba(255,255,255,0.3);" onclick="selectAllFilteredAlt(true)">
+                                <i class="fas fa-square-check"></i> تحديد كل المعروض
+                            </button>
+                            <button class="btn btn-light btn-sm" onclick="clearAltSelection()">
+                                <i class="fas fa-xmark"></i> إلغاء التحديد
+                            </button>
+                            <button class="btn btn-warning btn-sm" id="altBarUndoBtn" style="display:none;" onclick="openUndoBulkEditModal()" title="التراجع عن التعديل السابق">
+                                <i class="fas fa-rotate-left"></i> تراجع (<span id="altBarUndoCount">0</span>)
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="alt-hero" id="altHero"></div>
@@ -4287,6 +4451,7 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                     <button class="tab-btn active" onclick="showAltTab('summary')"><i class="fas fa-layer-group"></i> ملخص الكميات</button>
                     <button class="tab-btn" onclick="showAltTab('tracking')"><i class="fas fa-barcode"></i> التتبع الفردي</button>
                     <button class="tab-btn" onclick="showAltTab('assignments')"><i class="fas fa-hand-holding-hand"></i> التسليمات</button>
+                    <button class="tab-btn" onclick="showAltTab('full-inventory')"><i class="fas fa-table-list"></i> كشف وجرد الأجهزة الشامل</button>
                 </div>
                 <div class="alt-toolbar no-print">
                     <div class="alt-search">
@@ -4310,6 +4475,68 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                                 <table class="data-table" id="assignmentsTable">
                                     <thead>
                                         <tr><th>المادة</th><th>الموديل</th><th>الموظف</th><th>الموقع</th><th>تاريخ التسليم</th><th>تاريخ الاسترجاع</th><th>الحالة</th><th class="no-print">إجراءات</th></tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="tab-full-inventory">
+                    <div class="card">
+                        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; padding:16px 20px;">
+                            <div>
+                                <h3 style="margin:0; font-size:16px; font-weight:800; display:flex; align-items:center; gap:8px;">
+                                    <i class="fas fa-clipboard-list" style="color:var(--primary);"></i> كشف الأجهزة البديلة ومواقعها الحالية
+                                </h3>
+                                <small style="color:var(--text-light); font-size:12px; font-weight:700;">جرد تفصيلي لكافة الأجهزة، الموديلات، الأرقام التسلسلية، ومكان وجود المادة حالياً</small>
+                            </div>
+                            <div class="alt-btn-group" style="padding:3px 6px;">
+                                <button class="btn btn-warning btn-sm" onclick="exportAlternativesToExcel()" title="تصدير كشف الأجهزة إلى ملف Excel">
+                                    <i class="fas fa-file-excel"></i> تصدير Excel
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="exportAlternativesToPDF()" title="تصدير كشف الأجهزة البديلة بصيغة PDF">
+                                    <i class="fas fa-file-pdf"></i> تصدير PDF
+                                </button>
+                                <button class="btn btn-primary btn-sm" onclick="printAlternativesTable()" title="طباعة كشف حصر وجرد الأجهزة البديلة">
+                                    <i class="fas fa-print"></i> طباعة الكشف
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body" style="padding:16px 20px;">
+                            <div class="alt-inventory-filter-bar no-print" style="display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; align-items:center;">
+                                <div style="flex:1 1 240px; min-width:200px; position:relative;">
+                                    <i class="fas fa-magnifying-glass" style="position:absolute; inset-inline-start:12px; top:50%; transform:translateY(-50%); color:var(--text-light);"></i>
+                                    <input type="text" id="altInvSearch" class="form-control" style="padding-inline-start:36px; border-radius:10px;" placeholder="ابحث بالتصنيف، الموديل، السيريال، الموقع، أو الموظف..." oninput="renderAltInventoryTable()">
+                                </div>
+                                <select id="altInvTypeFilter" class="form-control" style="width:auto; min-width:160px; border-radius:10px;" onchange="renderAltInventoryTable()">
+                                    <option value="all">جميع التصنيفات</option>
+                                </select>
+                                <select id="altInvStatusFilter" class="form-control" style="width:auto; min-width:140px; border-radius:10px;" onchange="renderAltInventoryTable()">
+                                    <option value="all">جميع الحالات</option>
+                                    <option value="available">متاح في المستودع</option>
+                                    <option value="unavailable">غير متاح / مسلّم</option>
+                                </select>
+                                <div id="altInvCountBadge" style="font-size:12px; font-weight:800; color:var(--text-light); margin-inline-start:auto;">0 جهاز</div>
+                            </div>
+                            <div class="table-container">
+                                <table class="data-table" id="altInventoryTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:38px; text-align:center;">
+                                                <input type="checkbox" id="altInvMasterCb" class="alt-batch-cb" onchange="toggleSelectAllAltInv(this)" title="تحديد / إلغاء تحديد كل المعروض">
+                                            </th>
+                                            <th style="width:40px; text-align:center;">#</th>
+                                            <th>التصنيف / النوع</th>
+                                            <th>الموديل</th>
+                                            <th>الرقم التسلسلي (S/N)</th>
+                                            <th style="text-align:center;">الحالة</th>
+                                            <th>مكان وجود المادة حالياً</th>
+                                            <th>الموظف المستلم</th>
+                                            <th>تاريخ التسليم / الإضافة</th>
+                                            <th>ملاحظات</th>
+                                            <th class="no-print" style="width:90px; text-align:center;">إجراءات</th>
+                                        </tr>
                                     </thead>
                                     <tbody></tbody>
                                 </table>
@@ -10794,6 +11021,240 @@ html[data-theme="dark"] #page-computer_items .ci-table thead th.sortable.desc .s
                 <button class="btn btn-secondary" onclick="closeModal('altModal')">إلغاء</button>
                 <button class="btn btn-primary" onclick="saveAltModel()">
                     <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: تعديل بيانات الجهاز والموديل البديل -->
+    <div class="modal-overlay" id="editAltModal">
+        <div class="modal edit-alt-modal">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-title-icon"><i class="fas fa-pen-to-square"></i></div>
+                    <div>
+                        <h3 style="margin:0; font-size:18px; font-weight:800; color:var(--text-dark);">تعديل بيانات الجهاز البديل</h3>
+                        <span id="editAltModalSubtitle" class="modal-sub">الموديل: —</span>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('editAltModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editAltId">
+                <div class="edit-alt-badges-bar" id="editAltBadgesBar">
+                    <span class="edit-alt-badge" id="badgeEditType"><i class="fas fa-layer-group"></i> <b>التصنيف:</b> —</span>
+                    <span class="edit-alt-badge" id="badgeEditStatus"><i class="fas fa-signal"></i> <b>الحالة:</b> —</span>
+                    <span class="edit-alt-badge" id="badgeEditSerial"><i class="fas fa-barcode"></i> <b>الرقم التسلسلي:</b> —</span>
+                    <span class="edit-alt-badge" id="badgeEditCurLoc" style="color:#0284c7;"><i class="fas fa-location-dot"></i> <b>المكان الحالي:</b> —</span>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label><i class="fas fa-layer-group" style="color:var(--primary);"></i> نوع الجهاز (التصنيف) <span style="color:var(--danger)">*</span></label>
+                        <select class="form-control" id="editAltTypeSelect">
+                            <option value="">اختر نوع الجهاز</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-laptop" style="color:var(--primary);"></i> اسم / رقم الموديل <span style="color:var(--danger)">*</span></label>
+                        <input type="text" class="form-control" id="editAltModelName" placeholder="مثال: Dell OptiPlex 7090">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-barcode" style="color:var(--primary);"></i> الرقم التسلسلي (Serial Number)</label>
+                        <input type="text" class="form-control" id="editAltSerial" placeholder="مثال: SN-4920194">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-signal" style="color:var(--primary);"></i> حالة الجهاز</label>
+                        <select class="form-control" id="editAltStatus" onchange="onEditAltStatusChange()">
+                            <option value="available">متاح (في المستودع جاهز للصرف)</option>
+                            <option value="unavailable">غير متاح (مسلّم أو قيد الاستخدام)</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label><i class="fas fa-location-dot" style="color:#0ea5e9;"></i> مكان وجود الجهاز حالياً <span style="color:var(--danger)">*</span></label>
+                        <input type="text" class="form-control" id="editAltLocation" placeholder="مثال: المستودع الرئيسي / مكتب IT / قسم المحاسبة ط2...">
+                    </div>
+                    <div class="form-group" id="editAltAssignedWrap">
+                        <label><i class="fas fa-user-tag" style="color:var(--info);"></i> الموظف المستلم (في حال التسليم)</label>
+                        <input type="text" class="form-control" id="editAltAssignedTo" placeholder="اسم الموظف المستلم للجهاز">
+                    </div>
+                    <div class="form-group" id="editAltAssignDateWrap">
+                        <label><i class="fas fa-calendar-day" style="color:var(--info);"></i> تاريخ التسليم / التحديث</label>
+                        <input type="date" class="form-control" id="editAltAssignDate">
+                    </div>
+                    <div class="form-group full-width">
+                        <label><i class="fas fa-comment-dots" style="color:var(--text-light);"></i> ملاحظات ومواصفات فنية إضافية</label>
+                        <textarea class="form-control" id="editAltNotes" rows="2" placeholder="مواصفات الجهاز (RAM, CPU, HDD) أو ملاحظات الفحص والحالة..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+                <button type="button" class="btn btn-danger btn-sm no-readonly" onclick="deleteFromEditModal()" style="display:flex; align-items:center; gap:6px;">
+                    <i class="fas fa-trash"></i> حذف الجهاز
+                </button>
+                <div style="display:flex; gap:8px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editAltModal')">إلغاء</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEditedAltModel()" style="display:flex; align-items:center; gap:6px;">
+                        <i class="fas fa-check"></i> حفظ التعديلات
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- Modal: التراجع عن آخر تعديل جماعي للأجهزة البديلة -->
+    <div class="modal-overlay" id="undoBulkEditModal">
+        <div class="modal undo-alt-modal">
+            <div class="modal-header" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color:#fff;">
+                <div class="modal-title-wrap">
+                    <div class="modal-title-icon" style="background:rgba(245,158,11,0.25); color:#fbbf24;">
+                        <i class="fas fa-rotate-left"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin:0; font-size:18px; font-weight:800; color:#fff;">التراجع عن آخر تعديل جماعي</h3>
+                        <span id="undoModalSubtitle" class="modal-sub" style="color:#cbd5e1;">استعادة القيم الأصلية السابقة للأجهزة المعدلة</span>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('undoBulkEditModal')" style="color:#fff;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Info banner -->
+                <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:12px; padding:14px 16px; margin-bottom:18px; display:flex; align-items:flex-start; gap:12px;">
+                    <i class="fas fa-triangle-exclamation" style="color:#d97706; font-size:20px; margin-top:2px;"></i>
+                    <div style="font-size:13px; color:#92400e; line-height:1.6; width:100%;">
+                        <strong>ملخص إجراء التراجع:</strong>
+                        <p style="margin:4px 0 8px 0;">سيقوم هذا الإجراء بإلغاء التعديلات الجماعية الأخيرة وإعادة الحقول السابقة للأجهزة الموضحة أدناه كما كانت قبل التعديل تماماً.</p>
+                        <div id="undoChangesListWrap" style="background:rgba(255,255,255,0.7); border-radius:8px; padding:8px 12px; border:1px dashed #f59e0b; margin-top:6px;">
+                            <strong style="color:#78350f;">التعديلات السابقة التي سيتم عكسها:</strong>
+                            <ul id="undoChangesList" style="margin:6px 0 0 20px; padding:0; font-size:12.5px; color:#92400e;"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats card -->
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px 18px; margin-bottom:18px;">
+                    <div>
+                        <span style="font-size:12px; color:#64748b; display:block;">عدد الأجهزة التي ستُستعاد بياناتها:</span>
+                        <strong id="undoDeviceCountBadge" style="font-size:18px; color:var(--primary);">0 جهاز</strong>
+                    </div>
+                    <div style="text-align:left;">
+                        <span style="font-size:12px; color:#64748b; display:block;">تاريخ وتوقيت التعديل السابق:</span>
+                        <strong id="undoTimestampBadge" style="font-size:13px; color:#334155;">-</strong>
+                    </div>
+                </div>
+
+                <!-- Devices comparison list -->
+                <div style="margin-bottom:10px;">
+                    <h4 style="margin:0 0 10px 0; font-size:14px; font-weight:800; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-list-check" style="color:var(--primary);"></i>
+                        تفاصيل الأجهزة والحقول التي ستُستعاد:
+                    </h4>
+                    <div id="undoDevicesContainer" style="max-height:360px; overflow-y:auto; padding-right:4px;">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="background:#f8fafc; border-top:1px solid #e2e8f0;">
+                <button class="btn btn-secondary" onclick="closeModal('undoBulkEditModal')">إلغاء الأمر</button>
+                <button class="btn btn-warning" id="btnConfirmUndo" onclick="confirmAndExecuteUndoBulkEdit()" style="background:#f59e0b; color:#fff; border:none; font-weight:700; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-rotate-left"></i> تأكيد التراجع واستعادة البيانات
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: تعديل جماعي للأجهزة البديلة المحددة -->
+    <div class="modal-overlay" id="bulkEditAltModal">
+        <div class="modal bulk-alt-modal">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-title-icon" style="background:linear-gradient(135deg, rgba(79,70,229,0.18), rgba(16,185,129,0.18)); color:var(--primary);">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin:0; font-size:18px; font-weight:800; color:var(--text-dark);">تعديل جماعي للأجهزة البديلة</h3>
+                        <span id="bulkEditSubtitle" class="modal-sub">سيتم تطبيق التعديلات المحددة على (0) أجهزة مختارة</span>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('bulkEditAltModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="background:rgba(79,70,229,0.06); border:1px solid rgba(79,70,229,0.2); border-radius:12px; padding:12px 14px; margin-bottom:18px; display:flex; align-items:flex-start; gap:10px;">
+                    <i class="fas fa-info-circle" style="color:var(--primary); font-size:16px; margin-top:2px;"></i>
+                    <div style="font-size:12px; color:var(--text-dark); line-height:1.6;">
+                        <strong>ملاحظة:</strong> قم بتفعيل مفتاح التعديل بجانب الحقول التي ترغب بتغييرها فقط. الحقول غير المفعلة ستحافظ على قيمها الحالية في كل جهاز دون أي تغيير.
+                    </div>
+                </div>
+
+                <!-- Field 1: Category / Type -->
+                <div class="bulk-field-card" style="border:1px solid var(--border-color); border-radius:12px; padding:14px; margin-bottom:14px; background:var(--bg-card);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="font-weight:800; font-size:13.5px; display:flex; align-items:center; gap:8px; cursor:pointer;" for="bulkModType">
+                            <input type="checkbox" id="bulkModType" class="alt-batch-cb" onchange="toggleBulkInput('bulkTypeSelect', this.checked)">
+                            <i class="fas fa-layer-group" style="color:var(--primary);"></i> تعديل نوع الجهاز (التصنيف)
+                        </label>
+                        <span class="badge" id="bulkTypeStatusBadge" style="background:#f1f5f9; color:#64748b; font-size:11px;">غير مفعل</span>
+                    </div>
+                    <select id="bulkTypeSelect" class="form-control" disabled style="opacity:0.5;">
+                        <option value="">اختر التصنيف الجديد...</option>
+                    </select>
+                </div>
+
+                <!-- Field 2: Status -->
+                <div class="bulk-field-card" style="border:1px solid var(--border-color); border-radius:12px; padding:14px; margin-bottom:14px; background:var(--bg-card);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="font-weight:800; font-size:13.5px; display:flex; align-items:center; gap:8px; cursor:pointer;" for="bulkModStatus">
+                            <input type="checkbox" id="bulkModStatus" class="alt-batch-cb" onchange="toggleBulkInput('bulkStatusSelect', this.checked); onBulkStatusSelectChange();">
+                            <i class="fas fa-signal" style="color:var(--info);"></i> تعديل الحالة التشغيلية
+                        </label>
+                        <span class="badge" id="bulkStatusStatusBadge" style="background:#f1f5f9; color:#64748b; font-size:11px;">غير مفعل</span>
+                    </div>
+                    <select id="bulkStatusSelect" class="form-control" disabled style="opacity:0.5;" onchange="onBulkStatusSelectChange()">
+                        <option value="available">متاح (متواجد في المستودع)</option>
+                        <option value="unavailable">غير متاح (مُسلّم في موقع عمل)</option>
+                    </select>
+                </div>
+
+                <!-- Field 3: Location -->
+                <div class="bulk-field-card" style="border:1px solid var(--border-color); border-radius:12px; padding:14px; margin-bottom:14px; background:var(--bg-card);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="font-weight:800; font-size:13.5px; display:flex; align-items:center; gap:8px; cursor:pointer;" for="bulkModLocation">
+                            <input type="checkbox" id="bulkModLocation" class="alt-batch-cb" onchange="toggleBulkInput('bulkLocationInput', this.checked)">
+                            <i class="fas fa-location-dot" style="color:#0ea5e9;"></i> تعديل مكان وجود الأجهزة حالياً
+                        </label>
+                        <span class="badge" id="bulkLocationStatusBadge" style="background:#f1f5f9; color:#64748b; font-size:11px;">غير مفعل</span>
+                    </div>
+                    <input type="text" id="bulkLocationInput" class="form-control" placeholder="أدخل اسم الموقع الجديد (مثال: المستودع الرئيسي، قسم المحاسبة...)" disabled style="opacity:0.5;">
+                </div>
+
+                <!-- Field 4: Employee (only if unavailable) -->
+                <div class="bulk-field-card" id="bulkEmployeeWrap" style="border:1px solid var(--border-color); border-radius:12px; padding:14px; margin-bottom:14px; background:var(--bg-card); display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="font-weight:800; font-size:13.5px; display:flex; align-items:center; gap:8px; cursor:pointer;" for="bulkModEmployee">
+                            <input type="checkbox" id="bulkModEmployee" class="alt-batch-cb" onchange="toggleBulkInput('bulkEmployeeInput', this.checked)">
+                            <i class="fas fa-user" style="color:var(--primary);"></i> تعيين الموظف المستلم (اختياري)
+                        </label>
+                        <span class="badge" id="bulkEmployeeStatusBadge" style="background:#f1f5f9; color:#64748b; font-size:11px;">غير مفعل</span>
+                    </div>
+                    <input type="text" id="bulkEmployeeInput" class="form-control" placeholder="اسم الموظف المستلم..." disabled style="opacity:0.5;">
+                </div>
+
+                <!-- Field 5: Notes -->
+                <div class="bulk-field-card" style="border:1px solid var(--border-color); border-radius:12px; padding:14px; background:var(--bg-card);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="font-weight:800; font-size:13.5px; display:flex; align-items:center; gap:8px; cursor:pointer;" for="bulkModNotes">
+                            <input type="checkbox" id="bulkModNotes" class="alt-batch-cb" onchange="toggleBulkInput('bulkNotesInput', this.checked)">
+                            <i class="fas fa-sticky-note" style="color:var(--accent);"></i> تحديث الملاحظات الفنية
+                        </label>
+                        <span class="badge" id="bulkNotesStatusBadge" style="background:#f1f5f9; color:#64748b; font-size:11px;">غير مفعل</span>
+                    </div>
+                    <textarea id="bulkNotesInput" class="form-control" rows="2" placeholder="أدخل الملاحظات الفنية المراد تطبيقها على الأجهزة المحددة..." disabled style="opacity:0.5;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('bulkEditAltModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="confirmAndExecuteBulkEdit()">
+                    <i class="fas fa-check-double"></i> حفظ وتطبيق التعديل الجماعي
                 </button>
             </div>
         </div>
@@ -18499,7 +18960,7 @@ function renderAlternatives() {
     const { devices, models, assignments, filter } = altState;
     const q = (document.getElementById('altSearch')?.value || '').trim().toLowerCase();
     const isAvail = m => m.status === 'available';
-    const matches = m => !q || [m.model, m.serial, m.location, m.type].some(v => String(v || '').toLowerCase().includes(q));
+    const matches = m => !q || [m.model, m.serial, m.location, m.type, m.assigned_to, m.notes].some(v => String(v || '').toLowerCase().includes(q));
 
     // KPIs
     const totalCap = devices.reduce((s, d) => s + (Number(d.total_qty || d.totalQty) || 0), 0);
@@ -18559,23 +19020,48 @@ function renderAlternatives() {
         return `
             <div class="altt-card" style="--ac2:${color}; animation-delay:${Math.min(idx, 12) * 40}ms">
                 <div class="altt-head">
-                    <i class="fas ${altIconFor(dev.type)} hicon"></i>
-                    <h4>${dev.type}</h4>
-                    <span class="altt-count">${rows.length}${rows.length !== all.length ? ` من ${all.length}` : ''} / ${dev.total_qty || dev.totalQty || 0}</span>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <i class="fas ${altIconFor(dev.type)} hicon"></i>
+                        <h4>${dev.type}</h4>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span class="altt-count">${rows.length}${rows.length !== all.length ? ` من ${all.length}` : ''} / ${dev.total_qty || dev.totalQty || 0}</span>
+                        <button type="button" class="btn btn-outline btn-xs" style="padding:2px 7px; font-size:11px; border-radius:6px;" onclick="event.stopPropagation(); selectCategoryAlt('${dev.type}', true);" title="تحديد جميع موديلات هذا التصنيف للتعديل الجماعي">
+                            <i class="fas fa-check-double"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="altm-list">
-                    ${rows.length ? rows.map(m => `
-                        <div class="altm-row ${m.status === 'available' ? '' : 'busy'}" onclick="editAltModel(${m.id})" title="تعديل الموديل">
+                    ${rows.length ? rows.map(m => {
+                        const act = (assignments || []).find(a => (Number(a.model_id) === Number(m.id) || Number(a.modelId) === Number(m.id)) && a.status === 'active');
+                        const assignedEmp = act ? act.employee : (m.assigned_to || '');
+                        const locText = act ? (act.location ? `${act.location} (لدى: ${act.employee})` : `لدى: ${act.employee}`) : (m.location || (m.status === 'available' ? 'المستودع الرئيسي' : 'غير محدد'));
+                        const isSel = window.selectedAltIds && window.selectedAltIds.has(Number(m.id));
+                        return `
+                        <div class="altm-row ${m.status === 'available' ? '' : 'busy'} ${isSel ? 'is-selected' : ''}" onclick="openEditAltModel(${m.id})" title="انقر لتعديل بيانات الموديل ومكانه">
+                            <label class="alt-select-wrap" onclick="event.stopPropagation();" title="تحديد الجهاز للتعديل الجماعي">
+                                <input type="checkbox" class="alt-batch-cb" data-id="${m.id}" ${isSel ? 'checked' : ''} onchange="toggleAltSelection(${m.id}, this.checked)">
+                            </label>
+                            <div class="altm-avatar">
+                                <i class="fas ${altIconFor(m.type)}"></i>
+                            </div>
                             <div class="altm-main">
-                                <div class="altm-name">${m.model || 'بدون اسم'}</div>
+                                <div class="altm-top">
+                                    <span class="altm-name">${m.model || 'بدون اسم'}</span>
+                                    <span class="altm-pill">${m.status === 'available' ? '<i class="fas fa-check-circle" style="margin-inline-end:3px;"></i>متاح' : '<i class="fas fa-circle-xmark" style="margin-inline-end:3px;"></i>غير متاح'}</span>
+                                </div>
                                 <div class="altm-tags">
-                                    <span class="altm-tag"><i class="fas fa-barcode"></i>${m.serial || 'بدون رقم'}</span>
-                                    <span class="altm-tag"><i class="fas fa-location-dot"></i>${m.location || 'غير محدد'}</span>
+                                    <span class="altm-tag" title="الرقم التسلسلي"><i class="fas fa-barcode"></i>${m.serial || 'بدون رقم'}</span>
+                                    <span class="altm-tag loc" title="مكان وجود الجهاز حالياً"><i class="fas fa-location-dot"></i>${locText}</span>
+                                    ${assignedEmp ? `<span class="altm-tag user" title="الموظف المستلم"><i class="fas fa-user"></i>${assignedEmp}</span>` : ''}
                                 </div>
                             </div>
-                            <span class="altm-pill">${m.status === 'available' ? 'متاح' : 'غير متاح'}</span>
-                            <button class="action-btn delete no-readonly" onclick="event.stopPropagation(); deleteAltModel(${m.id})" title="حذف"><i class="fas fa-trash"></i></button>
-                        </div>`).join('') : `<div class="alt-empty"><i class="fas fa-inbox"></i>لا توجد موديلات مسجلة</div>`}
+                            <div class="altm-actions no-readonly">
+                                <button type="button" class="action-btn edit" onclick="event.stopPropagation(); openEditAltModel(${m.id})" title="تعديل الموديل"><i class="fas fa-pen-to-square"></i></button>
+                                <button type="button" class="action-btn delete" onclick="event.stopPropagation(); deleteAltModel(${m.id})" title="حذف الموديل"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>`;
+                    }).join('') : `<div class="alt-empty"><i class="fas fa-inbox"></i>لا توجد موديلات مسجلة</div>`}
                 </div>
             </div>`;
     }).filter(Boolean).join('');
@@ -18602,6 +19088,9 @@ function renderAlternatives() {
             </td>
         </tr>`).join('') || `<tr><td colspan="8" style="text-align:center;color:var(--text-light);padding:22px">لا توجد تسليمات مطابقة</td></tr>`;
     }
+
+    // Keep inventory table updated as well
+    renderAltInventoryTable();
 }
 
 async function loadAlternatives() {
@@ -18611,28 +19100,49 @@ async function loadAlternatives() {
     altState.devices = altDevices || [];
     altState.models = altModels || [];
     altState.assignments = assignments || [];
+
+    // Detect if alt_models table has 'notes' column
+    if (altModels && altModels.length > 0 && ('notes' in altModels[0])) {
+        window.__altModelHasNotesColumn = true;
+    } else {
+        window.__altModelHasNotesColumn = false;
+    }
+
     renderAlternatives();
+    updateAltUndoUI();
 
     const typeSelect = document.getElementById('altTypeSelect');
     if (typeSelect) {
         typeSelect.innerHTML = '<option value="">اختر نوع الجهاز</option>' + 
-            altDevices.map(d => `<option value="${d.type}">${d.type}</option>`).join('');
+            (altDevices || []).map(d => `<option value="${d.type}">${d.type}</option>`).join('');
     }
 
     const assignDevice = document.getElementById('assignDevice');
     if (assignDevice) {
         assignDevice.innerHTML = '<option value="">اختر الجهاز</option>' + 
-            altDevices.map(d => `<option value="${d.type}">${d.type}</option>`).join('');
+            (altDevices || []).map(d => `<option value="${d.type}">${d.type}</option>`).join('');
     }
+
+    // Update filter in full-inventory tab
+    const invTypeFilter = document.getElementById('altInvTypeFilter');
+    if (invTypeFilter) {
+        const cur = invTypeFilter.value;
+        invTypeFilter.innerHTML = '<option value="all">جميع التصنيفات</option>' + 
+            (altDevices || []).map(d => `<option value="${d.type}" ${d.type === cur ? 'selected' : ''}>${d.type}</option>`).join('');
+    }
+
+    renderAltInventoryTable();
 }
 
 function updateAssignModels() {
     const deviceType = document.getElementById('assignDevice').value;
     SupabaseAPI.request('alt_models', 'GET').then(altModels => {
-        const models = altModels.filter(m => m.type === deviceType && m.status === 'available');
+        const models = (altModels || []).filter(m => m.type === deviceType && m.status === 'available');
         const select = document.getElementById('assignModel');
-        select.innerHTML = '<option value="">اختر الموديل</option>' + 
-            models.map(m => `<option value="${m.id}">${m.model} (${m.serial || 'بدون رقم'})</option>`).join('');
+        if (select) {
+            select.innerHTML = '<option value="">اختر الموديل</option>' + 
+                models.map(m => `<option value="${m.id}">${m.model} (${m.serial || 'بدون رقم'})</option>`).join('');
+        }
     });
 }
 
@@ -18657,8 +19167,8 @@ async function saveAltModel() {
 
     const altModels = await SupabaseAPI.request('alt_models', 'GET');
     const altDevices = await SupabaseAPI.request('alt_devices', 'GET');
-    const device = altDevices.find(d => d.type === type);
-    const currentCount = altModels.filter(m => m.type === type).length;
+    const device = (altDevices || []).find(d => d.type === type);
+    const currentCount = (altModels || []).filter(m => m.type === type).length;
 
     if (device && currentCount >= (device.total_qty || device.totalQty)) {
         showToast('warning', 'تنبيه', 'لقد وصلت للحد الأقصى لهذا النوع');
@@ -18667,7 +19177,7 @@ async function saveAltModel() {
 
     await SupabaseAPI.request('alt_models', 'POST', {
         type, model, serial, status,
-        location: location || 'المستودع',
+        location: location || 'المستودع الرئيسي',
         added_at: new Date().toISOString()
     });
 
@@ -18677,42 +19187,831 @@ async function saveAltModel() {
     showToast('success', 'تم', 'تم إضافة الموديل بنجاح');
 }
 
-async function editAltModel(id) {
-    const altModels = await SupabaseAPI.request('alt_models', 'GET');
-    const model = altModels.find(m => m.id === id);
-    if (!model) return;
+// ==================== EDIT ALT MODEL & BULK ACTIONS & REPORTS ====================
 
-    const newStatus = prompt(`تعديل حالة: ${model.model}\nالحالة الحالية: ${model.status === 'available' ? 'متاح' : 'غير متاح'}\n\nاختر الحالة الجديدة:\n1 - متاح\n2 - غير متاح\n\nأو اضغط إلغاء للخروج`, model.status === 'available' ? '1' : '2');
-    if (newStatus === null) return;
+// State for multi-selection of alternate devices
+window.selectedAltIds = new Set();
+window.lastAltBulkEditSnapshot = null;
+window.__altModelHasNotesColumn = false;
 
-    const newLocation = prompt(`موقع الجهاز الحالي: ${model.location || 'غير محدد'}\n\nأدخل الموقع الجديد (اتركه فارغاً للإبقاء على الحالي):`, model.location || '');
+// Safe update helper that prevents 400 PGRST204 errors when notes column doesn't exist
+async function safeUpdateAltModel(id, updates) {
+    if (!window.__altModelHasNotesColumn && updates.hasOwnProperty('notes')) {
+        delete updates.notes;
+    }
+    try {
+        return await SupabaseAPI.request('alt_models', 'PATCH', updates, id);
+    } catch (err) {
+        if (updates.hasOwnProperty('notes') && (err.message.includes('notes') || err.message.includes('PGRST204'))) {
+            window.__altModelHasNotesColumn = false;
+            const safeUpdates = { ...updates };
+            delete safeUpdates.notes;
+            return await SupabaseAPI.request('alt_models', 'PATCH', safeUpdates, id);
+        }
+        throw err;
+    }
+}
 
-    const updates = {};
-    if (newStatus === '1') updates.status = 'available';
-    else if (newStatus === '2') updates.status = 'unavailable';
-    if (newLocation !== null) updates.location = newLocation.trim() || model.location;
-    updates.updated_at = new Date().toISOString();
 
-    await SupabaseAPI.request('alt_models', 'PATCH', updates, id);
-    await loadAlternatives();
-    await updateDashboard();
-    showToast('success', 'تم التحديث', 'تم تحديث بيانات الجهاز');
+function toggleAltSelection(id, checked) {
+    id = Number(id);
+    if (checked) {
+        window.selectedAltIds.add(id);
+    } else {
+        window.selectedAltIds.delete(id);
+    }
+    syncAltSelectionUI();
+}
+
+function selectCategoryAlt(catName, select) {
+    const models = (altState.models || []).filter(m => (m.type || 'أجهزة غير مصنفة') === catName);
+    models.forEach(m => {
+        const mid = Number(m.id);
+        if (select) window.selectedAltIds.add(mid);
+        else window.selectedAltIds.delete(mid);
+    });
+    syncAltSelectionUI();
+    showToast('info', 'تحديد الأجهزة', `تم تحديد (${models.length}) أجهزة من تصنيف (${catName})`);
+}
+
+function toggleSelectAllAltInv(masterCb) {
+    const checked = masterCb.checked;
+    const currentList = getFilteredAltModels();
+    currentList.forEach(m => {
+        const mid = Number(m.id);
+        if (checked) window.selectedAltIds.add(mid);
+        else window.selectedAltIds.delete(mid);
+    });
+    syncAltSelectionUI();
+}
+
+function selectAllFilteredAlt(select) {
+    const currentList = getFilteredAltModels();
+    currentList.forEach(m => {
+        const mid = Number(m.id);
+        if (select) window.selectedAltIds.add(mid);
+        else window.selectedAltIds.delete(mid);
+    });
+    syncAltSelectionUI();
+    showToast('info', 'تحديد الكل', `تم تحديد (${window.selectedAltIds.size}) أجهزة`);
+}
+
+function clearAltSelection() {
+    window.selectedAltIds.clear();
+    syncAltSelectionUI();
+    showToast('info', 'إلغاء التحديد', 'تم إلغاء تحديد كافة الأجهزة');
+}
+
+function getFilteredAltModels() {
+    const { models, assignments } = altState;
+    const q = (document.getElementById('altInvSearch')?.value || '').trim().toLowerCase();
+    const typeFilter = document.getElementById('altInvTypeFilter')?.value || 'all';
+    const statusFilter = document.getElementById('altInvStatusFilter')?.value || 'all';
+
+    return (models || []).filter(m => {
+        if (typeFilter !== 'all' && m.type !== typeFilter) return false;
+        if (statusFilter === 'available' && m.status !== 'available') return false;
+        if (statusFilter === 'unavailable' && m.status === 'available') return false;
+        if (!q) return true;
+
+        const act = (assignments || []).find(a => (Number(a.model_id) === Number(m.id) || Number(a.modelId) === Number(m.id)) && a.status === 'active');
+        const emp = act ? act.employee : (m.assigned_to || '');
+        const loc = act ? (act.location || '') : (m.location || '');
+
+        return [m.model, m.serial, m.type, m.location, emp, loc, m.notes].some(v => String(v || '').toLowerCase().includes(q));
+    });
+}
+
+function syncAltSelectionUI() {
+    const count = window.selectedAltIds.size;
+    const bar = document.getElementById('altBulkActionBar');
+    const countEl = document.getElementById('altBulkCount');
+
+    if (bar) {
+        bar.style.display = count > 0 ? 'block' : 'none';
+    }
+    if (countEl) {
+        countEl.textContent = `تم تحديد (${count}) جهاز بديل`;
+    }
+
+    // Update all matching checkboxes and row highlight classes
+    document.querySelectorAll('.alt-batch-cb[data-id]').forEach(cb => {
+        const id = Number(cb.getAttribute('data-id'));
+        const isChecked = window.selectedAltIds.has(id);
+        cb.checked = isChecked;
+
+        const parentRow = cb.closest('.altm-row') || cb.closest('tr');
+        if (parentRow) {
+            if (isChecked) parentRow.classList.add('is-selected');
+            else parentRow.classList.remove('is-selected');
+        }
+    });
+
+    // Update master checkbox in table header
+    const masterCb = document.getElementById('altInvMasterCb');
+    if (masterCb) {
+        const filtered = getFilteredAltModels();
+        if (!filtered.length) {
+            masterCb.checked = false;
+            masterCb.indeterminate = false;
+        } else {
+            const allSel = filtered.every(m => window.selectedAltIds.has(Number(m.id)));
+            const someSel = filtered.some(m => window.selectedAltIds.has(Number(m.id)));
+            masterCb.checked = allSel;
+            masterCb.indeterminate = !allSel && someSel;
+        }
+    }
+}
+
+// ==================== BULK EDIT MODAL LOGIC ====================
+function openBulkEditAltModal() {
+    if (checkReadOnly()) return;
+    if (!window.selectedAltIds.size) {
+        showToast('warning', 'تنبيه', 'الرجاء تحديد جهاز بديل واحد على الأقل أولاً');
+        return;
+    }
+
+    // Populate type select
+    const typeSelect = document.getElementById('bulkTypeSelect');
+    if (typeSelect) {
+        typeSelect.innerHTML = '<option value="">اختر التصنيف الجديد...</option>' + 
+            (altState.devices || []).map(d => `<option value="${d.type}">${d.type}</option>`).join('');
+    }
+
+    // Reset all form inputs and disable them
+    ['bulkModType', 'bulkModStatus', 'bulkModLocation', 'bulkModEmployee', 'bulkModNotes'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = false;
+    });
+
+    ['bulkTypeSelect', 'bulkStatusSelect', 'bulkLocationInput', 'bulkEmployeeInput', 'bulkNotesInput'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.disabled = true;
+            el.style.opacity = '0.5';
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.value = '';
+        }
+    });
+
+    ['bulkTypeStatusBadge', 'bulkStatusStatusBadge', 'bulkLocationStatusBadge', 'bulkEmployeeStatusBadge', 'bulkNotesStatusBadge'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.textContent = 'غير مفعل';
+            el.style.background = '#f1f5f9';
+            el.style.color = '#64748b';
+        }
+    });
+
+    const empWrap = document.getElementById('bulkEmployeeWrap');
+    if (empWrap) empWrap.style.display = 'none';
+
+    const sub = document.getElementById('bulkEditSubtitle');
+    if (sub) sub.textContent = `سيتم تطبيق التعديلات المحددة على (${window.selectedAltIds.size}) أجهزة مختارة`;
+
+    openModal('bulkEditAltModal');
+}
+
+function toggleBulkInput(inputId, isChecked) {
+    const input = document.getElementById(inputId);
+    if (input) {
+        input.disabled = !isChecked;
+        input.style.opacity = isChecked ? '1' : '0.5';
+        if (isChecked) input.focus();
+    }
+
+    const badgeMap = {
+        'bulkTypeSelect': 'bulkTypeStatusBadge',
+        'bulkStatusSelect': 'bulkStatusStatusBadge',
+        'bulkLocationInput': 'bulkLocationStatusBadge',
+        'bulkEmployeeInput': 'bulkEmployeeStatusBadge',
+        'bulkNotesInput': 'bulkNotesStatusBadge'
+    };
+
+    const badgeId = badgeMap[inputId];
+    if (badgeId) {
+        const badge = document.getElementById(badgeId);
+        if (badge) {
+            badge.textContent = isChecked ? 'مفعّل للتعديل' : 'غير مفعل';
+            badge.style.background = isChecked ? 'rgba(79,70,229,0.14)' : '#f1f5f9';
+            badge.style.color = isChecked ? 'var(--primary)' : '#64748b';
+        }
+    }
+}
+
+function onBulkStatusSelectChange() {
+    const statusVal = document.getElementById('bulkStatusSelect')?.value;
+    const isModStatus = document.getElementById('bulkModStatus')?.checked;
+    const empWrap = document.getElementById('bulkEmployeeWrap');
+    if (empWrap) {
+        empWrap.style.display = (isModStatus && statusVal === 'unavailable') ? 'block' : 'none';
+    }
+}
+
+async function confirmAndExecuteBulkEdit() {
+    if (checkReadOnly()) return;
+    if (!window.selectedAltIds.size) {
+        showToast('warning', 'تنبيه', 'لا توجد أجهزة محددة للتعديل');
+        return;
+    }
+
+    const modType = document.getElementById('bulkModType')?.checked;
+    const modStatus = document.getElementById('bulkModStatus')?.checked;
+    const modLoc = document.getElementById('bulkModLocation')?.checked;
+    const modEmp = document.getElementById('bulkModEmployee')?.checked;
+    const modNotes = document.getElementById('bulkModNotes')?.checked;
+
+    if (!modType && !modStatus && !modLoc && !modEmp && !modNotes) {
+        showToast('warning', 'تنبيه', 'الرجاء تفعيل خيار واحد على الأقل للتعديل (التصنيف، الحالة، أو الموقع)');
+        return;
+    }
+
+    const newType = modType ? document.getElementById('bulkTypeSelect')?.value : null;
+    const newStatus = modStatus ? document.getElementById('bulkStatusSelect')?.value : null;
+    const newLoc = modLoc ? document.getElementById('bulkLocationInput')?.value.trim() : null;
+    const newEmp = modEmp ? document.getElementById('bulkEmployeeInput')?.value.trim() : null;
+    const newNotes = modNotes ? document.getElementById('bulkNotesInput')?.value.trim() : null;
+
+    if (modType && !newType) {
+        showToast('error', 'حقل مطلوب', 'الرجاء اختيار التصنيف الجديد المراد تعميمه');
+        return;
+    }
+
+    // Build confirmation summary
+    let changesList = [];
+    if (modType) changesList.push(`• تعديل نوع الجهاز (التصنيف) إلى: "${newType}"`);
+    if (modStatus) changesList.push(`• تعديل الحالة التشغيلية إلى: "${newStatus === 'available' ? 'متاح (في المستودع)' : 'غير متاح (مُسلّم)'}"`);
+    if (modLoc) changesList.push(`• تعديل مكان وجود الأجهزة إلى: "${newLoc || 'المستودع الرئيسي'}"`);
+    if (modEmp && newStatus === 'unavailable') changesList.push(`• تعيين الموظف المستلم: "${newEmp}"`);
+    if (modNotes) changesList.push(`• تحديث الملاحظات الفنية: "${newNotes}"`);
+
+    const confirmMsg = `تأكيد التعديل الجماعي:
+هل أنت متأكد من رغبتك في تطبيق التعديلات التالية على عدد (${window.selectedAltIds.size}) جهاز بديل؟
+
+` + 
+        changesList.join(String.fromCharCode(10)) + 
+        `
+
+اضغط "موافق" لتأكيد وحفظ التعديلات في النظام.`;
+
+    if (!confirm(confirmMsg)) return;
+
+    showToast('info', 'جاري التحديث', `جاري تطبيق التعديلات على (${window.selectedAltIds.size}) جهاز بديل...`);
+
+    try {
+        const ids = Array.from(window.selectedAltIds);
+
+        // 1. Capture snapshot BEFORE modifying anything for Undo capability
+        const snapshotDevices = [];
+        for (const id of ids) {
+            const model = (altState.models || []).find(m => Number(m.id) === Number(id));
+            if (!model) continue;
+            const activeAssign = (altState.assignments || []).find(a => 
+                (Number(a.model_id) === Number(id) || Number(a.modelId) === Number(id)) && a.status === 'active'
+            );
+            snapshotDevices.push({
+                id: model.id,
+                type: model.type,
+                model: model.model,
+                serial: model.serial,
+                status: model.status,
+                location: model.location,
+                assigned_to: model.assigned_to,
+                assigned_date: model.assigned_date,
+                notes: model.notes || null,
+                activeAssignment: activeAssign ? {
+                    id: activeAssign.id,
+                    employee: activeAssign.employee,
+                    location: activeAssign.location,
+                    device_type: activeAssign.device_type,
+                    model: activeAssign.model,
+                    assign_date: activeAssign.assign_date || activeAssign.assignDate,
+                    status: activeAssign.status
+                } : null
+            });
+        }
+
+        const now = new Date();
+        const undoSnapshot = {
+            id: 'bulk_' + Date.now(),
+            createdAt: now.toISOString(),
+            formattedTime: now.toLocaleTimeString('ar-JO', { hour: '2-digit', minute: '2-digit' }),
+            formattedDate: now.toLocaleDateString('ar-JO', { year: 'numeric', month: 'numeric', day: 'numeric' }),
+            changesSummary: changesList,
+            affectedIds: ids,
+            modFlags: { modType, modStatus, modLoc, modEmp, modNotes },
+            newValues: { newType, newStatus, newLoc, newEmp, newNotes },
+            devices: snapshotDevices
+        };
+
+        // 2. Apply modifications to each device
+        for (const id of ids) {
+            const model = (altState.models || []).find(m => Number(m.id) === Number(id));
+            const updates = { updated_at: new Date().toISOString() };
+
+            if (modType) updates.type = newType;
+            if (modStatus) {
+                updates.status = newStatus;
+                if (newStatus === 'available') {
+                    updates.assigned_to = null;
+                    updates.assigned_date = null;
+                    if (!modLoc) updates.location = 'المستودع الرئيسي';
+                }
+            }
+            if (modLoc) updates.location = newLoc || (updates.status === 'available' ? 'المستودع الرئيسي' : 'غير محدد');
+            if (modEmp && (newStatus === 'unavailable' || (model && model.status === 'unavailable'))) {
+                updates.assigned_to = newEmp;
+            }
+            if (modNotes && window.__altModelHasNotesColumn) {
+                updates.notes = newNotes;
+            }
+
+            await safeUpdateAltModel(id, updates);
+
+            // Synchronize assignments
+            const activeAssign = (altState.assignments || []).find(a => 
+                (Number(a.model_id) === Number(id) || Number(a.modelId) === Number(id)) && a.status === 'active'
+            );
+
+            if (modStatus && newStatus === 'available' && activeAssign) {
+                await SupabaseAPI.request('assignments', 'PATCH', {
+                    return_date: new Date().toISOString().split('T')[0],
+                    status: 'returned'
+                }, activeAssign.id);
+            } else if (modStatus && newStatus === 'unavailable' && (newEmp || (activeAssign && activeAssign.employee))) {
+                const empName = newEmp || (activeAssign ? activeAssign.employee : 'غير محدد');
+                const devType = newType || (model ? model.type : 'غير محدد');
+                const devModel = model ? model.model : 'بدون اسم';
+                const devLoc = newLoc || (activeAssign ? activeAssign.location : 'غير محدد');
+                if (activeAssign) {
+                    await SupabaseAPI.request('assignments', 'PATCH', {
+                        employee: empName,
+                        location: devLoc,
+                        device_type: devType
+                    }, activeAssign.id);
+                } else {
+                    await SupabaseAPI.request('assignments', 'POST', {
+                        device_type: devType,
+                        model: devModel,
+                        model_id: id,
+                        employee: empName,
+                        location: devLoc,
+                        assign_date: new Date().toISOString().split('T')[0],
+                        return_date: null,
+                        status: 'active'
+                    });
+                }
+            }
+        }
+
+        // 3. Save snapshot for Undo
+        window.lastAltBulkEditSnapshot = undoSnapshot;
+        try {
+            localStorage.setItem('last_alt_bulk_edit_snapshot', JSON.stringify(undoSnapshot));
+        } catch (e) {}
+
+        closeModal('bulkEditAltModal');
+        clearAltSelection();
+        await loadAlternatives();
+        await updateDashboard();
+        updateAltUndoUI();
+
+        showToast('success', 'تم التعديل الجماعي بنجاح', `تم تحديث (${ids.length}) جهاز بنجاح. يمكنك التراجع عن التعديل عبر زر التراجع.`);
+    } catch (err) {
+        console.error('Error applying bulk alt edit:', err);
+        showToast('error', 'خطأ في التعديل الجماعي', 'حدث خطأ أثناء تطبيق التعديل: ' + (err.message || ''));
+    }
+}
+
+// ==================== UNDO BULK EDIT SYSTEM ====================
+function updateAltUndoUI() {
+    let snapshot = window.lastAltBulkEditSnapshot;
+    if (!snapshot) {
+        try {
+            const raw = localStorage.getItem('last_alt_bulk_edit_snapshot');
+            if (raw) {
+                snapshot = JSON.parse(raw);
+                window.lastAltBulkEditSnapshot = snapshot;
+            }
+        } catch (e) {}
+    }
+
+    const hasSnapshot = !!(snapshot && snapshot.devices && snapshot.devices.length);
+    const count = hasSnapshot ? snapshot.devices.length : 0;
+
+    const topGroup = document.getElementById('altUndoBtnGroup');
+    const topCount = document.getElementById('altTopUndoCount');
+    const barBtn = document.getElementById('altBarUndoBtn');
+    const barCount = document.getElementById('altBarUndoCount');
+
+    if (topGroup) topGroup.style.display = hasSnapshot ? 'inline-flex' : 'none';
+    if (topCount) topCount.textContent = count;
+    if (barBtn) barBtn.style.display = hasSnapshot ? 'inline-flex' : 'none';
+    if (barCount) barCount.textContent = count;
+}
+
+function openUndoBulkEditModal() {
+    if (checkReadOnly()) return;
+    let snapshot = window.lastAltBulkEditSnapshot;
+    if (!snapshot) {
+        try {
+            const raw = localStorage.getItem('last_alt_bulk_edit_snapshot');
+            if (raw) snapshot = JSON.parse(raw);
+        } catch (e) {}
+    }
+
+    if (!snapshot || !snapshot.devices || !snapshot.devices.length) {
+        showToast('info', 'لا يوجد تعديل سابق', 'لا توجد عملية تعديل جماعي سابقة مسجلة للتراجع عنها');
+        return;
+    }
+
+    // Set header info
+    const sub = document.getElementById('undoModalSubtitle');
+    if (sub) sub.textContent = `استعادة القيم السابقة لعدد (${snapshot.devices.length}) جهاز بديل`;
+
+    const countBadge = document.getElementById('undoDeviceCountBadge');
+    if (countBadge) countBadge.textContent = `${snapshot.devices.length} جهاز بديل`;
+
+    const timeBadge = document.getElementById('undoTimestampBadge');
+    if (timeBadge) timeBadge.textContent = `${snapshot.formattedDate || ''} الساعة ${snapshot.formattedTime || ''}`;
+
+    // Render changes list
+    const changesListEl = document.getElementById('undoChangesList');
+    if (changesListEl) {
+        changesListEl.innerHTML = (snapshot.changesSummary || []).map(c => `<li style="margin-bottom:3px;">${c}</li>`).join('') || '<li>تعديل بيانات الأجهزة</li>';
+    }
+
+    // Render comparison list
+    renderUndoDevicesList(snapshot);
+
+    const confirmBtn = document.getElementById('btnConfirmUndo');
+    if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = `<i class="fas fa-rotate-left"></i> تأكيد التراجع واستعادة بيانات (${snapshot.devices.length}) جهاز`;
+    }
+
+    openModal('undoBulkEditModal');
+}
+
+function renderUndoDevicesList(snapshot) {
+    const container = document.getElementById('undoDevicesContainer');
+    if (!container) return;
+
+    if (!snapshot || !snapshot.devices || !snapshot.devices.length) {
+        container.innerHTML = '<div style="text-align:center; padding:20px; color:#64748b;">لا توجد أجهزة مسجلة</div>';
+        return;
+    }
+
+    const { modType, modStatus, modLoc, modEmp } = snapshot.modFlags || {};
+
+    let html = '';
+    snapshot.devices.forEach((dev, idx) => {
+        const current = (altState.models || []).find(m => Number(m.id) === Number(dev.id)) || {};
+        
+        let diffs = [];
+        if (modType) {
+            diffs.push(`
+                <div style="font-size:12px; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                    <span style="color:#64748b; font-weight:700; width:110px;">نوع الجهاز (التصنيف):</span>
+                    <span class="undo-diff-badge-cur" title="القيمة الحالية">${current.type || 'بدون'}</span>
+                    <i class="fas fa-arrow-left" style="font-size:10px; color:#64748b;"></i>
+                    <span class="undo-diff-badge-prev" title="القيمة المستعادة">${dev.type || 'بدون'}</span>
+                </div>
+            `);
+        }
+        if (modStatus) {
+            const curStatusText = current.status === 'available' ? 'متاح (في المستودع)' : 'غير متاح (مُسلّم)';
+            const prevStatusText = dev.status === 'available' ? 'متاح (في المستودع)' : 'غير متاح (مُسلّم)';
+            diffs.push(`
+                <div style="font-size:12px; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                    <span style="color:#64748b; font-weight:700; width:110px;">الحالة التشغيلية:</span>
+                    <span class="undo-diff-badge-cur" title="القيمة الحالية">${curStatusText}</span>
+                    <i class="fas fa-arrow-left" style="font-size:10px; color:#64748b;"></i>
+                    <span class="undo-diff-badge-prev" title="القيمة المستعادة">${prevStatusText}</span>
+                </div>
+            `);
+        }
+        if (modLoc) {
+            diffs.push(`
+                <div style="font-size:12px; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                    <span style="color:#64748b; font-weight:700; width:110px;">مكان التواجد:</span>
+                    <span class="undo-diff-badge-cur" title="القيمة الحالية">${current.location || 'غير محدد'}</span>
+                    <i class="fas fa-arrow-left" style="font-size:10px; color:#64748b;"></i>
+                    <span class="undo-diff-badge-prev" title="القيمة المستعادة">${dev.location || 'غير محدد'}</span>
+                </div>
+            `);
+        }
+        if (modEmp) {
+            diffs.push(`
+                <div style="font-size:12px; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                    <span style="color:#64748b; font-weight:700; width:110px;">الموظف المستلم:</span>
+                    <span class="undo-diff-badge-cur" title="القيمة الحالية">${current.assigned_to || '-'}</span>
+                    <i class="fas fa-arrow-left" style="font-size:10px; color:#64748b;"></i>
+                    <span class="undo-diff-badge-prev" title="القيمة المستعادة">${dev.assigned_to || '-'}</span>
+                </div>
+            `);
+        }
+
+        html += `
+            <div class="undo-device-row">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px dashed #e2e8f0; padding-bottom:6px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="background:var(--primary); color:#fff; border-radius:50%; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800;">${idx + 1}</span>
+                        <strong style="color:#1e293b; font-size:13.5px;">${dev.model || 'جهاز بدون اسم'}</strong>
+                        <span class="badge" style="background:#f1f5f9; color:#475569; font-size:11px;">${dev.type || ''}</span>
+                    </div>
+                    <code style="font-size:11px; color:#475569; background:#e2e8f0; padding:2px 6px; border-radius:4px;">S/N: ${dev.serial || 'لا يوجد'}</code>
+                </div>
+                <div style="padding-right:30px;">
+                    ${diffs.join('')}
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+async function confirmAndExecuteUndoBulkEdit() {
+    if (checkReadOnly()) return;
+    let snapshot = window.lastAltBulkEditSnapshot;
+    if (!snapshot) {
+        try {
+            const raw = localStorage.getItem('last_alt_bulk_edit_snapshot');
+            if (raw) snapshot = JSON.parse(raw);
+        } catch (e) {}
+    }
+
+    if (!snapshot || !snapshot.devices || !snapshot.devices.length) {
+        showToast('error', 'خطأ', 'لا توجد بيانات محفوظة للتراجع عنها');
+        return;
+    }
+
+    const btn = document.getElementById('btnConfirmUndo');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري استعادة البيانات...';
+    }
+
+    showToast('info', 'جاري التراجع', `جاري استعادة البيانات الأصلية لـ (${snapshot.devices.length}) جهاز...`);
+
+    try {
+        for (const dev of snapshot.devices) {
+            const updates = {
+                type: dev.type,
+                model: dev.model,
+                serial: dev.serial || null,
+                status: dev.status,
+                location: dev.location || (dev.status === 'available' ? 'المستودع الرئيسي' : 'غير محدد'),
+                assigned_to: dev.status === 'available' ? null : (dev.assigned_to || null),
+                assigned_date: dev.status === 'available' ? null : (dev.assigned_date || null),
+                updated_at: new Date().toISOString()
+            };
+
+            if (window.__altModelHasNotesColumn && dev.notes) {
+                updates.notes = dev.notes;
+            }
+
+            await safeUpdateAltModel(dev.id, updates);
+
+            // Revert assignment if applicable
+            if (dev.activeAssignment) {
+                // Restore active assignment
+                await SupabaseAPI.request('assignments', 'PATCH', {
+                    status: 'active',
+                    employee: dev.activeAssignment.employee,
+                    location: dev.activeAssignment.location,
+                    device_type: dev.activeAssignment.device_type,
+                    assign_date: dev.activeAssignment.assign_date,
+                    return_date: null
+                }, dev.activeAssignment.id);
+            } else if (dev.status === 'available') {
+                // Close any assignment that was opened during the bulk edit
+                const curActive = (altState.assignments || []).find(a => 
+                    (Number(a.model_id) === Number(dev.id) || Number(a.modelId) === Number(dev.id)) && a.status === 'active'
+                );
+                if (curActive) {
+                    await SupabaseAPI.request('assignments', 'PATCH', {
+                        status: 'returned',
+                        return_date: new Date().toISOString().split('T')[0]
+                    }, curActive.id);
+                }
+            }
+        }
+
+        // Successfully restored - clear snapshot
+        window.lastAltBulkEditSnapshot = null;
+        try { localStorage.removeItem('last_alt_bulk_edit_snapshot'); } catch (e) {}
+
+        updateAltUndoUI();
+        closeModal('undoBulkEditModal');
+        await loadAlternatives();
+        await updateDashboard();
+
+        showToast('success', 'تم التراجع بنجاح', `تمت استعادة البيانات السابقة لـ (${snapshot.devices.length}) جهاز بنجاح كما كانت.`);
+    } catch (err) {
+        console.error('Error undoing bulk edit:', err);
+        showToast('error', 'خطأ في التراجع', 'تعذر استعادة بعض البيانات: ' + (err.message || ''));
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fas fa-rotate-left"></i> تأكيد التراجع واستعادة البيانات`;
+        }
+    }
+}
+
+function editAltModel(id) {
+    openEditAltModel(id);
+}
+
+async function openEditAltModel(id) {
+    let model = (altState.models || []).find(m => Number(m.id) === Number(id));
+    if (!model) {
+        const altModels = await SupabaseAPI.request('alt_models', 'GET');
+        model = (altModels || []).find(m => Number(m.id) === Number(id));
+    }
+    if (!model) {
+        showToast('error', 'خطأ', 'تعذر العثور على بيانات الموديل المحدد');
+        return;
+    }
+
+    // Populate device types in modal
+    const typeSelect = document.getElementById('editAltTypeSelect');
+    if (typeSelect) {
+        typeSelect.innerHTML = '<option value="">اختر نوع الجهاز</option>' + 
+            (altState.devices || []).map(d => `<option value="${d.type}" ${d.type === model.type ? 'selected' : ''}>${d.type}</option>`).join('');
+        if (!typeSelect.value && model.type) {
+            typeSelect.innerHTML += `<option value="${model.type}" selected>${model.type}</option>`;
+        }
+    }
+
+    // Find active assignment if any
+    const activeAssign = (altState.assignments || []).find(a => 
+        (Number(a.model_id) === Number(model.id) || Number(a.modelId) === Number(model.id)) && 
+        a.status === 'active'
+    );
+
+    document.getElementById('editAltId').value = model.id;
+    document.getElementById('editAltModelName').value = model.model || '';
+    document.getElementById('editAltSerial').value = model.serial || '';
+    document.getElementById('editAltStatus').value = model.status || 'available';
+    document.getElementById('editAltLocation').value = model.location || (model.status === 'available' ? 'المستودع الرئيسي' : (activeAssign ? activeAssign.location : ''));
+    document.getElementById('editAltAssignedTo').value = activeAssign ? activeAssign.employee : (model.assigned_to || '');
+    document.getElementById('editAltAssignDate').value = activeAssign ? (activeAssign.assign_date || activeAssign.assignDate || '') : (model.assigned_date || '');
+    document.getElementById('editAltNotes').value = model.notes || '';
+
+    // Subtitle & Mini badges
+    const sub = document.getElementById('editAltModalSubtitle');
+    if (sub) sub.textContent = `الموديل: ${model.model || 'بدون اسم'} — المعرف #${model.id}`;
+
+    const bType = document.getElementById('badgeEditType');
+    if (bType) bType.innerHTML = `<i class="fas ${altIconFor(model.type)}" style="color:var(--primary);"></i> <b>التصنيف:</b> ${model.type || 'غير محدد'}`;
+
+    const bStat = document.getElementById('badgeEditStatus');
+    if (bStat) {
+        const isAv = model.status === 'available';
+        bStat.innerHTML = `<i class="fas ${isAv ? 'fa-check-circle' : 'fa-circle-xmark'}" style="color:${isAv ? 'var(--success)' : 'var(--danger)'};"></i> <b>الحالة:</b> ${isAv ? 'متاح' : 'غير متاح'}`;
+    }
+
+    const bSer = document.getElementById('badgeEditSerial');
+    if (bSer) bSer.innerHTML = `<i class="fas fa-barcode"></i> <b>السيريال:</b> ${model.serial || 'بدون'}`;
+
+    const bLoc = document.getElementById('badgeEditCurLoc');
+    if (bLoc) {
+        const curLoc = activeAssign ? (activeAssign.location ? `${activeAssign.location} (لدى: ${activeAssign.employee})` : `لدى: ${activeAssign.employee}`) : (model.location || 'المستودع الرئيسي');
+        bLoc.innerHTML = `<i class="fas fa-location-dot"></i> <b>المكان الحالي:</b> ${curLoc}`;
+    }
+
+    onEditAltStatusChange();
+    openModal('editAltModal');
+}
+
+function onEditAltStatusChange() {
+    const status = document.getElementById('editAltStatus')?.value;
+    const assignedWrap = document.getElementById('editAltAssignedWrap');
+    const dateWrap = document.getElementById('editAltAssignDateWrap');
+    if (status === 'available') {
+        if (assignedWrap) assignedWrap.style.opacity = '0.6';
+        if (dateWrap) dateWrap.style.opacity = '0.6';
+    } else {
+        if (assignedWrap) assignedWrap.style.opacity = '1';
+        if (dateWrap) dateWrap.style.opacity = '1';
+    }
+}
+
+async function saveEditedAltModel() {
+    if (checkReadOnly()) return;
+    const id = parseInt(document.getElementById('editAltId').value);
+    const type = document.getElementById('editAltTypeSelect').value;
+    const model = document.getElementById('editAltModelName').value.trim();
+    const serial = document.getElementById('editAltSerial').value.trim();
+    const status = document.getElementById('editAltStatus').value;
+    const location = document.getElementById('editAltLocation').value.trim();
+    const assignedTo = document.getElementById('editAltAssignedTo').value.trim();
+    const assignDate = document.getElementById('editAltAssignDate').value;
+    const notes = document.getElementById('editAltNotes').value.trim();
+
+    if (!type || !model) {
+        showToast('error', 'حقول مطلوبة', 'الرجاء إدخال نوع الجهاز واسم الموديل');
+        return;
+    }
+
+    const updates = {
+        type,
+        model,
+        serial: serial || null,
+        status,
+        location: location || (status === 'available' ? 'المستودع الرئيسي' : 'غير محدد'),
+        assigned_to: status === 'available' ? null : (assignedTo || null),
+        assigned_date: status === 'available' ? null : (assignDate || null),
+        updated_at: new Date().toISOString()
+    };
+
+    if (window.__altModelHasNotesColumn && notes) {
+        updates.notes = notes;
+    }
+
+    try {
+        await safeUpdateAltModel(id, updates);
+
+        // Sync assignment if active
+        const activeAssign = (altState.assignments || []).find(a => 
+            (Number(a.model_id) === id || Number(a.modelId) === id) && a.status === 'active'
+        );
+
+        if (status === 'available') {
+            if (activeAssign) {
+                await SupabaseAPI.request('assignments', 'PATCH', {
+                    return_date: new Date().toISOString().split('T')[0],
+                    status: 'returned'
+                }, activeAssign.id);
+            }
+        } else if (status === 'unavailable' && assignedTo) {
+            if (activeAssign) {
+                await SupabaseAPI.request('assignments', 'PATCH', {
+                    employee: assignedTo,
+                    location: location || activeAssign.location,
+                    device_type: type,
+                    model: model,
+                    assign_date: assignDate || activeAssign.assign_date || activeAssign.assignDate
+                }, activeAssign.id);
+            } else {
+                await SupabaseAPI.request('assignments', 'POST', {
+                    device_type: type,
+                    model: model,
+                    model_id: id,
+                    employee: assignedTo,
+                    location: location || 'غير محدد',
+                    assign_date: assignDate || new Date().toISOString().split('T')[0],
+                    return_date: null,
+                    status: 'active'
+                });
+            }
+        }
+
+        closeModal('editAltModal');
+        await loadAlternatives();
+        await updateDashboard();
+        showToast('success', 'تم التعديل بنجاح', `تم تحديث بيانات الموديل (${model})`);
+    } catch (err) {
+        console.error('Error saving edited alt model:', err);
+        showToast('error', 'خطأ في الحفظ', 'تعذر حفظ تعديلات الموديل');
+    }
+}
+
+async function deleteFromEditModal() {
+    const id = parseInt(document.getElementById('editAltId').value);
+    if (!id) return;
+    closeModal('editAltModal');
+    await deleteAltModel(id);
 }
 
 async function deleteAltModel(id) {
     if (checkReadOnly()) return;
     if (!confirm('هل أنت متأكد من حذف هذا الموديل؟')) return;
     await SupabaseAPI.request('alt_models', 'DELETE', null, id);
+    if (window.selectedAltIds) window.selectedAltIds.delete(Number(id));
     await loadAlternatives();
     await updateDashboard();
-    showToast('success', 'تم الحذف', 'تم حذف الموديل');
+    showToast('success', 'تم الحذف', 'تم حذف الموديل بنجاح');
 }
 
 function showAltTab(tab) {
     document.querySelectorAll('#page-alternatives .tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('#page-alternatives .tab-content').forEach(c => c.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-    document.getElementById('tab-' + tab).classList.add('active');
+    
+    if (window.event && window.event.currentTarget && window.event.currentTarget.classList) {
+        window.event.currentTarget.classList.add('active');
+    } else {
+        const targetBtn = Array.from(document.querySelectorAll('#page-alternatives .tab-btn')).find(b => b.getAttribute('onclick')?.includes(`'${tab}'`));
+        if (targetBtn) targetBtn.classList.add('active');
+    }
+
+    const targetContent = document.getElementById('tab-' + tab);
+    if (targetContent) targetContent.classList.add('active');
+
+    if (tab === 'full-inventory') {
+        renderAltInventoryTable();
+    }
 }
 
 function openAssignModal() {
@@ -18734,7 +20033,7 @@ async function saveAssignment() {
     if (!modelId || !employee || !date) { showToast('error', 'خطأ', 'الرجاء ملء جميع الحقول المطلوبة'); return; }
 
     const altModels = await SupabaseAPI.request('alt_models', 'GET');
-    const model = altModels.find(m => m.id === modelId);
+    const model = (altModels || []).find(m => m.id === modelId);
     if (!model) return;
 
     await SupabaseAPI.request('alt_models', 'PATCH', {
@@ -18758,176 +20057,675 @@ async function saveAssignment() {
     closeModal('assignModal');
     await loadAlternatives();
     await updateDashboard();
-    showToast('success', 'تم التسليم', `تم تسليم ${model.model} إلى ${employee}`);
+    showToast('success', 'تم', 'تم تسليم الجهاز بنجاح');
 }
 
 async function returnAssignment(id) {
     if (checkReadOnly()) return;
-    const assignments = await SupabaseAPI.request('assignments', 'GET');
-    const assignment = assignments.find(a => a.id === id);
-    if (!assignment) return;
+    if (!confirm('هل تم استرجاع الجهاز البديل؟')) return;
+
+    const assigns = await SupabaseAPI.request('assignments', 'GET');
+    const assign = (assigns || []).find(a => a.id === id);
+    if (!assign) return;
 
     await SupabaseAPI.request('assignments', 'PATCH', {
         return_date: new Date().toISOString().split('T')[0],
         status: 'returned'
     }, id);
 
-    await SupabaseAPI.request('alt_models', 'PATCH', {
-        status: 'available',
-        location: 'المستودع',
-        assigned_to: null
-    }, assignment.model_id || assignment.modelId);
+    const mId = assign.model_id || assign.modelId;
+    if (mId) {
+        await SupabaseAPI.request('alt_models', 'PATCH', {
+            status: 'available',
+            location: 'المستودع الرئيسي',
+            assigned_to: null,
+            assigned_date: null
+        }, mId);
+    }
 
     await loadAlternatives();
     await updateDashboard();
-    showToast('success', 'تم الاسترجاع', 'تم استرجاع الجهاز بنجاح');
+    showToast('success', 'تم', 'تم تسجيل استرجاع الجهاز بنجاح');
 }
 
 async function deleteAssignment(id) {
     if (checkReadOnly()) return;
-    if (!confirm('هل أنت متأكد من حذف هذا التسليم؟')) return;
-    const assignments = await SupabaseAPI.request('assignments', 'GET');
-    const assignment = assignments.find(a => a.id === id);
-
-    if (assignment && assignment.status === 'active') {
-        await SupabaseAPI.request('alt_models', 'PATCH', {
-            status: 'available',
-            location: 'المستودع',
-            assigned_to: null
-        }, assignment.model_id || assignment.modelId);
-    }
-
+    if (!confirm('هل أنت متأكد من حذف هذا السجل؟')) return;
     await SupabaseAPI.request('assignments', 'DELETE', null, id);
     await loadAlternatives();
     await updateDashboard();
-    showToast('success', 'تم الحذف', 'تم حذف التسليم');
+    showToast('success', 'تم', 'تم حذف السجل بنجاح');
 }
 
-async function printAlternatives() {
-    const altDevices = await SupabaseAPI.request('alt_devices', 'GET');
-    const altModels = await SupabaseAPI.request('alt_models', 'GET');
-    const assignments = await SupabaseAPI.request('assignments', 'GET');
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-        <!DOCTYPE html>
-        <html dir="rtl" lang="ar">
-        <head>
-            <meta charset="UTF-8">
-            <title>الأجهزة البديلة</title>
-            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-            <style>
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                body { font-family: 'Tajawal', sans-serif; padding: 25px; color: #1e293b; background: #fff; }
-                .header { text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #8b5cf6; }
-                .header h1 { color: #8b5cf6; font-size: 22px; margin-bottom: 6px; }
-                .header p { color: #64748b; font-size: 12px; }
-                h2 { font-size: 16px; color: #4f46e5; margin: 20px 0 10px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
-                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-                th { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); padding: 10px; text-align: right; font-weight: 700; font-size: 12px; border-bottom: 2px solid #e2e8f0; }
-                td { padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 12px; color: #475569; }
-                .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-                .badge-inprogress { background: rgba(59,130,246,0.15); color: #1d4ed8; }
-                .badge-completed { background: rgba(16,185,129,0.15); color: #047857; }
-                .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 11px; }
-                @media print { body { padding: 15px; } }
+// ==================== COMPREHENSIVE GROUPED INVENTORY TABLE ====================
+function renderAltInventoryTable() {
+    const tbody = document.querySelector('#altInventoryTable tbody');
+    if (!tbody) return;
 
-                .print-footer { margin-top: 35px; padding-top: 15px; border-top: 2px solid #e2e8f0; text-align: center; }
-                .print-footer-line { height: 3px; background: linear-gradient(90deg, #4f46e5, #06b6d4, #f59e0b); border-radius: 2px; margin-bottom: 15px; }
-                .print-footer-content { display: flex; flex-direction: column; gap: 6px; align-items: center; }
-                .print-footer-brand { font-size: 14px; font-weight: 700; color: #4f46e5; display: flex; align-items: center; gap: 6px; }
-                .print-footer-brand i { font-size: 16px; }
-                .print-footer-copy { font-size: 12px; color: #64748b; }
-                .print-footer-dev { font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center; }
-                .print-footer-dev strong { color: #4f46e5; }
-                .print-footer-sep { color: #cbd5e1; margin: 0 4px; }
-                .print-footer-date { font-size: 10px; color: #cbd5e1; margin-top: 4px; }
-                @media print {
-                    .print-footer { page-break-inside: avoid; }
-                    .print-footer-line { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                }
+    const { devices, models, assignments } = altState;
+    const q = (document.getElementById('altInvSearch')?.value || '').trim().toLowerCase();
+    const typeFilter = document.getElementById('altInvTypeFilter')?.value || 'all';
+    const statusFilter = document.getElementById('altInvStatusFilter')?.value || 'all';
 
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h1>الأجهزة البديلة</h1>
-                <p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
+    // Update filter options if needed
+    const typeSelect = document.getElementById('altInvTypeFilter');
+    if (typeSelect && typeSelect.options.length <= 1 && devices && devices.length) {
+        typeSelect.innerHTML = '<option value="all">جميع التصنيفات</option>' + 
+            devices.map(d => `<option value="${d.type}">${d.type}</option>`).join('');
+    }
+
+    const filtered = (models || []).filter(m => {
+        if (typeFilter !== 'all' && m.type !== typeFilter) return false;
+        if (statusFilter === 'available' && m.status !== 'available') return false;
+        if (statusFilter === 'unavailable' && m.status === 'available') return false;
+        if (!q) return true;
+
+        const act = (assignments || []).find(a => (Number(a.model_id) === Number(m.id) || Number(a.modelId) === Number(m.id)) && a.status === 'active');
+        const emp = act ? act.employee : (m.assigned_to || '');
+        const loc = act ? (act.location || '') : (m.location || '');
+
+        return [m.model, m.serial, m.type, m.location, emp, loc, m.notes].some(v => String(v || '').toLowerCase().includes(q));
+    });
+
+    const countBadge = document.getElementById('altInvCountBadge');
+    if (countBadge) countBadge.textContent = `${filtered.length} من أصل ${(models || []).length} جهاز`;
+
+    if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding:36px; color:var(--text-light);"><i class="fas fa-inbox" style="font-size:26px; margin-bottom:8px; display:block; opacity:0.5;"></i>لا توجد أجهزة بديلة مطابقة للبحث أو الفلتر</td></tr>`;
+        syncAltSelectionUI();
+        return;
+    }
+
+    // Group items by category (type)
+    const groups = {};
+    filtered.forEach(m => {
+        const cat = m.type || 'أجهزة غير مصنفة';
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push(m);
+    });
+
+    const catKeys = Object.keys(groups).sort((a, b) => a.localeCompare(b, 'ar'));
+
+    let html = '';
+    let globalIdx = 0;
+
+    catKeys.forEach(cat => {
+        const items = groups[cat].sort((a, b) => String(a.model || '').localeCompare(String(b.model || ''), 'ar'));
+        const availCount = items.filter(m => m.status === 'available').length;
+        const busyCount = items.length - availCount;
+
+        // Group Header Row
+        html += `
+        <tr class="alt-inv-group-row">
+            <td colspan="11">
+                <div class="alt-inv-group-banner">
+                    <div class="alt-inv-group-title">
+                        <div class="alt-inv-group-icon"><i class="fas ${altIconFor(cat)}"></i></div>
+                        <span class="alt-inv-group-name">${cat}</span>
+                    </div>
+                    <div class="alt-inv-group-stats">
+                        <span class="alt-grp-pill total"><i class="fas fa-boxes-stacked"></i> الإجمالي: <b>${items.length}</b></span>
+                        <span class="alt-grp-pill avail"><i class="fas fa-circle-check"></i> متاح: <b>${availCount}</b></span>
+                        <span class="alt-grp-pill busy"><i class="fas fa-circle-xmark"></i> غير متاح: <b>${busyCount}</b></span>
+                        <button type="button" class="btn btn-outline btn-xs" onclick="selectCategoryAlt('${cat}', true)" style="margin-inline-start:8px; font-size:11px; padding:3px 9px;">
+                            <i class="fas fa-check-square"></i> تحديد هذا التصنيف
+                        </button>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        `;
+
+        // Item Rows in Group
+        items.forEach((m, localIdx) => {
+            globalIdx++;
+            const isAvail = m.status === 'available';
+            const act = (assignments || []).find(a => (Number(a.model_id) === Number(m.id) || Number(a.modelId) === Number(m.id)) && a.status === 'active');
+            const emp = act ? act.employee : (m.assigned_to || '');
+            const dateVal = act ? (act.assign_date || act.assignDate || '') : (m.assigned_date || (m.added_at ? String(m.added_at).split('T')[0] : '—'));
+            const isSel = window.selectedAltIds && window.selectedAltIds.has(Number(m.id));
+
+            let locHtml = '';
+            if (isAvail) {
+                locHtml = `<span class="alt-inv-loc"><i class="fas fa-warehouse" style="color:#0ea5e9;"></i> ${m.location || 'المستودع الرئيسي'}</span>`;
+            } else {
+                const locName = act ? (act.location || m.location || 'غير محدد') : (m.location || 'غير محدد');
+                locHtml = `<span class="alt-inv-loc" style="background:rgba(239,68,68,0.08); border-color:rgba(239,68,68,0.2); color:#b91c1c;">
+                    <i class="fas fa-location-dot"></i> ${locName} ${emp ? `<small style="font-weight:800; color:var(--text-dark); margin-inline-start:4px;">(لدى: ${emp})</small>` : ''}
+                </span>`;
+            }
+
+            html += `
+            <tr class="${isSel ? 'is-selected' : ''}" data-model-id="${m.id}">
+                <td style="text-align:center;">
+                    <input type="checkbox" class="alt-batch-cb" data-id="${m.id}" ${isSel ? 'checked' : ''} onchange="toggleAltSelection(${m.id}, this.checked)">
+                </td>
+                <td style="text-align:center; font-weight:800; color:var(--text-light); font-size:12px;">${localIdx + 1}</td>
+                <td><span class="alt-inv-cat"><i class="fas ${altIconFor(m.type)}"></i> ${m.type || 'غير مصنف'}</span></td>
+                <td><strong style="color:var(--text-dark); font-size:13.5px;">${m.model || 'بدون اسم'}</strong></td>
+                <td><code style="font-size:11.5px; background:var(--bg-main); padding:2px 7px; border-radius:6px; border:1px solid var(--border-color); font-family:monospace;">${m.serial || '—'}</code></td>
+                <td style="text-align:center;">
+                    ${isAvail 
+                        ? `<span class="alt-inv-badge-avail"><i class="fas fa-check-circle"></i> متاح</span>` 
+                        : `<span class="alt-inv-badge-busy"><i class="fas fa-circle-xmark"></i> غير متاح</span>`}
+                </td>
+                <td>${locHtml}</td>
+                <td>${emp ? `<span style="font-weight:800; color:var(--primary);"><i class="fas fa-user" style="font-size:11px; margin-inline-end:4px;"></i>${emp}</span>` : '<span style="color:var(--text-light);">—</span>'}</td>
+                <td style="font-size:12px; color:var(--text-medium); font-weight:700;">${dateVal}</td>
+                <td style="font-size:12px; color:var(--text-medium); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${m.notes || ''}">${m.notes || '<span style="color:var(--text-light);">—</span>'}</td>
+                <td class="no-print" style="text-align:center;">
+                    <div style="display:inline-flex; gap:5px;">
+                        <button type="button" class="btn btn-outline btn-xs" onclick="openEditAltModel(${m.id})" title="تعديل هذا الموديل ومكانه" style="padding:4px 8px;">
+                            <i class="fas fa-pen-to-square" style="color:var(--primary);"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline btn-xs" onclick="deleteAltModel(${m.id})" title="حذف" style="padding:4px 8px;">
+                            <i class="fas fa-trash-can" style="color:var(--danger);"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            `;
+        });
+    });
+
+    tbody.innerHTML = html;
+    syncAltSelectionUI();
+}
+
+function printAlternatives() {
+    printAlternativesTable();
+}
+
+// ==================== PRINT REPORT (GROUPED BY CATEGORY & SINGLE SIGNATURE) ====================
+function printAlternativesTable() {
+    const { devices, models, assignments } = altState;
+    if (!models || !models.length) {
+        showToast('warning', 'تنبيه', 'لا توجد أجهزة بديلة لطباعة كشفها');
+        return;
+    }
+
+    const totalModels = (models || []).length;
+    const availCount = (models || []).filter(m => m.status === 'available').length;
+    const busyCount = totalModels - availCount;
+    const readinessPct = totalModels ? Math.round((availCount / totalModels) * 100) : 0;
+
+    // Group by category
+    const groups = {};
+    models.forEach(m => {
+        const cat = m.type || 'أجهزة غير مصنفة';
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push(m);
+    });
+    const catKeys = Object.keys(groups).sort((a, b) => a.localeCompare(b, 'ar'));
+
+    let catTablesHtml = '';
+    catKeys.forEach(cat => {
+        const items = groups[cat].sort((a, b) => String(a.model || '').localeCompare(String(b.model || ''), 'ar'));
+        const catAvail = items.filter(m => m.status === 'available').length;
+        const catBusy = items.length - catAvail;
+
+        catTablesHtml += `
+        <div class="cat-section">
+            <div class="cat-header">
+                <div class="cat-title">
+                    <i class="fas ${altIconFor(cat)}"></i> ${cat}
+                </div>
+                <div class="cat-stats">
+                    <span>العدد الإجمالي: <b>${items.length}</b></span>
+                    <span style="color:#059669;">متاح بالمستودع: <b>${catAvail}</b></span>
+                    <span style="color:#dc2626;">غير متاح (مسلّم): <b>${catBusy}</b></span>
+                </div>
             </div>
-            <h2><i class="fas fa-laptop"></i> ملخص الكميات</h2>
             <table>
-                <thead><tr><th>نوع الجهاز</th><th>إجمالي</th><th>الحد الأقصى</th><th>النسبة</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th style="width:35px; text-align:center;">#</th>
+                        <th>الموديل</th>
+                        <th>الرقم التسلسلي (S/N)</th>
+                        <th style="text-align:center; width:85px;">الحالة</th>
+                        <th>مكان وجود المادة حالياً</th>
+                        <th>الموظف المستلم</th>
+                        <th style="width:90px;">تاريخ التسليم</th>
+                        <th>ملاحظات</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    ${altDevices.map(dev => {
-                        const models = altModels.filter(m => m.type === dev.type);
-                        const total = models.length;
-                        const totalQty = dev.total_qty || dev.totalQty || 1;
-                        const percentage = totalQty > 0 ? Math.round((total / totalQty) * 100) : 0;
-                        return `<tr><td><strong>${dev.type}</strong></td><td>${total}</td><td>${totalQty}</td><td>${percentage}%</td></tr>`;
+                    ${items.map((m, idx) => {
+                        const isAvail = m.status === 'available';
+                        const act = (assignments || []).find(a => (Number(a.model_id) === Number(m.id) || Number(a.modelId) === Number(m.id)) && a.status === 'active');
+                        const emp = act ? act.employee : (m.assigned_to || '');
+                        const curLoc = act ? (act.location ? `${act.location} (لدى: ${act.employee})` : `لدى: ${act.employee}`) : (m.location || (isAvail ? 'المستودع الرئيسي' : 'غير محدد'));
+                        const dateVal = act ? (act.assign_date || act.assignDate || '') : (m.assigned_date || '');
+
+                        return `
+                        <tr>
+                            <td style="text-align:center; font-weight:800; color:#64748b;">${idx + 1}</td>
+                            <td style="font-weight:800; color:#1e293b;">${m.model || '—'}</td>
+                            <td><code style="font-family:monospace; font-size:10.5px;">${m.serial || '—'}</code></td>
+                            <td style="text-align:center;">
+                                <span class="badge ${isAvail ? 'badge-avail' : 'badge-busy'}">
+                                    ${isAvail ? 'متاح' : 'غير متاح'}
+                                </span>
+                            </td>
+                            <td class="loc-tag">${curLoc}</td>
+                            <td class="loc-emp">${emp || '—'}</td>
+                            <td>${dateVal || '—'}</td>
+                            <td style="color:#475569; font-size:10px;">${m.notes || '—'}</td>
+                        </tr>
+                        `;
                     }).join('')}
                 </tbody>
             </table>
-            <h2><i class="fas fa-list"></i> قائمة الموديلات</h2>
-            <table>
-                <thead><tr><th>النوع</th><th>الموديل</th><th>الرقم التسلسلي</th><th>الحالة</th><th>الموقع</th></tr></thead>
-                <tbody>
-                    ${altModels.sort((a, b) => (b.id || 0) - (a.id || 0)).map(m => `
-                        <tr>
-                            <td>${m.type}</td>
-                            <td><strong>${m.model}</strong></td>
-                            <td>${m.serial || 'بدون'}</td>
-                            <td>${m.status === 'available' ? '<span class="badge badge-completed">متاح</span>' : '<span class="badge badge-inprogress">غير متاح</span>'}</td>
-                            <td>${m.location || '-'}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-            <h2><i class="fas fa-hand-holding"></i> التسليمات</h2>
-            <table>
-                <thead><tr><th>الجهاز</th><th>الموديل</th><th>الموظف</th><th>تاريخ التسليم</th><th>الحالة</th></tr></thead>
-                <tbody>
-                    ${assignments.sort((a, b) => (b.id || 0) - (a.id || 0)).map(a => `
-                        <tr>
-                            <td>${a.device_type || a.deviceType}</td>
-                            <td>${a.model}</td>
-                            <td>${a.employee}</td>
-                            <td>${a.assign_date || a.assignDate}</td>
-                            <td><span class="badge badge-${a.status === 'active' ? 'inprogress' : 'completed'}">${a.status === 'active' ? 'مسلم' : 'مسترجع'}</span></td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
+        </div>
+        `;
+    });
 
-                <div class="print-footer">
-                    <div class="print-footer-line"></div>
-                    <div class="print-footer-content">
-                        <div class="print-footer-brand">
-                            <i class="fas fa-tools"></i>
-                            <span>نظام إدارة الصيانة</span>
-                        </div>
-                        <div class="print-footer-copy">
-                            <i class="fas fa-copyright"></i>
-                            جميع الحقوق محفوظة &copy; 2026
-                        </div>
-                        <div class="print-footer-dev">
-                            <i class="fas fa-code"></i>
-                            تم تطويره بواسطة <strong>أحمد رحيل</strong>
-                            <span class="print-footer-sep">|</span>
-                            <i class="fas fa-phone-alt"></i>
-                            <span dir="ltr">0797767862</span>
-                        </div>
-                        <div class="print-footer-date">
-                            <i class="fas fa-print"></i>
-                            تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn')} ${new Date().toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn')}
-                        </div>
-                    </div>
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+    <!DOCTYPE html>
+    <html dir="rtl" lang="ar">
+    <head>
+        <meta charset="UTF-8">
+        <title>كشف حصر وجرد الأجهزة البديلة ومواقعها</title>
+        <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <style>
+            @page { size: A4 landscape; margin: 10mm 8mm; }
+            * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            body { font-family: 'Tajawal', sans-serif; padding: 14px; color: #0f172a; background: #fff; line-height: 1.4; }
+            
+            .rep-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #4f46e5; padding-bottom: 12px; margin-bottom: 14px; }
+            .rep-logo { display: flex; align-items: center; gap: 10px; }
+            .rep-logo-icon { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #4f46e5, #0ea5e9); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+            .rep-title h1 { font-size: 19px; font-weight: 900; color: #1e1b4b; margin: 0; }
+            .rep-title p { font-size: 11px; color: #64748b; margin-top: 2px; }
+            .rep-meta { text-align: left; font-size: 10.5px; color: #475569; }
+            .rep-meta strong { color: #0f172a; }
+
+            .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px; }
+            .kpi-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 7px 10px; text-align: center; }
+            .kpi-card b { display: block; font-size: 17px; font-weight: 900; color: #1e293b; }
+            .kpi-card span { font-size: 10px; color: #64748b; font-weight: 700; }
+            .kpi-card.avail b { color: #059669; }
+            .kpi-card.busy b { color: #dc2626; }
+            .kpi-card.pct b { color: #4f46e5; }
+
+            .cat-section { margin-bottom: 18px; page-break-inside: avoid; }
+            .cat-header { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #1e1b4b, #312e81); color: #fff; padding: 7px 12px; border-radius: 8px 8px 0 0; }
+            .cat-title { font-size: 13.5px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+            .cat-stats { font-size: 10.5px; display: flex; gap: 12px; font-weight: 700; }
+
+            table { width: 100%; border-collapse: collapse; font-size: 10.5px; border: 1px solid #cbd5e1; }
+            thead th { background: #f1f5f9; color: #334155; padding: 7px 8px; font-weight: 800; text-align: right; border: 1px solid #cbd5e1; }
+            tbody td { padding: 6px 8px; border: 1px solid #cbd5e1; vertical-align: middle; }
+            tbody tr:nth-child(even) { background: #f8fafc; }
+            
+            .badge { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 800; white-space: nowrap; }
+            .badge-avail { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+            .badge-busy { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+            .loc-tag { font-weight: 800; color: #0369a1; }
+            .loc-emp { font-weight: 700; color: #4f46e5; }
+
+            /* Official Technician Signature ONLY */
+            .single-sig-container { margin-top: 32px; display: flex; justify-content: flex-end; page-break-inside: avoid; }
+            .sig-box-single { min-width: 330px; border: 2px dashed #4f46e5; background: #f8fafc; border-radius: 12px; padding: 16px 22px; text-align: center; }
+            .sig-box-single .sig-title { font-size: 13px; font-weight: 800; color: #1e1b4b; margin-bottom: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+            .sig-box-single .sig-line { border-top: 1.5px dotted #64748b; font-size: 11px; color: #475569; padding-top: 8px; display: flex; justify-content: space-between; }
+            .sig-box-single .sig-date { font-size: 10px; color: #64748b; margin-top: 6px; text-align: right; }
+
+            .print-footer { margin-top: 18px; padding-top: 8px; border-top: 2px solid #e2e8f0; text-align: center; page-break-inside: avoid; }
+            .print-footer-line { height: 3px; background: linear-gradient(90deg, #4f46e5, #0ea5e9, #f59e0b); border-radius: 2px; margin-bottom: 8px; }
+            .print-footer-content { display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #64748b; flex-wrap: wrap; gap: 8px; }
+        </style>
+    </head>
+    <body>
+        <div class="rep-header">
+            <div class="rep-logo">
+                <div class="rep-logo-icon"><i class="fas fa-boxes-stacked"></i></div>
+                <div class="rep-title">
+                    <h1>كشف حصر وجرد الأجهزة البديلة ومواقعها الحالية</h1>
+                    <p>نظام إدارة الصيانة والعهد الفنية — كشف مفصل مجمع حسب التصنيف والموقع الميداني</p>
                 </div>
+            </div>
+            <div class="rep-meta">
+                <div><strong>تاريخ التقرير:</strong> ${new Date().toLocaleDateString('ar-JO', { year:'numeric', month:'long', day:'numeric' })}</div>
+                <div><strong>وقت الاستخراج:</strong> ${new Date().toLocaleTimeString('ar-JO', { hour:'2-digit', minute:'2-digit' })}</div>
+                <div><strong>المصدر:</strong> قاعدة بيانات الأجهزة البديلة والتسليمات الميدانية</div>
+            </div>
+        </div>
 
-        
-</body>
-        </html>
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <b>${catKeys.length}</b>
+                <span>تصنيفات الأجهزة</span>
+            </div>
+            <div class="kpi-card">
+                <b>${totalModels}</b>
+                <span>إجمالي الأجهزة والموديلات</span>
+            </div>
+            <div class="kpi-card avail">
+                <b>${availCount}</b>
+                <span>أجهزة متاحة (في المستودع)</span>
+            </div>
+            <div class="kpi-card busy">
+                <b>${busyCount}</b>
+                <span>أجهزة غير متاحة (مسلّمة)</span>
+            </div>
+            <div class="kpi-card pct">
+                <b>${readinessPct}%</b>
+                <span>نسبة الجاهزية والتوفر</span>
+            </div>
+        </div>
+
+        ${catTablesHtml}
+
+        <div class="single-sig-container">
+            <div class="sig-box-single">
+                <div class="sig-title">
+                    <i class="fas fa-user-check" style="color:#4f46e5; font-size:16px;"></i>
+                    اعتماد الفني المتابع لعطاء الصيانة
+                </div>
+                <div class="sig-line">
+                    <span>الاسم: .......................................</span>
+                    <span>التوقيع: ...........................</span>
+                </div>
+                <div class="sig-date">
+                    التاريخ: ...... / ...... / 2026 م
+                </div>
+            </div>
+        </div>
+
+        <div class="print-footer">
+            <div class="print-footer-line"></div>
+            <div class="print-footer-content">
+                <div><i class="fas fa-tools" style="color:#4f46e5;"></i> نظام إدارة الصيانة &copy; 2026 | تطوير أحمد رحيل (0797767862)</div>
+                <div>كشف حصر وجرد الأجهزة البديلة المجمعة حسب التصنيف</div>
+            </div>
+        </div>
+    </body>
+    </html>
     `);
     printWindow.document.close();
     setTimeout(() => { printWindow.print(); }, 500);
+}
+
+// ==================== EXPORT PDF (GROUPED BY CATEGORY & TECHNICIAN SIGNATURE) ====================
+function exportAlternativesToPDF() {
+    const { devices, models, assignments } = altState;
+    if (!models || !models.length) {
+        showToast('warning', 'تنبيه', 'لا توجد أجهزة بديلة لتصديرها بصيغة PDF');
+        return;
+    }
+
+    const totalModels = models.length;
+    const availCount = models.filter(m => m.status === 'available').length;
+    const busyCount = totalModels - availCount;
+    const readinessPct = totalModels ? Math.round((availCount / totalModels) * 100) : 0;
+
+    // Group by category
+    const groups = {};
+    models.forEach(m => {
+        const cat = m.type || 'أجهزة غير مصنفة';
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push(m);
+    });
+    const catKeys = Object.keys(groups).sort((a, b) => a.localeCompare(b, 'ar'));
+
+    const pdfContainer = document.createElement('div');
+    pdfContainer.id = 'altPdfExportContainer';
+    pdfContainer.style.cssText = 'direction:rtl; font-family:"Tajawal", sans-serif; background:#ffffff; color:#0f172a; padding:18px; width:100%; box-sizing:border-box;';
+
+    let catTablesHtml = '';
+    catKeys.forEach(cat => {
+        const items = groups[cat].sort((a, b) => String(a.model || '').localeCompare(String(b.model || ''), 'ar'));
+        const catAvail = items.filter(m => m.status === 'available').length;
+        const catBusy = items.length - catAvail;
+
+        catTablesHtml += `
+        <div style="margin-top:16px; page-break-inside:avoid;">
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#1e1b4b; color:#ffffff; padding:7px 12px; border-radius:7px 7px 0 0;">
+                <div style="font-size:13px; font-weight:800; display:flex; align-items:center; gap:8px;">
+                    <i class="fas ${altIconFor(cat)}"></i> ${cat}
+                </div>
+                <div style="font-size:10.5px; font-weight:700; display:flex; gap:12px;">
+                    <span>العدد الإجمالي: ${items.length}</span>
+                    <span style="color:#a7f3d0;">متاح: ${catAvail}</span>
+                    <span style="color:#fecaca;">غير متاح: ${catBusy}</span>
+                </div>
+            </div>
+            <table style="width:100%; border-collapse:collapse; font-size:10px; border:1px solid #cbd5e1;">
+                <thead>
+                    <tr style="background:#f1f5f9; color:#334155; font-weight:800; text-align:right;">
+                        <th style="padding:6px 5px; border:1px solid #cbd5e1; width:30px; text-align:center;">#</th>
+                        <th style="padding:6px 5px; border:1px solid #cbd5e1;">الموديل</th>
+                        <th style="padding:6px 5px; border:1px solid #cbd5e1;">الرقم التسلسلي</th>
+                        <th style="padding:6px 5px; border:1px solid #cbd5e1; text-align:center; width:65px;">الحالة</th>
+                        <th style="padding:6px 5px; border:1px solid #cbd5e1;">مكان وجود الجهاز حالياً</th>
+                        <th style="padding:6px 5px; border:1px solid #cbd5e1;">الموظف المستلم</th>
+                        <th style="padding:6px 5px; border:1px solid #cbd5e1; width:75px;">تاريخ التسليم</th>
+                        <th style="padding:6px 5px; border:1px solid #cbd5e1;">ملاحظات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${items.map((m, idx) => {
+                        const isAvail = m.status === 'available';
+                        const act = (assignments || []).find(a => (Number(a.model_id) === Number(m.id) || Number(a.modelId) === Number(m.id)) && a.status === 'active');
+                        const emp = act ? act.employee : (m.assigned_to || '');
+                        const curLoc = act ? (act.location ? `${act.location} (لدى: ${act.employee})` : `لدى: ${act.employee}`) : (m.location || (isAvail ? 'المستودع الرئيسي' : 'غير محدد'));
+                        const dateVal = act ? (act.assign_date || act.assignDate || '') : (m.assigned_date || '');
+
+                        return `
+                        <tr style="background:${idx % 2 === 0 ? '#ffffff' : '#f8fafc'};">
+                            <td style="padding:5px; border:1px solid #cbd5e1; text-align:center; font-weight:700;">${idx + 1}</td>
+                            <td style="padding:5px; border:1px solid #cbd5e1; font-weight:800;">${m.model || '—'}</td>
+                            <td style="padding:5px; border:1px solid #cbd5e1; font-family:monospace;">${m.serial || '—'}</td>
+                            <td style="padding:5px; border:1px solid #cbd5e1; text-align:center;">
+                                <span style="display:inline-block; padding:2px 6px; border-radius:10px; font-size:9px; font-weight:800; background:${isAvail ? '#d1fae5' : '#fee2e2'}; color:${isAvail ? '#065f46' : '#991b1b'};">
+                                    ${isAvail ? 'متاح' : 'غير متاح'}
+                                </span>
+                            </td>
+                            <td style="padding:5px; border:1px solid #cbd5e1; font-weight:700; color:#0369a1;">${curLoc}</td>
+                            <td style="padding:5px; border:1px solid #cbd5e1; font-weight:700; color:#4f46e5;">${emp || '—'}</td>
+                            <td style="padding:5px; border:1px solid #cbd5e1;">${dateVal || '—'}</td>
+                            <td style="padding:5px; border:1px solid #cbd5e1; font-size:9.5px;">${m.notes || '—'}</td>
+                        </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>
+        `;
+    });
+
+    pdfContainer.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #4f46e5; padding-bottom:10px; margin-bottom:12px;">
+            <div>
+                <h1 style="font-size:18px; font-weight:900; color:#1e1b4b; margin:0;">كشف حصر وجرد الأجهزة البديلة ومواقعها الحالية</h1>
+                <p style="font-size:10.5px; color:#64748b; margin-top:2px;">نظام إدارة الصيانة والعهد الفنية — كشف مفصل مجمع حسب التصنيف والمواقع الميدانية</p>
+            </div>
+            <div style="text-align:left; font-size:10px; color:#475569;">
+                <div><strong>تاريخ التقرير:</strong> ${new Date().toLocaleDateString('ar-JO', { year:'numeric', month:'long', day:'numeric' })}</div>
+                <div><strong>وقت الاستخراج:</strong> ${new Date().toLocaleTimeString('ar-JO', { hour:'2-digit', minute:'2-digit' })}</div>
+            </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; margin-bottom:14px;">
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:6px; text-align:center;">
+                <b style="font-size:15px; font-weight:900; color:#1e293b; display:block;">${catKeys.length}</b>
+                <span style="font-size:9.5px; color:#64748b;">تصنيفات الأجهزة</span>
+            </div>
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:6px; text-align:center;">
+                <b style="font-size:15px; font-weight:900; color:#1e293b; display:block;">${totalModels}</b>
+                <span style="font-size:9.5px; color:#64748b;">إجمالي الأجهزة</span>
+            </div>
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:6px; text-align:center;">
+                <b style="font-size:15px; font-weight:900; color:#059669; display:block;">${availCount}</b>
+                <span style="font-size:9.5px; color:#64748b;">متاح بالمستودع</span>
+            </div>
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:6px; text-align:center;">
+                <b style="font-size:15px; font-weight:900; color:#dc2626; display:block;">${busyCount}</b>
+                <span style="font-size:9.5px; color:#64748b;">مسلّمة ميدانياً</span>
+            </div>
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:6px; text-align:center;">
+                <b style="font-size:15px; font-weight:900; color:#4f46e5; display:block;">${readinessPct}%</b>
+                <span style="font-size:9.5px; color:#64748b;">نسبة التوفر</span>
+            </div>
+        </div>
+
+        ${catTablesHtml}
+
+        <div style="margin-top:28px; display:flex; justify-content:flex-end; page-break-inside:avoid;">
+            <div style="min-width:320px; border:2px dashed #4f46e5; border-radius:12px; background:#f8fafc; padding:14px 20px; text-align:center;">
+                <div style="font-size:13px; font-weight:800; color:#1e1b4b; margin-bottom:36px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class="fas fa-user-check" style="color:#4f46e5;"></i>
+                    اعتماد الفني المتابع لعطاء الصيانة
+                </div>
+                <div style="border-top:1.5px dotted #64748b; font-size:10.5px; color:#475569; padding-top:8px; display:flex; justify-content:space-between;">
+                    <span>الاسم: .......................................</span>
+                    <span>التوقيع: ...........................</span>
+                </div>
+                <div style="margin-top:5px; font-size:10px; color:#64748b; text-align:right;">
+                    التاريخ: ...... / ...... / 2026 م
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:16px; padding-top:8px; border-top:1.5px solid #e2e8f0; text-align:center; font-size:9.5px; color:#64748b; display:flex; justify-content:space-between;">
+            <div>نظام إدارة الصيانة &copy; 2026 | تطوير أحمد رحيل (0797767862)</div>
+            <div>كشف حصر وجرد الأجهزة البديلة ومواقعها الحالية</div>
+        </div>
+    `;
+
+    document.body.appendChild(pdfContainer);
+
+    const opt = {
+        margin: [10, 8, 10, 8],
+        filename: `كشف_الأجهزة_البديلة_المجمعة_حسب_التصنيف_${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+        pagebreak: { mode: ['css', 'legacy'] }
+    };
+
+    showToast('info', 'جاري التصدير', 'جاري إنشاء ملف PDF كشف الأجهزة البديلة...');
+
+    if (window.html2pdf) {
+        html2pdf().set(opt).from(pdfContainer).save().then(() => {
+            document.body.removeChild(pdfContainer);
+            showToast('success', 'تم التصدير بنجاح', 'تم تنزيل كشف الأجهزة البديلة بصيغة PDF');
+        }).catch(err => {
+            console.error('PDF export error:', err);
+            document.body.removeChild(pdfContainer);
+            showToast('error', 'خطأ في التصدير', 'تعذر إنشاء PDF، جاري التحويل إلى نافذة الطباعة...');
+            printAlternativesTable();
+        });
+    } else {
+        document.body.removeChild(pdfContainer);
+        printAlternativesTable();
+    }
+}
+
+// ==================== EXPORT EXCEL (STRUCTURED BY CATEGORY) ====================
+function exportAlternativesToExcel() {
+    const { devices, models, assignments } = altState;
+    if (!models || !models.length) {
+        showToast('warning', 'تنبيه', 'لا توجد أجهزة بديلة لتصديرها');
+        return;
+    }
+
+    const sorted = models.slice().sort((a, b) => {
+        if (a.type !== b.type) return String(a.type || '').localeCompare(String(b.type || ''), 'ar');
+        return String(a.model || '').localeCompare(String(b.model || ''), 'ar');
+    });
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('ar-JO', { year:'numeric', month:'long', day:'numeric' });
+
+    let rowsHtml = '';
+    let currentCat = '';
+    let itemIdx = 0;
+
+    sorted.forEach((m) => {
+        const isAvail = m.status === 'available';
+        const act = (assignments || []).find(a => (Number(a.model_id) === Number(m.id) || Number(a.modelId) === Number(m.id)) && a.status === 'active');
+        const emp = act ? act.employee : (m.assigned_to || '');
+        const curLoc = act ? (act.location ? `${act.location} (لدى: ${act.employee})` : `لدى: ${act.employee}`) : (m.location || (isAvail ? 'المستودع الرئيسي' : 'غير محدد'));
+        const dateVal = act ? (act.assign_date || act.assignDate || '') : (m.assigned_date || '');
+
+        if (m.type !== currentCat) {
+            currentCat = m.type || 'أجهزة غير مصنفة';
+            rowsHtml += `
+            <tr style="background:#1e1b4b; color:#ffffff; font-weight:bold; font-size:13px;">
+                <td colspan="9" style="padding:10px 14px; text-align:right;">
+                    📁 تصنيف: ${currentCat}
+                </td>
+            </tr>
+            `;
+            itemIdx = 0;
+        }
+
+        itemIdx++;
+        rowsHtml += `
+        <tr style="background:${itemIdx % 2 === 0 ? '#f8fafc' : '#ffffff'};">
+            <td style="text-align:center; padding:7px; border:1px solid #cbd5e1;">${itemIdx}</td>
+            <td style="padding:7px; border:1px solid #cbd5e1; font-weight:bold;">${m.type || ''}</td>
+            <td style="padding:7px; border:1px solid #cbd5e1; font-weight:bold;">${m.model || ''}</td>
+            <td style="padding:7px; border:1px solid #cbd5e1; mso-number-format:'\@';">${m.serial || ''}</td>
+            <td style="padding:7px; border:1px solid #cbd5e1; text-align:center; font-weight:bold; color:${isAvail ? '#059669' : '#dc2626'};">
+                ${isAvail ? 'متاح (في المستودع)' : 'غير متاح (مسلّم)'}
+            </td>
+            <td style="padding:7px; border:1px solid #cbd5e1; color:#0369a1; font-weight:bold;">${curLoc}</td>
+            <td style="padding:7px; border:1px solid #cbd5e1; color:#4f46e5; font-weight:bold;">${emp}</td>
+            <td style="padding:7px; border:1px solid #cbd5e1;">${dateVal}</td>
+            <td style="padding:7px; border:1px solid #cbd5e1;">${m.notes || ''}</td>
+        </tr>
+        `;
+    });
+
+    const htmlContent = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <style>
+            table { border-collapse: collapse; width: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+            th { background: #4f46e5; color: #fff; font-weight: bold; padding: 10px 8px; border: 1px solid #3730a3; text-align: right; }
+            td { vertical-align: middle; }
+        </style>
+    </head>
+    <body dir="rtl">
+        <table>
+            <tr><td colspan="9" style="font-size:18px; font-weight:bold; color:#1e1b4b; text-align:center; padding:15px;">كشف حصر وجرد الأجهزة البديلة ومواقعها الحالية (مجمعة حسب التصنيف)</td></tr>
+            <tr><td colspan="9" style="font-size:12px; color:#64748b; text-align:center; padding-bottom:12px;">تاريخ التصدير: ${dateStr} — إجمالي الأجهزة: ${models.length}</td></tr>
+            <thead>
+                <tr>
+                    <th style="width:40px; text-align:center;">#</th>
+                    <th>التصنيف</th>
+                    <th>الموديل</th>
+                    <th>الرقم التسلسلي</th>
+                    <th style="text-align:center;">الحالة</th>
+                    <th>مكان وجود المادة حالياً</th>
+                    <th>الموظف المستلم</th>
+                    <th>تاريخ التسليم</th>
+                    <th>ملاحظات</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rowsHtml}
+            </tbody>
+            <tfoot>
+                <tr><td colspan="9" style="padding:20px; font-size:12px; text-align:left; color:#475569; font-weight:bold;">اعتماد الفني المتابع لعطاء الصيانة: ...........................................</td></tr>
+            </tfoot>
+        </table>
+    </body>
+    </html>
+    `;
+
+    const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `كشف_الأجهزة_البديلة_المجمعة_${new Date().toISOString().split('T')[0]}.xls`;
+    a.click();
+    showToast('success', 'تم التصدير بنجاح', 'تم تنزيل كشف الأجهزة البديلة بصيغة Excel');
 }
 
 // ==================== IMPORT ====================
