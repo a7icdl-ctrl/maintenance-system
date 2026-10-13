@@ -3751,7 +3751,156 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
 
             <div class="page-section" id="page-requests">
                 <style>
-                #page-requests .rq-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-bottom:12px}
+                
+/* ===== تحسينات تنبيهات مدة الإجراء وتأخير الطلبات النشطة (مهلة 14 يوم) - تنسيق ناعم ومدمج ===== */
+.rq-delay-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    height: 18px !important;
+    line-height: 18px !important;
+    padding: 0 6px !important;
+    border-radius: 4px !important;
+    font-size: 9.5px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    white-space: nowrap !important;
+    user-select: none !important;
+    vertical-align: middle !important;
+    box-sizing: border-box !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+}
+.rq-delay-badge:hover {
+    transform: translateY(-1px);
+}
+.rq-delay-badge.overdue {
+    background: #fef2f2 !important;
+    color: #b91c1c !important;
+    border: 1px solid #fca5a5 !important;
+    box-shadow: 0 1px 2px rgba(220, 38, 38, 0.08) !important;
+}
+.rq-delay-badge.overdue:hover {
+    background: #dc2626 !important;
+    color: #ffffff !important;
+    border-color: #b91c1c !important;
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25) !important;
+}
+.rq-delay-badge.overdue .rq-delay-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #dc2626;
+    animation: rqPulseRed 1.8s infinite ease-in-out;
+}
+.rq-delay-badge.overdue:hover .rq-delay-dot {
+    background: #ffffff;
+}
+.rq-delay-badge.warning {
+    background: #fffbeb !important;
+    color: #92400e !important;
+    border: 1px solid #fde68a !important;
+    box-shadow: 0 1px 2px rgba(217, 119, 6, 0.08) !important;
+}
+.rq-delay-badge.warning:hover {
+    background: #d97706 !important;
+    color: #ffffff !important;
+    border-color: #b45309 !important;
+    box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25) !important;
+}
+.rq-delay-badge.warning .rq-delay-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #d97706;
+    animation: rqPulseAmber 1.8s infinite ease-in-out;
+}
+.rq-delay-badge.warning:hover .rq-delay-dot {
+    background: #ffffff;
+}
+.rq-noproc-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: rgba(0, 0, 0, 0.06);
+    color: inherit;
+    border-radius: 3px;
+    padding: 0 4px;
+    font-size: 8.5px;
+    font-weight: 700;
+    height: 14px;
+    line-height: 14px;
+}
+.rq-delay-badge.overdue:hover .rq-noproc-mini,
+.rq-delay-badge.warning:hover .rq-noproc-mini {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+}
+@keyframes rqPulseRed {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.5; }
+}
+@keyframes rqPulseAmber {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.25); opacity: 0.55; }
+}
+
+#page-requests #requestsTable tbody tr.rq-row-overdue {
+    background-color: rgba(254, 242, 242, 0.45);
+}
+#page-requests #requestsTable tbody tr.rq-row-overdue:hover td {
+    background-color: #fef2f2 !important;
+}
+#page-requests #requestsTable tbody tr.rq-row-overdue td:nth-child(2) {
+    border-right: 3px solid #ef4444 !important;
+}
+
+#page-requests #requestsTable tbody tr.rq-row-warning {
+    background-color: rgba(255, 251, 235, 0.4);
+}
+#page-requests #requestsTable tbody tr.rq-row-warning:hover td {
+    background-color: #fffbeb !important;
+}
+#page-requests #requestsTable tbody tr.rq-row-warning td:nth-child(2) {
+    border-right: 3px solid #f59e0b !important;
+}
+
+#page-requests #requestsTable td:nth-child(3)>div {
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+}
+
+.rq-stat-clickable {
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.rq-stat-clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.09) !important;
+}
+
+html[data-theme="dark"] .rq-delay-badge.overdue {
+    background: rgba(239, 68, 68, 0.18) !important;
+    color: #fca5a5 !important;
+    border-color: rgba(248, 113, 113, 0.35) !important;
+}
+html[data-theme="dark"] .rq-delay-badge.warning {
+    background: rgba(245, 158, 11, 0.18) !important;
+    color: #fcd34d !important;
+    border-color: rgba(251, 191, 36, 0.35) !important;
+}
+html[data-theme="dark"] #page-requests #requestsTable tbody tr.rq-row-overdue {
+    background-color: rgba(239, 68, 68, 0.08);
+}
+html[data-theme="dark"] #page-requests #requestsTable tbody tr.rq-row-warning {
+    background-color: rgba(245, 158, 11, 0.08);
+}
+#page-requests .rq-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-bottom:12px}
                 #page-requests .rq-stat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:11px 13px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 14px rgba(15,23,42,.04)}
                 #page-requests .rq-stat i{width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;border-radius:9px;background:#eef2ff;color:#4f46e5;font-size:12px}
                 #page-requests .rq-stat b{font-size:17px;font-weight:900;line-height:1;display:block}
@@ -3957,6 +4106,9 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                         <button class="btn btn-primary btn-sm" onclick="printRequests()">
                             <i class="fas fa-print"></i> طباعة
                         </button>
+                        <button type="button" class="btn btn-sm rq-btn-overdue-top" style="background:linear-gradient(135deg,#dc2626,#991b1b)!important;color:#fff!important;border:1px solid #7f1d1d!important;font-weight:800!important;box-shadow:0 2px 6px rgba(185,28,28,0.3)!important;display:inline-flex;align-items:center;gap:6px;" onclick="openOverdueOfficialReport()" title="عرض كشف رسمي بالطلبات المتأخرة فعلياً (> 14 يوم من تاريخ الإجراء) مع الإجراءات الفنية جاهز للطباعة والـ PDF">
+                            <i class="fas fa-file-circle-exclamation"></i> كشف المتأخرة فعلياً (<span id="rqOverdueTopCount">0</span>)
+                        </button>
                         <button class="btn btn-danger btn-sm" onclick="printDetailedRequestsReport()" title="تقرير تفصيلي لجميع الطلبات مع مدة التأخير والإجراءات">
                             <i class="fas fa-file-lines"></i> تقرير تفصيلي
                         </button>
@@ -3999,6 +4151,8 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                     <button type="button" class="qf-btn" data-status="completed" onclick="quickFilterRequests('completed')"><i class="fas fa-circle-check"></i> مكتمل <span class="qf-count" data-count="completed">0</span></button>
                     <button type="button" class="qf-btn" data-status="duplicate" onclick="quickFilterRequests('duplicate')"><i class="fas fa-clone"></i> مكرر <span class="qf-count" data-count="duplicate">0</span></button>
                     <button type="button" class="qf-btn" data-status="cancelled" onclick="quickFilterRequests('cancelled')"><i class="fas fa-circle-xmark"></i> ملغي <span class="qf-count" data-count="cancelled">0</span></button>
+                    <button type="button" class="qf-btn qf-btn-overdue" data-status="overdue" onclick="quickFilterOverdueRequests('overdue')" style="border-color:#fca5a5;"><i class="fas fa-triangle-exclamation" style="color:#ef4444;"></i> متأخرة (>14 يوم) <span class="qf-count" id="qfOverdueCount">0</span></button>
+                    <button type="button" class="qf-btn qf-btn-warning" data-status="warning" onclick="quickFilterOverdueRequests('warning')" style="border-color:#fcd34d;"><i class="fas fa-clock" style="color:#d97706;"></i> وشك التأخير <span class="qf-count" id="qfWarningCount">0</span></button>
                 </div>
                 <div class="bulk-bar no-print" id="requestsBulkBar">
                     <span class="bulk-count"><i class="fas fa-check-double"></i> محدد: <span id="bulkSelectedCount">0</span></span>
@@ -4025,6 +4179,9 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                     <div class="rq-cardhead" onclick="toggleRequestsCard('rqActiveCard', event)">
                         <h3><button type="button" class="rq-toggle no-print" onclick="toggleRequestsCard('rqActiveCard', event)" title="طي / توسيع"><i class="fas fa-chevron-up"></i></button><span class="rq-dot"></span><i class="fas fa-bolt"></i> الطلبات النشطة <span class="rq-chip" id="rqActiveChip"><i class="fas fa-list-check"></i> 0 طلب</span></h3>
                         <div class="rq-tools no-print" style="display:flex; align-items:center; gap:8px;">
+                            <button type="button" class="btn btn-sm rq-btn-overdue-head" onclick="event.stopPropagation(); openOverdueOfficialReport()" style="background:linear-gradient(135deg,#dc2626,#b91c1c); color:#fff; border:0; border-radius:7px; padding:5px 12px; font-size:12px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 4px rgba(220,38,38,0.25);" title="عرض كشف رسمي بالطلبات المتأخرة فعلياً والإجراءات الفنية جاهز للطباعة والـ PDF">
+                                <i class="fas fa-triangle-exclamation"></i> المتأخرة فعلياً (<span id="rqOverdueHeadCount">0</span>)
+                            </button>
                             <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); printActiveRequestsOnly()" style="background:#4f46e5; color:#fff; border:0; border-radius:7px; padding:5px 12px; font-size:12px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 4px rgba(79,70,229,0.25);" title="طباعة أو تصدير PDF للطلبات النشطة فقط">
                                 <i class="fas fa-print"></i> طباعة النشطة
                             </button>
@@ -16223,6 +16380,1029 @@ function setRequestsLoading(on) {
 }
 
 let __requestsLoadToken = 0;
+
+// ==================== دوال متابعة تأخير الإجراءات الفنية وكشف الطلبات المتأخرة ====================
+
+let currentQuickDelayFilter = null; // 'overdue' | 'warning' | null
+
+function getRequestDelayInfo(r) {
+    if (!r) return { status: 'normal', diffDays: 0, remainingDays: 14, hasProcedures: false, baseDateLabel: '-' };
+
+    // 1. استخراج وفحص الإجراءات الفنية
+    let procs = r.procedures;
+    if (typeof procs === 'string') {
+        try { procs = JSON.parse(procs); } catch(e) { procs = []; }
+    }
+    if (!Array.isArray(procs)) procs = [];
+
+    const hasProcedures = procs.length > 0;
+    let baseDate = null;
+    let baseDateType = ''; // 'procedure' | 'created' | 'unknown'
+    let latestProc = null;
+
+    if (hasProcedures) {
+        // فرز الإجراءات للعثور على أحدث تاريخ إجراء مسجل
+        let validProcs = procs.filter(p => p && (p.date || p.created_at || p.scheduled_date || p.cycle_date));
+        if (validProcs.length > 0) {
+            validProcs.sort((a, b) => {
+                const da = new Date(b.date || b.created_at || b.scheduled_date || b.cycle_date || 0);
+                const db = new Date(a.date || a.created_at || a.scheduled_date || a.cycle_date || 0);
+                return da - db;
+            });
+            latestProc = validProcs[0];
+            const d = new Date(latestProc.date || latestProc.created_at || latestProc.scheduled_date || latestProc.cycle_date);
+            if (!isNaN(d.getTime())) {
+                baseDate = d;
+                baseDateType = 'procedure';
+            }
+        }
+    }
+
+    // إذا لم تكن هناك إجراءات مسجلة أو لم يتوفر تاريخ صالح فيها، يتم الاعتماد على تاريخ إنشاء الطلب
+    if (!baseDate) {
+        const cd = new Date(r.created_at || r.createdAt || r.request_date || r.requestDate || 0);
+        if (!isNaN(cd.getTime()) && cd.getTime() > 0) {
+            baseDate = cd;
+            baseDateType = 'created';
+        } else {
+            baseDate = new Date();
+            baseDateType = 'unknown';
+        }
+    }
+
+    // حساب عدد الأيام المنقضية (تصفير الساعات لمقارنة تقويمية دقيقة بالأيام)
+    const now = new Date();
+    const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const baseDateOnly = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+    const diffMs = nowDateOnly.getTime() - baseDateOnly.getTime();
+    let diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (!isFinite(diffDays) || diffDays < 0) diffDays = 0;
+
+    // المعايير المعتمدة:
+    // - بعد مرور 14 يوم من تاريخ الإجراء: متأخر فعلياً (overdue)
+    // - قبل موعد التأخير بيومين على الأكثر: يعني في اليوم 12 أو 13 (متبقي 1 إلى 2 يوم على انتهاء مهلة الـ 14 يوماً) (warning)
+    let status = 'normal';
+    const remainingDays = 14 - diffDays;
+    if (diffDays >= 14) {
+        status = 'overdue';
+    } else if (diffDays >= 12) {
+        status = 'warning';
+    } else {
+        status = 'normal';
+    }
+
+    const fmtDate = (d) => {
+        try { return d.toLocaleDateString('en-GB'); } catch(e) { return d.toISOString().slice(0, 10); }
+    };
+
+    const baseDateLabel = baseDateType === 'procedure'
+        ? `تاريخ آخر إجراء (${latestProc.date || fmtDate(baseDate)})`
+        : (baseDateType === 'created' ? `تاريخ فتح الطلب (${fmtDate(baseDate)} - لا توجد إجراءات)` : 'تاريخ غير محدد');
+
+    return {
+        diffDays,
+        remainingDays: remainingDays > 0 ? remainingDays : 0,
+        status,
+        hasProcedures,
+        procedureCount: procs.length,
+        baseDate,
+        baseDateFormatted: fmtDate(baseDate),
+        baseDateType,
+        baseDateLabel,
+        latestProc,
+        procedures: procs
+    };
+}
+
+function quickFilterOverdueRequests(type) {
+    if (currentQuickDelayFilter === type) {
+        currentQuickDelayFilter = null;
+    } else {
+        currentQuickDelayFilter = type;
+        const sel = document.getElementById('requestStatusFilter');
+        if (sel) sel.value = '';
+    }
+    syncQuickFilterUI();
+    loadRequests();
+}
+
+function showSingleRequestDelayInfo(id) {
+    const requests = window.requests || [];
+    const r = requests.find(x => x.id === id);
+    if (!r) return;
+    const d = getRequestDelayInfo(r);
+
+    let modalEl = document.getElementById('singleDelayModal');
+    if (!modalEl) {
+        modalEl = document.createElement('div');
+        modalEl.id = 'singleDelayModal';
+        modalEl.className = 'modal-overlay';
+        document.body.appendChild(modalEl);
+    }
+
+    const procs = d.procedures || [];
+    const procsListHtml = procs.length > 0 ? `
+        <div style="max-height:180px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px; padding:8px; background:#f8fafc; font-size:12px;">
+            ${procs.map((p, idx) => `
+                <div style="padding:6px 0; border-bottom:1px dashed #cbd5e1;">
+                    <div style="font-weight:700; color:#1e40af;"><i class="fas fa-calendar-alt"></i> ${p.date || '-'}</div>
+                    <div style="color:#334155; margin-top:2px; line-height:1.5;">${p.text || '-'}</div>
+                </div>
+            `).join('')}
+        </div>
+    ` : '<div style="padding:10px; background:#fef2f2; border:1px solid #fecdd3; border-radius:8px; color:#991b1b; font-size:12px;"><i class="fas fa-triangle-exclamation"></i> لم يتم تسجيل أي إجراء فني لهذا الطلب حتى الآن.</div>';
+
+    modalEl.innerHTML = `
+        <div class="modal" style="max-width:540px; border-radius:14px; overflow:hidden;">
+            <div class="modal-header" style="background:${d.status === 'overdue' ? 'linear-gradient(135deg, #dc2626, #991b1b)' : 'linear-gradient(135deg, #d97706, #b45309)'}; color:#fff; padding:12px 16px;">
+                <h3 style="margin:0; font-size:15px; display:flex; align-items:center; gap:8px;">
+                    <i class="fas ${d.status === 'overdue' ? 'fa-triangle-exclamation' : 'fa-clock'}"></i>
+                    ${d.status === 'overdue' ? 'تنبيه تجاوز مهلة الإجراء (متأخر)' : 'تنبيه مبكر (على وشك التأخير)'}
+                </h3>
+                <button type="button" class="modal-close" style="color:#fff;" onclick="closeModal('singleDelayModal')">&times;</button>
+            </div>
+            <div class="modal-body" style="padding:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; background:#f8fafc; padding:10px 12px; border-radius:8px; border:1px solid #e2e8f0;">
+                    <div>
+                        <div style="font-size:11px; color:#64748b; font-weight:700;">طلب رقم</div>
+                        <div style="font-size:16px; font-weight:900; color:#1e3a8a;">#${r.request_number || r.requestNumber}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:11px; color:#64748b; font-weight:700;">مدة التأخير الفعلية</div>
+                        <div style="font-size:16px; font-weight:900; color:${d.status === 'overdue' ? '#dc2626' : '#d97706'};">${d.diffDays} يوم</div>
+                    </div>
+                    <div>
+                        <div style="font-size:11px; color:#64748b; font-weight:700;">المهلة النظامية</div>
+                        <div style="font-size:14px; font-weight:800; color:#059669;">14 يوماً</div>
+                    </div>
+                </div>
+
+                <div style="font-size:12.5px; line-height:1.7; margin-bottom:12px;">
+                    <div><b>الموظف:</b> ${r.employee_name || r.employeeName || '-'} | <b>القسم:</b> ${r.department || '-'}</div>
+                    <div><b>الجهاز:</b> ${r.device_name || r.deviceName || '-'} (${r.computer_number || r.computerNumber || '-'})</div>
+                    <div><b>تاريخ فتح الطلب:</b> ${formatDate(r.created_at || r.createdAt)}</div>
+                    <div><b>تاريخ المرجع المعتمد:</b> <span style="font-weight:700; color:${!d.hasProcedures ? '#dc2626' : '#2563eb'};">${d.baseDateLabel}</span></div>
+                    <div style="margin-top:4px;"><b>وصف العطل:</b> ${r.issue_description || r.issueDescription || '-'}</div>
+                </div>
+
+                <div style="margin-bottom:14px;">
+                    <div style="font-size:12px; font-weight:800; color:#334155; margin-bottom:6px;"><i class="fas fa-list-check"></i> سجل الإجراءات الفنية (${procs.length}):</div>
+                    ${procsListHtml}
+                </div>
+
+                <div style="display:flex; gap:8px; justify-content:flex-end; border-top:1px solid #e2e8f0; padding-top:12px;">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="closeModal('singleDelayModal'); openRequestModal(${r.id})" style="display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fas fa-plus"></i> إضافة إجراء وتعديل الطلب
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('singleDelayModal'); viewRequest(${r.id})">
+                        <i class="fas fa-eye"></i> عرض كامل
+                    </button>
+                    <button type="button" class="btn btn-light btn-sm" onclick="closeModal('singleDelayModal')">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    `;
+    openModal('singleDelayModal');
+}
+
+async function openOverdueOfficialReport() {
+    let requests = window.requests || [];
+    if (!requests.length) {
+        try {
+            requests = await SupabaseAPI.request('requests', 'GET') || [];
+            window.requests = requests;
+        } catch(e) {
+            showToast('error', 'خطأ', 'تعذر تحميل بيانات الطلبات');
+            return;
+        }
+    }
+
+    const CLOSED_STATUSES = ['completed', 'duplicate', 'cancelled'];
+    const activeRequests = requests.filter(r => !CLOSED_STATUSES.includes(r.status));
+
+    // إرفاق بيانات التأخير لكل طلب نشط
+    const analyzed = activeRequests.map(r => ({
+        req: r,
+        delay: getRequestDelayInfo(r)
+    }));
+
+    // تصفية الطلبات المتأخرة فعلياً (> 14 يوماً من تاريخ الإجراء)
+    let overdueList = analyzed.filter(item => item.delay.status === 'overdue');
+
+    if (!overdueList.length) {
+        showToast('info', 'حالة ممتازة', 'لا توجد طلبات متأخرة حالياً تتجاوز مهلة الـ 14 يوماً!');
+        return;
+    }
+
+    // ترتيب تنازلي حسب مدة التأخير بالأيام (من الأقدم إلى الأحدث)
+    overdueList.sort((a, b) => {
+        if (b.delay.diffDays !== a.delay.diffDays) {
+            return b.delay.diffDays - a.delay.diffDays;
+        }
+        const da = new Date(a.req.created_at || a.req.createdAt || 0);
+        const db = new Date(b.req.created_at || b.req.createdAt || 0);
+        return da - db;
+    });
+
+    const E = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const D = v => { if (!v) return '-'; const d = new Date(v); return isNaN(d.getTime()) ? E(v) : d.toLocaleDateString('en-GB'); };
+
+    const totalActive = activeRequests.length;
+    const totalOverdue = overdueList.length;
+    const totalNoProc = overdueList.filter(item => !item.delay.hasProcedures).length;
+    const maxDelay = Math.max(...overdueList.map(item => item.delay.diffDays));
+    const avgDelay = Math.round(overdueList.reduce((acc, item) => acc + item.delay.diffDays, 0) / (totalOverdue || 1));
+
+    const now = new Date();
+    const nowStr = now.toLocaleString('ar-SA-u-ca-gregory-nu-latn');
+    const issueDateStr = now.toLocaleDateString('en-GB');
+    const docRefCode = 'OVR-' + now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0') + '-' + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
+
+    // جدول الكشف التنفيذي الإجمالي بمحاذاة تامة متطابقة بين الترويسات والبيانات
+    const tableRowsHtml = overdueList.map((item, idx) => {
+        const r = item.req;
+        const d = item.delay;
+        const lastProcText = d.hasProcedures && d.latestProc ? (d.latestProc.date || D(d.baseDate)) : '<span style="color:#dc2626;font-weight:800;">لا يوجد إجراء</span>';
+        return `
+        <tr>
+            <td style="text-align:center;font-weight:700;">${idx + 1}</td>
+            <td style="text-align:center;font-weight:900;color:#1e3a8a;">#${E(r.request_number || r.requestNumber || '-')}</td>
+            <td style="text-align:center;font-weight:700;">${E(r.computer_number || r.computerNumber || '-')}</td>
+            <td style="text-align:right;padding-right:8px;font-weight:800;color:#0f172a;">${E(r.employee_name || r.employeeName || '-')}</td>
+            <td style="text-align:right;padding-right:8px;">${E(r.department || '-')}</td>
+            <td style="text-align:right;padding-right:8px;">${E(r.device_name || r.deviceName || '-')}</td>
+            <td style="text-align:center;font-weight:700;">${D(r.created_at || r.createdAt)}</td>
+            <td style="text-align:center;font-weight:700;">${lastProcText}</td>
+            <td style="text-align:center;">
+                <span class="delay-pill ${d.diffDays >= 30 ? 'critical' : 'overdue'}">
+                    ${d.diffDays} يوم
+                </span>
+            </td>
+            <td style="text-align:center;font-weight:700;">${d.procedureCount}</td>
+            <td style="text-align:center;"><span class="status-pill status-${E(r.status)}">${E(getStatusLabel(r.status))}</span></td>
+        </tr>
+        `;
+    }).join('');
+
+    // بطاقات تفاصيل الطلبات المتأخرة وسجل الإجراءات الفنية مع جدول معلومات متناسق بنسبة 25% لكل عمود
+    const detailCardsHtml = overdueList.map((item, idx) => {
+        const r = item.req;
+        const d = item.delay;
+        const procs = d.procedures;
+
+        let procsHtml = '';
+        if (procs && procs.length > 0) {
+            procsHtml = `
+            <table class="proc-table">
+                <colgroup>
+                    <col style="width:5%;">
+                    <col style="width:15%;">
+                    <col style="width:65%;">
+                    <col style="width:15%;">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th style="text-align:center;">#</th>
+                        <th style="text-align:center;">تاريخ الإجراء</th>
+                        <th style="text-align:right;padding-right:12px;">تفاصيل الإجراء الفني المتخذ والملاحظات</th>
+                        <th style="text-align:center;">المرفق</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${procs.map((p, pIdx) => `
+                        <tr>
+                            <td style="text-align:center;font-weight:700;">${pIdx + 1}</td>
+                            <td style="text-align:center;font-weight:700;">${E(p.date || '-')}</td>
+                            <td style="text-align:right;padding-right:12px;line-height:1.6;">${E(p.text || '-')}</td>
+                            <td style="text-align:center;">${p.attachment ? `<span class="att-chip">📎 ${E(p.attachment.description || p.attachment.filename || 'مرفق')}</span>` : '<span style="color:#94a3b8;">-</span>'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            `;
+        } else {
+            procsHtml = `
+            <div class="no-proc-warning">
+                <i class="fas fa-triangle-exclamation"></i>
+                <div>
+                    <strong>تنبيه رقابي مشدد:</strong> لم يتم اتخاذ أو تسجيل أي إجراء فني على هذا الطلب منذ تسجيله قبل <b>${d.diffDays} يوماً</b>.
+                </div>
+            </div>
+            `;
+        }
+
+        const refDateDisplay = d.hasProcedures && d.latestProc ? (d.latestProc.date || D(d.baseDate)) : '<span style="color:#dc2626;font-weight:800;">لا يوجد إجراء</span>';
+
+        return `
+        <div class="overdue-card">
+            <div class="card-header">
+                <div class="header-left">
+                    <span class="seq-num">${idx + 1}</span>
+                    <span class="req-title">طلب صيانة رقم: <strong>#${E(r.request_number || r.requestNumber || '-')}</strong></span>
+                    <span class="status-pill status-${E(r.status)}">${E(getStatusLabel(r.status))}</span>
+                </div>
+                <div class="header-right">
+                    <span class="delay-badge-lg">
+                        <i class="fas fa-clock"></i> مدة التأخير: <strong>${d.diffDays} يوم</strong> (تجاوز مهلة الـ 14 يوماً)
+                    </span>
+                </div>
+            </div>
+
+            <!-- جدول معلومات الطلب الهندسي المتناسق (4 أعمدة متساوية بنسبة 25%) -->
+            <table class="card-info-table">
+                <colgroup>
+                    <col style="width:25%;">
+                    <col style="width:25%;">
+                    <col style="width:25%;">
+                    <col style="width:25%;">
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td><span class="lbl">اسم الموظف:</span> <span class="val">${E(r.employee_name || r.employeeName || '-')}</span></td>
+                        <td><span class="lbl">القسم / الإدارة:</span> <span class="val">${E(r.department || '-')}</span></td>
+                        <td><span class="lbl">نوع الجهاز:</span> <span class="val">${E(r.device_name || r.deviceName || '-')}</span></td>
+                        <td><span class="lbl">الرقم الحاسوبي:</span> <span class="val" style="font-weight:800;color:#1e3a8a;">${E(r.computer_number || r.computerNumber || '-')}</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="lbl">تاريخ فتح الطلب:</span> <span class="val">${D(r.created_at || r.createdAt)}</span></td>
+                        <td><span class="lbl">تاريخ المرجع المعتمد:</span> <span class="val">${refDateDisplay}</span></td>
+                        <td><span class="lbl">مدة التأخير الفعلية:</span> <span class="val" style="color:#dc2626;font-weight:800;">${d.diffDays} يوم تأخير</span></td>
+                        <td><span class="lbl">عدد الإجراءات المسجلة:</span> <span class="val"><b>${d.procedureCount}</b> إجراء فني</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="sec-block">
+                <div class="sec-lbl"><i class="fas fa-wrench"></i> وصف المشكلة / العطل:</div>
+                <div class="issue-box">${E(r.issue_description || r.issueDescription || 'لا يوجد وصف للمشكلة')}</div>
+            </div>
+
+            <div class="sec-block">
+                <div class="sec-lbl"><i class="fas fa-list-check"></i> تفاصيل الإجراءات الفنية المتخذة (${procs.length} إجراء):</div>
+                ${procsHtml}
+            </div>
+        </div>
+        `;
+    }).join('');
+
+    const reportHtml = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>كشف الطلبات المتأخرة فعلياً والإجراءات الفنية - ${issueDateStr}</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        font-family: 'Tajawal', Tahoma, sans-serif;
+        background: #f1f5f9;
+        color: #0f172a;
+        line-height: 1.5;
+        padding-bottom: 40px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* شريط أدوات الطباعة والـ PDF العلوي */
+    .no-print-bar {
+        position: sticky;
+        top: 0;
+        z-index: 10000;
+        background: #0f172a;
+        padding: 12px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .bar-info {
+        color: #f8fafc;
+        font-size: 14px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .bar-info .ref-tag {
+        background: rgba(255,255,255,0.15);
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-family: monospace;
+    }
+    .bar-btns {
+        display: flex;
+        gap: 10px;
+    }
+    .btn-act {
+        font-family: 'Tajawal', sans-serif;
+        font-weight: 800;
+        font-size: 13px;
+        border: 0;
+        border-radius: 8px;
+        padding: 8px 18px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #fff;
+        transition: all 0.2s ease;
+    }
+    .btn-print { background: #2563eb; }
+    .btn-print:hover { background: #1d4ed8; }
+    .btn-pdf { background: #dc2626; }
+    .btn-pdf:hover { background: #b91c1c; }
+    .btn-close { background: #475569; }
+    .btn-close:hover { background: #334155; }
+
+    /* حاوية التقرير الأساسية */
+    .report-page {
+        max-width: 1240px;
+        margin: 20px auto;
+        background: #ffffff;
+        padding: 28px 36px;
+        box-shadow: 0 10px 30px rgba(15,23,42,0.08);
+        border-radius: 12px;
+    }
+
+    /* الترويسة والتذييل المتكررين في كل صفحة عند الطباعة */
+    .print-running-header {
+        display: none;
+    }
+    .print-running-footer {
+        display: none;
+    }
+
+    /* الترويسة الرسمية الأولى */
+    .official-header {
+        border-bottom: 3px double #0f172a;
+        padding-bottom: 16px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .brand-block h1 {
+        font-size: 22px;
+        font-weight: 900;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+    .brand-block p {
+        font-size: 13px;
+        color: #475569;
+        font-weight: 700;
+    }
+    .doc-badge {
+        text-align: left;
+    }
+    .doc-badge .badge-tag {
+        display: inline-block;
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #f87171;
+        font-size: 12px;
+        font-weight: 800;
+        padding: 4px 12px;
+        border-radius: 6px;
+        margin-bottom: 5px;
+    }
+    .doc-badge .date-line {
+        font-size: 11px;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    /* بطاقات الإحصاء التنفيذي */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin-bottom: 22px;
+    }
+    .kpi-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+    }
+    .kpi-card.alert {
+        background: #fef2f2;
+        border-color: #fca5a5;
+    }
+    .kpi-val {
+        font-size: 22px;
+        font-weight: 900;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+    .kpi-card.alert .kpi-val {
+        color: #dc2626;
+    }
+    .kpi-lbl {
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        margin-top: 4px;
+    }
+
+    .sec-heading {
+        font-size: 15px;
+        font-weight: 900;
+        color: #1e3a8a;
+        border-right: 4px solid #2563eb;
+        padding-right: 10px;
+        margin: 24px 0 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* جدول الكشف الإجمالي ذو المحاذاة التامة وتكرار الترويسة */
+    .summary-table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        font-size: 11.5px;
+        margin-bottom: 25px;
+        background: #ffffff;
+    }
+    .summary-table th,
+    .summary-table td {
+        border: 1px solid #cbd5e1;
+        padding: 7px 6px;
+        vertical-align: middle;
+        line-height: 1.4;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+    .summary-table th {
+        background: #1e293b;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 11px;
+    }
+    .summary-table tbody tr:nth-child(even) {
+        background: #f8fafc;
+    }
+
+    .delay-pill {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-weight: 800;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+    .delay-pill.overdue {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+    }
+    .delay-pill.critical {
+        background: #dc2626;
+        color: #ffffff;
+    }
+
+    .status-pill {
+        display: inline-block;
+        padding: 2px 7px;
+        border-radius: 6px;
+        font-size: 10.5px;
+        font-weight: 800;
+        background: #e2e8f0;
+        color: #334155;
+    }
+    .status-inprogress { background: #eff6ff; color: #1d4ed8; }
+    .status-pending { background: #fffbeb; color: #b45309; }
+    .status-new { background: #fefce8; color: #a16207; }
+    .status-withdrawn { background: #fff7ed; color: #c2410c; }
+
+    /* بطاقات الطلبات التفصيلية */
+    .overdue-card {
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 16px;
+        background: #ffffff;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        box-shadow: 0 2px 6px rgba(15,23,42,0.03);
+    }
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 10px;
+        margin-bottom: 12px;
+    }
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .seq-num {
+        background: #1e293b;
+        color: #fff;
+        font-weight: 800;
+        font-size: 12px;
+        padding: 3px 8px;
+        border-radius: 6px;
+    }
+    .req-title {
+        font-size: 15px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+    .delay-badge-lg {
+        background: #fef2f2;
+        border: 1px solid #f87171;
+        color: #991b1b;
+        font-size: 12px;
+        font-weight: 800;
+        padding: 4px 12px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* جدول معلومات الطلب داخل البطاقة (4 أعمدة متساوية بنسبة 25%) */
+    .card-info-table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        margin-bottom: 12px;
+        font-size: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+    }
+    .card-info-table td {
+        padding: 7px 10px;
+        border: 1px solid #e2e8f0;
+        vertical-align: middle;
+        text-align: right;
+        line-height: 1.5;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+    .card-info-table .lbl {
+        color: #475569;
+        font-weight: 700;
+        margin-left: 5px;
+        font-size: 11.5px;
+    }
+    .card-info-table .val {
+        color: #0f172a;
+        font-weight: 800;
+    }
+
+    .sec-block {
+        margin-bottom: 12px;
+    }
+    .sec-lbl {
+        font-size: 12px;
+        font-weight: 800;
+        color: #334155;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-align: right;
+    }
+    .issue-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        color: #1e293b;
+        line-height: 1.6;
+        text-align: right;
+    }
+
+    /* جدول سجل الإجراءات الفنية مع أعمدة محددة */
+    .proc-table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        font-size: 11.5px;
+        margin-top: 6px;
+        background: #ffffff;
+    }
+    .proc-table th,
+    .proc-table td {
+        border: 1px solid #cbd5e1;
+        padding: 6px 8px;
+        vertical-align: middle;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+    .proc-table th {
+        background: #f1f5f9;
+        color: #334155;
+        font-weight: 800;
+    }
+    .att-chip {
+        display: inline-block;
+        background: #eff6ff;
+        color: #1e40af;
+        border-radius: 4px;
+        padding: 2px 6px;
+        font-size: 10.5px;
+        font-weight: 700;
+    }
+
+    .no-proc-warning {
+        background: #fff1f2;
+        border: 1px solid #fecdd3;
+        color: #9f1239;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-align: right;
+    }
+    .no-proc-warning i { font-size: 16px; color: #e11d48; }
+
+    .report-footer {
+        text-align: center;
+        font-size: 11px;
+        color: #64748b;
+        margin-top: 25px;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 10px;
+    }
+
+    /* =========================================================================
+       قواعد الطباعة الرسمية: تكرار عناوين الجدول، ترويسة وتذييل مرقمان
+       ========================================================================= */
+    @media print {
+        @page {
+            size: A4 landscape;
+            margin: 12mm 10mm 14mm 10mm;
+            @bottom-left {
+                content: "صفحة " counter(page) " من " counter(pages);
+                font-family: 'Tajawal', sans-serif;
+                font-size: 9pt;
+                color: #64748b;
+            }
+        }
+        body {
+            background: #ffffff !important;
+            padding: 0 !important;
+            color: #000000;
+        }
+        .no-print-bar {
+            display: none !important;
+        }
+        .report-page {
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+        }
+
+        /* تكرار ترويسة الجدول في كل صفحة عند الطباعة */
+        table {
+            page-break-inside: auto;
+        }
+        thead {
+            display: table-header-group !important;
+        }
+        tfoot {
+            display: table-footer-group !important;
+        }
+        tr {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+        .overdue-card,
+        .kpi-grid {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+        .sec-heading {
+            break-after: avoid !important;
+            page-break-after: avoid !important;
+        }
+
+        /* الترويسة والتذييل المتكرران للطباعة */
+        .print-running-header {
+            display: flex !important;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1.5px solid #0f172a;
+            padding-bottom: 5px;
+            margin-bottom: 12px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #334155;
+        }
+        .print-running-footer {
+            display: flex !important;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #cbd5e1;
+            padding-top: 5px;
+            margin-top: 15px;
+            font-size: 9.5px;
+            color: #64748b;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="no-print-bar">
+    <div class="bar-info">
+        <i class="fas fa-file-circle-exclamation" style="color:#ef4444;font-size:18px;"></i>
+        <span>كشف الطلبات المتأخرة فعلياً والإجراءات الفنية (العدد: ${totalOverdue} طلب)</span>
+        <span class="ref-tag">رمز الكشف: ${docRefCode}</span>
+    </div>
+    <div class="bar-btns">
+        <button class="btn-act btn-print" onclick="window.print()"><i class="fas fa-print"></i> طباعة الكشف</button>
+        <button class="btn-act btn-pdf" id="pdfBtn" onclick="savePdfReport()"><i class="fas fa-file-pdf"></i> تصدير PDF</button>
+        <button class="btn-act btn-close" onclick="window.close()"><i class="fas fa-xmark"></i> إغلاق</button>
+    </div>
+</div>
+
+<div class="report-page" id="reportContent">
+    <!-- ترويسة مطبوعة متكررة -->
+    <div class="print-running-header">
+        <div>المملكة الأردنية الهاشمية — نظام إدارة طلبات الصيانة | الرقابة الفنية والمتابعة</div>
+        <div>كشف الطلبات المتأخرة فعلياً (> 14 يوم من تاريخ الإجراء)</div>
+        <div>المرجع: ${docRefCode}</div>
+    </div>
+
+    <div class="official-header">
+        <div class="brand-block">
+            <h1>المملكة الأردنية الهاشمية</h1>
+            <p>نظام إدارة طلبات الصيانة المحوسب — الرقابة الفنية والمتابعة الدورية</p>
+        </div>
+        <div class="doc-badge">
+            <span class="badge-tag"><i class="fas fa-triangle-exclamation"></i> كشف رسمي: طلبات متأخرة</span>
+            <div class="date-line">تاريخ وتوقيت الإصدار: ${nowStr}</div>
+            <div class="date-line">المعيار الرقابي: تجاوز مهلة 14 يوماً من تاريخ الإجراء</div>
+            <div class="date-line">الرقم المرجعي للكشف: <strong>${docRefCode}</strong></div>
+        </div>
+    </div>
+
+    <!-- بطاقات الإحصاء التنفيذي -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-val">${totalActive}</div>
+            <div class="kpi-lbl">إجمالي الطلبات النشطة</div>
+        </div>
+        <div class="kpi-card alert">
+            <div class="kpi-val">${totalOverdue}</div>
+            <div class="kpi-lbl">الطلبات المتأخرة فعلياً (> 14 يوم)</div>
+        </div>
+        <div class="kpi-card alert">
+            <div class="kpi-val">${totalNoProc}</div>
+            <div class="kpi-lbl">متأخرة بدون أي إجراء فني</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-val" style="color:#b45309;">${maxDelay} يوم</div>
+            <div class="kpi-lbl">أقصى مدة تأخير مسجلة</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-val" style="color:#2563eb;">${avgDelay} يوم</div>
+            <div class="kpi-lbl">متوسط أيام التأخير</div>
+        </div>
+    </div>
+
+    <div class="sec-heading"><i class="fas fa-table-list"></i> جدول الكشف التنفيذي الإجمالي (مرتب تنازلياً من الأقدم إلى الأحدث حسب مدة التأخير):</div>
+    
+    <!-- جدول الكشف ذو الأعمدة المحددة بنسب ثابتة وتكرار الترويسة ومحاذاة تامة -->
+    <table class="summary-table">
+        <colgroup>
+            <col style="width: 4%;">
+            <col style="width: 8%;">
+            <col style="width: 9%;">
+            <col style="width: 15%;">
+            <col style="width: 13%;">
+            <col style="width: 12%;">
+            <col style="width: 9.5%;">
+            <col style="width: 9.5%;">
+            <col style="width: 8%;">
+            <col style="width: 4.5%;">
+            <col style="width: 6.5%;">
+        </colgroup>
+        <thead>
+            <tr>
+                <th style="text-align:center;">#</th>
+                <th style="text-align:center;">رقم الطلب</th>
+                <th style="text-align:center;">الرقم الحاسوبي</th>
+                <th style="text-align:right;padding-right:8px;">الموظف</th>
+                <th style="text-align:right;padding-right:8px;">القسم / الإدارة</th>
+                <th style="text-align:right;padding-right:8px;">نوع الجهاز</th>
+                <th style="text-align:center;">تاريخ الطلب</th>
+                <th style="text-align:center;">تاريخ آخر إجراء</th>
+                <th style="text-align:center;">مدة التأخير</th>
+                <th style="text-align:center;">الإجراءات</th>
+                <th style="text-align:center;">الحالة</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${tableRowsHtml}
+        </tbody>
+    </table>
+
+    <div class="sec-heading"><i class="fas fa-clipboard-check"></i> تفاصيل الطلبات المتأخرة وسجل الإجراءات الفنية المتخذة:</div>
+    <div class="detail-cards-container">
+        ${detailCardsHtml}
+    </div>
+
+    <!-- تذييل مطبوع متكرر -->
+    <div class="print-running-footer">
+        <div>نظام إدارة الصيانة المحوسب © 2026 — وثيقة رقابية رسمية معتمدة</div>
+        <div>كشف الطلبات المتأخرة | المرجع: ${docRefCode}</div>
+        <div>تاريخ الإصدار: ${issueDateStr}</div>
+    </div>
+
+    <div class="report-footer">
+        تم استخراج هذا الكشف آلياً بواسطة نظام إدارة الصيانة المحوسب © 2026 — صفحة توثيق رسمية للمتابعة الميدانية
+    </div>
+</div>
+
+<script>
+function savePdfReport() {
+    var btn = document.getElementById('pdfBtn');
+    var oldText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تحضير PDF...';
+    btn.disabled = true;
+
+    var element = document.getElementById('reportContent');
+    var opt = {
+        margin: [10, 8, 12, 8],
+        filename: 'كشف_الطلبات_المتأخرة_${issueDateStr.replace(/\//g, '-')}.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0, letterRendering: true, logging: false },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+        pagebreak: { mode: ['css', 'legacy'] }
+    };
+
+    var ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+    ready.then(function() {
+        return html2pdf().set(opt).from(element).toPdf().get('pdf').then(function(pdf) {
+            var totalPages = pdf.internal.getNumberOfPages();
+            var pageWidth = pdf.internal.pageSize.getWidth();
+            var pageHeight = pdf.internal.pageSize.getHeight();
+            
+            // إضافة أرقام الصفحات والترويسة والتذييل المرقّمين لكل صفحة في الـ PDF
+            for (var i = 1; i <= totalPages; i++) {
+                pdf.setPage(i);
+                pdf.setFontSize(8);
+                pdf.setTextColor(100, 116, 139);
+                
+                // خط الترويسة العلوية ورقم الصفحة
+                pdf.setDrawColor(203, 213, 225);
+                pdf.setLineWidth(0.25);
+                pdf.line(8, 7.5, pageWidth - 8, 7.5);
+                pdf.text('Doc Ref: ${docRefCode}', pageWidth - 10, 6, { align: 'right' });
+                pdf.text('Page ' + i + ' of ' + totalPages, 10, 6, { align: 'left' });
+
+                // خط التذييل السفلي وترقيم الصفحات
+                pdf.line(8, pageHeight - 7.5, pageWidth - 8, pageHeight - 7.5);
+                pdf.text('Issue Date: ${issueDateStr}', pageWidth - 10, pageHeight - 4, { align: 'right' });
+                pdf.text('Page ' + i + ' / ' + totalPages, 10, pageHeight - 4, { align: 'left' });
+            }
+        }).save();
+    }).then(function() {
+        btn.innerHTML = oldText;
+        btn.disabled = false;
+    }).catch(function(err) {
+        console.error(err);
+        btn.innerHTML = oldText;
+        btn.disabled = false;
+        window.print();
+    });
+}
+<\/script>
+</body>
+</html>`;
+
+    const printWin = window.open('', '_blank', 'width=1320,height=920,scrollbars=yes,resizable=yes');
+    if (!printWin) {
+        showToast('error', 'تنبيه النوافذ المنبثقة', 'يرجى السماح بالنوافذ المنبثقة لعرض الكشف الرسمي');
+        return;
+    }
+    printWin.document.open();
+    printWin.document.write(reportHtml);
+    printWin.document.close();
+    showToast('success', 'تم إنشاء الكشف', `تم تجهيز كشف رسمي لـ ${totalOverdue} طلب متأخر جاهز للطباعة والـ PDF`);
+}
+
+
 async function loadRequests() {
     const token = ++__requestsLoadToken;
     setRequestsLoading(true);
@@ -16256,6 +17436,11 @@ async function loadRequests() {
         );
     }
     if (statusFilter) filtered = filtered.filter(r => r.status === statusFilter);
+    if (currentQuickDelayFilter === 'overdue') {
+        filtered = filtered.filter(r => !isClosed(r) && getRequestDelayInfo(r).status === 'overdue');
+    } else if (currentQuickDelayFilter === 'warning') {
+        filtered = filtered.filter(r => !isClosed(r) && getRequestDelayInfo(r).status === 'warning');
+    }
 
     const CLOSED_STATUSES = ['completed', 'duplicate', 'cancelled'];
     const isClosed = (r) => CLOSED_STATUSES.includes(r.status);
@@ -16265,11 +17450,39 @@ async function loadRequests() {
 
     const activeCount = sorted.filter(r => !isClosed(r)).length;
     const closedCount = sorted.length - activeCount;
-    const rowHtml = (r, idx) => `
-        <tr data-request-row="${r.id}" class="${isClosed(r) ? 'request-closed-row ' : ''}${selectedRequestIds.has(r.id) ? 'row-selected' : ''}">
+    const rowHtml = (r, idx) => {
+        const closed = isClosed(r);
+        const delayInfo = !closed ? getRequestDelayInfo(r) : null;
+        let delayBadgeHtml = '';
+        let rowDelayClass = '';
+        if (delayInfo) {
+            if (delayInfo.status === 'overdue') {
+                rowDelayClass = ' rq-row-overdue';
+                delayBadgeHtml = `
+                    <span class="rq-delay-badge overdue" onclick="event.stopPropagation(); showSingleRequestDelayInfo(${r.id})" title="تنبيه تأخير: مضى ${delayInfo.diffDays} يوم منذ ${delayInfo.baseDateLabel} (تجاوز مهلة الـ 14 يوماً) - انقر للتفاصيل">
+                        <span class="rq-delay-dot"></span>
+                        <i class="fas fa-triangle-exclamation" style="font-size:9px;"></i>
+                        <span>متأخر ${delayInfo.diffDays}ي</span>
+                        ${!delayInfo.hasProcedures ? '<span class="rq-noproc-mini" title="لا يوجد إجراء مسجل"><i class="fas fa-ban"></i></span>' : ''}
+                    </span>
+                `;
+            } else if (delayInfo.status === 'warning') {
+                rowDelayClass = ' rq-row-warning';
+                delayBadgeHtml = `
+                    <span class="rq-delay-badge warning" onclick="event.stopPropagation(); showSingleRequestDelayInfo(${r.id})" title="تنبيه مبكر: مضى ${delayInfo.diffDays} يوم منذ ${delayInfo.baseDateLabel} - متبقي ${delayInfo.remainingDays} ${delayInfo.remainingDays === 1 ? 'يوم' : 'أيام'} على مهلة الـ 14 يوماً">
+                        <span class="rq-delay-dot"></span>
+                        <i class="fas fa-clock" style="font-size:9px;"></i>
+                        <span>وشك التأخير (${delayInfo.remainingDays}ي)</span>
+                        ${!delayInfo.hasProcedures ? '<span class="rq-noproc-mini" title="لا يوجد إجراء مسجل"><i class="fas fa-ban"></i></span>' : ''}
+                    </span>
+                `;
+            }
+        }
+        return `
+        <tr data-request-row="${r.id}" class="${closed ? 'request-closed-row ' : ''}${selectedRequestIds.has(r.id) ? 'row-selected ' : ''}${rowDelayClass}">
             <td class="no-print" style="text-align:center;"><input type="checkbox" class="row-check request-row-check" value="${r.id}" ${selectedRequestIds.has(r.id) ? 'checked' : ''} onchange="toggleRequestSelection(${r.id}, this.checked)"></td>
             <td class="row-seq-td" style="text-align:center;font-weight:700;color:#64748b;font-size:12px;">${idx + 1}</td>
-            <td><div style="display:flex;align-items:center;gap:6px;"><span class="rq-num rq-num-link" role="button" tabindex="0" title="فتح الطلب للتعديل وإضافة إجراء" onclick="event.stopPropagation(); openRequestModal(${r.id})" onkeydown="if(event.key==='Enter'){event.preventDefault();openRequestModal(${r.id});}">#${r.request_number || r.requestNumber} <i class="fas fa-up-right-from-square rq-num-ico"></i></span>${getStatusChip(r.status, true)}</div></td>
+            <td><div style="display:flex;align-items:center;gap:5px;flex-wrap:nowrap;"><span class="rq-num rq-num-link" role="button" tabindex="0" title="فتح الطلب للتعديل وإضافة إجراء" onclick="event.stopPropagation(); openRequestModal(${r.id})" onkeydown="if(event.key==='Enter'){event.preventDefault();openRequestModal(${r.id});}">#${r.request_number || r.requestNumber} <i class="fas fa-up-right-from-square rq-num-ico"></i></span>${getStatusChip(r.status, true)}${delayBadgeHtml}</div></td>
             <td>${r.computer_number || r.computerNumber}</td>
             <td>${r.device_name || r.deviceName}</td>
             <td>${r.employee_name || r.employeeName}</td>
@@ -16288,6 +17501,7 @@ async function loadRequests() {
             </td>
         </tr>
     `;
+    };
 
     const activeRows = sorted.filter(r => !isClosed(r));
     const closedRows = sorted.filter(isClosed);
@@ -16312,6 +17526,18 @@ async function loadRequests() {
     const countEl = document.getElementById('rqCount');
     if (countEl) countEl.textContent = `عرض ${sorted.length} من ${requests.length}`;
 
+    const overdueActive = requests.filter(r => !isClosed(r) && getRequestDelayInfo(r).status === 'overdue').length;
+    const warningActive = requests.filter(r => !isClosed(r) && getRequestDelayInfo(r).status === 'warning').length;
+
+    const topCountEl = document.getElementById('rqOverdueTopCount');
+    if (topCountEl) topCountEl.textContent = overdueActive;
+    const headCountEl = document.getElementById('rqOverdueHeadCount');
+    if (headCountEl) headCountEl.textContent = overdueActive;
+    const qfOverdueEl = document.getElementById('qfOverdueCount');
+    if (qfOverdueEl) qfOverdueEl.textContent = overdueActive;
+    const qfWarningEl = document.getElementById('qfWarningCount');
+    if (qfWarningEl) qfWarningEl.textContent = warningActive;
+
     const statsEl = document.getElementById('rqStats');
     if (statsEl) {
         const cnt = (s) => requests.filter(r => r.status === s).length;
@@ -16319,6 +17545,8 @@ async function loadRequests() {
         statsEl.innerHTML =
             `<div class="rq-stat"><i class="fas fa-clipboard-list"></i><div><b>${requests.length}</b><span>إجمالي الطلبات</span></div></div>` +
             `<div class="rq-stat"><i class="fas fa-bolt" style="background:#ecfdf5;color:#059669;"></i><div><b>${allActive}</b><span>طلبات نشطة</span></div></div>` +
+            `<div class="rq-stat rq-stat-clickable" onclick="openOverdueOfficialReport()" title="انقر لعرض كشف الطلبات المتأخرة فعلياً"><i class="fas fa-triangle-exclamation" style="background:#fef2f2;color:#dc2626;"></i><div><b style="color:#b91c1c;">${overdueActive}</b><span style="color:#dc2626;font-weight:700;">متأخرة (>14 يوم)</span></div></div>` +
+            `<div class="rq-stat rq-stat-clickable" onclick="quickFilterOverdueRequests('warning')" title="انقر لتصفية الطلبات التي على وشك التأخير"><i class="fas fa-clock" style="background:#fffbeb;color:#d97706;"></i><div><b style="color:#b45309;">${warningActive}</b><span style="color:#d97706;font-weight:700;">وشك التأخير</span></div></div>` +
             `<div class="rq-stat"><i class="fas fa-spinner" style="background:#eff6ff;color:#2563eb;"></i><div><b>${cnt('inprogress')}</b><span>قيد التنفيذ</span></div></div>` +
             `<div class="rq-stat"><i class="fas fa-hourglass-half" style="background:#fffbeb;color:#d97706;"></i><div><b>${cnt('pending')}</b><span>قيد الانتظار</span></div></div>` +
             `<div class="rq-stat"><i class="fas fa-circle-check" style="background:#f0fdf4;color:#16a34a;"></i><div><b>${cnt('completed')}</b><span>مكتملة</span></div></div>`;
@@ -16860,6 +18088,7 @@ async function bulkDeleteRequests() {
 function filterRequests() { syncQuickFilterUI(); loadRequests(); }
 
 function quickFilterRequests(status) {
+    currentQuickDelayFilter = null;
     const sel = document.getElementById('requestStatusFilter');
     if (sel) sel.value = status;
     syncQuickFilterUI();
@@ -16869,7 +18098,12 @@ function quickFilterRequests(status) {
 function syncQuickFilterUI() {
     const current = document.getElementById('requestStatusFilter')?.value || '';
     document.querySelectorAll('#requestQuickFilters .qf-btn').forEach(b => {
-        b.classList.toggle('active', (b.dataset.status || '') === current);
+        const isDelay = b.classList.contains('qf-btn-overdue') || b.classList.contains('qf-btn-warning');
+        if (isDelay) {
+            b.classList.toggle('active', currentQuickDelayFilter === b.dataset.status);
+        } else {
+            b.classList.toggle('active', (b.dataset.status || '') === current && !currentQuickDelayFilter);
+        }
     });
 }
 
