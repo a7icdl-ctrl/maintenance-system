@@ -16604,7 +16604,7 @@ async function openOverdueOfficialReport() {
         return da - db;
     });
 
-    const E = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const E = v => String(v == null ? '' : v).replace(/[&<>"\x27]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\x27':'&#39;'}[c]));
     const D = v => { if (!v) return '-'; const d = new Date(v); return isNaN(d.getTime()) ? E(v) : d.toLocaleDateString('en-GB'); };
 
     const totalActive = activeRequests.length;
@@ -16618,7 +16618,7 @@ async function openOverdueOfficialReport() {
     const issueDateStr = now.toLocaleDateString('en-GB');
     const docRefCode = 'OVR-' + now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0') + '-' + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
 
-    // جدول الكشف التنفيذي الإجمالي بمحاذاة تامة متطابقة بين الترويسات والبيانات
+    // جدول الكشف التنفيذي الإجمالي بمحاذاة تامة متطابقة وتكرار الترويسة
     const tableRowsHtml = overdueList.map((item, idx) => {
         const r = item.req;
         const d = item.delay;
@@ -16644,7 +16644,7 @@ async function openOverdueOfficialReport() {
         `;
     }).join('');
 
-    // بطاقات تفاصيل الطلبات المتأخرة وسجل الإجراءات الفنية مع جدول معلومات متناسق بنسبة 25% لكل عمود
+    // بطاقات تفاصيل الطلبات المتأخرة وسجل الإجراءات الفنية مع بقاء بيانات كل طلب وإجراءاته معاً
     const detailCardsHtml = overdueList.map((item, idx) => {
         const r = item.req;
         const d = item.delay;
@@ -16653,32 +16653,34 @@ async function openOverdueOfficialReport() {
         let procsHtml = '';
         if (procs && procs.length > 0) {
             procsHtml = `
-            <table class="proc-table">
-                <colgroup>
-                    <col style="width:5%;">
-                    <col style="width:15%;">
-                    <col style="width:65%;">
-                    <col style="width:15%;">
-                </colgroup>
-                <thead>
-                    <tr>
-                        <th style="text-align:center;">#</th>
-                        <th style="text-align:center;">تاريخ الإجراء</th>
-                        <th style="text-align:right;padding-right:12px;">تفاصيل الإجراء الفني المتخذ والملاحظات</th>
-                        <th style="text-align:center;">المرفق</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${procs.map((p, pIdx) => `
+            <div class="proc-table-wrap">
+                <table class="proc-table">
+                    <colgroup>
+                        <col style="width:5%;">
+                        <col style="width:15%;">
+                        <col style="width:65%;">
+                        <col style="width:15%;">
+                    </colgroup>
+                    <thead>
                         <tr>
-                            <td style="text-align:center;font-weight:700;">${pIdx + 1}</td>
-                            <td style="text-align:center;font-weight:700;">${E(p.date || '-')}</td>
-                            <td style="text-align:right;padding-right:12px;line-height:1.6;">${E(p.text || '-')}</td>
-                            <td style="text-align:center;">${p.attachment ? `<span class="att-chip">📎 ${E(p.attachment.description || p.attachment.filename || 'مرفق')}</span>` : '<span style="color:#94a3b8;">-</span>'}</td>
+                            <th style="text-align:center;">#</th>
+                            <th style="text-align:center;">تاريخ الإجراء</th>
+                            <th style="text-align:right;padding-right:12px;">تفاصيل الإجراء الفني المتخذ والملاحظات</th>
+                            <th style="text-align:center;">المرفق</th>
                         </tr>
-                    `).join('')}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        ${procs.map((p, pIdx) => `
+                            <tr>
+                                <td style="text-align:center;font-weight:700;">${pIdx + 1}</td>
+                                <td style="text-align:center;font-weight:700;">${E(p.date || '-')}</td>
+                                <td style="text-align:right;padding-right:12px;line-height:1.6;">${E(p.text || '-')}</td>
+                                <td style="text-align:center;">${p.attachment ? `<span class="att-chip">📎 ${E(p.attachment.description || p.attachment.filename || 'مرفق')}</span>` : '<span style="color:#94a3b8;">-</span>'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
             `;
         } else {
             procsHtml = `
@@ -16695,49 +16697,53 @@ async function openOverdueOfficialReport() {
 
         return `
         <div class="overdue-card">
-            <div class="card-header">
-                <div class="header-left">
-                    <span class="seq-num">${idx + 1}</span>
-                    <span class="req-title">طلب صيانة رقم: <strong>#${E(r.request_number || r.requestNumber || '-')}</strong></span>
-                    <span class="status-pill status-${E(r.status)}">${E(getStatusLabel(r.status))}</span>
+            <!-- بيانات الطلب الأساسية مجمعة معاً لمنع التجزئة في الطباعة والـ PDF -->
+            <div class="card-core-data">
+                <div class="card-header">
+                    <div class="header-left">
+                        <span class="seq-num">${idx + 1}</span>
+                        <span class="req-title">طلب صيانة رقم: <strong>#${E(r.request_number || r.requestNumber || '-')}</strong></span>
+                        <span class="status-pill status-${E(r.status)}">${E(getStatusLabel(r.status))}</span>
+                    </div>
+                    <div class="header-right">
+                        <span class="delay-badge-lg">
+                            <i class="fas fa-clock"></i> مدة التأخير: <strong>${d.diffDays} يوم</strong> (تجاوز مهلة الـ 14 يوماً)
+                        </span>
+                    </div>
                 </div>
-                <div class="header-right">
-                    <span class="delay-badge-lg">
-                        <i class="fas fa-clock"></i> مدة التأخير: <strong>${d.diffDays} يوم</strong> (تجاوز مهلة الـ 14 يوماً)
-                    </span>
+
+                <!-- جدول معلومات الطلب الهندسي المتناسق (متجاوب مع الموبايل والطباعة) -->
+                <table class="card-info-table">
+                    <colgroup>
+                        <col style="width:25%;">
+                        <col style="width:25%;">
+                        <col style="width:25%;">
+                        <col style="width:25%;">
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td><span class="lbl">اسم الموظف:</span> <span class="val">${E(r.employee_name || r.employeeName || '-')}</span></td>
+                            <td><span class="lbl">القسم / الإدارة:</span> <span class="val">${E(r.department || '-')}</span></td>
+                            <td><span class="lbl">نوع الجهاز:</span> <span class="val">${E(r.device_name || r.deviceName || '-')}</span></td>
+                            <td><span class="lbl">الرقم الحاسوبي:</span> <span class="val" style="font-weight:800;color:#1e3a8a;">${E(r.computer_number || r.computerNumber || '-')}</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="lbl">تاريخ فتح الطلب:</span> <span class="val">${D(r.created_at || r.createdAt)}</span></td>
+                            <td><span class="lbl">تاريخ المرجع المعتمد:</span> <span class="val">${refDateDisplay}</span></td>
+                            <td><span class="lbl">مدة التأخير الفعلية:</span> <span class="val" style="color:#dc2626;font-weight:800;">${d.diffDays} يوم تأخير</span></td>
+                            <td><span class="lbl">عدد الإجراءات المسجلة:</span> <span class="val"><b>${d.procedureCount}</b> إجراء فني</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="sec-block issue-block">
+                    <div class="sec-lbl"><i class="fas fa-wrench"></i> وصف المشكلة / العطل:</div>
+                    <div class="issue-box">${E(r.issue_description || r.issueDescription || 'لا يوجد وصف للمشكلة')}</div>
                 </div>
             </div>
 
-            <!-- جدول معلومات الطلب الهندسي المتناسق (4 أعمدة متساوية بنسبة 25%) -->
-            <table class="card-info-table">
-                <colgroup>
-                    <col style="width:25%;">
-                    <col style="width:25%;">
-                    <col style="width:25%;">
-                    <col style="width:25%;">
-                </colgroup>
-                <tbody>
-                    <tr>
-                        <td><span class="lbl">اسم الموظف:</span> <span class="val">${E(r.employee_name || r.employeeName || '-')}</span></td>
-                        <td><span class="lbl">القسم / الإدارة:</span> <span class="val">${E(r.department || '-')}</span></td>
-                        <td><span class="lbl">نوع الجهاز:</span> <span class="val">${E(r.device_name || r.deviceName || '-')}</span></td>
-                        <td><span class="lbl">الرقم الحاسوبي:</span> <span class="val" style="font-weight:800;color:#1e3a8a;">${E(r.computer_number || r.computerNumber || '-')}</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="lbl">تاريخ فتح الطلب:</span> <span class="val">${D(r.created_at || r.createdAt)}</span></td>
-                        <td><span class="lbl">تاريخ المرجع المعتمد:</span> <span class="val">${refDateDisplay}</span></td>
-                        <td><span class="lbl">مدة التأخير الفعلية:</span> <span class="val" style="color:#dc2626;font-weight:800;">${d.diffDays} يوم تأخير</span></td>
-                        <td><span class="lbl">عدد الإجراءات المسجلة:</span> <span class="val"><b>${d.procedureCount}</b> إجراء فني</span></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="sec-block">
-                <div class="sec-lbl"><i class="fas fa-wrench"></i> وصف المشكلة / العطل:</div>
-                <div class="issue-box">${E(r.issue_description || r.issueDescription || 'لا يوجد وصف للمشكلة')}</div>
-            </div>
-
-            <div class="sec-block">
+            <!-- سجل الإجراءات الفنية التابع للطلب -->
+            <div class="sec-block procs-block">
                 <div class="sec-lbl"><i class="fas fa-list-check"></i> تفاصيل الإجراءات الفنية المتخذة (${procs.length} إجراء):</div>
                 ${procsHtml}
             </div>
@@ -16749,7 +16755,7 @@ async function openOverdueOfficialReport() {
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
 <title>كشف الطلبات المتأخرة فعلياً والإجراءات الفنية - ${issueDateStr}</title>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -16827,7 +16833,7 @@ async function openOverdueOfficialReport() {
         border-radius: 12px;
     }
 
-    /* الترويسة والتذييل المتكررين في كل صفحة عند الطباعة */
+    /* الترويسة والتذييل المتكرران للطباعة */
     .print-running-header {
         display: none;
     }
@@ -16835,7 +16841,7 @@ async function openOverdueOfficialReport() {
         display: none;
     }
 
-    /* الترويسة الرسمية الأولى */
+    /* الترويسة الرسمية الأولى بدون عبارة المملكة الأردنية الهاشمية */
     .official-header {
         border-bottom: 3px double #0f172a;
         padding-bottom: 16px;
@@ -16843,12 +16849,38 @@ async function openOverdueOfficialReport() {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+    .brand-block {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .brand-icon {
+        font-size: 28px;
+        color: #2563eb;
+        background: #eff6ff;
+        width: 54px;
+        height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        border: 1px solid #bfdbfe;
+        flex-shrink: 0;
+    }
+    .brand-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 14px;
     }
     .brand-block h1 {
         font-size: 22px;
         font-weight: 900;
         color: #0f172a;
         margin-bottom: 4px;
+        line-height: 1.3;
     }
     .brand-block p {
         font-size: 13px;
@@ -16881,6 +16913,8 @@ async function openOverdueOfficialReport() {
         grid-template-columns: repeat(5, 1fr);
         gap: 12px;
         margin-bottom: 22px;
+        break-inside: avoid;
+        page-break-inside: avoid;
     }
     .kpi-card {
         background: #f8fafc;
@@ -16919,6 +16953,26 @@ async function openOverdueOfficialReport() {
         display: flex;
         align-items: center;
         gap: 8px;
+        break-after: avoid !important;
+        page-break-after: avoid !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    /* حاوية جدول الكشف المتجاوبة مع التمرير الأفقي السلس في الموبايل */
+    .table-responsive-wrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 25px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+    }
+    .table-responsive-wrap .summary-table {
+        margin-bottom: 0;
+        min-width: 960px;
+        border: none;
     }
 
     /* جدول الكشف الإجمالي ذو المحاذاة التامة وتكرار الترويسة */
@@ -16927,8 +16981,33 @@ async function openOverdueOfficialReport() {
         table-layout: fixed;
         border-collapse: collapse;
         font-size: 11.5px;
-        margin-bottom: 25px;
         background: #ffffff;
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+    }
+    .summary-table thead {
+        display: table-header-group !important;
+    }
+    .summary-table thead tr {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        break-after: avoid !important;
+        page-break-after: avoid !important;
+    }
+    .summary-table thead th {
+        background: #1e293b;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 11px;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+    .summary-table tbody {
+        display: table-row-group !important;
+    }
+    .summary-table tbody tr {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
     }
     .summary-table th,
     .summary-table td {
@@ -16938,12 +17017,6 @@ async function openOverdueOfficialReport() {
         line-height: 1.4;
         overflow-wrap: break-word;
         word-break: break-word;
-    }
-    .summary-table th {
-        background: #1e293b;
-        color: #ffffff;
-        font-weight: 800;
-        font-size: 11px;
     }
     .summary-table tbody tr:nth-child(even) {
         background: #f8fafc;
@@ -16981,17 +17054,34 @@ async function openOverdueOfficialReport() {
     .status-new { background: #fefce8; color: #a16207; }
     .status-withdrawn { background: #fff7ed; color: #c2410c; }
 
-    /* بطاقات الطلبات التفصيلية */
+    /* =========================================================================
+       قواعد بطاقات الطلبات التفصيلية: بقاء بيانات كل طلب وإجراءاته معاً
+       ========================================================================= */
+    .detail-cards-container {
+        page-break-inside: auto;
+        break-inside: auto;
+    }
+
     .overdue-card {
         border: 1px solid #cbd5e1;
         border-radius: 10px;
         padding: 16px;
         margin-bottom: 16px;
         background: #ffffff;
-        break-inside: avoid;
-        page-break-inside: avoid;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        -webkit-column-break-inside: avoid !important;
         box-shadow: 0 2px 6px rgba(15,23,42,0.03);
     }
+
+    /* بيانات الطلب الأساسية تبقى معاً دائماً ولا تنفصل أبداً عن بعضها */
+    .card-core-data {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-after: avoid;
+        break-after: avoid;
+    }
+
     .card-header {
         display: flex;
         justify-content: space-between;
@@ -16999,6 +17089,10 @@ async function openOverdueOfficialReport() {
         border-bottom: 1px solid #e2e8f0;
         padding-bottom: 10px;
         margin-bottom: 12px;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
     }
     .header-left {
         display: flex;
@@ -17041,6 +17135,10 @@ async function openOverdueOfficialReport() {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
         border-radius: 8px;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-after: avoid;
+        break-after: avoid;
     }
     .card-info-table td {
         padding: 7px 10px;
@@ -17065,6 +17163,10 @@ async function openOverdueOfficialReport() {
     .sec-block {
         margin-bottom: 12px;
     }
+    .issue-block {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
     .sec-lbl {
         font-size: 12px;
         font-weight: 800;
@@ -17074,6 +17176,8 @@ async function openOverdueOfficialReport() {
         align-items: center;
         gap: 6px;
         text-align: right;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
     }
     .issue-box {
         background: #f8fafc;
@@ -17086,14 +17190,54 @@ async function openOverdueOfficialReport() {
         text-align: right;
     }
 
-    /* جدول سجل الإجراءات الفنية مع أعمدة محددة */
+    /* جدول سجل الإجراءات الفنية مع تكرار ترويسة الأعمدة ومحاذاة تامة */
+    .procs-block {
+        page-break-inside: auto;
+        break-inside: auto;
+    }
+    .proc-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+    }
+    .proc-table-wrap .proc-table {
+        margin-top: 0;
+        border: none;
+    }
     .proc-table {
         width: 100%;
         table-layout: fixed;
         border-collapse: collapse;
         font-size: 11.5px;
-        margin-top: 6px;
         background: #ffffff;
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+    }
+    .proc-table thead {
+        display: table-header-group !important;
+    }
+    .proc-table thead tr {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        break-after: avoid !important;
+        page-break-after: avoid !important;
+    }
+    .proc-table thead th {
+        background: #f1f5f9;
+        color: #334155;
+        font-weight: 800;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+    .proc-table tbody {
+        display: table-row-group !important;
+    }
+    .proc-table tbody tr {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
     }
     .proc-table th,
     .proc-table td {
@@ -17102,11 +17246,6 @@ async function openOverdueOfficialReport() {
         vertical-align: middle;
         overflow-wrap: break-word;
         word-break: break-word;
-    }
-    .proc-table th {
-        background: #f1f5f9;
-        color: #334155;
-        font-weight: 800;
     }
     .att-chip {
         display: inline-block;
@@ -17129,6 +17268,8 @@ async function openOverdueOfficialReport() {
         align-items: center;
         gap: 10px;
         text-align: right;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
     }
     .no-proc-warning i { font-size: 16px; color: #e11d48; }
 
@@ -17142,12 +17283,186 @@ async function openOverdueOfficialReport() {
     }
 
     /* =========================================================================
+       التجاوب مع شاشات الموبايل والأجهزة اللوحية (Responsive Media Queries)
+       ========================================================================= */
+    @media screen and (max-width: 992px) {
+        .report-page {
+            max-width: 100%;
+            margin: 14px 10px;
+            padding: 20px 18px;
+        }
+        .kpi-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        body {
+            padding-bottom: 25px;
+        }
+        .no-print-bar {
+            padding: 10px 14px;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+        .bar-info {
+            font-size: 13px;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .bar-btns {
+            width: 100%;
+            display: flex;
+            gap: 6px;
+        }
+        .btn-act {
+            flex: 1;
+            justify-content: center;
+            padding: 8px 6px;
+            font-size: 12px;
+        }
+
+        .report-page {
+            margin: 8px 6px;
+            padding: 14px 12px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(15,23,42,0.06);
+        }
+
+        .official-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+        .brand-title-wrap {
+            gap: 10px;
+        }
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            font-size: 22px;
+            border-radius: 10px;
+        }
+        .brand-block h1 {
+            font-size: 17px;
+        }
+        .brand-block p {
+            font-size: 11.5px;
+        }
+        .doc-badge {
+            width: 100%;
+            text-align: right;
+            background: #f8fafc;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+        .kpi-card {
+            padding: 10px 8px;
+        }
+        .kpi-val {
+            font-size: 18px;
+        }
+        .kpi-lbl {
+            font-size: 10.5px;
+        }
+
+        .sec-heading {
+            font-size: 13px;
+            margin: 18px 0 10px;
+            padding-right: 8px;
+        }
+
+        /* تحويل جدول معلومات الطلب في الموبايل إلى قائمة بيانات عمودية واضحة ومريحة */
+        .card-info-table colgroup {
+            display: none;
+        }
+        .card-info-table,
+        .card-info-table tbody,
+        .card-info-table tr,
+        .card-info-table td {
+            display: block;
+            width: 100% !important;
+            box-sizing: border-box;
+        }
+        .card-info-table tr {
+            border: none;
+        }
+        .card-info-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 11.5px;
+            text-align: right;
+        }
+        .card-info-table td:last-child {
+            border-bottom: none;
+        }
+
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .header-left {
+            width: 100%;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .header-right {
+            width: 100%;
+        }
+        .delay-badge-lg {
+            width: 100%;
+            justify-content: center;
+            font-size: 11px;
+            padding: 4px 8px;
+        }
+
+        .overdue-card {
+            padding: 12px 10px;
+            margin-bottom: 14px;
+        }
+
+        .issue-box {
+            font-size: 11.5px;
+            padding: 6px 10px;
+        }
+    }
+
+    @media screen and (max-width: 480px) {
+        .report-page {
+            margin: 4px 2px;
+            padding: 10px 8px;
+        }
+        .bar-btns {
+            flex-direction: column;
+        }
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* =========================================================================
        قواعد الطباعة الرسمية: تكرار عناوين الجدول، ترويسة وتذييل مرقمان
        ========================================================================= */
     @media print {
         @page {
             size: A4 landscape;
-            margin: 12mm 10mm 14mm 10mm;
+            margin: 10mm 8mm 12mm 8mm;
             @bottom-left {
                 content: "صفحة " counter(page) " من " counter(pages);
                 font-family: 'Tajawal', sans-serif;
@@ -17155,10 +17470,13 @@ async function openOverdueOfficialReport() {
                 color: #64748b;
             }
         }
-        body {
+        html, body {
             background: #ffffff !important;
             padding: 0 !important;
+            margin: 0 !important;
             color: #000000;
+            overflow: visible !important;
+            height: auto !important;
         }
         .no-print-bar {
             display: none !important;
@@ -17169,30 +17487,114 @@ async function openOverdueOfficialReport() {
             padding: 0 !important;
             box-shadow: none !important;
             border-radius: 0 !important;
+            overflow: visible !important;
+            height: auto !important;
         }
 
-        /* تكرار ترويسة الجدول في كل صفحة عند الطباعة */
+        /* في الطباعة: إلغاء التمرير الأفقي وإرجاع الجداول لعرض الصفحة الكامل */
+        .table-responsive-wrap,
+        .proc-table-wrap {
+            overflow: visible !important;
+            border: none !important;
+            margin-bottom: 20px !important;
+        }
+        .table-responsive-wrap .summary-table,
+        .proc-table-wrap .proc-table {
+            min-width: 100% !important;
+            width: 100% !important;
+        }
+
+        /* إعادة جدول معلومات الطلب إلى النمط الهندسي 4 أعمدة في الطباعة */
+        .card-info-table {
+            display: table !important;
+            width: 100% !important;
+        }
+        .card-info-table colgroup {
+            display: table-column-group !important;
+        }
+        .card-info-table tbody {
+            display: table-row-group !important;
+        }
+        .card-info-table tr {
+            display: table-row !important;
+        }
+        .card-info-table td {
+            display: table-cell !important;
+            width: 25% !important;
+        }
+
+        /* استمرار تكرار عناوين الجداول في كل صفحة عند الطباعة */
         table {
-            page-break-inside: auto;
+            page-break-inside: auto !important;
+            break-inside: auto !important;
         }
         thead {
             display: table-header-group !important;
         }
+        thead tr {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+            break-after: avoid !important;
+            page-break-after: avoid !important;
+        }
         tfoot {
             display: table-footer-group !important;
         }
-        tr {
+        tbody {
+            display: table-row-group !important;
+        }
+        tbody tr {
             break-inside: avoid !important;
             page-break-inside: avoid !important;
         }
-        .overdue-card,
+
+        /* بقاء بيانات كل طلب وإجراءاته معاً قدر الإمكان */
+        .overdue-card {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+            -webkit-column-break-inside: avoid !important;
+            margin-bottom: 14px !important;
+            box-shadow: none !important;
+        }
+        .card-core-data {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+            break-after: avoid !important;
+            page-break-after: avoid !important;
+        }
+        .card-header {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+            break-after: avoid !important;
+            page-break-after: avoid !important;
+            flex-direction: row !important;
+        }
+        .card-info-table {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+        .issue-block {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
         .kpi-grid {
             break-inside: avoid !important;
             page-break-inside: avoid !important;
+            grid-template-columns: repeat(5, 1fr) !important;
         }
         .sec-heading {
             break-after: avoid !important;
             page-break-after: avoid !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+        .sec-lbl {
+            break-after: avoid !important;
+            page-break-after: avoid !important;
+        }
+        .no-proc-warning {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
         }
 
         /* الترويسة والتذييل المتكرران للطباعة */
@@ -17238,15 +17640,20 @@ async function openOverdueOfficialReport() {
 <div class="report-page" id="reportContent">
     <!-- ترويسة مطبوعة متكررة -->
     <div class="print-running-header">
-        <div>المملكة الأردنية الهاشمية — نظام إدارة طلبات الصيانة | الرقابة الفنية والمتابعة</div>
+        <div>نظام إدارة طلبات الصيانة المحوسب — الرقابة الفنية والمتابعة</div>
         <div>كشف الطلبات المتأخرة فعلياً (> 14 يوم من تاريخ الإجراء)</div>
         <div>المرجع: ${docRefCode}</div>
     </div>
 
     <div class="official-header">
         <div class="brand-block">
-            <h1>المملكة الأردنية الهاشمية</h1>
-            <p>نظام إدارة طلبات الصيانة المحوسب — الرقابة الفنية والمتابعة الدورية</p>
+            <div class="brand-title-wrap">
+                <i class="fas fa-screwdriver-wrench brand-icon"></i>
+                <div>
+                    <h1>نظام إدارة طلبات الصيانة المحوسب</h1>
+                    <p>الرقابة الفنية والمتابعة الدورية — كشف الطلبات المتأخرة فعلياً</p>
+                </div>
+            </div>
         </div>
         <div class="doc-badge">
             <span class="badge-tag"><i class="fas fa-triangle-exclamation"></i> كشف رسمي: طلبات متأخرة</span>
@@ -17256,7 +17663,7 @@ async function openOverdueOfficialReport() {
         </div>
     </div>
 
-    <!-- بطاقات الإحصاء التنفيذي -->
+    <!-- بطاقات الإحصاء التنفيذي المتجاوبة -->
     <div class="kpi-grid">
         <div class="kpi-card">
             <div class="kpi-val">${totalActive}</div>
@@ -17282,40 +17689,42 @@ async function openOverdueOfficialReport() {
 
     <div class="sec-heading"><i class="fas fa-table-list"></i> جدول الكشف التنفيذي الإجمالي (مرتب تنازلياً من الأقدم إلى الأحدث حسب مدة التأخير):</div>
     
-    <!-- جدول الكشف ذو الأعمدة المحددة بنسب ثابتة وتكرار الترويسة ومحاذاة تامة -->
-    <table class="summary-table">
-        <colgroup>
-            <col style="width: 4%;">
-            <col style="width: 8%;">
-            <col style="width: 9%;">
-            <col style="width: 15%;">
-            <col style="width: 13%;">
-            <col style="width: 12%;">
-            <col style="width: 9.5%;">
-            <col style="width: 9.5%;">
-            <col style="width: 8%;">
-            <col style="width: 4.5%;">
-            <col style="width: 6.5%;">
-        </colgroup>
-        <thead>
-            <tr>
-                <th style="text-align:center;">#</th>
-                <th style="text-align:center;">رقم الطلب</th>
-                <th style="text-align:center;">الرقم الحاسوبي</th>
-                <th style="text-align:right;padding-right:8px;">الموظف</th>
-                <th style="text-align:right;padding-right:8px;">القسم / الإدارة</th>
-                <th style="text-align:right;padding-right:8px;">نوع الجهاز</th>
-                <th style="text-align:center;">تاريخ الطلب</th>
-                <th style="text-align:center;">تاريخ آخر إجراء</th>
-                <th style="text-align:center;">مدة التأخير</th>
-                <th style="text-align:center;">الإجراءات</th>
-                <th style="text-align:center;">الحالة</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${tableRowsHtml}
-        </tbody>
-    </table>
+    <!-- حاوية متجاوبة للجدول الإجمالي مع تمرير أفقي سلس في الهواتف الذكية -->
+    <div class="table-responsive-wrap">
+        <table class="summary-table">
+            <colgroup>
+                <col style="width: 4%;">
+                <col style="width: 8%;">
+                <col style="width: 9%;">
+                <col style="width: 15%;">
+                <col style="width: 13%;">
+                <col style="width: 12%;">
+                <col style="width: 9.5%;">
+                <col style="width: 9.5%;">
+                <col style="width: 8%;">
+                <col style="width: 4.5%;">
+                <col style="width: 6.5%;">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th style="text-align:center;">#</th>
+                    <th style="text-align:center;">رقم الطلب</th>
+                    <th style="text-align:center;">الرقم الحاسوبي</th>
+                    <th style="text-align:right;padding-right:8px;">الموظف</th>
+                    <th style="text-align:right;padding-right:8px;">القسم / الإدارة</th>
+                    <th style="text-align:right;padding-right:8px;">نوع الجهاز</th>
+                    <th style="text-align:center;">تاريخ الطلب</th>
+                    <th style="text-align:center;">تاريخ آخر إجراء</th>
+                    <th style="text-align:center;">مدة التأخير</th>
+                    <th style="text-align:center;">الإجراءات</th>
+                    <th style="text-align:center;">الحالة</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tableRowsHtml}
+            </tbody>
+        </table>
+    </div>
 
     <div class="sec-heading"><i class="fas fa-clipboard-check"></i> تفاصيل الطلبات المتأخرة وسجل الإجراءات الفنية المتخذة:</div>
     <div class="detail-cards-container">
@@ -17348,7 +17757,10 @@ function savePdfReport() {
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, scrollY: 0, letterRendering: true, logging: false },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-        pagebreak: { mode: ['css', 'legacy'] }
+        pagebreak: {
+            mode: ['avoid-all', 'css', 'legacy'],
+            avoid: ['.overdue-card', '.card-core-data', '.summary-table tr', '.proc-table tr', '.card-info-table', '.kpi-grid', '.sec-heading', '.no-proc-warning']
+        }
     };
 
     var ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
@@ -17401,6 +17813,7 @@ function savePdfReport() {
     printWin.document.close();
     showToast('success', 'تم إنشاء الكشف', `تم تجهيز كشف رسمي لـ ${totalOverdue} طلب متأخر جاهز للطباعة والـ PDF`);
 }
+
 
 
 async function loadRequests() {
