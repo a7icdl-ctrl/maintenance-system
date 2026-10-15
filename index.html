@@ -42145,6 +42145,115 @@ table.nvx-live tr:last-child td{border-bottom:0}
 .nvx-gauge h5{font-size:12.5px}
 .nvx-gauge p{max-width:215px}
 @media(max-width:700px){#page-dashboard .dsh-factors-mini{gap:6px;font-size:9px}.nvx-gauge-head{inset-inline:13px}}
+
+/* index v3 — time compliance gauge only */
+.nvx-gauge {
+  --gauge-cyan: oklch(.77 .15 210); --gauge-blue: oklch(.61 .22 255);
+  --gauge-good: oklch(.65 .18 155); --gauge-watch: oklch(.73 .17 75);
+  --gauge-alert: oklch(.64 .23 25); --gauge-surface: var(--card-bg);
+  --gauge-track: color-mix(in oklab, var(--text-light) 16%, transparent);
+  --gauge-glow: color-mix(in oklab, var(--gauge-cyan) 24%, transparent);
+  --gc: var(--gauge-alert); isolation: isolate;
+  transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+}
+.nvx-gauge[data-level="good"] { --gc: var(--gauge-good); }
+.nvx-gauge[data-level="watch"] { --gc: var(--gauge-watch); }
+.nvx-gauge:hover, .nvx-gauge:focus-visible {
+  transform: translateY(-4px); border-color: var(--gauge-cyan);
+  box-shadow: 0 12px 32px var(--gauge-glow); outline: none;
+}
+.nvx-gauge .nvx-ring {
+  width: 176px; height: 176px; max-width: 100%; flex: 0 0 auto;
+  margin-top: 32px; margin-bottom: 6px; background: none;
+  transition: transform .4s cubic-bezier(.2,.8,.2,1);
+}
+.nvx-gauge:hover .nvx-ring, .nvx-gauge:focus-visible .nvx-ring { transform: scale(1.045); }
+.nvx-gauge .nvx-ring::after { display: none; }
+.nvx-gauge .nvx-dial { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.nvx-gauge .nvx-dial-inner { fill: var(--gauge-surface); }
+.nvx-gauge .nvx-dial-ticks { fill: none; stroke: var(--gauge-track); stroke-width: 2; stroke-dasharray: 1 4; }
+.nvx-gauge .nvx-dial-track { fill: none; stroke: var(--gauge-track); stroke-width: 11; }
+.nvx-gauge .nvx-dial-progress { fill: none; stroke: url(#nvxComplianceGradient); stroke-width: 11; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 100px 100px; filter: drop-shadow(0 2px 4px var(--gauge-glow)); }
+.nvx-gauge .nvx-gradient-start { stop-color: var(--gauge-cyan); }
+.nvx-gauge .nvx-gradient-end { stop-color: var(--gauge-blue); }
+.nvx-gauge .nvx-dial-pointer { transform-origin: 100px 100px; }
+.nvx-gauge .nvx-dial-dot { fill: var(--gauge-blue); stroke: var(--gauge-surface); stroke-width: 3; }
+.nvx-gauge .nvx-dial-halo { fill: var(--gauge-glow); transform-origin: 100px 22px; animation: nvxGaugePulse 2.6s ease-in-out infinite; }
+.nvx-gauge .nvx-ring b { color: var(--text-dark); font-size: 36px; font-variant-numeric: tabular-nums; letter-spacing: 0; }
+.nvx-gauge .nvx-ring span { color: var(--text-medium); margin-top: 7px; }
+.nvx-gauge h5 { display: inline-flex; align-items: center; gap: 7px; color: var(--gc); padding: 6px 11px; border-radius: 999px; background: color-mix(in oklab, var(--gc) 10%, transparent); }
+.nvx-gauge h5::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gc); flex-shrink: 0; }
+.nvx-gauge .nvx-gauge-head > span i { color: var(--gauge-blue); }
+.nvx-gauge .nvx-gauge-head > span { min-width: 0; }
+.nvx-gauge .nvx-info-btn { flex-shrink: 0; }
+.nvx-gauge .nvx-info-btn:hover { color: var(--gauge-blue); border-color: var(--gauge-cyan); background: color-mix(in oklab, var(--gauge-cyan) 10%, var(--gauge-surface)); }
+.nvx-gauge .nvx-ring.nvx-settle b { animation: nvxGaugeSettle .5s ease both; }
+@keyframes nvxGaugePulse { 0%,100% { transform: scale(.85); opacity: .65; } 50% { transform: scale(1.4); opacity: .2; } }
+@keyframes nvxGaugeSettle { from { opacity: .45; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .nvx-gauge, .nvx-gauge .nvx-ring { transition: none; }
+  .nvx-gauge .nvx-dial-halo, .nvx-gauge .nvx-ring.nvx-settle b { animation: none; }
+  .nvx-gauge:hover, .nvx-gauge:focus-visible, .nvx-gauge:hover .nvx-ring, .nvx-gauge:focus-visible .nvx-ring { transform: none; }
+}
+@media print { .nvx-gauge .nvx-dial-halo { animation: none; } }
+
+
+/* index v4 — calm pearl-mint surface and fluid motion. */
+.nvx-gauge {
+ --gauge-deep: oklch(.985 .008 175); --gauge-deep-end: oklch(.945 .025 175); --gauge-shadow: oklch(.36 .035 175 / .12);
+ --gauge-ink: oklch(.31 .035 180); --gauge-soft: oklch(.46 .03 180);
+ --gauge-cyan: oklch(.73 .15 170); --gauge-blue: oklch(.7 .16 220);
+ --gauge-alert: oklch(.57 .19 25); --gauge-good: oklch(.49 .13 165);
+ --gauge-watch: oklch(.51 .11 65); --gauge-surface: oklch(.995 .005 175);
+ --gauge-track: oklch(.84 .025 175 / .45); --gauge-glow: oklch(.73 .13 175 / .16);
+ --gauge-line: oklch(.7 .035 175 / .05);
+ --gauge-background: linear-gradient(145deg,var(--gauge-deep),var(--gauge-deep-end));
+ background: var(--gauge-background); border-color: color-mix(in oklab,var(--gauge-cyan) 30%,transparent);
+ box-shadow: 0 12px 26px var(--gauge-shadow), inset 0 1px 0 var(--gauge-track);
+ overflow: hidden; position: relative;
+}
+.nvx-gauge::before { content:''; position:absolute; inset:0; z-index:-1; pointer-events:none;
+ background-image: repeating-linear-gradient(135deg,transparent 0 22px,var(--gauge-line) 22px 23px),linear-gradient(125deg,transparent 25%,var(--gauge-track) 48%,transparent 72%);
+ background-size: auto,250% 250%; animation: nvxBackdropFlow 16s ease-in-out infinite; }
+.nvx-gauge::after { content:''; position:absolute; top:0; inset-inline:25%; height:2px; background:linear-gradient(90deg,transparent,var(--gauge-cyan),var(--gauge-blue),transparent); }
+.nvx-gauge[data-level="alert"] { --gauge-cyan: oklch(.73 .19 20); --gauge-blue: oklch(.81 .16 70); --gauge-glow: oklch(.75 .14 25 / .15); }
+.nvx-gauge[data-level="watch"] { --gauge-cyan: oklch(.77 .16 70); --gauge-blue: oklch(.8 .13 150); }
+.nvx-gauge:hover,.nvx-gauge:focus-visible { transform:translateY(-5px); box-shadow:0 18px 38px var(--gauge-shadow),0 0 22px var(--gauge-glow); }
+.nvx-gauge .nvx-gauge-head { color:var(--gauge-ink); }
+.nvx-gauge .nvx-gauge-head > span i { color:var(--gauge-cyan); }
+.nvx-gauge .nvx-info-btn { color:var(--gauge-soft); border-color:var(--gauge-track); background:var(--gauge-track); }
+.nvx-gauge .nvx-info-btn:hover { color:var(--gauge-ink); background:var(--gauge-glow); }
+.nvx-gauge .nvx-ring { transform:perspective(650px) rotateX(var(--gauge-rx,0deg)) rotateY(var(--gauge-ry,0deg)); }
+.nvx-gauge:hover .nvx-ring { transform:perspective(650px) rotateX(var(--gauge-rx,0deg)) rotateY(var(--gauge-ry,0deg)) scale(1.04); }
+.nvx-gauge .nvx-dial-inner { filter:drop-shadow(0 4px 8px var(--gauge-shadow)); }
+.nvx-gauge .nvx-dial-ticks { stroke:color-mix(in oklab,var(--gauge-cyan) 38%,transparent); transform-origin:100px 100px; animation:nvxDialDrift 90s linear infinite; }
+.nvx-gauge .nvx-dial-progress { stroke-width:12; }
+.nvx-gauge .nvx-ring b { color:var(--gauge-ink); text-shadow:0 2px 12px var(--gauge-glow); }
+.nvx-gauge .nvx-ring span, .nvx-gauge p { color:var(--gauge-soft); }
+.nvx-gauge h5 { background:color-mix(in oklab,var(--gc) 14%,transparent); border:1px solid color-mix(in oklab,var(--gc) 24%,transparent); }
+.nvx-gauge .nvx-dial-glint { fill:none; stroke:var(--gauge-cyan); stroke-width:2; opacity:.55; stroke-dasharray:4 96; stroke-linecap:round; transform-origin:100px 100px; animation:nvxDialDrift 12s linear infinite; pointer-events:none; }
+.nvx-gauge .nvx-ring.nvx-settle { animation:nvxDialArrival .85s cubic-bezier(.2,.8,.2,1); }
+.nvx-gauge .nvx-ring.nvx-settle b { animation:nvxValueReveal .7s ease both; }
+@keyframes nvxDialDrift { to { transform:rotate(360deg); } }
+@keyframes nvxBackdropFlow { 0%,100% { background-position:0 0,0% 0%; } 50% { background-position:0 0,100% 100%; } }
+@keyframes nvxDialArrival { 0% { filter:brightness(1.25); } 100% { filter:brightness(1); } }
+@keyframes nvxValueReveal { 0% { transform:scale(.9); opacity:.6; } 65% { transform:scale(1.06); opacity:1; } 100% { transform:scale(1); } }
+@media(prefers-reduced-motion:reduce) {
+ .nvx-gauge::before,.nvx-gauge .nvx-dial-ticks,.nvx-gauge .nvx-dial-glint,.nvx-gauge .nvx-ring.nvx-settle,.nvx-gauge .nvx-ring.nvx-settle b { animation:none; }
+ .nvx-gauge .nvx-ring,.nvx-gauge:hover .nvx-ring { transform:none; }
+}
+@media print { .nvx-gauge { print-color-adjust:exact; -webkit-print-color-adjust:exact; } .nvx-gauge::before,.nvx-gauge .nvx-dial-ticks,.nvx-gauge .nvx-dial-glint { animation:none; } }
+
+.nvx-gauge .nvx-dial-orbit { fill:none; stroke:var(--gauge-cyan); stroke-width:1; opacity:.4; stroke-dasharray:16 34; stroke-linecap:round; transform-origin:100px 100px; animation:nvxOrbitSweep 24s linear infinite; }
+.nvx-gauge .nvx-dial-ping { fill:none; stroke:var(--gauge-cyan); stroke-width:1.2; opacity:0; transform-origin:100px 100px; }
+.nvx-gauge.nvx-tap .nvx-dial-ping { animation:nvxTapWave .8s cubic-bezier(.2,.8,.2,1); }
+.nvx-gauge .nvx-ring { transition:transform .65s cubic-bezier(.16,1,.3,1); }
+.nvx-gauge .nvx-dial-halo { animation:nvxGaugePulse 3.2s ease-in-out infinite; }
+.nvx-gauge:hover .nvx-dial-progress { filter:drop-shadow(0 2px 7px var(--gauge-glow)); }
+@keyframes nvxOrbitSweep { from { transform:rotate(0deg); } to { transform:rotate(-360deg); } }
+@keyframes nvxTapWave { 0% { transform:scale(.84); opacity:.65; } 100% { transform:scale(1.13); opacity:0; } }
+@media(prefers-reduced-motion:reduce) { .nvx-gauge .nvx-dial-orbit,.nvx-gauge.nvx-tap .nvx-dial-ping { animation:none; } .nvx-gauge .nvx-ring { transition:none; } }
+@media print { .nvx-gauge .nvx-dial-orbit,.nvx-gauge.nvx-tap .nvx-dial-ping { animation:none; } }
 </style>
 
 <script>
@@ -42563,7 +42672,7 @@ table.nvx-live tr:last-child td{border-bottom:0}
     anchor.insertAdjacentHTML('beforebegin',
       '<section class="nvx-hero" id="nvxHero">'+
       '  <div class="nvx-card nvx-gauge nvx-clickable" onclick="NewVision.explain(\'compliance\', (document.getElementById(\'nvxGaugeVal\')||{}).textContent)">'+
-      '    <div class="nvx-gauge-head"><span><i class="fas fa-stopwatch"></i> مؤشر الالتزام الزمني</span><button type="button" class="nvx-info-btn" aria-label="شرح نسبة الالتزام" onclick="event.stopPropagation();NewVision.explain(\'compliance\',(document.getElementById(\'nvxGaugeVal\')||{}).textContent)"><i class="fas fa-circle-info"></i></button></div>'+      '    <div class="nvx-ring" id="nvxRing"><div><b id="nvxGaugeVal">0%</b><span>ضمن 7 أيام</span></div></div>'+
+      '    <div class="nvx-gauge-head"><span><i class="fas fa-stopwatch"></i> مؤشر الالتزام الزمني</span><button type="button" class="nvx-info-btn" aria-label="شرح نسبة الالتزام" onclick="event.stopPropagation();NewVision.explain(\'compliance\',(document.getElementById(\'nvxGaugeVal\')||{}).textContent)"><i class="fas fa-circle-info"></i></button></div>'+      '    <div class="nvx-ring" id="nvxRing" role="meter" aria-label="الالتزام الزمني ضمن 7 أيام" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><svg class="nvx-dial" viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="nvxComplianceGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop class="nvx-gradient-start" offset="0%"/><stop class="nvx-gradient-end" offset="100%"/></linearGradient></defs><circle class="nvx-dial-inner" cx="100" cy="100" r="67"/><circle class="nvx-dial-ticks" cx="100" cy="100" r="94" pathLength="100"/><circle class="nvx-dial-track" cx="100" cy="100" r="78"/><circle class="nvx-dial-progress" cx="100" cy="100" r="78" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/><circle class="nvx-dial-orbit" cx="100" cy="100" r="99" pathLength="100"/><circle class="nvx-dial-ping" cx="100" cy="100" r="86"/><circle class="nvx-dial-glint" cx="100" cy="100" r="86" pathLength="100"/><g class="nvx-dial-pointer"><circle class="nvx-dial-halo" cx="100" cy="22" r="10"/><circle class="nvx-dial-dot" cx="100" cy="22" r="6"/></g></svg><div><b id="nvxGaugeVal">0%</b><span>ضمن 7 أيام</span></div></div>'+
       '    <h5 id="nvxGaugeTitle">جاري الحساب…</h5>'+
       '    <p id="nvxGaugeSub">اضغط لمعرفة معنى النسبة وطريقة رفعها</p>'+
       '  </div>'+
@@ -42612,6 +42721,31 @@ table.nvx-live tr:last-child td{border-bottom:0}
     if(typeof window.updateDashboard==='function'){window.updateDashboard();NVX.toast('تم تحديث الأرقام');}
     else NVX.render();
   };
+
+  /* Visual animation only; the calculated percentage remains unchanged. */
+  function animateComplianceGauge(ring,value){
+    var arc=ring.querySelector('.nvx-dial-progress');
+    var pointer=ring.querySelector('.nvx-dial-pointer');
+    if(!arc||!pointer)return;
+    if(ring._nvxGaugeFrame)cancelAnimationFrame(ring._nvxGaugeFrame);
+    var from=Number(ring.dataset.displayed)||0;
+    var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var duration=reduced||from===value?0:1450;
+    var start=null;
+    ring.classList.remove('nvx-settle');
+    function frame(time){
+      if(start===null)start=time;
+      var t=duration?Math.min(1,(time-start)/duration):1;
+      var eased=t<.5?16*Math.pow(t,5):1-Math.pow(-2*t+2,5)/2;
+      var shown=from+(value-from)*eased;
+      arc.setAttribute('stroke-dashoffset',String(100-shown));
+      pointer.setAttribute('transform','rotate('+(shown*3.6)+' 100 100)');
+      ring.dataset.displayed=String(shown);
+      if(t<1){ring._nvxGaugeFrame=requestAnimationFrame(frame);}
+      else{ring._nvxGaugeFrame=0;ring.classList.add('nvx-settle');}
+    }
+    ring._nvxGaugeFrame=requestAnimationFrame(frame);
+  }
 
   NVX.render=async function(){
     if(!mountHero()&&!$('nvxHero'))return;
@@ -42688,10 +42822,36 @@ table.nvx-live tr:last-child td{border-bottom:0}
     if($('nvxBd')&&$('nvxBd').classList.contains('on')&&S.openKey)NVX.explain(S.openKey);
 
     /* الدائرة */
-    var gc=comp>=90?'#10b981':comp>=75?'#f59e0b':'#ef4444';
     var ring=$('nvxRing');
-    ring.style.setProperty('--gp',comp);ring.style.setProperty('--gc',gc);
+    var gauge=ring.closest('.nvx-gauge');
+    gauge.dataset.level=comp>=90?'good':comp>=75?'watch':'alert';
+    if(!gauge._nvxInteractive){
+      gauge._nvxInteractive=true;
+      gauge.addEventListener('pointerdown',function(){
+        gauge.classList.remove('nvx-tap');
+        void gauge.offsetWidth;
+        gauge.classList.add('nvx-tap');
+      });
+      gauge.addEventListener('pointermove',function(e){
+        if(e.pointerType!=='mouse'||(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches))return;
+        var box=gauge.getBoundingClientRect();
+        gauge.style.setProperty('--gauge-rx',((.5-(e.clientY-box.top)/box.height)*7)+'deg');
+        gauge.style.setProperty('--gauge-ry',(((e.clientX-box.left)/box.width-.5)*9)+'deg');
+      });
+      gauge.addEventListener('pointerleave',function(){
+        gauge.style.setProperty('--gauge-rx','0deg');gauge.style.setProperty('--gauge-ry','0deg');
+      });
+    }
+    gauge.setAttribute('tabindex','0');
+    gauge.setAttribute('role','button');
+    gauge.setAttribute('aria-label','شرح مؤشر الالتزام الزمني: '+comp+'%');
+    gauge.onkeydown=function(e){
+      if(e.target!==gauge)return;
+      if(e.key==='Enter'||e.key===' '){e.preventDefault();gauge.click();}
+    };
+    ring.setAttribute('aria-valuenow',String(comp));
     $('nvxGaugeVal').textContent=comp+'%';
+    animateComplianceGauge(ring,comp);
     $('nvxGaugeTitle').textContent=comp>=90?'أداء ممتاز':comp>=75?'أداء مقبول':'يحتاج تدخلاً فورياً';
     $('nvxGaugeSub').textContent=okN+' من '+(ages.length)+' طلب مفتوح ضمن 7 أيام — اضغط للشرح';
 
