@@ -12395,7 +12395,7 @@ async function loadSearchDropdowns() {
     const altSelect = document.getElementById('searchAltType');
     if (altSelect) {
         altSelect.innerHTML = '<option value="">جميع الأنواع</option>' +
-            altDevices.map(d => `<option value="${d.type}">${d.type}</option>`).join('');
+            altDevices.map(d => `<option value="${String(d.type||'').replace(/"/g,'&quot;')}">${d.type}</option>`).join('');
     }
 }
 
@@ -12532,7 +12532,7 @@ async function performAdvancedSearch(type) {
         const employee = document.getElementById('searchAltEmployee').value.toLowerCase();
 
         let filtered = altModels;
-        if (deviceType) filtered = filtered.filter(m => m.type === deviceType);
+        if (deviceType) filtered = filtered.filter(m => altTypeEq(m.type, deviceType));
         if (status) filtered = filtered.filter(m => m.status === status);
         if (location) filtered = filtered.filter(m => (m.location || '').toLowerCase().includes(location));
         if (model) filtered = filtered.filter(m => (m.model || '').toLowerCase().includes(model));
@@ -20672,6 +20672,10 @@ function initTrackLayout() {
     }
 }
 
+function altTypeEq(a, b) {
+    const k = v => String(v || '').replace(/["'\u201C\u201D\u2033]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+    return k(a) === k(b);
+}
 function renderAlternatives() {
     const { devices, models, assignments, filter } = altState;
     const q = (document.getElementById('altSearch')?.value || '').trim().toLowerCase();
@@ -20700,8 +20704,8 @@ function renderAlternatives() {
     // ---- summary cards ----
     const summaryGrid = document.getElementById('altSummaryGrid');
     const typeCards = devices.map((dev, idx) => {
-        const all = models.filter(m => m.type === dev.type);
-        const shown = visible.filter(m => m.type === dev.type);
+        const all = models.filter(m => altTypeEq(m.type, dev.type));
+        const shown = visible.filter(m => altTypeEq(m.type, dev.type));
         if (q || filter !== 'all') { if (!shown.length && !String(dev.type || '').toLowerCase().includes(q)) return ''; }
         const total = all.length;
         const av = all.filter(isAvail).length;
@@ -20729,8 +20733,8 @@ function renderAlternatives() {
     // ---- individual tracking ----
     const trackingGrid = document.getElementById('altTrackingGrid');
     const trackCards = devices.map((dev, idx) => {
-        const rows = visible.filter(m => m.type === dev.type);
-        const all = models.filter(m => m.type === dev.type);
+        const rows = visible.filter(m => altTypeEq(m.type, dev.type));
+        const all = models.filter(m => altTypeEq(m.type, dev.type));
         if ((q || filter !== 'all') && !rows.length) return '';
         const color = ALT_PALETTE[idx % ALT_PALETTE.length];
         return `
@@ -20831,13 +20835,13 @@ async function loadAlternatives() {
     const typeSelect = document.getElementById('altTypeSelect');
     if (typeSelect) {
         typeSelect.innerHTML = '<option value="">اختر نوع الجهاز</option>' + 
-            (altDevices || []).map(d => `<option value="${d.type}">${d.type}</option>`).join('');
+            (altDevices || []).map(d => `<option value="${String(d.type||'').replace(/"/g,'&quot;')}">${d.type}</option>`).join('');
     }
 
     const assignDevice = document.getElementById('assignDevice');
     if (assignDevice) {
         assignDevice.innerHTML = '<option value="">اختر الجهاز</option>' + 
-            (altDevices || []).map(d => `<option value="${d.type}">${d.type}</option>`).join('');
+            (altDevices || []).map(d => `<option value="${String(d.type||'').replace(/"/g,'&quot;')}">${d.type}</option>`).join('');
     }
 
     // Update filter in full-inventory tab
@@ -20845,7 +20849,7 @@ async function loadAlternatives() {
     if (invTypeFilter) {
         const cur = invTypeFilter.value;
         invTypeFilter.innerHTML = '<option value="all">جميع التصنيفات</option>' + 
-            (altDevices || []).map(d => `<option value="${d.type}" ${d.type === cur ? 'selected' : ''}>${d.type}</option>`).join('');
+            (altDevices || []).map(d => `<option value="${String(d.type||'').replace(/"/g,'&quot;')}" ${altTypeEq(d.type, cur) ? 'selected' : ''}>${d.type}</option>`).join('');
     }
 
     renderAltInventoryTable();
@@ -20854,7 +20858,7 @@ async function loadAlternatives() {
 function updateAssignModels() {
     const deviceType = document.getElementById('assignDevice').value;
     SupabaseAPI.request('alt_models', 'GET').then(altModels => {
-        const models = (altModels || []).filter(m => m.type === deviceType && m.status === 'available');
+        const models = (altModels || []).filter(m => altTypeEq(m.type, deviceType) && m.status === 'available');
         const select = document.getElementById('assignModel');
         if (select) {
             select.innerHTML = '<option value="">اختر الموديل</option>' + 
@@ -20885,7 +20889,7 @@ async function saveAltModel() {
     const altModels = await SupabaseAPI.request('alt_models', 'GET');
     const altDevices = await SupabaseAPI.request('alt_devices', 'GET');
     const device = (altDevices || []).find(d => d.type === type);
-    const currentCount = (altModels || []).filter(m => m.type === type).length;
+    const currentCount = (altModels || []).filter(m => altTypeEq(m.type, type)).length;
 
     if (device && currentCount >= (device.total_qty || device.totalQty)) {
         showToast('warning', 'تنبيه', 'لقد وصلت للحد الأقصى لهذا النوع');
@@ -20986,7 +20990,7 @@ function getFilteredAltModels() {
     const statusFilter = document.getElementById('altInvStatusFilter')?.value || 'all';
 
     return (models || []).filter(m => {
-        if (typeFilter !== 'all' && m.type !== typeFilter) return false;
+        if (typeFilter !== 'all' && !altTypeEq(m.type, typeFilter)) return false;
         if (statusFilter === 'available' && m.status !== 'available') return false;
         if (statusFilter === 'unavailable' && m.status === 'available') return false;
         if (!q) return true;
@@ -21052,7 +21056,7 @@ function openBulkEditAltModal() {
     const typeSelect = document.getElementById('bulkTypeSelect');
     if (typeSelect) {
         typeSelect.innerHTML = '<option value="">اختر التصنيف الجديد...</option>' + 
-            (altState.devices || []).map(d => `<option value="${d.type}">${d.type}</option>`).join('');
+            (altState.devices || []).map(d => `<option value="${String(d.type||'').replace(/"/g,'&quot;')}">${d.type}</option>`).join('');
     }
 
     // Reset all form inputs and disable them
@@ -21555,9 +21559,9 @@ async function openEditAltModel(id) {
     const typeSelect = document.getElementById('editAltTypeSelect');
     if (typeSelect) {
         typeSelect.innerHTML = '<option value="">اختر نوع الجهاز</option>' + 
-            (altState.devices || []).map(d => `<option value="${d.type}" ${d.type === model.type ? 'selected' : ''}>${d.type}</option>`).join('');
+            (altState.devices || []).map(d => `<option value="${String(d.type||'').replace(/"/g,'&quot;')}" ${altTypeEq(d.type, model.type) ? 'selected' : ''}>${d.type}</option>`).join('');
         if (!typeSelect.value && model.type) {
-            typeSelect.innerHTML += `<option value="${model.type}" selected>${model.type}</option>`;
+            typeSelect.innerHTML += `<option value="${String(model.type||'').replace(/"/g,'&quot;')}" selected>${model.type}</option>`;
         }
     }
 
@@ -21831,11 +21835,11 @@ function renderAltInventoryTable() {
     const typeSelect = document.getElementById('altInvTypeFilter');
     if (typeSelect && typeSelect.options.length <= 1 && devices && devices.length) {
         typeSelect.innerHTML = '<option value="all">جميع التصنيفات</option>' + 
-            devices.map(d => `<option value="${d.type}">${d.type}</option>`).join('');
+            devices.map(d => `<option value="${String(d.type||'').replace(/"/g,'&quot;')}">${d.type}</option>`).join('');
     }
 
     const filtered = (models || []).filter(m => {
-        if (typeFilter !== 'all' && m.type !== typeFilter) return false;
+        if (typeFilter !== 'all' && !altTypeEq(m.type, typeFilter)) return false;
         if (statusFilter === 'available' && m.status !== 'available') return false;
         if (statusFilter === 'unavailable' && m.status === 'available') return false;
         if (!q) return true;
@@ -24964,7 +24968,7 @@ function renderAltDevicesChart(altDevices, altModels) {
     destroyChart('altDevices');
     const labels = (altDevices || []).map(d => d.type);
     const total = (altDevices || []).map(d => d.total_qty || d.totalQty || 0);
-    const current = (altDevices || []).map(d => (altModels || []).filter(m => m.type === d.type).length);
+    const current = (altDevices || []).map(d => (altModels || []).filter(m => altTypeEq(m.type, d.type)).length);
 
     charts.altDevices = new Chart(el.getContext('2d'), {
         type: 'doughnut',
