@@ -43889,4 +43889,89 @@ window.openMaintenanceGatewayPortal = function(onCompleteCallback) {
 };
 </script>
 
+
+<!-- index v5: isolated quick-settings controls for the time-compliance gauge. -->
+<style id="nvx-color-settings-style">
+#nvxColorSettings .nvx-color-fields { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; }
+#nvxColorSettings .nvx-color-field { display:flex; align-items:center; gap:8px; min-width:0; font-size:12px; color:var(--text-dark); cursor:pointer; }
+#nvxColorSettings input[type="color"] { width:34px; height:34px; padding:2px; border:1px solid var(--border-color); border-radius:8px; background:var(--card-bg); cursor:pointer; flex:none; }
+#nvxColorSettings input:focus-visible { outline:2px solid var(--fd2-accent); outline-offset:3px; }
+#nvxColorSettings .nvx-color-subtitle { font-size:12px; font-weight:700; margin:12px 0 8px; color:var(--text-medium); }
+#nvxColorSettings .nvx-color-reset { width:100%; margin-top:14px; }
+html[data-nvx-custom-colors="true"] .nvx-gauge {
+ --gauge-cyan:var(--nvx-user-start); --gauge-blue:var(--nvx-user-end);
+ --gauge-deep:var(--nvx-user-bg-start); --gauge-deep-end:var(--nvx-user-bg-end);
+ --gauge-ink:var(--nvx-user-ink); --gauge-soft:var(--nvx-user-ink);
+ --gauge-surface:color-mix(in oklab,var(--nvx-user-bg-start) 85%,var(--nvx-user-ink) 15%);
+ --gauge-track:color-mix(in oklab,var(--nvx-user-ink) 16%,transparent);
+ --gauge-glow:color-mix(in oklab,var(--nvx-user-start) 20%,transparent);
+ --gauge-line:color-mix(in oklab,var(--nvx-user-ink) 5%,transparent);
+ --gauge-shadow:color-mix(in oklab,var(--nvx-user-ink) 12%,transparent);
+}
+html[data-nvx-custom-colors="true"] .nvx-gauge h5 { color:color-mix(in oklab,var(--gc) 35%,var(--gauge-ink)); }
+</style>
+<script id="nvx-color-settings-script">
+(function(){
+ 'use strict';
+ var KEY='nvx_gauge_colors_v1';
+ var DEFAULTS={start:'#ef817d',end:'#ffc06e',bgStart:'#f6fcfa',bgEnd:'#e0f3ec'};
+ var FIELDS=[['start','nvxGaugeColorStart','--nvx-user-start'],['end','nvxGaugeColorEnd','--nvx-user-end'],['bgStart','nvxGaugeBgStart','--nvx-user-bg-start'],['bgEnd','nvxGaugeBgEnd','--nvx-user-bg-end']];
+ var prefs=null;
+ function valid(value){return typeof value==='string' && /^#[0-9a-f]{6}$/i.test(value);}
+ function load(){
+  try { var saved=JSON.parse(localStorage.getItem(KEY)||'null');
+   prefs=saved && FIELDS.every(function(f){return valid(saved[f[0]]);}) ? saved : null;
+  } catch(e){prefs=null;}
+ }
+ function luminance(hex){
+  var channels=[1,3,5].map(function(i){var c=parseInt(hex.slice(i,i+2),16)/255;return c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4);});
+  return channels[0]*.2126+channels[1]*.7152+channels[2]*.0722;
+ }
+ function apply(){
+  var root=document.documentElement;
+  if(prefs){
+   FIELDS.forEach(function(f){root.style.setProperty(f[2],prefs[f[0]]);});
+   var a=luminance(prefs.bgStart), b=luminance(prefs.bgEnd);
+   var dark=Math.min((a+.05)/.05,(b+.05)/.05),light=Math.min(1.05/(a+.05),1.05/(b+.05));
+   root.style.setProperty('--nvx-user-ink',dark>=light?'#111827':'#ffffff');
+   root.setAttribute('data-nvx-custom-colors','true');
+  }else{
+   root.removeAttribute('data-nvx-custom-colors');
+   FIELDS.forEach(function(f){root.style.removeProperty(f[2]);});
+   root.style.removeProperty('--nvx-user-ink');
+  }
+  FIELDS.forEach(function(f){var input=document.getElementById(f[1]);if(input)input.value=(prefs||DEFAULTS)[f[0]];});
+ }
+ function update(field,value){
+  if(!valid(value))return;
+  if(!prefs)prefs=Object.assign({},DEFAULTS);
+  prefs[field]=value;apply();
+  try{localStorage.setItem(KEY,JSON.stringify(prefs));}catch(e){}
+ }
+ function build(){
+  var body=document.querySelector('#fd2Drawer .fd2-dbody');
+  if(!body || document.getElementById('nvxColorSettings'))return;
+  var group=document.createElement('div');group.id='nvxColorSettings';group.className='fd2-group';
+  group.innerHTML='<label>ألوان مؤشر الالتزام الزمني</label>'+
+   '<div class="nvx-color-subtitle">ألوان الحلقة</div><div class="nvx-color-fields">'+
+   '<label class="nvx-color-field" for="nvxGaugeColorStart"><input type="color" id="nvxGaugeColorStart">بداية اللون</label>'+
+   '<label class="nvx-color-field" for="nvxGaugeColorEnd"><input type="color" id="nvxGaugeColorEnd">نهاية اللون</label></div>'+
+   '<div class="nvx-color-subtitle">خلفية المؤشر</div><div class="nvx-color-fields">'+
+   '<label class="nvx-color-field" for="nvxGaugeBgStart"><input type="color" id="nvxGaugeBgStart">بداية الخلفية</label>'+
+   '<label class="nvx-color-field" for="nvxGaugeBgEnd"><input type="color" id="nvxGaugeBgEnd">نهاية الخلفية</label></div>'+
+   '<button type="button" class="fd2-btn g nvx-color-reset" id="nvxGaugeColorsReset"><i class="fas fa-rotate-left" aria-hidden="true"></i> استعادة ألوان المؤشر</button>';
+  var first=body.querySelector('.fd2-group');body.insertBefore(group,first?first.nextSibling:body.firstChild);
+  FIELDS.forEach(function(f){var input=document.getElementById(f[1]);if(!input)return;
+   input.addEventListener('input',function(){update(f[0],input.value);});
+   input.addEventListener('change',function(){update(f[0],input.value);});
+  });
+  document.getElementById('nvxGaugeColorsReset').addEventListener('click',function(){prefs=null;try{localStorage.removeItem(KEY);}catch(e){}apply();});
+  apply();
+ }
+ load();apply();
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);else build();
+ window.addEventListener('storage',function(e){if(e.key===KEY || e.key===null){load();apply();}});
+})();
+</script>
+
 </html>
