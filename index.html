@@ -288,6 +288,12 @@
         .qf-btn.active[data-status="completed"] { background: #059669; }
         .qf-btn.active[data-status="duplicate"] { background: #db2777; }
         .qf-btn.active[data-status="cancelled"] { background: #dc2626; }
+        .qf-btn.active[data-status="withdrawn"] { background: #7c3aed; }
+        .qf-btn.active[data-status="active"] { background: #0891b2; }
+        .qf-btn.active[data-status="overdue"], .qf-btn-overdue.active { background: #ef4444 !important; border-color: #ef4444 !important; color: #fff !important; }
+        .qf-btn.active[data-status="overdue"] i, .qf-btn-overdue.active i { color: #fff !important; }
+        .qf-btn.active[data-status="warning"], .qf-btn-warning.active { background: #f59e0b !important; border-color: #f59e0b !important; color: #fff !important; }
+        .qf-btn.active[data-status="warning"] i, .qf-btn-warning.active i { color: #fff !important; }
         .status-chip.chip-inprogress i, .status-chip.chip-pending i { animation: chipPulse 1.6s ease-in-out infinite; }
         @keyframes chipPulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
         .action-btns { display: flex; gap: 5px; }
@@ -4159,6 +4165,8 @@ html[data-theme="dark"] #page-requests #requestsTable tbody tr.rq-row-warning {
                     <button type="button" class="qf-btn" data-status="inprogress" onclick="quickFilterRequests('inprogress')"><i class="fas fa-spinner"></i> قيد التنفيذ <span class="qf-count" data-count="inprogress">0</span></button>
                     <button type="button" class="qf-btn" data-status="pending" onclick="quickFilterRequests('pending')"><i class="fas fa-hourglass-half"></i> قيد الانتظار <span class="qf-count" data-count="pending">0</span></button>
                     <button type="button" class="qf-btn" data-status="new" onclick="quickFilterRequests('new')"><i class="fas fa-star"></i> جديد <span class="qf-count" data-count="new">0</span></button>
+                    <button type="button" class="qf-btn" data-status="withdrawn" onclick="quickFilterRequests('withdrawn')"><i class="fas fa-hand-holding"></i> مسحوب <span class="qf-count" data-count="withdrawn">0</span></button>
+                    <button type="button" class="qf-btn" data-status="active" onclick="quickFilterRequests('active')"><i class="fas fa-play"></i> مشغل <span class="qf-count" data-count="active">0</span></button>
                     <button type="button" class="qf-btn" data-status="completed" onclick="quickFilterRequests('completed')"><i class="fas fa-circle-check"></i> مكتمل <span class="qf-count" data-count="completed">0</span></button>
                     <button type="button" class="qf-btn" data-status="duplicate" onclick="quickFilterRequests('duplicate')"><i class="fas fa-clone"></i> مكرر <span class="qf-count" data-count="duplicate">0</span></button>
                     <button type="button" class="qf-btn" data-status="cancelled" onclick="quickFilterRequests('cancelled')"><i class="fas fa-circle-xmark"></i> ملغي <span class="qf-count" data-count="cancelled">0</span></button>
@@ -17849,6 +17857,10 @@ async function loadRequests() {
     const search = document.getElementById('requestSearch')?.value?.toLowerCase() || '';
     const statusFilter = document.getElementById('requestStatusFilter')?.value || '';
 
+    const CLOSED_STATUSES = ['completed', 'duplicate', 'cancelled'];
+    const isClosed = (r) => CLOSED_STATUSES.includes(r.status);
+    const reqNum = (r) => parseInt(r.request_number || r.requestNumber || '0') || 0;
+
     let filtered = requests;
     if (search) {
         filtered = filtered.filter(r => 
@@ -17865,10 +17877,6 @@ async function loadRequests() {
     } else if (currentQuickDelayFilter === 'warning') {
         filtered = filtered.filter(r => !isClosed(r) && getRequestDelayInfo(r).status === 'warning');
     }
-
-    const CLOSED_STATUSES = ['completed', 'duplicate', 'cancelled'];
-    const isClosed = (r) => CLOSED_STATUSES.includes(r.status);
-    const reqNum = (r) => parseInt(r.request_number || r.requestNumber || '0') || 0;
 
     const sorted = applyRequestsSort(filtered, isClosed, reqNum);
 
@@ -18535,6 +18543,7 @@ function updateQuickFilterCounts(requests) {
     const box = document.getElementById('requestQuickFilters');
     if (!box) return;
     box.querySelectorAll('.qf-count').forEach(el => {
+        if (!el.hasAttribute('data-count')) return;
         const st = el.dataset.count || '';
         el.textContent = st ? requests.filter(r => r.status === st).length : requests.length;
     });
