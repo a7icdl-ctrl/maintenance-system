@@ -279,8 +279,11 @@
         .qf-btn i { font-size: 11px; }
         .qf-btn .qf-count { background: #f1f5f9; color: #475569; border-radius: 999px; padding: 1px 7px; font-size: 11px; font-weight: 800; }
         .qf-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(15,23,42,.08); }
-        .qf-btn.active { color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(15,23,42,.15); }
+        .qf-btn.active { color: #fff; border-color: transparent; outline: 2px solid #1e293b; outline-offset: 2px; box-shadow: 0 5px 14px rgba(15,23,42,.24); transform: translateY(-1px); }
         .qf-btn.active .qf-count { background: rgba(255,255,255,.25); color: #fff; }
+        .qf-clear-btn { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border: 1.5px solid #cbd5e1; border-radius: 999px; background: #f8fafc; color: #334155; font-family: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer; transition: all .18s ease; }
+        .qf-clear-btn:hover { background: #e2e8f0; border-color: #94a3b8; transform: translateY(-1px); }
+        .qf-clear-btn[hidden] { display: none; }
         .qf-btn.active[data-status=""] { background: #334155; }
         .qf-btn.active[data-status="inprogress"] { background: #2563eb; }
         .qf-btn.active[data-status="pending"] { background: #d97706; }
@@ -4172,6 +4175,7 @@ html[data-theme="dark"] #page-requests #requestsTable tbody tr.rq-row-warning {
                     <button type="button" class="qf-btn" data-status="cancelled" onclick="quickFilterRequests('cancelled')"><i class="fas fa-circle-xmark"></i> ملغي <span class="qf-count" data-count="cancelled">0</span></button>
                     <button type="button" class="qf-btn qf-btn-overdue" data-status="overdue" onclick="quickFilterOverdueRequests('overdue')" style="border-color:#fca5a5;"><i class="fas fa-triangle-exclamation" style="color:#ef4444;"></i> متأخرة (>14 يوم) <span class="qf-count" id="qfOverdueCount">0</span></button>
                     <button type="button" class="qf-btn qf-btn-warning" data-status="warning" onclick="quickFilterOverdueRequests('warning')" style="border-color:#fcd34d;"><i class="fas fa-clock" style="color:#d97706;"></i> وشك التأخير <span class="qf-count" id="qfWarningCount">0</span></button>
+                    <button type="button" class="qf-clear-btn" id="qfClearButton" onclick="clearRequestFilters()" hidden><i class="fas fa-rotate-left"></i> مسح الفلتر والعودة لجميع الطلبات</button>
                 </div>
                 <div class="bulk-bar no-print" id="requestsBulkBar">
                     <span class="bulk-count"><i class="fas fa-check-double"></i> محدد: <span id="bulkSelectedCount">0</span></span>
@@ -18529,14 +18533,27 @@ function quickFilterRequests(status) {
 
 function syncQuickFilterUI() {
     const current = document.getElementById('requestStatusFilter')?.value || '';
+    const searchValue = document.getElementById('requestSearch')?.value?.trim() || '';
     document.querySelectorAll('#requestQuickFilters .qf-btn').forEach(b => {
         const isDelay = b.classList.contains('qf-btn-overdue') || b.classList.contains('qf-btn-warning');
-        if (isDelay) {
-            b.classList.toggle('active', currentQuickDelayFilter === b.dataset.status);
-        } else {
-            b.classList.toggle('active', (b.dataset.status || '') === current && !currentQuickDelayFilter);
-        }
+        const selected = isDelay
+            ? currentQuickDelayFilter === b.dataset.status
+            : (b.dataset.status || '') === current && !currentQuickDelayFilter;
+        b.classList.toggle('active', selected);
+        b.setAttribute('aria-pressed', String(selected));
     });
+    const clearButton = document.getElementById('qfClearButton');
+    if (clearButton) clearButton.hidden = !(current || currentQuickDelayFilter || searchValue);
+}
+
+function clearRequestFilters() {
+    currentQuickDelayFilter = null;
+    const statusSelect = document.getElementById('requestStatusFilter');
+    const searchInput = document.getElementById('requestSearch');
+    if (statusSelect) statusSelect.value = '';
+    if (searchInput) searchInput.value = '';
+    syncQuickFilterUI();
+    loadRequests();
 }
 
 function updateQuickFilterCounts(requests) {
