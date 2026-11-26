@@ -3514,7 +3514,15 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                 </button>
             </div>
             <nav class="nav-menu">
-                <a class="nav-item active" data-title="لوحة التحكم" onclick="showPage('dashboard')">
+                                <a class="nav-item active" data-title="لوحة التحكم" onclick="showPage('dashboard')">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a class="nav-item" data-title="مركز العمليات الذكي" onclick="showPage('command_center')" id="navItemCommandCenter" style="position:relative;background:linear-gradient(135deg,rgba(79,70,229,0.18),rgba(6,182,212,0.18));border:1px solid rgba(99,102,241,0.38);box-shadow:0 2px 10px rgba(79,70,229,0.12);">
+                    <i class="fas fa-gauge-high" style="color:#38bdf8;"></i>
+                    <span style="font-weight:700;">مركز العمليات الذكي</span>
+                    <span class="nav-badge" id="commandCenterNavBadge" style="background:linear-gradient(135deg,#10b981,#06b6d4);color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;box-shadow:0 0 8px rgba(16,185,129,0.5);">LIVE</span>
+                </a>
                     <i class="fas fa-chart-pie"></i>
                     <span>لوحة التحكم</span>
                 </a>
@@ -3767,6 +3775,3119 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                     </div>
                 </div>
             </div>
+
+            
+            <div class="page-section" id="page-command_center">
+                <style>
+                /* ==========================================================================
+                   COMMAND CENTER v2.0 - مركز العمليات والمراقبة التنفيذية المتقدم
+                   تصميم حديث، منظّم واحترافي 100% مع دعم كامل للثيم الفاتح والداكن
+                   ========================================================================== */
+
+                #page-command_center {
+                    padding: 0;
+                    margin: 0;
+                    font-family: 'Tajawal', sans-serif;
+                    color: var(--text-dark, #1e293b);
+                }
+
+                .cc-container {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 22px;
+                    padding: 6px 0 40px 0;
+                }
+
+                /* ==========================================================
+                   VIBRANT ANIMATIONS & MOTION GRAPHICS KEYFRAMES
+                   ========================================================== */
+                @keyframes ccFadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(18px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+
+                @keyframes ccPulseRing {
+                    0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.75); }
+                    70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+                    100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+                }
+
+                @keyframes ccDangerPulse {
+                    0%, 100% { box-shadow: 0 6px 20px -2px rgba(225, 29, 72, 0.12); border-color: rgba(225, 29, 72, 0.35); }
+                    50% { box-shadow: 0 12px 32px rgba(225, 29, 72, 0.38); border-color: rgba(225, 29, 72, 0.7); }
+                }
+
+                @keyframes ccAmberPulse {
+                    0%, 100% { box-shadow: 0 6px 20px -2px rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.35); }
+                    50% { box-shadow: 0 12px 30px rgba(245, 158, 11, 0.35); border-color: rgba(245, 158, 11, 0.7); }
+                }
+
+                @keyframes ccRotateRing {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+
+                @keyframes ccShimmerBar {
+                    0% { transform: translateX(-100%); }
+                    100% { transform: translateX(100%); }
+                }
+
+                @keyframes ccFloatSubtle {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-4px); }
+                }
+
+                /* Staggered entry cascade */
+                .cc-kpi-card:nth-child(1) { animation-delay: 0.04s; }
+                .cc-kpi-card:nth-child(2) { animation-delay: 0.08s; }
+                .cc-kpi-card:nth-child(3) { animation-delay: 0.12s; }
+                .cc-kpi-card:nth-child(4) { animation-delay: 0.16s; }
+                .cc-kpi-card:nth-child(5) { animation-delay: 0.20s; }
+                .cc-kpi-card:nth-child(6) { animation-delay: 0.24s; }
+                .cc-kpi-card:nth-child(7) { animation-delay: 0.28s; }
+                .cc-kpi-card:nth-child(8) { animation-delay: 0.32s; }
+
+                .cc-chart-card:nth-child(1) { animation-delay: 0.12s; }
+                .cc-chart-card:nth-child(2) { animation-delay: 0.18s; }
+                .cc-chart-card:nth-child(3) { animation-delay: 0.24s; }
+                .cc-chart-card:nth-child(4) { animation-delay: 0.30s; }
+
+                /* Header & HUD Bar */
+                .cc-header-panel {
+                    background: var(--card-bg, rgba(255, 255, 255, 0.96));
+                    border-radius: 18px;
+                    padding: 13px 20px;
+                    border: 1px solid var(--border-color, #e2e8f0);
+                    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+                    display: flex;
+                    flex-wrap: nowrap;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 12px;
+                    position: relative;
+                    overflow: visible;
+                }
+
+                .cc-header-panel::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    left: 0;
+                    height: 4px;
+                    background: linear-gradient(90deg, #4f46e5, #06b6d4, #10b981, #f59e0b);
+                    border-radius: 18px 18px 0 0;
+                }
+
+                .cc-header-title-box {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    flex-shrink: 0;
+                    min-width: 0;
+                }
+
+                .cc-header-icon {
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 12px;
+                    background: linear-gradient(135deg, #4f46e5, #06b6d4);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #fff;
+                    font-size: 20px;
+                    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+                    flex-shrink: 0;
+                }
+
+                .cc-header-texts {
+                    min-width: 0;
+                }
+
+                .cc-header-texts h1 {
+                    font-size: 18px;
+                    font-weight: 800;
+                    margin: 0 0 2px 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    color: var(--text-dark, #0f172a);
+                    white-space: nowrap;
+                }
+
+                .cc-header-texts p {
+                    font-size: 11.5px;
+                    color: var(--text-medium, #64748b);
+                    margin: 0;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    max-width: 360px;
+                }
+
+                .cc-live-tag {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 5px;
+                    background: rgba(16, 185, 129, 0.12);
+                    color: #10b981;
+                    border: 1px solid rgba(16, 185, 129, 0.3);
+                    padding: 2px 8px;
+                    border-radius: 20px;
+                    font-size: 10.5px;
+                    font-weight: 700;
+                    white-space: nowrap;
+                }
+
+                .cc-live-dot {
+                    width: 7px;
+                    height: 7px;
+                    border-radius: 50%;
+                    background: #10b981;
+                    animation: ccPulseRing 2s infinite ease-in-out;
+                }
+
+                .cc-header-controls {
+                    display: flex;
+                    align-items: center;
+                    flex-wrap: nowrap;
+                    gap: 6px;
+                    flex-shrink: 0;
+                }
+
+                .cc-refresh-timer-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    background: rgba(79, 70, 229, 0.08);
+                    border: 1px solid rgba(79, 70, 229, 0.2);
+                    color: var(--primary, #4f46e5);
+                    padding: 4px 8px;
+                    border-radius: 9px;
+                    font-size: 11px;
+                    font-weight: 600;
+                    white-space: nowrap;
+                    flex-shrink: 0;
+                    height: 32px;
+                    box-sizing: border-box;
+                }
+
+                .cc-interval-select {
+                    border: 1px solid var(--border-color, #cbd5e1);
+                    background: var(--card-bg, #fff);
+                    color: var(--text-dark, #1e293b);
+                    padding: 2px 6px;
+                    border-radius: 6px;
+                    font-family: inherit;
+                    font-size: 11px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    outline: none;
+                    height: 24px;
+                }
+
+                .cc-btn {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 6px;
+                    padding: 5px 11px;
+                    border-radius: 9px;
+                    font-size: 12px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    border: none;
+                    transition: all .2s ease;
+                    font-family: inherit;
+                    text-decoration: none;
+                    white-space: nowrap;
+                    flex-shrink: 0;
+                    height: 32px;
+                    box-sizing: border-box;
+                }
+
+                .cc-btn-primary {
+                    background: linear-gradient(135deg, #4f46e5, #4338ca);
+                    color: #fff;
+                    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35);
+                }
+                .cc-btn-primary:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.45);
+                    color: #fff;
+                }
+
+                /* زر طلب صيانة جديد - لون برغندي ملكي فاخر ومميز ونابض */
+                @keyframes ccBurgundyPulse {
+                    0% {
+                        box-shadow: 0 0 0 0 rgba(190, 18, 60, 0.75), 0 3px 12px rgba(88, 10, 28, 0.5);
+                        transform: scale(1);
+                    }
+                    50% {
+                        box-shadow: 0 0 0 7px rgba(190, 18, 60, 0), 0 6px 20px rgba(190, 18, 60, 0.65);
+                        transform: scale(1.025);
+                    }
+                    100% {
+                        box-shadow: 0 0 0 0 rgba(190, 18, 60, 0), 0 3px 12px rgba(88, 10, 28, 0.5);
+                        transform: scale(1);
+                    }
+                }
+
+                @keyframes ccBurgundyShimmer {
+                    0% { transform: translateX(-150%) skewX(-20deg); }
+                    30%, 100% { transform: translateX(250%) skewX(-20deg); }
+                }
+
+                .cc-btn-burgundy {
+                    background: linear-gradient(135deg, #580a1c 0%, #7d102a 35%, #9b1437 70%, #ba1845 100%) !important;
+                    color: #ffffff !important;
+                    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+                    border-radius: 9px !important;
+                    padding: 5px 14px !important;
+                    font-size: 12.5px !important;
+                    font-weight: 800 !important;
+                    letter-spacing: 0.2px;
+                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+                    animation: ccBurgundyPulse 2.2s infinite ease-in-out;
+                    position: relative;
+                    overflow: hidden;
+                    height: 32px !important;
+                    box-sizing: border-box;
+                    box-shadow: 0 3px 12px rgba(88, 10, 28, 0.5);
+                }
+
+                .cc-btn-burgundy::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 45%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+                    animation: ccBurgundyShimmer 3.5s infinite cubic-bezier(0.4, 0, 0.2, 1);
+                    pointer-events: none;
+                }
+
+                .cc-btn-burgundy:hover {
+                    background: linear-gradient(135deg, #700c24 0%, #941738 35%, #b91c47 70%, #db2777 100%) !important;
+                    transform: translateY(-1px) scale(1.03) !important;
+                    box-shadow: 0 6px 22px rgba(186, 24, 69, 0.75) !important;
+                    color: #ffffff !important;
+                }
+
+                .cc-btn-secondary {
+                    background: rgba(79, 70, 229, 0.1);
+                    color: var(--primary, #4f46e5);
+                    border: 1px solid rgba(79, 70, 229, 0.25);
+                    padding: 5px 10px;
+                }
+                .cc-btn-secondary:hover {
+                    background: rgba(79, 70, 229, 0.18);
+                    transform: translateY(-1px);
+                }
+
+                .cc-btn-ghost {
+                    background: transparent;
+                    border: 1px solid var(--border-color, #e2e8f0);
+                    color: var(--text-medium, #475569);
+                    padding: 5px 8px;
+                    min-width: 32px;
+                }
+                .cc-btn-ghost:hover {
+                    background: rgba(0,0,0,0.04);
+                    color: var(--text-dark, #0f172a);
+                }
+
+                @media (max-width: 900px) {
+                    .cc-header-panel {
+                        flex-wrap: wrap;
+                    }
+                    .cc-header-controls {
+                        flex-wrap: wrap;
+                    }
+                }
+
+                /* SECTION: GATEWAY */
+                .cc-gateway-section {
+                    background: var(--card-bg, #fff);
+                    border-radius: 18px;
+                    padding: 22px 24px;
+                    border: 1px solid var(--border-color, #e2e8f0);
+                    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.04);
+                }
+
+                .cc-section-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 18px;
+                    padding-bottom: 12px;
+                    border-bottom: 1px solid var(--border-color, #f1f5f9);
+                }
+
+                .cc-section-title {
+                    font-size: 16px;
+                    font-weight: 800;
+                    color: var(--text-dark, #0f172a);
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                .cc-section-title i {
+                    color: var(--primary, #4f46e5);
+                    font-size: 18px;
+                }
+
+                .cc-section-subtitle {
+                    font-size: 12px;
+                    color: var(--text-light, #94a3b8);
+                    font-weight: 500;
+                }
+
+                .cc-suites-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+                    gap: 16px;
+                }
+
+                .cc-suite-card {
+                    background: rgba(248, 250, 252, 0.7);
+                    border-radius: 14px;
+                    border: 1px solid var(--border-color, #e2e8f0);
+                    padding: 16px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                    transition: all .2s ease;
+                }
+                .cc-suite-card:hover {
+                    background: var(--card-bg, #fff);
+                    box-shadow: 0 8px 24px rgba(79, 70, 229, 0.08);
+                    border-color: rgba(99, 102, 241, 0.3);
+                }
+
+                .cc-suite-top {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+
+                .cc-suite-icon-box {
+                    width: 38px;
+                    height: 38px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 16px;
+                    color: #fff;
+                    flex-shrink: 0;
+                }
+
+                .cc-suite-name {
+                    font-size: 14px;
+                    font-weight: 800;
+                    color: var(--text-dark, #1e293b);
+                }
+                .cc-suite-desc {
+                    font-size: 11px;
+                    color: var(--text-light, #94a3b8);
+                }
+
+                .cc-suite-links {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                }
+
+                .cc-quick-link {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 7px 10px;
+                    border-radius: 8px;
+                    background: var(--card-bg, #fff);
+                    border: 1px solid var(--border-color, #f1f5f9);
+                    color: var(--text-medium, #334155);
+                    text-decoration: none;
+                    font-size: 12px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all .15s ease;
+                }
+                .cc-quick-link:hover {
+                    background: rgba(79, 70, 229, 0.06);
+                    border-color: rgba(99, 102, 241, 0.3);
+                    color: var(--primary, #4f46e5);
+                    transform: translateX(-3px);
+                }
+
+                .cc-link-label {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .cc-link-label i {
+                    font-size: 12px;
+                    color: var(--primary-light, #818cf8);
+                    width: 16px;
+                    text-align: center;
+                }
+
+                .cc-link-badge {
+                    font-size: 11px;
+                    font-weight: 700;
+                    padding: 2px 7px;
+                    border-radius: 8px;
+                    background: rgba(0, 0, 0, 0.05);
+                    color: var(--text-medium, #475569);
+                }
+
+                .cc-quick-link.action-primary {
+                    background: linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(6, 182, 212, 0.08));
+                    border-color: rgba(79, 70, 229, 0.25);
+                    color: var(--primary, #4f46e5);
+                }
+                .cc-quick-link.action-primary:hover {
+                    background: linear-gradient(135deg, #4f46e5, #06b6d4);
+                    color: #fff;
+                }
+                .cc-quick-link.action-primary:hover .cc-link-label i {
+                    color: #fff;
+                }
+
+                /* PULSE & HEALTH */
+                .cc-pulse-grid {
+                    display: grid;
+                    grid-template-columns: 1.3fr 1fr;
+                    gap: 20px;
+                }
+                @media (max-width: 992px) {
+                    .cc-pulse-grid { grid-template-columns: 1fr; }
+                }
+
+                .cc-health-card, .cc-telemetry-card {
+                    background: var(--card-bg, #fff);
+                    border-radius: 18px;
+                    padding: 22px 24px;
+                    border: 1px solid var(--border-color, #e2e8f0);
+                    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.04);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                }
+
+                .cc-health-body {
+                    display: flex;
+                    align-items: center;
+                    gap: 28px;
+                    margin-top: 10px;
+                    flex-wrap: wrap;
+                }
+
+                .cc-radial-box {
+                    position: relative;
+                    width: 130px;
+                    height: 130px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                }
+
+                .cc-radial-svg {
+                    transform: rotate(-90deg);
+                    width: 130px;
+                    height: 130px;
+                }
+
+                .cc-radial-circle-bg {
+                    fill: none;
+                    stroke: rgba(0, 0, 0, 0.06);
+                    stroke-width: 10;
+                }
+
+                .cc-radial-circle-val {
+                    fill: none;
+                    stroke-width: 10;
+                    stroke-linecap: round;
+                    stroke-dasharray: 351;
+                    stroke-dashoffset: 351;
+                    transition: stroke-dashoffset 1.2s cubic-bezier(0.1, 0.9, 0.2, 1), stroke 0.5s;
+                }
+
+                .cc-radial-text {
+                    position: absolute;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+                }
+                .cc-radial-score {
+                    font-size: 28px;
+                    font-weight: 900;
+                    line-height: 1;
+                    color: var(--text-dark, #0f172a);
+                }
+                .cc-radial-label {
+                    font-size: 11px;
+                    font-weight: 700;
+                    color: var(--text-light, #94a3b8);
+                    margin-top: 4px;
+                }
+
+                .cc-health-factors {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    min-width: 200px;
+                }
+
+                .cc-factor-row {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                }
+                .cc-factor-labels {
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 12px;
+                    font-weight: 700;
+                }
+                .cc-factor-bar-bg {
+                    height: 6px;
+                    border-radius: 10px;
+                    background: rgba(0, 0, 0, 0.06);
+                    overflow: hidden;
+                }
+                .cc-factor-bar-fill {
+                    height: 100%;
+                    border-radius: 10px;
+                    transition: width 1s ease-in-out;
+                }
+
+                .cc-telemetry-item {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 10px 14px;
+                    border-radius: 12px;
+                    background: rgba(248, 250, 252, 0.7);
+                    border: 1px solid var(--border-color, #f1f5f9);
+                    margin-top: 10px;
+                }
+
+                .cc-telemetry-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                .cc-telemetry-icon {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                }
+                .cc-telemetry-title {
+                    font-size: 12px;
+                    font-weight: 700;
+                    color: var(--text-dark, #1e293b);
+                }
+                .cc-telemetry-sub {
+                    font-size: 11px;
+                    color: var(--text-light, #94a3b8);
+                }
+                .cc-telemetry-val {
+                    font-size: 13px;
+                    font-weight: 800;
+                    color: var(--text-dark, #0f172a);
+                }
+
+                /* KPI MATRIX */
+                .cc-kpi-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+                    gap: 16px;
+                }
+
+                .cc-kpi-card {
+                    background: var(--card-bg, #fff);
+                    border-radius: 16px;
+                    padding: 18px 20px;
+                    border: 1px solid var(--border-color, #e2e8f0);
+                    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.03);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    gap: 10px;
+                    transition: all .2s ease;
+                }
+                .cc-kpi-card:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 12px 30px rgba(79, 70, 229, 0.1);
+                    border-color: rgba(99, 102, 241, 0.3);
+                }
+
+                .cc-kpi-top {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                }
+
+                .cc-kpi-icon-box {
+                    width: 42px;
+                    height: 42px;
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 18px;
+                    flex-shrink: 0;
+                }
+
+                .cc-kpi-badge {
+                    font-size: 11px;
+                    font-weight: 700;
+                    padding: 3px 8px;
+                    border-radius: 8px;
+                }
+
+                .cc-kpi-main {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                }
+                .cc-kpi-title {
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: var(--text-medium, #64748b);
+                }
+                .cc-kpi-value {
+                    font-size: 26px;
+                    font-weight: 900;
+                    color: var(--text-dark, #0f172a);
+                    line-height: 1.2;
+                }
+
+                .cc-kpi-footer {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    font-size: 11px;
+                    color: var(--text-light, #94a3b8);
+                    border-top: 1px solid var(--border-color, #f8fafc);
+                    padding-top: 8px;
+                }
+
+                /* CHARTS */
+                .cc-charts-grid {
+                    display: grid;
+                    grid-template-columns: 1.6fr 1fr;
+                    gap: 20px;
+                }
+                @media (max-width: 1080px) {
+                    .cc-charts-grid { grid-template-columns: 1fr; }
+                }
+
+                .cc-chart-card {
+                    position: relative;
+                    background: var(--card-bg, #fff);
+                    border-radius: 22px;
+                    padding: 24px 26px;
+                    border: 1px solid var(--border-color, #e2e8f0);
+                    box-shadow: 0 8px 30px -4px rgba(15, 23, 42, 0.05);
+                    display: flex;
+                    flex-direction: column;
+                    gap: 18px;
+                    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+                    animation: ccFadeInUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+                }
+                .cc-chart-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.12);
+                    border-color: rgba(99, 102, 241, 0.35);
+                }
+
+                .cc-chart-wrapper {
+                    position: relative;
+                    width: 100%;
+                    height: 270px;
+                }
+
+                /* ALERTS */
+                .cc-alerts-panel {
+                    background: var(--card-bg, #fff);
+                    border-radius: 18px;
+                    padding: 22px 24px;
+                    border: 1px solid var(--border-color, #e2e8f0);
+                    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.04);
+                }
+
+                .cc-alerts-tabs {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                    margin-bottom: 16px;
+                }
+
+                .cc-tab-pill {
+                    padding: 6px 14px;
+                    border-radius: 10px;
+                    font-size: 12px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    background: rgba(0, 0, 0, 0.04);
+                    border: 1px solid var(--border-color, #e2e8f0);
+                    color: var(--text-medium, #475569);
+                    transition: all .15s ease;
+                }
+                .cc-tab-pill:hover {
+                    background: rgba(79, 70, 229, 0.08);
+                    color: var(--primary, #4f46e5);
+                }
+                .cc-tab-pill.active {
+                    background: var(--primary, #4f46e5);
+                    border-color: var(--primary, #4f46e5);
+                    color: #fff;
+                    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+                }
+
+                .cc-alerts-stream {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    max-height: 380px;
+                    overflow-y: auto;
+                    padding-left: 4px;
+                }
+
+                .cc-alert-entry {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 12px 16px;
+                    border-radius: 12px;
+                    background: var(--card-bg, #fff);
+                    border: 1px solid var(--border-color, #e2e8f0);
+                    gap: 14px;
+                    transition: all .15s;
+                }
+                .cc-alert-entry:hover {
+                    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+                    transform: translateX(-2px);
+                }
+
+                .cc-alert-info-box {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    flex: 1;
+                }
+
+                .cc-alert-icon {
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 16px;
+                    flex-shrink: 0;
+                }
+
+                .cc-alert-text h5 {
+                    font-size: 13px;
+                    font-weight: 800;
+                    margin: 0 0 2px 0;
+                    color: var(--text-dark, #0f172a);
+                }
+                .cc-alert-text p {
+                    font-size: 11px;
+                    color: var(--text-medium, #64748b);
+                    margin: 0;
+                }
+
+                /* TICKETS CONSOLE */
+                .cc-tickets-section {
+                    background: var(--card-bg, #fff);
+                    border-radius: 18px;
+                    padding: 22px 24px;
+                    border: 1px solid var(--border-color, #e2e8f0);
+                    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.04);
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+                }
+
+                .cc-tickets-filter-bar {
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 12px;
+                    background: rgba(248, 250, 252, 0.7);
+                    padding: 12px 16px;
+                    border-radius: 14px;
+                    border: 1px solid var(--border-color, #f1f5f9);
+                }
+
+                .cc-search-input-box {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    background: var(--card-bg, #fff);
+                    border: 1px solid var(--border-color, #cbd5e1);
+                    border-radius: 10px;
+                    padding: 7px 14px;
+                    flex: 1;
+                    min-width: 240px;
+                    max-width: 400px;
+                }
+                .cc-search-input-box input {
+                    border: none;
+                    outline: none;
+                    font-family: inherit;
+                    font-size: 12px;
+                    width: 100%;
+                    background: transparent;
+                    color: var(--text-dark, #0f172a);
+                }
+                .cc-search-input-box i {
+                    color: var(--text-light, #94a3b8);
+                }
+
+                .cc-status-filter-pills {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 6px;
+                }
+
+                .cc-table-wrapper {
+                    overflow-x: auto;
+                    border-radius: 12px;
+                    border: 1px solid var(--border-color, #e2e8f0);
+                }
+
+                .cc-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 12px;
+                    text-align: right;
+                }
+
+                .cc-table th {
+                    background: rgba(248, 250, 252, 0.9);
+                    color: var(--text-medium, #475569);
+                    padding: 12px 14px;
+                    font-weight: 800;
+                    border-bottom: 2px solid var(--border-color, #e2e8f0);
+                    white-space: nowrap;
+                }
+
+                .cc-table td {
+                    padding: 12px 14px;
+                    border-bottom: 1px solid var(--border-color, #f1f5f9);
+                    color: var(--text-dark, #1e293b);
+                    vertical-align: middle;
+                }
+                .cc-table tbody tr:hover {
+                    background: rgba(79, 70, 229, 0.03);
+                }
+
+                .cc-action-icon-btn {
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 8px;
+                    border: 1px solid var(--border-color, #e2e8f0);
+                    background: var(--card-bg, #fff);
+                    color: var(--text-medium, #475569);
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all .15s;
+                    font-size: 12px;
+                    text-decoration: none;
+                }
+                .cc-action-icon-btn:hover {
+                    background: var(--primary, #4f46e5);
+                    color: #fff;
+                    border-color: var(--primary, #4f46e5);
+                }
+
+                .cc-side-panels-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 20px;
+                }
+                @media (max-width: 992px) {
+                    .cc-side-panels-grid { grid-template-columns: 1fr; }
+                }
+
+                /* Dark Theme Adaptations */
+                html[data-theme="dark"] #page-command_center {
+                    color: var(--text-dark, #f1f5f9);
+                }
+                html[data-theme="dark"] .cc-header-panel,
+                html[data-theme="dark"] .cc-gateway-section,
+                html[data-theme="dark"] .cc-health-card,
+                html[data-theme="dark"] .cc-telemetry-card,
+                html[data-theme="dark"] .cc-kpi-card,
+                html[data-theme="dark"] .cc-chart-card,
+                html[data-theme="dark"] .cc-alerts-panel,
+                html[data-theme="dark"] .cc-tickets-section {
+                    background: var(--card-bg, rgba(30, 41, 59, 0.96));
+                    border-color: var(--border-color, #334155);
+                }
+
+                html[data-theme="dark"] .cc-suite-card,
+                html[data-theme="dark"] .cc-telemetry-item,
+                html[data-theme="dark"] .cc-tickets-filter-bar {
+                    background: rgba(15, 23, 42, 0.6);
+                    border-color: #334155;
+                }
+
+                html[data-theme="dark"] .cc-quick-link,
+                html[data-theme="dark"] .cc-alert-entry,
+                html[data-theme="dark"] .cc-search-input-box,
+                html[data-theme="dark"] .cc-interval-select,
+                html[data-theme="dark"] .cc-action-icon-btn {
+                    background: #1e293b;
+                    border-color: #334155;
+                    color: #cbd5e1;
+                }
+                html[data-theme="dark"] .cc-btn-burgundy {
+                    background: linear-gradient(135deg, #680d24 0%, #8b1335 40%, #aa1a44 100%) !important;
+                    border-color: rgba(255, 255, 255, 0.4) !important;
+                    box-shadow: 0 3px 14px rgba(139, 19, 53, 0.55) !important;
+                }
+                html[data-theme="dark"] .cc-btn-burgundy:hover {
+                    background: linear-gradient(135deg, #7c0e29 0%, #9e153d 40%, #bf1d4c 100%) !important;
+                    box-shadow: 0 6px 22px rgba(191, 29, 76, 0.75) !important;
+                }
+
+                html[data-theme="dark"] .cc-table th {
+                    background: #0f172a;
+                    border-color: #334155;
+                    color: #cbd5e1;
+                }
+                html[data-theme="dark"] .cc-table td {
+                    border-color: #334155;
+                    color: #e2e8f0;
+                }
+                html[data-theme="dark"] .cc-table tbody tr:hover {
+                    background: rgba(255, 255, 255, 0.03);
+                }
+
+                @media print {
+                    .cc-header-controls, .cc-tickets-filter-bar, .cc-tab-pill, .no-print {
+                        display: none !important;
+                    }
+                    .cc-header-panel, .cc-gateway-section, .cc-kpi-card, .cc-chart-card {
+                        box-shadow: none !important;
+                        border: 1px solid #ccc !important;
+                    }
+                }
+                </style>
+
+                <div class="cc-container">
+                    <!-- 1. HEADER HUD -->
+                    <div class="cc-header-panel">
+                        <div class="cc-header-title-box">
+                            <div class="cc-header-icon">
+                                <i class="fas fa-gauge-high"></i>
+                            </div>
+                            <div class="cc-header-texts">
+                                <h1>
+                                    مركز العمليات والمراقبة التنفيذية
+                                    <span class="cc-live-tag">
+                                        <span class="cc-live-dot"></span>
+                                        مباشر • LIVE ENGINE
+                                    </span>
+                                </h1>
+                                <p>رؤية شاملة ومباشرة لكافة مؤشرات النظام، الصيانة، المستودع، الأصول والعمليات</p>
+                            </div>
+                        </div>
+
+                        <div class="cc-header-controls">
+                            <!-- Ping / Status -->
+                            <div class="cc-refresh-timer-badge" id="ccPingBadge" title="زمن استجابة السيرفر">
+                                <i class="fas fa-bolt" style="color:#f59e0b;"></i>
+                                <span id="ccPingValue">-- ms</span>
+                            </div>
+
+                            <!-- Auto-refresh countdown & selector -->
+                            <div class="cc-refresh-timer-badge">
+                                <i class="fas fa-arrows-rotate" id="ccRefreshSpinIcon"></i>
+                                <span id="ccCountdownText">التحديث: <b id="ccCountdownNum">30</b>ث</span>
+                                <select class="cc-interval-select" id="ccIntervalSelect" onchange="setCCInterval(this.value)">
+                                    <option value="15">15 ثانية (فوري)</option>
+                                    <option value="30" selected>30 ثانية</option>
+                                    <option value="60">1 دقيقة</option>
+                                    <option value="180">3 دقائق</option>
+                                    <option value="0">إيقاف التلقائي</option>
+                                </select>
+                            </div>
+
+                            <!-- Color Palette Selector -->
+                            <div class="cc-refresh-timer-badge" title="تبديل لوحة ألوان الرسوم والمؤشرات">
+                                <i class="fas fa-palette" style="color:#8b5cf6;"></i>
+                                <span style="font-weight:700;">النمط:</span>
+                                <select class="cc-interval-select" id="ccPaletteSelect" onchange="ccChangePalette(this.value)">
+                                    <option value="cyber_executive">النيون التنفيذي</option>
+                                    <option value="ocean_emerald">المحيط والزمرد</option>
+                                    <option value="sunset_royal">الغروب الملكي</option>
+                                    <option value="midnight_cyber">السيان السيبراني</option>
+                                    <option value="warm_amber">الكهرمان والياقوت</option>
+                                </select>
+                            </div>
+
+                            <!-- Buttons -->
+                            <button class="cc-btn cc-btn-secondary" onclick="updateCommandCenter(true)" title="تحديث البيانات الآن">
+                                <i class="fas fa-rotate" id="ccManualRefreshIcon"></i>
+                                <span>تحديث فوري</span>
+                            </button>
+
+                            <button class="cc-btn cc-btn-ghost" id="ccSoundToggleBtn" onclick="toggleCCSound()" title="صوت التنبيهات">
+                                <i class="fas fa-volume-high" id="ccSoundIcon"></i>
+                            </button>
+
+                            <button class="cc-btn cc-btn-ghost" onclick="toggleCCFullscreen()" title="ملء الشاشة">
+                                <i class="fas fa-expand"></i>
+                            </button>
+
+                            <button class="cc-btn cc-btn-ghost" onclick="window.print()" title="طباعة لوحة العمليات">
+                                <i class="fas fa-print"></i>
+                            </button>
+
+                            <button class="cc-btn cc-btn-burgundy" onclick="openRequestModal()" title="إضافة طلب صيانة جديد">
+                                <i class="fas fa-plus"></i>
+                                <span>طلب صيانة جديد</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. COMMAND GATEWAY (Shortcuts Hub) -->
+                    <div class="cc-gateway-section">
+                        <div class="cc-section-header">
+                            <div class="cc-section-title">
+                                <i class="fas fa-compass"></i>
+                                <span>بوابة العمليات والاختصارات السريعة لجميع أركان النظام</span>
+                            </div>
+                            <div class="cc-section-subtitle">
+                                وصول فوري لكافة الشاشات، الإجراءات، والنماذج دون الحاجة للتنقل
+                            </div>
+                        </div>
+
+                        <div class="cc-suites-grid">
+                            <!-- Suite 1: Maintenance & Operations -->
+                            <div class="cc-suite-card">
+                                <div class="cc-suite-top">
+                                    <div class="cc-suite-icon-box" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">
+                                        <i class="fas fa-screwdriver-wrench"></i>
+                                    </div>
+                                    <div>
+                                        <div class="cc-suite-name">منظومة الصيانة والطلبات</div>
+                                        <div class="cc-suite-desc">إدارة الطلبات، الزيارات والمتابعة</div>
+                                    </div>
+                                </div>
+                                <div class="cc-suite-links">
+                                    <a class="cc-quick-link action-primary" onclick="openRequestModal()">
+                                        <span class="cc-link-label"><i class="fas fa-circle-plus"></i> إضافة طلب صيانة فوري</span>
+                                        <span class="cc-link-badge" style="background:#4f46e5;color:#fff;">جديد</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="showPage('requests')">
+                                        <span class="cc-link-label"><i class="fas fa-clipboard-list"></i> سجل الطلبات العامة</span>
+                                        <span class="cc-link-badge" id="ccBadgeReqTotal">--</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="ccFilterTableBy('delayed')">
+                                        <span class="cc-link-label"><i class="fas fa-triangle-exclamation" style="color:#ef4444;"></i> الطلبات الحرجة المتأخرة</span>
+                                        <span class="cc-link-badge" id="ccBadgeDelayed" style="background:rgba(239,68,68,0.15);color:#ef4444;">--</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="showPage('visits')">
+                                        <span class="cc-link-label"><i class="fas fa-truck-fast"></i> زيارات شركة الصيانة</span>
+                                        <span class="cc-link-badge" id="ccBadgeVisits">زيارات</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="showPage('tender_calendar')">
+                                        <span class="cc-link-label"><i class="fas fa-calendar-days"></i> تقويم مواعيد العطاء</span>
+                                        <span class="cc-link-badge">جدول</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="showPage('periodic')">
+                                        <span class="cc-link-label"><i class="fas fa-calendar-check"></i> الصيانة الوقائية الدورية</span>
+                                        <span class="cc-link-badge">خطة</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Suite 2: Warehouse & Assets -->
+                            <div class="cc-suite-card">
+                                <div class="cc-suite-top">
+                                    <div class="cc-suite-icon-box" style="background: linear-gradient(135deg, #0ea5e9, #0284c7);">
+                                        <i class="fas fa-boxes-stacked"></i>
+                                    </div>
+                                    <div>
+                                        <div class="cc-suite-name">المستودع والأصول والأجهزة</div>
+                                        <div class="cc-suite-desc">قطع الغيار، البدائل، والعهد</div>
+                                    </div>
+                                </div>
+                                <div class="cc-suite-links">
+                                    <a class="cc-quick-link action-primary" onclick="openAddStockModal()">
+                                        <span class="cc-link-label"><i class="fas fa-dolly"></i> توريد وزيادة رصيد مخزني</span>
+                                        <span class="cc-link-badge" style="background:#0284c7;color:#fff;">توريد</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="openInventoryModal()">
+                                        <span class="cc-link-label"><i class="fas fa-plus"></i> تعريف قطعة غيار جديدة</span>
+                                        <span class="cc-link-badge">إضافة</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="showPage('inventory')">
+                                        <span class="cc-link-label"><i class="fas fa-boxes"></i> مستودع قطع الغيار</span>
+                                        <span class="cc-link-badge" id="ccBadgeInvTotal">--</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="showPage('alternatives')">
+                                        <span class="cc-link-label"><i class="fas fa-laptop"></i> الأجهزة البديلة المؤقتة</span>
+                                        <span class="cc-link-badge" id="ccBadgeAltAvail">-- متاح</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="showPage('computer_items')">
+                                        <span class="cc-link-label"><i class="fas fa-desktop"></i> المواد والأصول الحاسوبية</span>
+                                        <span class="cc-link-badge" id="ccBadgeCompTotal">--</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="showPage('permanent_replacement')">
+                                        <span class="cc-link-label"><i class="fas fa-right-left"></i> البديل الدائم والمناقلات</span>
+                                        <span class="cc-link-badge" id="ccBadgePrTotal">--</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Suite 3: Contracts & Documents -->
+                            <div class="cc-suite-card">
+                                <div class="cc-suite-top">
+                                    <div class="cc-suite-icon-box" style="background: linear-gradient(135deg, #10b981, #059669);">
+                                        <i class="fas fa-file-contract"></i>
+                                    </div>
+                                    <div>
+                                        <div class="cc-suite-name">العقود والوثائق والنماذج</div>
+                                        <div class="cc-suite-desc">شروط العطاء، الملاحظات والذكاء</div>
+                                    </div>
+                                </div>
+                                <div class="cc-suite-links">
+                                    <a class="cc-quick-link" onclick="showPage('tender')">
+                                        <span class="cc-link-label"><i class="fas fa-file-signature"></i> بنود وشروط عطاء الصيانة</span>
+                                        <span class="cc-link-badge">عقد</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="showPage('documents')">
+                                        <span class="cc-link-label"><i class="fas fa-file-alt"></i> مكتبة الوثائق والتعاميم</span>
+                                        <span class="cc-link-badge" id="ccBadgeDocsTotal">--</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="openDocumentModal()">
+                                        <span class="cc-link-label"><i class="fas fa-upload"></i> إضافة وثيقة / تعميم جديد</span>
+                                        <span class="cc-link-badge">رفع</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="showPage('smart_forms')">
+                                        <span class="cc-link-label"><i class="fas fa-wand-magic-sparkles"></i> النماذج الذكية التلقائية</span>
+                                        <span class="cc-link-badge">ذكاء</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="openImportDocxModal()">
+                                        <span class="cc-link-label"><i class="fas fa-file-word"></i> استيراد ملفات Word (Docx)</span>
+                                        <span class="cc-link-badge">استيراد</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Suite 4: Analytics & System Management -->
+                            <div class="cc-suite-card">
+                                <div class="cc-suite-top">
+                                    <div class="cc-suite-icon-box" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <div>
+                                        <div class="cc-suite-name">التحليلات والرقابة والإدارة</div>
+                                        <div class="cc-suite-desc">البحث الشامل، التقارير والتحكم</div>
+                                    </div>
+                                </div>
+                                <div class="cc-suite-links">
+                                    <a class="cc-quick-link action-primary" onclick="showPage('advanced_search')">
+                                        <span class="cc-link-label"><i class="fas fa-search-plus"></i> البحث المتقدم الشامل</span>
+                                        <span class="cc-link-badge" style="background:#7c3aed;color:#fff;">بحث</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="showPage('reports')">
+                                        <span class="cc-link-label"><i class="fas fa-chart-pie"></i> لوحة التقارير والرسوم</span>
+                                        <span class="cc-link-badge">تحليلات</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="openMonthlyReportModal()">
+                                        <span class="cc-link-label"><i class="fas fa-file-pdf" style="color:#ef4444;"></i> استخراج التقرير الشهري PDF</span>
+                                        <span class="cc-link-badge">PDF</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="showPage('departments')">
+                                        <span class="cc-link-label"><i class="fas fa-building"></i> إدارة الأقسام والدوائر</span>
+                                        <span class="cc-link-badge" id="ccBadgeDepts">--</span>
+                                    </a>
+                                    <a class="cc-quick-link" onclick="showPage('admin')">
+                                        <span class="cc-link-label"><i class="fas fa-sliders"></i> إدارة المستخدمين والصلاحيات</span>
+                                        <span class="cc-link-badge">إشراف</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. VITAL SIGNS: HEALTH SCORE + SYSTEM PULSE -->
+                    <div class="cc-pulse-grid">
+                        <!-- Health Score Card -->
+                        <div class="cc-health-card">
+                            <div class="cc-section-header" style="margin-bottom:0;padding-bottom:10px;">
+                                <div class="cc-section-title">
+                                    <i class="fas fa-heart-pulse" style="color:#ef4444;"></i>
+                                    <span>مؤشر الصحة التشغيلية الشامل (Health Index)</span>
+                                </div>
+                                <span class="cc-link-badge" id="ccHealthLabel" style="font-size:12px;padding:4px 10px;background:rgba(16,185,129,0.15);color:#10b981;">
+                                    أداء ممتاز
+                                </span>
+                            </div>
+
+                            <div class="cc-health-body">
+                                <div class="cc-radial-box">
+                                    <svg class="cc-radial-svg" viewBox="0 0 130 130">
+                                        <defs>
+                                            <linearGradient id="ccHealthGradHealthy" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#06b6d4" />
+                                                <stop offset="50%" stop-color="#3b82f6" />
+                                                <stop offset="100%" stop-color="#10b981" />
+                                            </linearGradient>
+                                            <linearGradient id="ccHealthGradWarn" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#f59e0b" />
+                                                <stop offset="100%" stop-color="#f97316" />
+                                            </linearGradient>
+                                            <linearGradient id="ccHealthGradDanger" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#ef4444" />
+                                                <stop offset="100%" stop-color="#f43f5e" />
+                                            </linearGradient>
+                                            <filter id="ccGlowFilter" x="-20%" y="-20%" width="140%" height="140%">
+                                                <feGaussianBlur stdDeviation="3.5" result="blur" />
+                                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                            </filter>
+                                        </defs>
+                                        <circle class="cc-radial-circle-bg" cx="65" cy="65" r="56"></circle>
+                                        <circle class="cc-radial-circle-aura" cx="65" cy="65" r="61" stroke="rgba(99, 102, 241, 0.22)" stroke-dasharray="4 6" fill="none"></circle>
+                                        <circle class="cc-radial-circle-val" id="ccHealthCircle" cx="65" cy="65" r="56" stroke="url(#ccHealthGradHealthy)" filter="url(#ccGlowFilter)"></circle>
+                                    </svg>
+                                    <div class="cc-radial-text">
+                                        <div class="cc-radial-score" id="ccHealthScoreNum">--%</div>
+                                        <div class="cc-radial-label">المعدل العام</div>
+                                    </div>
+                                </div>
+
+                                <div class="cc-health-factors">
+                                    <div class="cc-factor-row">
+                                        <div class="cc-factor-labels">
+                                            <span>معدل إغلاق الطلبات (Resolution Rate)</span>
+                                            <span id="ccFactorRateVal">--%</span>
+                                        </div>
+                                        <div class="cc-factor-bar-bg">
+                                            <div class="cc-factor-bar-fill" id="ccFactorRateBar" style="width:0%;background:#10b981;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="cc-factor-row">
+                                        <div class="cc-factor-labels">
+                                            <span>انسيابية الصيانة وخلو التأخير (SLA Flow)</span>
+                                            <span id="ccFactorFlowVal">--%</span>
+                                        </div>
+                                        <div class="cc-factor-bar-bg">
+                                            <div class="cc-factor-bar-fill" id="ccFactorFlowBar" style="width:0%;background:#06b6d4;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="cc-factor-row">
+                                        <div class="cc-factor-labels">
+                                            <span>كفاءة وتوفر قطع المستودع (Stock Health)</span>
+                                            <span id="ccFactorStockVal">--%</span>
+                                        </div>
+                                        <div class="cc-factor-bar-bg">
+                                            <div class="cc-factor-bar-fill" id="ccFactorStockBar" style="width:0%;background:#f59e0b;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="cc-factor-row">
+                                        <div class="cc-factor-labels">
+                                            <span>جاهزية الأجهزة البديلة (Spare Assets)</span>
+                                            <span id="ccFactorAltVal">--%</span>
+                                        </div>
+                                        <div class="cc-factor-bar-bg">
+                                            <div class="cc-factor-bar-fill" id="ccFactorAltBar" style="width:0%;background:#8b5cf6;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Telemetry & Database Diagnostics -->
+                        <div class="cc-telemetry-card">
+                            <div class="cc-section-header" style="margin-bottom:0;padding-bottom:10px;">
+                                <div class="cc-section-title">
+                                    <i class="fas fa-server" style="color:#06b6d4;"></i>
+                                    <span>نبض السيرفر والبيانات (System Telemetry)</span>
+                                </div>
+                                <span class="cc-link-badge" id="ccDbEngineBadge" style="background:rgba(6,182,212,0.15);color:#06b6d4;">Supabase Cloud</span>
+                            </div>
+
+                            <div class="cc-telemetry-item">
+                                <div class="cc-telemetry-info">
+                                    <div class="cc-telemetry-icon" style="background:rgba(16,185,129,0.15);color:#10b981;">
+                                        <i class="fas fa-database"></i>
+                                    </div>
+                                    <div>
+                                        <div class="cc-telemetry-title">إجمالي السجلات الرقمية في النظام</div>
+                                        <div class="cc-telemetry-sub">طلبات، مخزون، بدائل، وثائق، حواسيب</div>
+                                    </div>
+                                </div>
+                                <div class="cc-telemetry-val" id="ccTelemetryTotalRecords">--</div>
+                            </div>
+
+                            <div class="cc-telemetry-item">
+                                <div class="cc-telemetry-info">
+                                    <div class="cc-telemetry-icon" style="background:rgba(79,70,229,0.15);color:#4f46e5;">
+                                        <i class="fas fa-user-shield"></i>
+                                    </div>
+                                    <div>
+                                        <div class="cc-telemetry-title">المستخدم المسجل حالياً</div>
+                                        <div class="cc-telemetry-sub" id="ccTelemetryUserRole">الدور: غير محدد</div>
+                                    </div>
+                                </div>
+                                <div class="cc-telemetry-val" id="ccTelemetryUserName">--</div>
+                            </div>
+
+                            <div class="cc-telemetry-item">
+                                <div class="cc-telemetry-info">
+                                    <div class="cc-telemetry-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b;">
+                                        <i class="fas fa-clock-rotate-left"></i>
+                                    </div>
+                                    <div>
+                                        <div class="cc-telemetry-title">آخر مزامنة مع السيرفر</div>
+                                        <div class="cc-telemetry-sub" id="ccTelemetrySyncTime">جارِ المزامنة...</div>
+                                    </div>
+                                </div>
+                                <button class="cc-btn cc-btn-ghost" style="padding:4px 10px;font-size:11px;" onclick="showPage('dashboard')" title="التبديل إلى لوحة التحكم الكلاسيكية">
+                                    <i class="fas fa-arrow-left"></i> لوحة كلاسيكية
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. KPI GRID (8 Metrics) -->
+                    <div class="cc-kpi-grid">
+                        <!-- 1. Total Requests -->
+                        <div class="cc-kpi-card">
+                            <div class="cc-kpi-top">
+                                <div class="cc-kpi-icon-box" style="background:rgba(79,70,229,0.12);color:#4f46e5;">
+                                    <i class="fas fa-clipboard-list"></i>
+                                </div>
+                                <span class="cc-kpi-badge" id="ccKpiDeltaTotal" style="background:rgba(79,70,229,0.1);color:#4f46e5;">--</span>
+                            </div>
+                            <div class="cc-kpi-main">
+                                <div class="cc-kpi-title">إجمالي طلبات الصيانة</div>
+                                <div class="cc-kpi-value" id="ccKpiTotalReqs">0</div>
+                            </div>
+                            <div class="cc-kpi-footer">
+                                <span id="ccKpiTotalSub">مقارنة بالشهر السابق</span>
+                                <a href="javascript:void(0)" onclick="showPage('requests')">عرض الكل</a>
+                            </div>
+                        </div>
+
+                        <!-- 2. Active & Open Requests -->
+                        <div class="cc-kpi-card">
+                            <div class="cc-kpi-top">
+                                <div class="cc-kpi-icon-box" style="background:rgba(6,182,212,0.12);color:#06b6d4;">
+                                    <i class="fas fa-spinner"></i>
+                                </div>
+                                <span class="cc-kpi-badge" style="background:rgba(6,182,212,0.1);color:#06b6d4;" id="ccKpiOpenBadge">نشط</span>
+                            </div>
+                            <div class="cc-kpi-main">
+                                <div class="cc-kpi-title">الطلبات المفتوحة والجارية</div>
+                                <div class="cc-kpi-value" id="ccKpiOpenReqs">0</div>
+                            </div>
+                            <div class="cc-kpi-footer">
+                                <span id="ccKpiOpenBreakdown">جديد: 0 | قيد التنفيذ: 0</span>
+                                <a href="javascript:void(0)" onclick="ccFilterTableBy('open')">تصفية</a>
+                            </div>
+                        </div>
+
+                        <!-- 3. Resolution Rate -->
+                        <div class="cc-kpi-card">
+                            <div class="cc-kpi-top">
+                                <div class="cc-kpi-icon-box" style="background:rgba(16,185,129,0.12);color:#10b981;">
+                                    <i class="fas fa-circle-check"></i>
+                                </div>
+                                <span class="cc-kpi-badge" style="background:rgba(16,185,129,0.1);color:#10b981;" id="ccKpiRateTarget">هدف: 80%</span>
+                            </div>
+                            <div class="cc-kpi-main">
+                                <div class="cc-kpi-title">معدل الإنجاز والحل (SLA)</div>
+                                <div class="cc-kpi-value" id="ccKpiRateVal">0%</div>
+                            </div>
+                            <div class="cc-kpi-footer">
+                                <span id="ccKpiRateSub">0 منجز من 0 طلب</span>
+                                <a href="javascript:void(0)" onclick="showPage('reports')">التقرير</a>
+                            </div>
+                        </div>
+
+                        <!-- 4. Critical Delayed Tickets -->
+                        <div class="cc-kpi-card" style="border-right: 4px solid #ef4444;">
+                            <div class="cc-kpi-top">
+                                <div class="cc-kpi-icon-box" style="background:rgba(239,68,68,0.12);color:#ef4444;">
+                                    <i class="fas fa-triangle-exclamation"></i>
+                                </div>
+                                <span class="cc-kpi-badge" style="background:rgba(239,68,68,0.1);color:#ef4444;">تجاوز 7 أيام</span>
+                            </div>
+                            <div class="cc-kpi-main">
+                                <div class="cc-kpi-title">طلبات حرجة متأخرة</div>
+                                <div class="cc-kpi-value" id="ccKpiDelayedReqs" style="color:#ef4444;">0</div>
+                            </div>
+                            <div class="cc-kpi-footer">
+                                <span id="ccKpiDelayedSub">تتطلب متابعة عاجلة</span>
+                                <a href="javascript:void(0)" onclick="ccFilterTableBy('delayed')" style="color:#ef4444;font-weight:700;">فلترة فورية</a>
+                            </div>
+                        </div>
+
+                        <!-- 5. Inventory Stock Health -->
+                        <div class="cc-kpi-card">
+                            <div class="cc-kpi-top">
+                                <div class="cc-kpi-icon-box" style="background:rgba(245,158,11,0.12);color:#f59e0b;">
+                                    <i class="fas fa-boxes-stacked"></i>
+                                </div>
+                                <span class="cc-kpi-badge" id="ccKpiZeroStockBadge" style="background:rgba(245,158,11,0.1);color:#f59e0b;">0 نافد</span>
+                            </div>
+                            <div class="cc-kpi-main">
+                                <div class="cc-kpi-title">قطع الغيار في المستودع</div>
+                                <div class="cc-kpi-value" id="ccKpiTotalInventory">0</div>
+                            </div>
+                            <div class="cc-kpi-footer">
+                                <span id="ccKpiLowStockSub">منخفض: 0 صنف</span>
+                                <a href="javascript:void(0)" onclick="showPage('inventory')">المستودع</a>
+                            </div>
+                        </div>
+
+                        <!-- 6. Alternative Devices -->
+                        <div class="cc-kpi-card">
+                            <div class="cc-kpi-top">
+                                <div class="cc-kpi-icon-box" style="background:rgba(139,92,246,0.12);color:#8b5cf6;">
+                                    <i class="fas fa-laptop"></i>
+                                </div>
+                                <span class="cc-kpi-badge" id="ccKpiAltBadge" style="background:rgba(139,92,246,0.1);color:#8b5cf6;">0 متاح</span>
+                            </div>
+                            <div class="cc-kpi-main">
+                                <div class="cc-kpi-title">أسطول الأجهزة البديلة</div>
+                                <div class="cc-kpi-value" id="ccKpiTotalAlt">0</div>
+                            </div>
+                            <div class="cc-kpi-footer">
+                                <span id="ccKpiAltAssigned">معار حالياً: 0</span>
+                                <a href="javascript:void(0)" onclick="showPage('alternatives')">إدارة البدائل</a>
+                            </div>
+                        </div>
+
+                        <!-- 7. Hardware Computer Assets -->
+                        <div class="cc-kpi-card">
+                            <div class="cc-kpi-top">
+                                <div class="cc-kpi-icon-box" style="background:rgba(2,132,199,0.12);color:#0284c7;">
+                                    <i class="fas fa-desktop"></i>
+                                </div>
+                                <span class="cc-kpi-badge" style="background:rgba(2,132,199,0.1);color:#0284c7;">أصول مسجلة</span>
+                            </div>
+                            <div class="cc-kpi-main">
+                                <div class="cc-kpi-title">المواد والأصول الحاسوبية</div>
+                                <div class="cc-kpi-value" id="ccKpiTotalCompItems">0</div>
+                            </div>
+                            <div class="cc-kpi-footer">
+                                <span>أجهزة ومعدات تقنية</span>
+                                <a href="javascript:void(0)" onclick="showPage('computer_items')">عرض الأصول</a>
+                            </div>
+                        </div>
+
+                        <!-- 8. Permanent Replacements -->
+                        <div class="cc-kpi-card">
+                            <div class="cc-kpi-top">
+                                <div class="cc-kpi-icon-box" style="background:rgba(236,72,153,0.12);color:#ec4899;">
+                                    <i class="fas fa-right-left"></i>
+                                </div>
+                                <span class="cc-kpi-badge" id="ccKpiPrOpenBadge" style="background:rgba(236,72,153,0.1);color:#ec4899;">0 معلق</span>
+                            </div>
+                            <div class="cc-kpi-main">
+                                <div class="cc-kpi-title">البديل الدائم والمناقلات</div>
+                                <div class="cc-kpi-value" id="ccKpiTotalPr">0</div>
+                            </div>
+                            <div class="cc-kpi-footer">
+                                <span id="ccKpiPrDoneSub">منجز: 0 حالة</span>
+                                <a href="javascript:void(0)" onclick="showPage('permanent_replacement')">سجل المناقلات</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. ANALYTICS STUDIO: 4 CHARTS -->
+                    <div class="cc-charts-grid">
+                        <!-- Chart 1: Operations Monthly Trend -->
+                        <div class="cc-chart-card">
+                            <div class="cc-section-header">
+                                <div class="cc-section-title">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>الاتجاه التشغيلي الزمني (آخر 6 أشهر: الواردة vs المنجزة)</span>
+                                </div>
+                                <span class="cc-link-badge">تحديث مباشر</span>
+                            </div>
+                            <div class="cc-chart-wrapper">
+                                <canvas id="ccChartTrend"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 2: Status Doughnut Distribution -->
+                        <div class="cc-chart-card">
+                            <div class="cc-section-header">
+                                <div class="cc-section-title">
+                                    <i class="fas fa-chart-pie"></i>
+                                    <span>التوزيع اللحظي لحالات طلبات الصيانة</span>
+                                </div>
+                                <span class="cc-link-badge" id="ccActiveStatusTotal">--</span>
+                            </div>
+                            <div class="cc-chart-wrapper">
+                                <canvas id="ccChartStatus"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cc-charts-grid">
+                        <!-- Chart 3: Department Workload Heatmap -->
+                        <div class="cc-chart-card">
+                            <div class="cc-section-header">
+                                <div class="cc-section-title">
+                                    <i class="fas fa-building-user"></i>
+                                    <span>أعلى الأقسام طلباً للصيانة (Workload Distribution)</span>
+                                </div>
+                                <span class="cc-link-badge">أكثر 6 أقسام</span>
+                            </div>
+                            <div class="cc-chart-wrapper">
+                                <canvas id="ccChartDepts"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 4: Categories & Failure Patterns -->
+                        <div class="cc-chart-card">
+                            <div class="cc-section-header">
+                                <div class="cc-section-title">
+                                    <i class="fas fa-tags"></i>
+                                    <span>تصنيفات قطع الغيار والأعطال الأكثر تكراراً</span>
+                                </div>
+                                <span class="cc-link-badge">المستودع</span>
+                            </div>
+                            <div class="cc-chart-wrapper">
+                                <canvas id="ccChartCategories"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. EMERGENCY RADAR & SMART ALERTS -->
+                    <div class="cc-alerts-panel">
+                        <div class="cc-section-header">
+                            <div class="cc-section-title">
+                                <i class="fas fa-satellite-dish" style="color:#ef4444;"></i>
+                                <span>رادار الطوارئ والتنبيهات المباشرة (Emergency Radar)</span>
+                                <span class="cc-live-tag" id="ccAlertsCountBadge">0 تنبيه</span>
+                            </div>
+                            <div class="cc-section-subtitle">
+                                تنبيهات استباقية بالطلبات المتأخرة، نقص المخزون، والأجهزة المعارة
+                            </div>
+                        </div>
+
+                        <div class="cc-alerts-tabs">
+                            <button class="cc-tab-pill active" onclick="ccFilterAlerts('all', this)">الكل (<span id="ccTabCountAll">0</span>)</button>
+                            <button class="cc-tab-pill" onclick="ccFilterAlerts('delayed', this)">طلبات متأخرة (<span id="ccTabCountDelayed">0</span>)</button>
+                            <button class="cc-tab-pill" onclick="ccFilterAlerts('stock', this)">المخزون (<span id="ccTabCountStock">0</span>)</button>
+                            <button class="cc-tab-pill" onclick="ccFilterAlerts('alt', this)">أجهزة بديلة (<span id="ccTabCountAlt">0</span>)</button>
+                            <button class="cc-tab-pill" onclick="ccFilterAlerts('pending', this)">معلقة (<span id="ccTabCountPending">0</span>)</button>
+                        </div>
+
+                        <div class="cc-alerts-stream" id="ccAlertsStream">
+                            <!-- Injected via JS -->
+                        </div>
+                    </div>
+
+                    <!-- 7. TICKETS CONSOLE (Interactive Workbench) -->
+                    <div class="cc-tickets-section">
+                        <div class="cc-section-header">
+                            <div class="cc-section-title">
+                                <i class="fas fa-terminal"></i>
+                                <span>وحدة تتبع ومعالجة الطلبات النشطة (Tickets Console)</span>
+                                <span class="cc-link-badge" id="ccTicketsCounterBadge">0 طلب</span>
+                            </div>
+                            <div class="cc-section-subtitle">
+                                بحث وتصفية لحظية مع إمكانية المعاينة والتعديل المباشر
+                            </div>
+                        </div>
+
+                        <div class="cc-tickets-filter-bar">
+                            <div class="cc-search-input-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="ccTicketSearchInput" placeholder="بحث بالرقم الحاسوبي، الموظف، القسم، أو العطل..." oninput="ccOnSearchInput(this.value)">
+                            </div>
+
+                            <div class="cc-status-filter-pills">
+                                <button class="cc-tab-pill active" onclick="ccFilterTableStatus('all', this)">الكل</button>
+                                <button class="cc-tab-pill" onclick="ccFilterTableStatus('delayed', this)" style="color:#ef4444;"><i class="fas fa-triangle-exclamation"></i> المتأخرة (>7 أيام)</button>
+                                <button class="cc-tab-pill" onclick="ccFilterTableStatus('new', this)">جديد</button>
+                                <button class="cc-tab-pill" onclick="ccFilterTableStatus('inprogress', this)">قيد التنفيذ</button>
+                                <button class="cc-tab-pill" onclick="ccFilterTableStatus('pending', this)">قيد الانتظار</button>
+                                <button class="cc-tab-pill" onclick="ccFilterTableStatus('withdrawn', this)">مسحوب</button>
+                            </div>
+
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <select class="cc-interval-select" id="ccDeptFilterSelect" onchange="ccFilterTableDept(this.value)">
+                                    <option value="all">كافة الأقسام والدوائر</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="cc-table-wrapper">
+                            <table class="cc-table" id="ccTicketsTable">
+                                <thead>
+                                    <tr>
+                                        <th>الرقم الحاسوبي</th>
+                                        <th>الموظف</th>
+                                        <th>القسم</th>
+                                        <th>وصف العطل</th>
+                                        <th>الحالة</th>
+                                        <th>عمر الطلب</th>
+                                        <th>تاريخ الطلب</th>
+                                        <th style="text-align:center;">إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ccTicketsTableBody">
+                                    <!-- Rendered by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 8. ASSET & INVENTORY SIDE-BY-SIDE MONITORS -->
+                    <div class="cc-side-panels-grid">
+                        <!-- 1. Critical Inventory Watchlist -->
+                        <div class="cc-chart-card">
+                            <div class="cc-section-header">
+                                <div class="cc-section-title">
+                                    <i class="fas fa-box-open" style="color:#f59e0b;"></i>
+                                    <span>مراقبة قطع الغيار الحرجة والنافذة</span>
+                                </div>
+                                <button class="cc-btn cc-btn-secondary" style="padding:4px 10px;font-size:11px;" onclick="openAddStockModal()">
+                                    <i class="fas fa-plus"></i> توريد كمية
+                                </button>
+                            </div>
+                            <div class="cc-table-wrapper" style="max-height:260px;overflow-y:auto;">
+                                <table class="cc-table" id="ccCriticalInventoryTable">
+                                    <thead>
+                                        <tr>
+                                            <th>اسم القطعة / الرمز</th>
+                                            <th>التصنيف</th>
+                                            <th>الرصيد المتبقي</th>
+                                            <th>الحالة</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ccCriticalInventoryBody">
+                                        <!-- Injected by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 2. Active Alternative Devices -->
+                        <div class="cc-chart-card">
+                            <div class="cc-section-header">
+                                <div class="cc-section-title">
+                                    <i class="fas fa-laptop" style="color:#8b5cf6;"></i>
+                                    <span>جاهزية ومتابعة الأجهزة البديلة</span>
+                                </div>
+                                <button class="cc-btn cc-btn-secondary" style="padding:4px 10px;font-size:11px;" onclick="showPage('alternatives')">
+                                    <i class="fas fa-external-link"></i> إدارة البدائل
+                                </button>
+                            </div>
+                            <div class="cc-table-wrapper" style="max-height:260px;overflow-y:auto;">
+                                <table class="cc-table" id="ccAltDevicesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>الموديل / الجهاز</th>
+                                            <th>النوع</th>
+                                            <th>الحالة التشغيلية</th>
+                                            <th>ملاحظات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ccAltDevicesBody">
+                                        <!-- Injected by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== COMMAND CENTER LOGIC ==================== -->
+                <script>
+                // State for Command Center
+                window._ccState = {
+                    requests: [],
+                    activeRequests: [],
+                    inventory: [],
+                    altModels: [],
+                    computerItems: [],
+                    documents: [],
+                    permReplacements: [],
+                    assignments: [],
+                    departments: [],
+                    alerts: [],
+                    pingMs: 25,
+                    lastSyncDate: null,
+                    refreshInterval: 30,
+                    countdown: 30,
+                    timerId: null,
+                    soundEnabled: true,
+                    activeFilterStatus: 'all',
+                    activeFilterDept: 'all',
+                    searchQuery: '',
+                    activeAlertTab: 'all',
+                    isUpdating: false
+                };
+
+                window._ccCharts = {
+                    trend: null,
+                    status: null,
+                    depts: null,
+                    categories: null
+                };
+
+                // Sound Effect Generator (Web Audio API)
+                function _ccPlayAlertChime() {
+                    if (!_ccState.soundEnabled) return;
+                    try {
+                        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                        if (!AudioCtx) return;
+                        const ctx = new AudioCtx();
+                        const now = ctx.currentTime;
+                        const osc1 = ctx.createOscillator();
+                        const gain1 = ctx.createGain();
+                        osc1.type = 'sine';
+                        osc1.frequency.setValueAtTime(587.33, now);
+                        gain1.gain.setValueAtTime(0.06, now);
+                        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+                        osc1.connect(gain1);
+                        gain1.connect(ctx.destination);
+                        osc1.start(now);
+                        osc1.stop(now + 0.22);
+
+                        const osc2 = ctx.createOscillator();
+                        const gain2 = ctx.createGain();
+                        osc2.type = 'sine';
+                        osc2.frequency.setValueAtTime(880, now + 0.12);
+                        gain2.gain.setValueAtTime(0.06, now + 0.12);
+                        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+                        osc2.connect(gain2);
+                        gain2.connect(ctx.destination);
+                        osc2.start(now + 0.12);
+                        osc2.stop(now + 0.38);
+                    } catch(e) {}
+                }
+
+                // Main Update Function
+                async function updateCommandCenter(isManual = false) {
+                    if (_ccState.isUpdating) return;
+                    _ccState.isUpdating = true;
+
+                    const spinIcon = document.getElementById('ccManualRefreshIcon');
+                    if (spinIcon) spinIcon.classList.add('fa-spin');
+
+                    const t0 = performance.now();
+                    try {
+                        const [
+                            requests,
+                            inventory,
+                            altModels,
+                            computerItems,
+                            documents,
+                            permReplacements,
+                            assignments,
+                            departments
+                        ] = await Promise.all([
+                            SupabaseAPI.request('requests', 'GET').catch(() => []),
+                            SupabaseAPI.request('inventory', 'GET').catch(() => []),
+                            SupabaseAPI.request('alt_models', 'GET').catch(() => []),
+                            SupabaseAPI.request('computer_items', 'GET').catch(() => []),
+                            SupabaseAPI.request('documents', 'GET').catch(() => []),
+                            SupabaseAPI.request('permanent_replacements', 'GET').catch(() => []),
+                            SupabaseAPI.request('assignments', 'GET').catch(() => []),
+                            SupabaseAPI.request('departments', 'GET').catch(() => [])
+                        ]);
+
+                        const t1 = performance.now();
+                        _ccState.pingMs = Math.max(12, Math.round(t1 - t0));
+                        _ccState.lastSyncDate = new Date();
+
+                        _ccState.requests = Array.isArray(requests) ? requests : [];
+                        _ccState.inventory = Array.isArray(inventory) ? inventory : [];
+                        _ccState.altModels = Array.isArray(altModels) ? altModels : [];
+                        _ccState.computerItems = Array.isArray(computerItems) ? computerItems : [];
+                        _ccState.documents = Array.isArray(documents) ? documents : [];
+                        _ccState.permReplacements = Array.isArray(permReplacements) ? permReplacements : [];
+                        _ccState.assignments = Array.isArray(assignments) ? assignments : [];
+                        _ccState.departments = Array.isArray(departments) ? departments : [];
+
+                        const hiddenStatuses = ['completed', 'cancelled', 'duplicate'];
+                        _ccState.activeRequests = _ccState.requests.filter(r => !hiddenStatuses.includes(r.status));
+
+                        // Render each subsystem
+                        _ccUpdateKPIs();
+                        _ccUpdateHealthScore();
+                        _ccUpdateTelemetry();
+                        _ccUpdateBadges();
+                        _ccUpdateCharts();
+                        _ccUpdateAlerts();
+                        _ccRenderTicketsTable();
+                        _ccUpdateMonitors();
+
+                        // Populate departments dropdown if not already populated
+                        _ccPopulateDeptDropdown();
+
+                        if (isManual && typeof showToast === 'function') {
+                            showToast('success', 'تحديث فوري', 'تم تحديث كافة بيانات مركز العمليات بنجاح');
+                        }
+                    } catch(err) {
+                        console.error('Error updating command center:', err);
+                    } finally {
+                        _ccState.isUpdating = false;
+                        if (spinIcon) spinIcon.classList.remove('fa-spin');
+                        _ccState.countdown = _ccState.refreshInterval;
+                    }
+
+                    _ccEnsureAutoRefreshRunning();
+                }
+
+                // Helper to update text safely
+                function _ccSetText(id, val) {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = val;
+                }
+
+                // Update Badges in Shortcuts Suite
+                function _ccUpdateBadges() {
+                    const reqCount = _ccState.requests.length;
+                    const invCount = _ccState.inventory.length;
+                    const altAvail = _ccState.altModels.filter(m => m.status === 'available').length;
+                    const compCount = _ccState.computerItems.length;
+                    const docsCount = _ccState.documents.length;
+                    const prCount = _ccState.permReplacements.length;
+                    const deptsCount = _ccState.departments.length;
+                    const delayedCount = _ccState.activeRequests.filter(r => _dashDaysSince(r.created_at || r.createdAt) > 7).length;
+
+                    _ccSetText('ccBadgeReqTotal', reqCount + ' طلب');
+                    _ccSetText('ccBadgeDelayed', delayedCount + ' متأخر');
+                    _ccSetText('ccBadgeInvTotal', invCount + ' صنف');
+                    _ccSetText('ccBadgeAltAvail', altAvail + ' متاح');
+                    _ccSetText('ccBadgeCompTotal', compCount + ' أصل');
+                    _ccSetText('ccBadgeDocsTotal', docsCount + ' وثيقة');
+                    _ccSetText('ccBadgePrTotal', prCount + ' حالة');
+                    _ccSetText('ccBadgeDepts', deptsCount + ' قسم');
+
+                    if (window.VISITS && window.VISITS.length) {
+                        _ccSetText('ccBadgeVisits', window.VISITS.length + ' زيارة');
+                    }
+                }
+
+                // Update Health Score
+                function _ccUpdateHealthScore() {
+                    const totalReqs = _ccState.requests.length;
+                    const completedReqs = _ccState.requests.filter(r => r.status === 'completed').length;
+                    const rate = totalReqs ? Math.round((completedReqs / totalReqs) * 100) : 0;
+
+                    const activeCount = _ccState.activeRequests.length;
+                    const delayedCount = _ccState.activeRequests.filter(r => _dashDaysSince(r.created_at || r.createdAt) > 7).length;
+                    const flowScore = activeCount ? Math.max(0, Math.round((1 - (delayedCount / activeCount)) * 100)) : 100;
+
+                    const totalInv = _ccState.inventory.length;
+                    const outOfStock = _ccState.inventory.filter(i => (i.qty || 0) === 0).length;
+                    const stockScore = totalInv ? Math.max(0, Math.round(((totalInv - outOfStock) / totalInv) * 100)) : 100;
+
+                    const totalAlt = _ccState.altModels.length;
+                    const availAlt = _ccState.altModels.filter(m => m.status === 'available').length;
+                    const altScore = totalAlt ? Math.round((availAlt / totalAlt) * 100) : 100;
+
+                    const compositeHealth = Math.round((rate * 0.40) + (flowScore * 0.30) + (stockScore * 0.20) + (altScore * 0.10));
+
+                    _ccSetText('ccHealthScoreNum', compositeHealth + '%');
+                    _ccSetText('ccFactorRateVal', rate + '%');
+                    _ccSetText('ccFactorFlowVal', flowScore + '%');
+                    _ccSetText('ccFactorStockVal', stockScore + '%');
+                    _ccSetText('ccFactorAltVal', altScore + '%');
+
+                    const rateBar = document.getElementById('ccFactorRateBar');
+                    if (rateBar) rateBar.style.width = rate + '%';
+                    const flowBar = document.getElementById('ccFactorFlowBar');
+                    if (flowBar) flowBar.style.width = flowScore + '%';
+                    const stockBar = document.getElementById('ccFactorStockBar');
+                    if (stockBar) stockBar.style.width = stockScore + '%';
+                    const altBar = document.getElementById('ccFactorAltBar');
+                    if (altBar) altBar.style.width = altScore + '%';
+
+                    // SVG Circle Dashoffset (radius 56 -> circumference ~351)
+                    const circle = document.getElementById('ccHealthCircle');
+                    if (circle) {
+                        const offset = 351 - (351 * Math.min(100, compositeHealth) / 100);
+                        circle.style.strokeDashoffset = offset;
+                        circle.setAttribute('stroke', compositeHealth >= 80 ? '#10b981' : compositeHealth >= 60 ? '#06b6d4' : compositeHealth >= 40 ? '#f59e0b' : '#ef4444');
+                    }
+
+                    const labelEl = document.getElementById('ccHealthLabel');
+                    if (labelEl) {
+                        if (compositeHealth >= 80) {
+                            labelEl.textContent = 'أداء ممتاز';
+                            labelEl.style.background = 'rgba(16,185,129,0.15)';
+                            labelEl.style.color = '#10b981';
+                        } else if (compositeHealth >= 60) {
+                            labelEl.textContent = 'أداء مستقر وجيد';
+                            labelEl.style.background = 'rgba(6,182,212,0.15)';
+                            labelEl.style.color = '#06b6d4';
+                        } else if (compositeHealth >= 40) {
+                            labelEl.textContent = 'يحتاج متابعة';
+                            labelEl.style.background = 'rgba(245,158,11,0.15)';
+                            labelEl.style.color = '#f59e0b';
+                        } else {
+                            labelEl.textContent = 'يحتاج تدخل عاجل';
+                            labelEl.style.background = 'rgba(239,68,68,0.15)';
+                            labelEl.style.color = '#ef4444';
+                        }
+                    }
+                }
+
+                // Update Telemetry Info
+                function _ccUpdateTelemetry() {
+                    _ccSetText('ccPingValue', _ccState.pingMs + ' ms');
+
+                    const totalRecs = _ccState.requests.length + _ccState.inventory.length + _ccState.altModels.length + _ccState.computerItems.length + _ccState.documents.length;
+                    _ccSetText('ccTelemetryTotalRecords', totalRecs.toLocaleString('ar-EG') + ' سجل نشط');
+
+                    if (window.currentUser) {
+                        _ccSetText('ccTelemetryUserName', window.currentUser.name || window.currentUser.username || 'المستخدم');
+                        _ccSetText('ccTelemetryUserRole', 'الصلاحية: ' + (window.currentUser.role === 'admin' ? 'مدير نظام كامل' : 'فني / مستخدم'));
+                    } else {
+                        _ccSetText('ccTelemetryUserName', 'جلسة محلية');
+                        _ccSetText('ccTelemetryUserRole', 'صلاحيات قياسية');
+                    }
+
+                    if (_ccState.lastSyncDate) {
+                        _ccSetText('ccTelemetrySyncTime', 'منذ لحظات (' + _ccState.lastSyncDate.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ')');
+                    }
+                }
+
+                // Update KPI Cards
+                function _ccUpdateKPIs() {
+                    const reqs = _ccState.requests;
+                    const by = (s) => reqs.filter(r => r.status === s).length;
+
+                    const total = reqs.length;
+                    const open = _ccState.activeRequests.length;
+                    const completed = by('completed');
+                    const rate = total ? Math.round((completed / total) * 100) : 0;
+                    const delayed = _ccState.activeRequests.filter(r => _dashDaysSince(r.created_at || r.createdAt) > 7).length;
+
+                    // Compute Month Delta
+                    const now = new Date();
+                    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    let thisMonthCount = 0, lastMonthCount = 0;
+                    reqs.forEach(r => {
+                        const d = new Date(r.created_at || r.createdAt);
+                        if (!isNaN(d)) {
+                            if (d >= thisMonthStart) thisMonthCount++;
+                            else if (d >= lastMonthStart && d < thisMonthStart) lastMonthCount++;
+                        }
+                    });
+                    const deltaPct = lastMonthCount ? Math.round(((thisMonthCount - lastMonthCount) / lastMonthCount) * 100) : (thisMonthCount ? 100 : 0);
+
+                    if (typeof _animateNumber === 'function') {
+                        _animateNumber(document.getElementById('ccKpiTotalReqs'), total);
+                        _animateNumber(document.getElementById('ccKpiOpenReqs'), open);
+                        _animateNumber(document.getElementById('ccKpiRateVal'), rate, '%');
+                        _animateNumber(document.getElementById('ccKpiDelayedReqs'), delayed);
+                        _animateNumber(document.getElementById('ccKpiTotalInventory'), _ccState.inventory.length);
+                        _animateNumber(document.getElementById('ccKpiTotalAlt'), _ccState.altModels.length);
+                        _animateNumber(document.getElementById('ccKpiTotalCompItems'), _ccState.computerItems.length);
+                        _animateNumber(document.getElementById('ccKpiTotalPr'), _ccState.permReplacements.length);
+                    } else {
+                        _ccSetText('ccKpiTotalReqs', total);
+                        _ccSetText('ccKpiOpenReqs', open);
+                        _ccSetText('ccKpiRateVal', rate + '%');
+                        _ccSetText('ccKpiDelayedReqs', delayed);
+                        _ccSetText('ccKpiTotalInventory', _ccState.inventory.length);
+                        _ccSetText('ccKpiTotalAlt', _ccState.altModels.length);
+                        _ccSetText('ccKpiTotalCompItems', _ccState.computerItems.length);
+                        _ccSetText('ccKpiTotalPr', _ccState.permReplacements.length);
+                    }
+
+                    // Delta Badge
+                    const deltaEl = document.getElementById('ccKpiDeltaTotal');
+                    if (deltaEl) {
+                        deltaEl.textContent = (deltaPct >= 0 ? '▲ +' : '▼ ') + deltaPct + '% هذا الشهر';
+                        deltaEl.style.color = deltaPct >= 0 ? '#4f46e5' : '#10b981';
+                        deltaEl.style.background = deltaPct >= 0 ? 'rgba(79,70,229,0.1)' : 'rgba(16,185,129,0.1)';
+                    }
+                    _ccSetText('ccKpiTotalSub', thisMonthCount + ' هذا الشهر مقابل ' + lastMonthCount + ' الشهر السابق');
+                    _ccSetText('ccKpiOpenBreakdown', 'جديد: ' + by('new') + ' | قيد التنفيذ: ' + by('inprogress') + ' | انتظار: ' + by('pending'));
+                    _ccSetText('ccKpiRateSub', completed + ' منجز من أصل ' + total + ' طلب');
+                    _ccSetText('ccKpiDelayedSub', delayed > 0 ? (delayed + ' طلب يحتاج تدخل سريع') : 'لا توجد طلبات متأخرة');
+
+                    // Inventory & Alts
+                    const zeroStock = _ccState.inventory.filter(i => (i.qty || 0) === 0).length;
+                    const lowStock = _ccState.inventory.filter(i => (i.qty || 0) > 0 && (i.qty || 0) <= 3).length;
+                    const zeroBadge = document.getElementById('ccKpiZeroStockBadge');
+                    if (zeroBadge) {
+                        zeroBadge.textContent = zeroStock + ' نافد';
+                        zeroBadge.style.color = zeroStock > 0 ? '#ef4444' : '#10b981';
+                        zeroBadge.style.background = zeroStock > 0 ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)';
+                    }
+                    _ccSetText('ccKpiLowStockSub', 'مخزون منخفض: ' + lowStock + ' صنف');
+
+                    const availAlt = _ccState.altModels.filter(m => m.status === 'available').length;
+                    const busyAlt = _ccState.altModels.length - availAlt;
+                    _ccSetText('ccKpiAltBadge', availAlt + ' متاح للإعارة');
+                    _ccSetText('ccKpiAltAssigned', 'معار حالياً: ' + busyAlt);
+
+                    const prPending = _ccState.permReplacements.filter(p => !p.is_done).length;
+                    const prDone = _ccState.permReplacements.length - prPending;
+                    _ccSetText('ccKpiPrOpenBadge', prPending + ' قيد الإجراء');
+                    _ccSetText('ccKpiPrDoneSub', 'منجز كلياً: ' + prDone + ' حالة');
+                }
+
+                // Update 4 Interactive Charts
+                
+                // ==========================================================================
+                // HARMONIOUS COLOR PALETTES REGISTRY
+                // أنماط لونية متناسقة مع الحفاظ على التباين ووضوح البيانات بنسبة 100%
+                // ==========================================================================
+                const _ccPalettes = {
+                    cyber_executive: {
+                        id: 'cyber_executive',
+                        name: 'النيون التنفيذي',
+                        trendLine1: '#6366f1',
+                        trendGrad1: ['rgba(99, 102, 241, 0.42)', 'rgba(99, 102, 241, 0.12)', 'rgba(99, 102, 241, 0.0)'],
+                        trendLine2: '#10b981',
+                        trendGrad2: ['rgba(16, 185, 129, 0.38)', 'rgba(16, 185, 129, 0.10)', 'rgba(16, 185, 129, 0.0)'],
+                        status: {
+                            new: '#6366f1',
+                            inprogress: '#0ea5e9',
+                            pending: '#f59e0b',
+                            withdrawn: '#a855f7',
+                            active: '#06b6d4',
+                            completed: '#10b981',
+                            cancelled: '#f43f5e',
+                            duplicate: '#ec4899'
+                        },
+                        deptGradients: [
+                            ['#6366f1', '#818cf8'],
+                            ['#0ea5e9', '#38bdf8'],
+                            ['#10b981', '#34d399'],
+                            ['#f59e0b', '#fbbf24'],
+                            ['#ec4899', '#f472b6'],
+                            ['#8b5cf6', '#a78bfa']
+                        ],
+                        catGradient: ['#06b6d4', '#3b82f6', '#6366f1'],
+                        healthGradHealthy: ['#06b6d4', '#3b82f6', '#10b981'],
+                        healthGradWarn: ['#f59e0b', '#f97316'],
+                        healthGradDanger: ['#ef4444', '#f43f5e'],
+                        factorBars: [
+                            'linear-gradient(90deg, #10b981, #34d399)',
+                            'linear-gradient(90deg, #0ea5e9, #06b6d4)',
+                            'linear-gradient(90deg, #f59e0b, #fbbf24)',
+                            'linear-gradient(90deg, #8b5cf6, #a78bfa)'
+                        ],
+                        cardBorders: [
+                            'linear-gradient(90deg, #4f46e5, #06b6d4)',
+                            'linear-gradient(90deg, #0284c7, #10b981)',
+                            'linear-gradient(90deg, #059669, #34d399)',
+                            'linear-gradient(90deg, #e11d48, #f97316)',
+                            'linear-gradient(90deg, #d97706, #fbbf24)',
+                            'linear-gradient(90deg, #7c3aed, #ec4899)',
+                            'linear-gradient(90deg, #2563eb, #0d9488)',
+                            'linear-gradient(90deg, #c026d3, #9333ea)'
+                        ]
+                    },
+                    ocean_emerald: {
+                        id: 'ocean_emerald',
+                        name: 'المحيط والزمرد',
+                        trendLine1: '#0284c7',
+                        trendGrad1: ['rgba(2, 132, 199, 0.42)', 'rgba(2, 132, 199, 0.12)', 'rgba(2, 132, 199, 0.0)'],
+                        trendLine2: '#059669',
+                        trendGrad2: ['rgba(5, 150, 105, 0.38)', 'rgba(5, 150, 105, 0.10)', 'rgba(5, 150, 105, 0.0)'],
+                        status: {
+                            new: '#0284c7',
+                            inprogress: '#0d9488',
+                            pending: '#d97706',
+                            withdrawn: '#0891b2',
+                            active: '#06b6d4',
+                            completed: '#059669',
+                            cancelled: '#e11d48',
+                            duplicate: '#64748b'
+                        },
+                        deptGradients: [
+                            ['#0284c7', '#38bdf8'],
+                            ['#0d9488', '#2dd4bf'],
+                            ['#059669', '#34d399'],
+                            ['#0891b2', '#67e8f9'],
+                            ['#0369a1', '#7dd3fc'],
+                            ['#10b981', '#6ee7b7']
+                        ],
+                        catGradient: ['#0d9488', '#0284c7', '#0369a1'],
+                        healthGradHealthy: ['#0d9488', '#0284c7', '#059669'],
+                        healthGradWarn: ['#d97706', '#f59e0b'],
+                        healthGradDanger: ['#e11d48', '#f43f5e'],
+                        factorBars: [
+                            'linear-gradient(90deg, #059669, #34d399)',
+                            'linear-gradient(90deg, #0284c7, #38bdf8)',
+                            'linear-gradient(90deg, #0d9488, #2dd4bf)',
+                            'linear-gradient(90deg, #0891b2, #67e8f9)'
+                        ],
+                        cardBorders: [
+                            'linear-gradient(90deg, #0284c7, #38bdf8)',
+                            'linear-gradient(90deg, #0d9488, #2dd4bf)',
+                            'linear-gradient(90deg, #059669, #34d399)',
+                            'linear-gradient(90deg, #e11d48, #f43f5e)',
+                            'linear-gradient(90deg, #d97706, #fbbf24)',
+                            'linear-gradient(90deg, #0891b2, #67e8f9)',
+                            'linear-gradient(90deg, #0369a1, #7dd3fc)',
+                            'linear-gradient(90deg, #047857, #10b981)'
+                        ]
+                    },
+                    sunset_royal: {
+                        id: 'sunset_royal',
+                        name: 'الغروب الملكي',
+                        trendLine1: '#8b5cf6',
+                        trendGrad1: ['rgba(139, 92, 246, 0.42)', 'rgba(139, 92, 246, 0.12)', 'rgba(139, 92, 246, 0.0)'],
+                        trendLine2: '#f97316',
+                        trendGrad2: ['rgba(249, 115, 22, 0.38)', 'rgba(249, 115, 22, 0.10)', 'rgba(249, 115, 22, 0.0)'],
+                        status: {
+                            new: '#8b5cf6',
+                            inprogress: '#ec4899',
+                            pending: '#f97316',
+                            withdrawn: '#c026d3',
+                            active: '#f43f5e',
+                            completed: '#10b981',
+                            cancelled: '#be123c',
+                            duplicate: '#fbbf24'
+                        },
+                        deptGradients: [
+                            ['#8b5cf6', '#a78bfa'],
+                            ['#ec4899', '#f472b6'],
+                            ['#f97316', '#fb923c'],
+                            ['#c026d3', '#e879f9'],
+                            ['#f59e0b', '#fde047'],
+                            ['#7c3aed', '#c084fc']
+                        ],
+                        catGradient: ['#f97316', '#ec4899', '#8b5cf6'],
+                        healthGradHealthy: ['#f97316', '#ec4899', '#8b5cf6'],
+                        healthGradWarn: ['#f59e0b', '#fb923c'],
+                        healthGradDanger: ['#e11d48', '#be123c'],
+                        factorBars: [
+                            'linear-gradient(90deg, #f97316, #fb923c)',
+                            'linear-gradient(90deg, #ec4899, #f472b6)',
+                            'linear-gradient(90deg, #8b5cf6, #a78bfa)',
+                            'linear-gradient(90deg, #c026d3, #e879f9)'
+                        ],
+                        cardBorders: [
+                            'linear-gradient(90deg, #8b5cf6, #a78bfa)',
+                            'linear-gradient(90deg, #ec4899, #f472b6)',
+                            'linear-gradient(90deg, #f97316, #fb923c)',
+                            'linear-gradient(90deg, #e11d48, #be123c)',
+                            'linear-gradient(90deg, #f59e0b, #fbbf24)',
+                            'linear-gradient(90deg, #c026d3, #e879f9)',
+                            'linear-gradient(90deg, #7c3aed, #c084fc)',
+                            'linear-gradient(90deg, #db2777, #f43f5e)'
+                        ]
+                    },
+                    midnight_cyber: {
+                        id: 'midnight_cyber',
+                        name: 'السيان السيبراني',
+                        trendLine1: '#06b6d4',
+                        trendGrad1: ['rgba(6, 182, 212, 0.44)', 'rgba(6, 182, 212, 0.12)', 'rgba(6, 182, 212, 0.0)'],
+                        trendLine2: '#a855f7',
+                        trendGrad2: ['rgba(168, 85, 247, 0.40)', 'rgba(168, 85, 247, 0.10)', 'rgba(168, 85, 247, 0.0)'],
+                        status: {
+                            new: '#06b6d4',
+                            inprogress: '#3b82f6',
+                            pending: '#f59e0b',
+                            withdrawn: '#a855f7',
+                            active: '#14b8a6',
+                            completed: '#10b981',
+                            cancelled: '#f43f5e',
+                            duplicate: '#e879f9'
+                        },
+                        deptGradients: [
+                            ['#06b6d4', '#67e8f9'],
+                            ['#a855f7', '#c084fc'],
+                            ['#3b82f6', '#60a5fa'],
+                            ['#14b8a6', '#5eead4'],
+                            ['#ec4899', '#f472b6'],
+                            ['#6366f1', '#a5b4fc']
+                        ],
+                        catGradient: ['#06b6d4', '#3b82f6', '#a855f7'],
+                        healthGradHealthy: ['#06b6d4', '#3b82f6', '#a855f7'],
+                        healthGradWarn: ['#f59e0b', '#fbbf24'],
+                        healthGradDanger: ['#f43f5e', '#fb7185'],
+                        factorBars: [
+                            'linear-gradient(90deg, #06b6d4, #67e8f9)',
+                            'linear-gradient(90deg, #a855f7, #c084fc)',
+                            'linear-gradient(90deg, #3b82f6, #60a5fa)',
+                            'linear-gradient(90deg, #14b8a6, #5eead4)'
+                        ],
+                        cardBorders: [
+                            'linear-gradient(90deg, #06b6d4, #67e8f9)',
+                            'linear-gradient(90deg, #a855f7, #c084fc)',
+                            'linear-gradient(90deg, #10b981, #34d399)',
+                            'linear-gradient(90deg, #f43f5e, #fb7185)',
+                            'linear-gradient(90deg, #f59e0b, #fbbf24)',
+                            'linear-gradient(90deg, #3b82f6, #60a5fa)',
+                            'linear-gradient(90deg, #14b8a6, #5eead4)',
+                            'linear-gradient(90deg, #ec4899, #f472b6)'
+                        ]
+                    },
+                    warm_amber: {
+                        id: 'warm_amber',
+                        name: 'الكهرمان والياقوت',
+                        trendLine1: '#2563eb',
+                        trendGrad1: ['rgba(37, 99, 235, 0.42)', 'rgba(37, 99, 235, 0.12)', 'rgba(37, 99, 235, 0.0)'],
+                        trendLine2: '#059669',
+                        trendGrad2: ['rgba(5, 150, 105, 0.38)', 'rgba(5, 150, 105, 0.10)', 'rgba(5, 150, 105, 0.0)'],
+                        status: {
+                            new: '#2563eb',
+                            inprogress: '#d97706',
+                            pending: '#f59e0b',
+                            withdrawn: '#78350f',
+                            active: '#0284c7',
+                            completed: '#059669',
+                            cancelled: '#dc2626',
+                            duplicate: '#64748b'
+                        },
+                        deptGradients: [
+                            ['#d97706', '#fbbf24'],
+                            ['#2563eb', '#60a5fa'],
+                            ['#059669', '#34d399'],
+                            ['#b45309', '#d97706'],
+                            ['#4f46e5', '#818cf8'],
+                            ['#0284c7', '#38bdf8']
+                        ],
+                        catGradient: ['#d97706', '#b45309', '#2563eb'],
+                        healthGradHealthy: ['#059669', '#d97706', '#2563eb'],
+                        healthGradWarn: ['#d97706', '#f59e0b'],
+                        healthGradDanger: ['#dc2626', '#ef4444'],
+                        factorBars: [
+                            'linear-gradient(90deg, #059669, #34d399)',
+                            'linear-gradient(90deg, #d97706, #fbbf24)',
+                            'linear-gradient(90deg, #2563eb, #60a5fa)',
+                            'linear-gradient(90deg, #4f46e5, #818cf8)'
+                        ],
+                        cardBorders: [
+                            'linear-gradient(90deg, #2563eb, #60a5fa)',
+                            'linear-gradient(90deg, #d97706, #fbbf24)',
+                            'linear-gradient(90deg, #059669, #34d399)',
+                            'linear-gradient(90deg, #dc2626, #ef4444)',
+                            'linear-gradient(90deg, #b45309, #d97706)',
+                            'linear-gradient(90deg, #4f46e5, #818cf8)',
+                            'linear-gradient(90deg, #0284c7, #38bdf8)',
+                            'linear-gradient(90deg, #78350f, #b45309)'
+                        ]
+                    }
+                };
+
+                function ccChangePalette(paletteKey) {
+                    if (!_ccPalettes[paletteKey]) paletteKey = 'cyber_executive';
+                    _ccState.currentPalette = paletteKey;
+                    try {
+                        localStorage.setItem('cc_selected_palette', paletteKey);
+                    } catch(e) {}
+
+                    const sel = document.getElementById('ccPaletteSelect');
+                    if (sel && sel.value !== paletteKey) sel.value = paletteKey;
+
+                    const pal = _ccPalettes[paletteKey];
+
+                    // 1. Update SVG Gradient Stops for Health Circle
+                    const updateGradStops = (gradId, colors) => {
+                        const grad = document.getElementById(gradId);
+                        if (!grad || !colors) return;
+                        grad.innerHTML = colors.map((col, idx) => {
+                            const offset = Math.round((idx / (colors.length - 1)) * 100);
+                            return `<stop offset="${offset}%" stop-color="${col}" />`;
+                        }).join('');
+                    };
+                    updateGradStops('ccHealthGradHealthy', pal.healthGradHealthy);
+                    updateGradStops('ccHealthGradWarn', pal.healthGradWarn);
+                    updateGradStops('ccHealthGradDanger', pal.healthGradDanger);
+
+                    // 2. Update KPI Card top borders dynamically
+                    const cards = document.querySelectorAll('.cc-kpi-card');
+                    cards.forEach((card, i) => {
+                        if (pal.cardBorders && pal.cardBorders[i]) {
+                            card.style.setProperty('--cc-card-accent', pal.cardBorders[i]);
+                        }
+                    });
+
+                    // 3. Update factor progress bars
+                    const factorFills = document.querySelectorAll('.cc-factor-bar-fill');
+                    factorFills.forEach((fill, i) => {
+                        if (pal.factorBars && pal.factorBars[i]) {
+                            fill.style.background = pal.factorBars[i];
+                        }
+                    });
+
+                    // 4. Update health circle stroke if needed
+                    const circle = document.getElementById('ccHealthCircle');
+                    if (circle) {
+                        const curScore = _ccState.lastHealthScore || 95;
+                        if (curScore >= 80) circle.setAttribute('stroke', 'url(#ccHealthGradHealthy)');
+                        else if (curScore >= 60) circle.setAttribute('stroke', 'url(#ccHealthGradWarn)');
+                        else circle.setAttribute('stroke', 'url(#ccHealthGradDanger)');
+                    }
+
+                    // 5. Re-render Charts with the active palette colors
+                    _ccUpdateCharts();
+                }
+
+                function _ccUpdateCharts() {
+                    if (typeof Chart === 'undefined') return;
+
+                    Chart.defaults.font.family = 'Tajawal, sans-serif';
+                    const textColor = _dashCssVar('--text-medium', '#475569');
+                    const gridColor = _dashCssVar('--border-color', '#e2e8f0');
+
+                    // Active Palette lookup
+                    const activePalKey = _ccState.currentPalette || (localStorage.getItem('cc_selected_palette') || 'cyber_executive');
+                    const pal = _ccPalettes[activePalKey] || _ccPalettes.cyber_executive;
+
+                    // Month buckets
+                    const now = new Date();
+                    const months = [];
+                    for (let i = 5; i >= 0; i--) {
+                        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                        months.push({
+                            key: `${d.getFullYear()}-${d.getMonth()}`,
+                            label: d.toLocaleDateString('ar-EG', { month: 'short' }),
+                            incoming: 0,
+                            done: 0
+                        });
+                    }
+                    const idxOf = (dateStr) => {
+                        if (!dateStr) return -1;
+                        const d = new Date(dateStr); if (isNaN(d)) return -1;
+                        return months.findIndex(m => m.key === `${d.getFullYear()}-${d.getMonth()}`);
+                    };
+                    _ccState.requests.forEach(r => {
+                        const idx = idxOf(r.created_at || r.createdAt);
+                        if (idx > -1) {
+                            months[idx].incoming++;
+                            if (r.status === 'completed') months[idx].done++;
+                        }
+                    });
+
+                    // ---------------------------------------------------------------
+                    // Chart 1: Trend Line Chart (Active Palette Gradients)
+                    // ---------------------------------------------------------------
+                    const trendCanvas = document.getElementById('ccChartTrend');
+                    if (trendCanvas) {
+                        const ctx = trendCanvas.getContext('2d');
+                        const g1 = ctx.createLinearGradient(0, 0, 0, 280);
+                        g1.addColorStop(0, pal.trendGrad1[0]);
+                        g1.addColorStop(0.6, pal.trendGrad1[1]);
+                        g1.addColorStop(1, pal.trendGrad1[2]);
+
+                        const g2 = ctx.createLinearGradient(0, 0, 0, 280);
+                        g2.addColorStop(0, pal.trendGrad2[0]);
+                        g2.addColorStop(0.6, pal.trendGrad2[1]);
+                        g2.addColorStop(1, pal.trendGrad2[2]);
+
+                        if (_ccCharts.trend) _ccCharts.trend.destroy();
+                        _ccCharts.trend = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: months.map(m => m.label),
+                                datasets: [
+                                    {
+                                        label: 'طلبات جديدة واردة',
+                                        data: months.map(m => m.incoming),
+                                        borderColor: pal.trendLine1,
+                                        backgroundColor: g1,
+                                        fill: true,
+                                        tension: 0.42,
+                                        borderWidth: 3.5,
+                                        pointRadius: 5,
+                                        pointHoverRadius: 9,
+                                        pointBackgroundColor: '#ffffff',
+                                        pointBorderColor: pal.trendLine1,
+                                        pointBorderWidth: 3
+                                    },
+                                    {
+                                        label: 'طلبات منجزة بنجاح',
+                                        data: months.map(m => m.done),
+                                        borderColor: pal.trendLine2,
+                                        backgroundColor: g2,
+                                        fill: true,
+                                        tension: 0.42,
+                                        borderWidth: 3.5,
+                                        pointRadius: 5,
+                                        pointHoverRadius: 9,
+                                        pointBackgroundColor: '#ffffff',
+                                        pointBorderColor: pal.trendLine2,
+                                        pointBorderWidth: 3
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                animation: {
+                                    duration: 1600,
+                                    easing: 'easeOutQuart'
+                                },
+                                interaction: {
+                                    intersect: false,
+                                    mode: 'index'
+                                },
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: { color: textColor, usePointStyle: true, boxWidth: 10, padding: 18, font: { size: 12, weight: '600' } }
+                                    },
+                                    tooltip: {
+                                        backgroundColor: 'rgba(15, 23, 42, 0.88)',
+                                        titleFont: { family: 'Tajawal', size: 13, weight: 'bold' },
+                                        bodyFont: { family: 'Tajawal', size: 12 },
+                                        padding: 12,
+                                        cornerRadius: 10,
+                                        boxPadding: 6,
+                                        usePointStyle: true
+                                    }
+                                },
+                                scales: {
+                                    x: { ticks: { color: textColor, font: { size: 12, weight: '600' } }, grid: { display: false } },
+                                    y: { beginAtZero: true, ticks: { color: textColor, precision: 0 }, grid: { color: gridColor, strokeDash: [4, 4] } }
+                                }
+                            }
+                        });
+                    }
+
+                    // ---------------------------------------------------------------
+                    // Chart 2: Status Doughnut (Active Palette Slices)
+                    // ---------------------------------------------------------------
+                    const statusCanvas = document.getElementById('ccChartStatus');
+                    if (statusCanvas) {
+                        const by = (s) => _ccState.requests.filter(r => r.status === s).length;
+                        const statusMap = [
+                            ['جديد', by('new'), pal.status.new],
+                            ['قيد التنفيذ', by('inprogress'), pal.status.inprogress],
+                            ['قيد الانتظار', by('pending'), pal.status.pending],
+                            ['مسحوب', by('withdrawn'), pal.status.withdrawn],
+                            ['مشغل', by('active'), pal.status.active],
+                            ['مكتمل', by('completed'), pal.status.completed],
+                            ['ملغي', by('cancelled'), pal.status.cancelled],
+                            ['مكرر', by('duplicate'), pal.status.duplicate]
+                        ].filter(x => x[1] > 0);
+
+                        _ccSetText('ccActiveStatusTotal', _ccState.activeRequests.length + ' طلب نشط');
+
+                        if (_ccCharts.status) _ccCharts.status.destroy();
+                        _ccCharts.status = new Chart(statusCanvas, {
+                            type: 'doughnut',
+                            data: {
+                                labels: statusMap.map(m => m[0]),
+                                datasets: [{
+                                    data: statusMap.map(m => m[1]),
+                                    backgroundColor: statusMap.map(m => m[2]),
+                                    borderColor: _dashCssVar('--card-bg', '#ffffff'),
+                                    borderWidth: 3,
+                                    hoverOffset: 16
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                cutout: '70%',
+                                animation: {
+                                    animateRotate: true,
+                                    animateScale: true,
+                                    duration: 1500,
+                                    easing: 'easeOutQuart'
+                                },
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: { color: textColor, usePointStyle: true, boxWidth: 9, padding: 12, font: { size: 11.5, weight: '600' } }
+                                    },
+                                    tooltip: {
+                                        backgroundColor: 'rgba(15, 23, 42, 0.88)',
+                                        titleFont: { family: 'Tajawal', size: 13, weight: 'bold' },
+                                        bodyFont: { family: 'Tajawal', size: 12 },
+                                        padding: 12,
+                                        cornerRadius: 10,
+                                        boxPadding: 6,
+                                        usePointStyle: true
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                    // ---------------------------------------------------------------
+                    // Chart 3: Department Workload (Active Palette Gradient Bars)
+                    // ---------------------------------------------------------------
+                    const deptCanvas = document.getElementById('ccChartDepts');
+                    if (deptCanvas) {
+                        const ctx = deptCanvas.getContext('2d');
+                        const dMap = {};
+                        _ccState.requests.forEach(r => {
+                            const d = (r.department || '').trim();
+                            if (d) dMap[d] = (dMap[d] || 0) + 1;
+                        });
+                        const topDepts = Object.entries(dMap).sort((a,b) => b[1] - a[1]).slice(0, 6);
+
+                        const paletteStops = pal.deptGradients;
+                        const gradientColors = topDepts.map((_, i) => {
+                            const stops = paletteStops[i % paletteStops.length];
+                            const g = ctx.createLinearGradient(0, 0, 360, 0);
+                            g.addColorStop(0, stops[0]);
+                            g.addColorStop(1, stops[1]);
+                            return g;
+                        });
+
+                        if (_ccCharts.depts) _ccCharts.depts.destroy();
+                        _ccCharts.depts = new Chart(deptCanvas, {
+                            type: 'bar',
+                            data: {
+                                labels: topDepts.map(d => d[0]),
+                                datasets: [{
+                                    label: 'عدد الطلبات',
+                                    data: topDepts.map(d => d[1]),
+                                    backgroundColor: gradientColors,
+                                    borderWidth: 0,
+                                    borderRadius: 8,
+                                    barThickness: 18
+                                }]
+                            },
+                            options: {
+                                indexAxis: 'y',
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                animation: {
+                                    duration: 1600,
+                                    easing: 'easeOutQuart'
+                                },
+                                plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                        backgroundColor: 'rgba(15, 23, 42, 0.88)',
+                                        titleFont: { family: 'Tajawal', size: 13, weight: 'bold' },
+                                        bodyFont: { family: 'Tajawal', size: 12 },
+                                        padding: 10,
+                                        cornerRadius: 8
+                                    }
+                                },
+                                scales: {
+                                    x: { beginAtZero: true, ticks: { color: textColor, precision: 0 }, grid: { color: gridColor, strokeDash: [4, 4] } },
+                                    y: { ticks: { color: textColor, font: { size: 12, weight: '600' } }, grid: { display: false } }
+                                }
+                            }
+                        });
+                    }
+
+                    // ---------------------------------------------------------------
+                    // Chart 4: Categories & Spares (Active Palette Vertical Bars)
+                    // ---------------------------------------------------------------
+                    const catCanvas = document.getElementById('ccChartCategories');
+                    if (catCanvas) {
+                        const ctx = catCanvas.getContext('2d');
+                        const catMap = {};
+                        _ccState.inventory.forEach(i => {
+                            const c = (i.category || 'أخرى').trim();
+                            catMap[c] = (catMap[c] || 0) + (Number(i.qty) || 1);
+                        });
+                        const topCats = Object.entries(catMap).sort((a,b) => b[1] - a[1]).slice(0, 6);
+
+                        const gCat = ctx.createLinearGradient(0, 0, 0, 240);
+                        gCat.addColorStop(0, pal.catGradient[0]);
+                        gCat.addColorStop(0.5, pal.catGradient[1]);
+                        gCat.addColorStop(1, pal.catGradient[2]);
+
+                        if (_ccCharts.categories) _ccCharts.categories.destroy();
+                        _ccCharts.categories = new Chart(catCanvas, {
+                            type: 'bar',
+                            data: {
+                                labels: topCats.map(c => c[0]),
+                                datasets: [{
+                                    label: 'الرصيد المتوفر',
+                                    data: topCats.map(c => c[1]),
+                                    backgroundColor: gCat,
+                                    hoverBackgroundColor: pal.catGradient[0],
+                                    borderWidth: 0,
+                                    borderRadius: 8,
+                                    barThickness: 24
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                animation: {
+                                    duration: 1600,
+                                    easing: 'easeOutQuart'
+                                },
+                                plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                        backgroundColor: 'rgba(15, 23, 42, 0.88)',
+                                        titleFont: { family: 'Tajawal', size: 13, weight: 'bold' },
+                                        bodyFont: { family: 'Tajawal', size: 12 },
+                                        padding: 10,
+                                        cornerRadius: 8
+                                    }
+                                },
+                                scales: {
+                                    x: { ticks: { color: textColor, font: { size: 11.5, weight: '600' } }, grid: { display: false } },
+                                    y: { beginAtZero: true, ticks: { color: textColor, precision: 0 }, grid: { color: gridColor, strokeDash: [4, 4] } }
+                                }
+                            }
+                        });
+                    }
+                }
+
+                function _ccUpdateAlerts() {
+                    const alerts = [];
+
+                    // Delayed Requests (>7 days)
+                    _ccState.activeRequests.forEach(r => {
+                        const days = _dashDaysSince(r.created_at || r.createdAt);
+                        if (days > 7) {
+                            alerts.push({
+                                type: 'delayed',
+                                color: '#ef4444',
+                                bg: 'rgba(239, 68, 68, 0.12)',
+                                icon: 'fa-triangle-exclamation',
+                                title: `طلب صيانة متأخر (${days} يوم دون إغلاق)`,
+                                desc: `حاسوب: ${r.computer_number || r.computerNumber || '-'} • الموظف: ${r.employee_name || r.employeeName || '-'} • القسم: ${r.department || '-'}`,
+                                actionLabel: 'معاينة الطلب',
+                                actionFn: `viewRequest(${r.id})`
+                            });
+                        }
+                    });
+
+                    // Out of stock
+                    _ccState.inventory.filter(i => (i.qty || 0) === 0).forEach(i => {
+                        alerts.push({
+                            type: 'stock',
+                            color: '#f97316',
+                            bg: 'rgba(249, 115, 22, 0.12)',
+                            icon: 'fa-box-open',
+                            title: `نفدت كمية الصنف بالكامل: ${i.name || i.item_number || '-'}`,
+                            desc: `التصنيف: ${i.category || 'غير محدد'} • يرجى طلب توريد كمية عاجلة`,
+                            actionLabel: 'توريد رصيد',
+                            actionFn: `openAddStockModal()`
+                        });
+                    });
+
+                    // Low stock
+                    _ccState.inventory.filter(i => (i.qty || 0) > 0 && (i.qty || 0) <= 3).forEach(i => {
+                        alerts.push({
+                            type: 'stock',
+                            color: '#f59e0b',
+                            bg: 'rgba(245, 158, 11, 0.12)',
+                            icon: 'fa-boxes-stacked',
+                            title: `مخزون حرج (${i.qty} متبقي): ${i.name || '-'}`,
+                            desc: `التصنيف: ${i.category || 'غير محدد'} • اقترب من النفاد`,
+                            actionLabel: 'زيادة كمية',
+                            actionFn: `openAddStockModal()`
+                        });
+                    });
+
+                    // Busy Alternative Devices
+                    const assignedAlts = _ccState.altModels.filter(m => m.status === 'assigned' || m.status === 'busy');
+                    if (assignedAlts.length > 0) {
+                        alerts.push({
+                            type: 'alt',
+                            color: '#8b5cf6',
+                            bg: 'rgba(139, 92, 246, 0.12)',
+                            icon: 'fa-laptop',
+                            title: `${assignedAlts.length} أجهزة بديلة معارة حالياً للموظفين`,
+                            desc: `يرجى متابعة استرجاع الأجهزة البديلة فور إصلاح الأجهزة الأصلية`,
+                            actionLabel: 'إدارة البدائل',
+                            actionFn: `showPage('alternatives')`
+                        });
+                    }
+
+                    // High Pending Requests
+                    const pendingCount = _ccState.requests.filter(r => r.status === 'pending').length;
+                    if (pendingCount > 4) {
+                        alerts.push({
+                            type: 'pending',
+                            color: '#06b6d4',
+                            bg: 'rgba(6, 182, 212, 0.12)',
+                            icon: 'fa-clock',
+                            title: `${pendingCount} طلبات صيانة معلقة بانتظار الإجراء أو القطع`,
+                            desc: `يُوصى بمراجعة وتحديث أسباب التعليق وتسريع المعالجة`,
+                            actionLabel: `تصفية المعلقة`,
+                            actionFn: `ccFilterTableStatus('pending')`
+                        });
+                    }
+
+                    // Permanent replacements pending
+                    const prPending = _ccState.permReplacements.filter(p => !p.is_done).length;
+                    if (prPending > 0) {
+                        alerts.push({
+                            type: 'pending',
+                            color: '#ec4899',
+                            bg: 'rgba(236, 72, 153, 0.12)',
+                            icon: 'fa-right-left',
+                            title: `${prPending} طلبات بديل دائم ومناقلات معلقة`,
+                            desc: `في انتظار استكمال إجراءات المناقلة الرسمية وتسليم الأجهزة`,
+                            actionLabel: `سجل المناقلات`,
+                            actionFn: `showPage('permanent_replacement')`
+                        });
+                    }
+
+                    // Check if critical delayed count grew -> trigger chime
+                    const delayedCount = alerts.filter(a => a.type === 'delayed').length;
+                    if (delayedCount > 0 && delayedCount > (_ccState.lastDelayedCount || 0)) {
+                        _ccPlayAlertChime();
+                    }
+                    _ccState.lastDelayedCount = delayedCount;
+
+                    _ccState.alerts = alerts;
+                    _ccSetText('ccAlertsCountBadge', alerts.length ? `${alerts.length} تنبيه نشط` : 'لا توجد تنبيهات');
+                    _ccSetText('ccTabCountAll', alerts.length);
+                    _ccSetText('ccTabCountDelayed', alerts.filter(a => a.type === 'delayed').length);
+                    _ccSetText('ccTabCountStock', alerts.filter(a => a.type === 'stock').length);
+                    _ccSetText('ccTabCountAlt', alerts.filter(a => a.type === 'alt').length);
+                    _ccSetText('ccTabCountPending', alerts.filter(a => a.type === 'pending').length);
+
+                    _ccRenderAlerts();
+                }
+
+                function _ccRenderAlerts() {
+                    const streamBox = document.getElementById('ccAlertsStream');
+                    if (!streamBox) return;
+
+                    let list = _ccState.alerts;
+                    if (_ccState.activeAlertTab !== 'all') {
+                        list = list.filter(a => a.type === _ccState.activeAlertTab);
+                    }
+
+                    if (!list.length) {
+                        streamBox.innerHTML = `
+                            <div style="text-align:center;padding:32px 16px;color:var(--text-light,#94a3b8);">
+                                <i class="fas fa-shield-check" style="font-size:32px;color:#10b981;margin-bottom:8px;display:block;"></i>
+                                <span style="font-weight:700;">كافة العمليات منتظمة ولا توجد تنبيهات في هذا القسم حالياً</span>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    streamBox.innerHTML = list.map(a => `
+                        <div class="cc-alert-entry" style="border-right-color:${a.color};">
+                            <div class="cc-alert-info-box">
+                                <div class="cc-alert-icon" style="background:${a.bg};color:${a.color};">
+                                    <i class="fas ${a.icon}"></i>
+                                </div>
+                                <div class="cc-alert-text">
+                                    <h5>${a.title}</h5>
+                                    <p>${a.desc}</p>
+                                </div>
+                            </div>
+                            <button class="cc-btn cc-btn-ghost" style="padding:5px 12px;font-size:11px;" onclick="${a.actionFn}">
+                                ${a.actionLabel}
+                            </button>
+                        </div>
+                    `).join('');
+                }
+
+                function ccFilterAlerts(tab, btn) {
+                    _ccState.activeAlertTab = tab;
+                    document.querySelectorAll('.cc-alerts-tabs .cc-tab-pill').forEach(b => b.classList.remove('active'));
+                    if (btn) btn.classList.add('active');
+                    _ccRenderAlerts();
+                }
+
+                // Interactive Tickets Workbench
+                function _ccRenderTicketsTable() {
+                    const tbody = document.getElementById('ccTicketsTableBody');
+                    if (!tbody) return;
+
+                    let list = _ccState.activeRequests;
+
+                    // Status filter
+                    if (_ccState.activeFilterStatus === 'delayed') {
+                        list = list.filter(r => _dashDaysSince(r.created_at || r.createdAt) > 7);
+                    } else if (_ccState.activeFilterStatus !== 'all') {
+                        list = list.filter(r => r.status === _ccState.activeFilterStatus);
+                    }
+
+                    // Department filter
+                    if (_ccState.activeFilterDept !== 'all') {
+                        list = list.filter(r => (r.department || '').trim() === _ccState.activeFilterDept);
+                    }
+
+                    // Search filter
+                    if (_ccState.searchQuery) {
+                        const q = _ccState.searchQuery;
+                        list = list.filter(r => {
+                            const cNum = String(r.computer_number || r.computerNumber || '').toLowerCase();
+                            const emp = String(r.employee_name || r.employeeName || '').toLowerCase();
+                            const dept = String(r.department || '').toLowerCase();
+                            const desc = String(r.issue_description || r.issueDescription || '').toLowerCase();
+                            return cNum.includes(q) || emp.includes(q) || dept.includes(q) || desc.includes(q);
+                        });
+                    }
+
+                    _ccSetText('ccTicketsCounterBadge', `عرض ${list.length} من أصل ${_ccState.activeRequests.length} طلب نشط`);
+
+                    if (!list.length) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="8" style="text-align:center;padding:36px;color:var(--text-light,#94a3b8);">
+                                    <i class="fas fa-inbox" style="font-size:28px;margin-bottom:8px;display:block;"></i>
+                                    لا توجد طلبات تطابق معايير البحث والتصفية المحددة
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    // Sort: delayed first, then newest
+                    const sorted = [...list].sort((a, b) => {
+                        const ageA = _dashDaysSince(a.created_at || a.createdAt);
+                        const ageB = _dashDaysSince(b.created_at || b.createdAt);
+                        if (ageA !== ageB) return ageB - ageA;
+                        return new Date(b.created_at || b.createdAt || 0) - new Date(a.created_at || a.createdAt || 0);
+                    });
+
+                    tbody.innerHTML = sorted.slice(0, 50).map(r => {
+                        const days = _dashDaysSince(r.created_at || r.createdAt);
+                        const chip = typeof getStatusChip === 'function' ? getStatusChip(r.status) : `<span class="badge">${r.status}</span>`;
+                        const ageBadge = typeof _ageBadge === 'function' ? _ageBadge(days) : `<span>${days} يوم</span>`;
+                        const dateFormatted = typeof formatDate === 'function' ? formatDate(r.created_at || r.createdAt) : (r.created_at || '-');
+
+                        return `
+                            <tr>
+                                <td><strong style="color:var(--primary,#4f46e5);">${r.computer_number || r.computerNumber || '-'}</strong></td>
+                                <td>${r.employee_name || r.employeeName || '-'}</td>
+                                <td><span style="font-weight:600;">${r.department || '-'}</span></td>
+                                <td style="max-width:240px;white-space:normal;line-height:1.4;">${r.issue_description || r.issueDescription || '-'}</td>
+                                <td>${chip}</td>
+                                <td>${ageBadge}</td>
+                                <td style="white-space:nowrap;font-size:11px;color:var(--text-medium,#64748b);">${dateFormatted}</td>
+                                <td style="text-align:center;white-space:nowrap;">
+                                    <button class="cc-action-icon-btn" onclick="viewRequest(${r.id})" title="معاينة تفاصيل الطلب">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="cc-action-icon-btn" onclick="openRequestModal(${r.id})" title="تعديل ومتابعة الطلب">
+                                        <i class="fas fa-pen-to-square"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+
+                function ccFilterTableStatus(status, btn) {
+                    _ccState.activeFilterStatus = status;
+                    document.querySelectorAll('.cc-status-filter-pills .cc-tab-pill').forEach(b => b.classList.remove('active'));
+                    if (btn) btn.classList.add('active');
+                    _ccRenderTicketsTable();
+                }
+
+                function ccFilterTableBy(type) {
+                    if (type === 'delayed') {
+                        _ccState.activeFilterStatus = 'delayed';
+                        document.querySelectorAll('.cc-status-filter-pills .cc-tab-pill').forEach(b => {
+                            if (b.textContent.includes('المتأخرة')) b.classList.add('active');
+                            else b.classList.remove('active');
+                        });
+                    } else if (type === 'open') {
+                        _ccState.activeFilterStatus = 'all';
+                        document.querySelectorAll('.cc-status-filter-pills .cc-tab-pill').forEach(b => {
+                            if (b.textContent.trim() === 'الكل') b.classList.add('active');
+                            else b.classList.remove('active');
+                        });
+                    }
+                    _ccRenderTicketsTable();
+                    const targetEl = document.getElementById('ccTicketsTable');
+                    if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+
+                function ccFilterTableDept(dept) {
+                    _ccState.activeFilterDept = dept;
+                    _ccRenderTicketsTable();
+                }
+
+                function ccOnSearchInput(val) {
+                    _ccState.searchQuery = (val || '').trim().toLowerCase();
+                    _ccRenderTicketsTable();
+                }
+
+                function _ccPopulateDeptDropdown() {
+                    const sel = document.getElementById('ccDeptFilterSelect');
+                    if (!sel || sel.options.length > 1) return;
+
+                    const depts = new Set();
+                    _ccState.requests.forEach(r => {
+                        const d = (r.department || '').trim();
+                        if (d) depts.add(d);
+                    });
+                    _ccState.departments.forEach(d => {
+                        const name = (d.name || '').trim();
+                        if (name) depts.add(name);
+                    });
+
+                    [...depts].sort().forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d;
+                        opt.textContent = d;
+                        sel.appendChild(opt);
+                    });
+                }
+
+                // Inventory & Alts Watchlists
+                function _ccUpdateMonitors() {
+                    // 1. Critical Inventory Table
+                    const invBody = document.getElementById('ccCriticalInventoryBody');
+                    if (invBody) {
+                        const critical = _ccState.inventory
+                            .filter(i => (i.qty || 0) <= 3)
+                            .sort((a, b) => (a.qty || 0) - (b.qty || 0));
+
+                        if (!critical.length) {
+                            invBody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-light,#94a3b8);"><i class="fas fa-circle-check" style="color:#10b981;margin-left:6px;"></i>جميع أرصدة قطع الغيار في المستودع بمستويات آمنة</td></tr>`;
+                        } else {
+                            invBody.innerHTML = critical.slice(0, 15).map(i => {
+                                const q = Number(i.qty) || 0;
+                                const isZero = q === 0;
+                                return `
+                                    <tr>
+                                        <td><strong>${i.name || i.item_number || '-'}</strong></td>
+                                        <td>${i.category || 'غير محدد'}</td>
+                                        <td><span style="font-weight:900;color:${isZero ? '#ef4444' : '#f59e0b'};">${q}</span></td>
+                                        <td>
+                                            <span class="cc-link-badge" style="background:${isZero ? 'rgba(239,68,68,0.12)' : 'rgba(245,158,11,0.12)'};color:${isZero ? '#ef4444' : '#f59e0b'};">
+                                                ${isZero ? 'نافد بالكامل' : 'منخفض'}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('');
+                        }
+                    }
+
+                    // 2. Alt Devices Table
+                    const altBody = document.getElementById('ccAltDevicesBody');
+                    if (altBody) {
+                        if (!_ccState.altModels.length) {
+                            altBody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-light,#94a3b8);">لا توجد أجهزة بديلة مسجلة</td></tr>`;
+                        } else {
+                            altBody.innerHTML = _ccState.altModels.slice(0, 15).map(m => {
+                                const isAvail = m.status === 'available';
+                                return `
+                                    <tr>
+                                        <td><strong>${m.model || m.name || '-'}</strong></td>
+                                        <td>${m.type || 'حاسوب محمول'}</td>
+                                        <td>
+                                            <span class="cc-link-badge" style="background:${isAvail ? 'rgba(16,185,129,0.12)' : 'rgba(139,92,246,0.12)'};color:${isAvail ? '#10b981' : '#8b5cf6'};">
+                                                ${isAvail ? 'جاهز للإعارة' : 'معار حالياً'}
+                                            </span>
+                                        </td>
+                                        <td style="font-size:11px;color:var(--text-medium,#64748b);">${m.notes || m.specs || '-'}</td>
+                                    </tr>
+                                `;
+                            }).join('');
+                        }
+                    }
+                }
+
+                // Auto Refresh Timer Management
+                function _ccEnsureAutoRefreshRunning() {
+                    if (_ccState.timerId) return;
+                    _ccState.timerId = setInterval(() => {
+                        // Check if command center page is currently active
+                        const page = document.getElementById('page-command_center');
+                        if (!page || !page.classList.contains('active')) return;
+
+                        if (_ccState.refreshInterval === 0) {
+                            _ccSetText('ccCountdownNum', 'متوقف');
+                            return;
+                        }
+
+                        _ccState.countdown--;
+                        _ccSetText('ccCountdownNum', Math.max(0, _ccState.countdown));
+
+                        if (_ccState.countdown <= 0) {
+                            _ccState.countdown = _ccState.refreshInterval;
+                            updateCommandCenter(false);
+                        }
+                    }, 1000);
+                }
+
+                function setCCInterval(sec) {
+                    _ccState.refreshInterval = parseInt(sec, 10);
+                    _ccState.countdown = _ccState.refreshInterval;
+                    if (_ccState.refreshInterval === 0) {
+                        _ccSetText('ccCountdownNum', 'متوقف');
+                    } else {
+                        _ccSetText('ccCountdownNum', _ccState.countdown);
+                    }
+                    if (typeof showToast === 'function') {
+                        showToast('info', 'إعداد التحديث', _ccState.refreshInterval === 0 ? 'تم إيقاف التحديث التلقائي مؤقتاً' : `تم ضبط التحديث التلقائي كل ${_ccState.refreshInterval} ثانية`);
+                    }
+                }
+
+                function toggleCCSound() {
+                    _ccState.soundEnabled = !_ccState.soundEnabled;
+                    const icon = document.getElementById('ccSoundIcon');
+                    if (icon) {
+                        icon.className = _ccState.soundEnabled ? 'fas fa-volume-high' : 'fas fa-volume-xmark';
+                    }
+                    if (_ccState.soundEnabled) _ccPlayAlertChime();
+                    if (typeof showToast === 'function') {
+                        showToast('info', 'التنبيه الصوتي', _ccState.soundEnabled ? 'تم تفعيل التنبيهات الصوتية الحساسة' : 'تم كتم التنبيه الصوتي');
+                    }
+                }
+
+                function toggleCCFullscreen() {
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen().catch(() => {});
+                    } else {
+                        if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+                    }
+                }
+
+                // Theme Change Observer to re-render charts
+                try {
+                    const themeObserver = new MutationObserver((mutations) => {
+                        mutations.forEach(m => {
+                            if (m.attributeName === 'data-theme') {
+                                if (document.getElementById('page-command_center')?.classList.contains('active')) {
+                                    setTimeout(() => _ccUpdateCharts(), 150);
+                                }
+                            }
+                        });
+                    });
+                    themeObserver.observe(document.documentElement, { attributes: true });
+                } catch(e) {}
+                </script>
+            </div>
+
 
             <div class="page-section" id="page-requests">
                 <style>
@@ -12871,6 +15992,7 @@ async function showPage(page) {
     }
 
     if (page === 'dashboard') await updateDashboard();
+    if (page === 'command_center') await updateCommandCenter();
     if (page === 'requests') { await loadRequests(); await updateDepartmentSelect(); }
     if (page === 'inventory') { await loadInventory(); setTimeout(checkLowStock, 500); }
     if (page === 'alternatives') await loadAlternatives();
