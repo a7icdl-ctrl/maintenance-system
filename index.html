@@ -3796,6 +3796,17 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                     flex-direction: column;
                     gap: 22px;
                     padding: 6px 0 40px 0;
+                    scroll-padding-top: 85px;
+                }
+
+                /* ضمان عدم حجب أي قسم أو بطاقة أثناء التمرير */
+                .cc-gateway-section,
+                .cc-pulse-grid,
+                .cc-kpi-grid,
+                .cc-charts-grid,
+                .cc-side-panels-grid,
+                .cc-tickets-section {
+                    scroll-margin-top: 85px;
                 }
 
                 /* ==========================================================
@@ -3858,7 +3869,7 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                 .cc-chart-card:nth-child(3) { animation-delay: 0.24s; }
                 .cc-chart-card:nth-child(4) { animation-delay: 0.30s; }
 
-                /* Header & HUD Bar */
+                /* Header & HUD Bar - شريط ثابت أعلى الصفحة أثناء التمرير مع حماية المحتوى */
                 .cc-header-panel {
                     background: var(--card-bg, rgba(255, 255, 255, 0.96));
                     border-radius: 18px;
@@ -3870,8 +3881,18 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                     align-items: center;
                     justify-content: space-between;
                     gap: 12px;
-                    position: relative;
+                    position: sticky;
+                    top: 12px;
+                    z-index: 100;
+                    backdrop-filter: blur(16px);
+                    -webkit-backdrop-filter: blur(16px);
                     overflow: visible;
+                    transition: box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
+                }
+
+                .cc-header-panel.cc-header-stuck {
+                    box-shadow: 0 14px 34px -4px rgba(15, 23, 42, 0.12), 0 3px 10px -2px rgba(15, 23, 42, 0.06);
+                    border-color: rgba(99, 102, 241, 0.35);
                 }
 
                 .cc-header-panel::before {
@@ -4777,6 +4798,10 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                     background: linear-gradient(135deg, #7c0e29 0%, #9e153d 40%, #bf1d4c 100%) !important;
                     box-shadow: 0 6px 22px rgba(191, 29, 76, 0.75) !important;
                 }
+                html[data-theme="dark"] .cc-header-panel.cc-header-stuck {
+                    box-shadow: 0 14px 34px -4px rgba(0, 0, 0, 0.45), 0 3px 10px -2px rgba(0, 0, 0, 0.3) !important;
+                    border-color: rgba(99, 102, 241, 0.45) !important;
+                }
 
                 html[data-theme="dark"] .cc-table th {
                     background: #0f172a;
@@ -4794,6 +4819,9 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                 @media print {
                     .cc-header-controls, .cc-tickets-filter-bar, .cc-tab-pill, .no-print {
                         display: none !important;
+                    }
+                    .cc-header-panel {
+                        position: static !important;
                     }
                     .cc-header-panel, .cc-gateway-section, .cc-kpi-card, .cc-chart-card {
                         box-shadow: none !important;
@@ -6884,6 +6912,17 @@ body.dark-mode .rh-tab,.dark-mode .rh-tab{background:#111827;border-color:#1f293
                         });
                     });
                     themeObserver.observe(document.documentElement, { attributes: true });
+
+                    // تحسين التظليل لشريط التحكم الثابت عند التمرير
+                    window.addEventListener('scroll', function() {
+                        const h = document.querySelector('.cc-header-panel');
+                        if (!h) return;
+                        if (window.scrollY > 20) {
+                            h.classList.add('cc-header-stuck');
+                        } else {
+                            h.classList.remove('cc-header-stuck');
+                        }
+                    }, { passive: true });
                 } catch(e) {}
                 </script>
             </div>
